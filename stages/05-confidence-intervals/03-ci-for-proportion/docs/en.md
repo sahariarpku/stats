@@ -2,9 +2,9 @@
 
 > Polls, defect rates, conversion rates: put an honest range on a percentage. Use the Wilson interval when the sample is small or the rate is extreme.
 
-**Type:** Learn
-**Tools:** Calculator. Python is optional.
-**Prerequisites:** Lessons 4.4 and 5.1
+**Type:** Learn  
+**Tools:** Calculator. Python is optional.  
+**Prerequisites:** Lessons 4.4 and 5.1  
 **Time:** ~40 minutes
 
 ## What you will be able to do

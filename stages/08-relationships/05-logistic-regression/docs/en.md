@@ -2,9 +2,9 @@
 
 > When the outcome is a yes/no, a straight line breaks. Logistic regression bends it into an S-curve that always stays between 0 and 1 and answers "what is the probability?"
 
-**Type:** Learn
-**Tools:** A computer. The script solves the fit; you read the output by hand.
-**Prerequisites:** Lessons 2.1 (probability) and 8.2 to 8.4 (regression)
+**Type:** Learn  
+**Tools:** A computer. The script solves the fit; you read the output by hand.  
+**Prerequisites:** Lessons 2.1 (probability) and 8.2 to 8.4 (regression)  
 **Time:** ~55 minutes
 
 ## What you will be able to do

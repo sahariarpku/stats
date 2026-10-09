@@ -2,9 +2,9 @@
 
 > A z-score says how many standard deviations a value sits from the mean. It is a common yardstick for anything.
 
-**Type:** Learn
-**Tools:** Pen and paper (a calculator helps). Python is optional.
-**Prerequisites:** Lessons 1.1 to 1.4
+**Type:** Learn  
+**Tools:** Pen and paper (a calculator helps). Python is optional.  
+**Prerequisites:** Lessons 1.1 to 1.4  
 **Time:** ~30 minutes
 
 ## What you will be able to do

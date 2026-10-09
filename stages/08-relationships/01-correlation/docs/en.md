@@ -2,9 +2,9 @@
 
 > Correlation puts "when one goes up, does the other go up too?" on a scale from −1 to +1. It describes a pattern. It never explains one.
 
-**Type:** Learn
-**Tools:** Calculator and the [Spearman table (PDF)](../../../../reference/tables/spearman-correlation-table-two-tailed.pdf). Python is optional.
-**Prerequisites:** Lessons 1.3 (standard deviation), 1.5 (z-scores), 6.5 (t-test) and 7.3 (ranks)
+**Type:** Learn  
+**Tools:** Calculator and the [Spearman table (PDF)](../../../../reference/tables/spearman-correlation-table-two-tailed.pdf). Python is optional.  
+**Prerequisites:** Lessons 1.3 (standard deviation), 1.5 (z-scores), 6.5 (t-test) and 7.3 (ranks)  
 **Time:** ~55 minutes
 
 ## What you will be able to do

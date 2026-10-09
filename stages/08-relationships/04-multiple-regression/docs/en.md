@@ -2,9 +2,9 @@
 
 > Real outcomes have more than one cause. Multiple regression puts several predictors in one model and tells you what each adds *after the others are accounted for*.
 
-**Type:** Learn
-**Tools:** A computer (the matrix arithmetic is tedious by hand). The script does it for you.
-**Prerequisites:** Lessons 8.2 and 8.3
+**Type:** Learn  
+**Tools:** A computer (the matrix arithmetic is tedious by hand). The script does it for you.  
+**Prerequisites:** Lessons 8.2 and 8.3  
 **Time:** ~55 minutes
 
 ## What you will be able to do

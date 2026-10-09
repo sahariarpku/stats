@@ -2,9 +2,9 @@
 
 > Average enough values, from almost any population, and the averages form a bell curve.
 
-**Type:** Learn
-**Tools:** Calculator and z-table. Python is optional.
-**Prerequisites:** Lessons 3.4, 4.1 and 4.2
+**Type:** Learn  
+**Tools:** Calculator and z-table. Python is optional.  
+**Prerequisites:** Lessons 3.4, 4.1 and 4.2  
 **Time:** ~35 minutes
 
 ## What you will be able to do

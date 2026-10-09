@@ -2,9 +2,9 @@
 
 > Do two separate groups differ on average? Use Welch's version unless you have a strong reason not to.
 
-**Type:** Learn
-**Tools:** Calculator and the [t-table](../../../../reference/t-table.md). Python is optional.
-**Prerequisites:** Lesson 6.5
+**Type:** Learn  
+**Tools:** Calculator and the [t-table](../../../../reference/t-table.md). Python is optional.  
+**Prerequisites:** Lesson 6.5  
 **Time:** ~45 minutes
 
 ## What you will be able to do

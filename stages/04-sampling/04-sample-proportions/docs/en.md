@@ -2,9 +2,9 @@
 
 > Polls, defect rates and click-through rates are all proportions. They follow the same sampling logic as means.
 
-**Type:** Learn
-**Tools:** Calculator. Python is optional.
-**Prerequisites:** Lessons 3.2, 4.1 and 4.2
+**Type:** Learn  
+**Tools:** Calculator. Python is optional.  
+**Prerequisites:** Lessons 3.2, 4.1 and 4.2  
 **Time:** ~35 minutes
 
 ## What you will be able to do

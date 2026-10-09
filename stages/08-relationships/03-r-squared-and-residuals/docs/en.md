@@ -2,9 +2,9 @@
 
 > A line is easy to draw and easy to trust too much. R² says how much the line explains. The residuals tell you whether the line is the right kind of model at all.
 
-**Type:** Learn
-**Tools:** Calculator and graph paper (or the animation). Python is optional.
-**Prerequisites:** Lessons 8.1 and 8.2
+**Type:** Learn  
+**Tools:** Calculator and graph paper (or the animation). Python is optional.  
+**Prerequisites:** Lessons 8.1 and 8.2  
 **Time:** ~50 minutes
 
 ## What you will be able to do

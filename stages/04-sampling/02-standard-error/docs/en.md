@@ -2,9 +2,9 @@
 
 > Standard deviation describes how spread out the data are. Standard error describes how precisely you know the mean.
 
-**Type:** Learn
-**Tools:** Calculator. Python is optional.
-**Prerequisites:** Lessons 1.3 and 4.1
+**Type:** Learn  
+**Tools:** Calculator. Python is optional.  
+**Prerequisites:** Lessons 1.3 and 4.1  
 **Time:** ~30 minutes
 
 ## What you will be able to do

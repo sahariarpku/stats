@@ -2,9 +2,9 @@
 
 > The best statistics cannot rescue a badly designed study. Randomisation is the one tool that lets you say "this *caused* that".
 
-**Type:** Learn
-**Tools:** Pencil. A simulation script, optional.
-**Prerequisites:** Lessons 0.3 (population and sample), 6.3 (errors and power) and 8.1 (correlation vs causation)
+**Type:** Learn  
+**Tools:** Pencil. A simulation script, optional.  
+**Prerequisites:** Lessons 0.3 (population and sample), 6.3 (errors and power) and 8.1 (correlation vs causation)  
 **Time:** ~50 minutes
 
 ## What you will be able to do

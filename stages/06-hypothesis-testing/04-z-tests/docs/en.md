@@ -2,9 +2,9 @@
 
 > Your first complete tests. Same six steps every time, with a different test statistic.
 
-**Type:** Learn
-**Tools:** Calculator and z-table. Python is optional.
-**Prerequisites:** Lessons 4.3, 4.4 and 6.1 to 6.3
+**Type:** Learn  
+**Tools:** Calculator and z-table. Python is optional.  
+**Prerequisites:** Lessons 4.3, 4.4 and 6.1 to 6.3  
 **Time:** ~45 minutes
 
 ## What you will be able to do

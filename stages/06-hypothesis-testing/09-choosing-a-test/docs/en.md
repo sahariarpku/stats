@@ -2,9 +2,9 @@
 
 > Four questions pick the test. Answer them in order and the test is usually obvious.
 
-**Type:** Learn
-**Tools:** Pen and paper
-**Prerequisites:** Lessons 6.1 to 6.8
+**Type:** Learn  
+**Tools:** Pen and paper  
+**Prerequisites:** Lessons 6.1 to 6.8  
 **Time:** ~30 minutes
 
 ## What you will be able to do

@@ -2,9 +2,9 @@
 
 > One sample gives one answer. The sampling distribution shows all the answers you could have gotten.
 
-**Type:** Learn
-**Tools:** Pen and paper. Python is optional.
-**Prerequisites:** Lessons 0.3, 1.3 and 3.4
+**Type:** Learn  
+**Tools:** Pen and paper. Python is optional.  
+**Prerequisites:** Lessons 0.3, 1.3 and 3.4  
 **Time:** ~35 minutes
 
 ## What you will be able to do

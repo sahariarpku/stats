@@ -2,9 +2,9 @@
 
 > A positive test is evidence, not proof. How much evidence depends on how common the thing was to begin with.
 
-**Type:** Learn
-**Tools:** Pen and paper. Python is optional.
-**Prerequisites:** Lesson 2.4
+**Type:** Learn  
+**Tools:** Pen and paper. Python is optional.  
+**Prerequisites:** Lesson 2.4  
 **Time:** ~40 minutes
 
 ## What you will be able to do

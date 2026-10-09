@@ -2,9 +2,9 @@
 
 > When each "before" has its own "after", test the differences. Pairing removes the noise between people.
 
-**Type:** Learn
-**Tools:** Calculator and the [t-table](../../../../reference/t-table.md). Python is optional.
-**Prerequisites:** Lessons 6.5 and 6.6
+**Type:** Learn  
+**Tools:** Calculator and the [t-table](../../../../reference/t-table.md). Python is optional.  
+**Prerequisites:** Lessons 6.5 and 6.6  
 **Time:** ~35 minutes
 
 ## What you will be able to do

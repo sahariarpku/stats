@@ -2,9 +2,9 @@
 
 > When your data are counts in categories, compare what you *observed* with what you would *expect* if nothing were going on.
 
-**Type:** Learn
-**Tools:** Calculator and the [chi-square table (PDF)](../../../../reference/tables/chi-square-table-standard.pdf). Python is optional.
-**Prerequisites:** Lessons 2.4, 3.2 and 6.1 to 6.2
+**Type:** Learn  
+**Tools:** Calculator and the [chi-square table (PDF)](../../../../reference/tables/chi-square-table-standard.pdf). Python is optional.  
+**Prerequisites:** Lessons 2.4, 3.2 and 6.1 to 6.2  
 **Time:** ~50 minutes
 
 ## What you will be able to do

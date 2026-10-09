@@ -2,9 +2,9 @@
 
 > The bell curve: two numbers (mean and SD) describe it completely, and areas under it are probabilities.
 
-**Type:** Learn
-**Tools:** Calculator, and the [z-table PDF](../../../../reference/tables/normal-distribution-z-table.pdf). Python is optional.
-**Prerequisites:** Lessons 1.5 and 3.1
+**Type:** Learn  
+**Tools:** Calculator, and the [z-table PDF](../../../../reference/tables/normal-distribution-z-table.pdf). Python is optional.  
+**Prerequisites:** Lessons 1.5 and 3.1  
 **Time:** ~45 minutes
 
 ## What you will be able to do

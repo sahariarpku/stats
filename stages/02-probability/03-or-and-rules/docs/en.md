@@ -2,9 +2,9 @@
 
 > OR means add (then subtract the overlap). AND means multiply (then ask: does the first event change the second?).
 
-**Type:** Learn
-**Tools:** Pen and paper. Python is optional.
-**Prerequisites:** Lessons 2.1 and 2.2
+**Type:** Learn  
+**Tools:** Pen and paper. Python is optional.  
+**Prerequisites:** Lessons 2.1 and 2.2  
 **Time:** ~40 minutes
 
 ## What you will be able to do

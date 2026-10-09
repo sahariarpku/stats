@@ -2,9 +2,9 @@
 
 > A random variable turns an outcome into a number. A distribution says how likely each number is.
 
-**Type:** Learn
-**Tools:** Pen and paper. Python is optional.
-**Prerequisites:** Stage 2
+**Type:** Learn  
+**Tools:** Pen and paper. Python is optional.  
+**Prerequisites:** Stage 2  
 **Time:** ~40 minutes
 
 ## What you will be able to do

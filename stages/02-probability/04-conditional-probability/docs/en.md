@@ -2,9 +2,9 @@
 
 > "Given that" shrinks the world. Probability is then measured inside the smaller world.
 
-**Type:** Learn
-**Tools:** Pen and paper. Python is optional.
-**Prerequisites:** Lessons 2.1 to 2.3
+**Type:** Learn  
+**Tools:** Pen and paper. Python is optional.  
+**Prerequisites:** Lessons 2.1 to 2.3  
 **Time:** ~40 minutes
 
 ## What you will be able to do

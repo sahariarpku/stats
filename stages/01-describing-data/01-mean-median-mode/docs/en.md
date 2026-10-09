@@ -2,9 +2,9 @@
 
 > One number to stand for many, and a way to tell when it is lying.
 
-**Type:** Learn
-**Tools:** Pen and paper. Python or Excel is optional.
-**Prerequisites:** Stage 0
+**Type:** Learn  
+**Tools:** Pen and paper. Python or Excel is optional.  
+**Prerequisites:** Stage 0  
 **Time:** ~25 minutes
 
 ## What you will be able to do

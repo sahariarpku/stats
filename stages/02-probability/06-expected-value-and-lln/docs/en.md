@@ -2,9 +2,9 @@
 
 > Expected value is what happens on average. The Law of Large Numbers says averages settle down. Neither says what happens next time.
 
-**Type:** Learn
-**Tools:** Pen and paper. Python is optional.
-**Prerequisites:** Lessons 2.1 to 2.5
+**Type:** Learn  
+**Tools:** Pen and paper. Python is optional.  
+**Prerequisites:** Lessons 2.1 to 2.5  
 **Time:** ~35 minutes
 
 ## What you will be able to do

@@ -71,6 +71,10 @@ stages/06-hypothesis-testing/05-one-sample-t-test/
 
 Each animation is one HTML file with its CSS and JavaScript shared from [`assets/`](assets/). Open it in any browser: no install, no internet needed. They work on a phone, follow your light or dark theme, and have keyboard controls. To get clickable live links on GitHub, turn on **GitHub Pages** (Settings → Pages → deploy from this branch).
 
+## Put it online (Vercel, Netlify or GitHub Pages)
+
+The repository is a static site. `index.html` at the root renders the lessons in the browser and links to the animations, so any static host works with no build step. On Vercel: **Add New → Project → import this repository**, set **Framework Preset** to *Other*, leave the build command and output directory empty, and deploy. Your link opens the course map, and every lesson and animation works from it.
+
 ## Running the code (optional)
 
 You only need Python 3. There is nothing to install.

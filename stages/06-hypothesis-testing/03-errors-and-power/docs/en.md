@@ -2,9 +2,9 @@
 
 > A test can be wrong in two ways. Power is the chance it finds a real effect.
 
-**Type:** Learn
-**Tools:** Calculator and z-table. Python is optional.
-**Prerequisites:** Lesson 6.2
+**Type:** Learn  
+**Tools:** Calculator and z-table. Python is optional.  
+**Prerequisites:** Lesson 6.2  
 **Time:** ~40 minutes
 
 ## What you will be able to do

@@ -2,9 +2,9 @@
 
 > Is the average of a group different from a stated value? The everyday test, built for when σ is unknown.
 
-**Type:** Learn
-**Tools:** Calculator and the [t-table](../../../../reference/t-table.md). Python is optional.
-**Prerequisites:** Lessons 5.2 and 6.2
+**Type:** Learn  
+**Tools:** Calculator and the [t-table](../../../../reference/t-table.md). Python is optional.  
+**Prerequisites:** Lessons 5.2 and 6.2  
 **Time:** ~40 minutes
 
 ## What you will be able to do

@@ -2,9 +2,9 @@
 
 > An honest estimate is a range, not a single number: "probably between here and here".
 
-**Type:** Learn
-**Tools:** Calculator. Python is optional.
-**Prerequisites:** Lessons 3.4, 4.2 and 4.3
+**Type:** Learn  
+**Tools:** Calculator. Python is optional.  
+**Prerequisites:** Lessons 3.4, 4.2 and 4.3  
 **Time:** ~40 minutes
 
 ## What you will be able to do

@@ -2,9 +2,9 @@
 
 > Replace each value with its rank (1st smallest, 2nd smallest, ...) and test the ranks. Outliers and odd shapes lose their power to fool you.
 
-**Type:** Learn
-**Tools:** Pencil and paper. The [Mann–Whitney table](../../../../reference/tables/mann-whitney-u-table-alpha-05.pdf) and [Wilcoxon table](../../../../reference/tables/wilcoxon-signed-rank-table-two-tailed.pdf) for small samples. Python is optional.
-**Prerequisites:** Lessons 6.5 to 6.7 and 7.2
+**Type:** Learn  
+**Tools:** Pencil and paper. The [Mann–Whitney table](../../../../reference/tables/mann-whitney-u-table-alpha-05.pdf) and [Wilcoxon table](../../../../reference/tables/wilcoxon-signed-rank-table-two-tailed.pdf) for small samples. Python is optional.  
+**Prerequisites:** Lessons 6.5 to 6.7 and 7.2  
 **Time:** ~55 minutes
 
 ## What you will be able to do

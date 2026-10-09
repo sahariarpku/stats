@@ -2,9 +2,9 @@
 
 > Assume nothing special is going on. Then ask: how surprising is my data under that assumption?
 
-**Type:** Learn
-**Tools:** Pen and paper. Python is optional.
-**Prerequisites:** Stages 2 to 5
+**Type:** Learn  
+**Tools:** Pen and paper. Python is optional.  
+**Prerequisites:** Stages 2 to 5  
 **Time:** ~40 minutes
 
 ## What you will be able to do

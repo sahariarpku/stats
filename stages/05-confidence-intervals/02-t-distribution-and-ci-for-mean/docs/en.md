@@ -2,9 +2,9 @@
 
 > When you must estimate σ from the data, you pay a small price: a slightly fatter curve called the t-distribution.
 
-**Type:** Learn
-**Tools:** Calculator and a t-table (below). Python is optional.
-**Prerequisites:** Lesson 5.1
+**Type:** Learn  
+**Tools:** Calculator and a t-table (below). Python is optional.  
+**Prerequisites:** Lesson 5.1  
 **Time:** ~40 minutes
 
 ## What you will be able to do

@@ -2,9 +2,9 @@
 
 > Count how many events happen in a fixed stretch of time or space, when you only know the average rate.
 
-**Type:** Learn
-**Tools:** Calculator. Python is optional.
-**Prerequisites:** Lesson 3.2
+**Type:** Learn  
+**Tools:** Calculator. Python is optional.  
+**Prerequisites:** Lesson 3.2  
 **Time:** ~35 minutes
 
 ## What you will be able to do

@@ -2,9 +2,9 @@
 
 > Regression turns "these two things are related" into a line you can use to predict, and tells you how much to trust it.
 
-**Type:** Learn
-**Tools:** Calculator. Python is optional.
-**Prerequisites:** Lessons 5.2 and 6.5 (t-based intervals and tests) and 8.1 (correlation)
+**Type:** Learn  
+**Tools:** Calculator. Python is optional.  
+**Prerequisites:** Lessons 5.2 and 6.5 (t-based intervals and tests) and 8.1 (correlation)  
 **Time:** ~55 minutes
 
 ## What you will be able to do

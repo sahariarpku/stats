@@ -2,9 +2,9 @@
 
 > You almost never measure everyone. So learn what a few can tell you about all.
 
-**Type:** Learn
-**Tools:** Pen and paper. Python is optional.
-**Prerequisites:** Lessons 0.1 and 0.2
+**Type:** Learn  
+**Tools:** Pen and paper. Python is optional.  
+**Prerequisites:** Lessons 0.1 and 0.2  
 **Time:** ~25 minutes
 
 ## What you will be able to do

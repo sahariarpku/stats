@@ -2,9 +2,9 @@
 
 > The centre tells you where the data sit. The spread tells you how much to trust that.
 
-**Type:** Learn
-**Tools:** Pen and paper. Python is optional.
-**Prerequisites:** Lesson 1.1
+**Type:** Learn  
+**Tools:** Pen and paper. Python is optional.  
+**Prerequisites:** Lesson 1.1  
 **Time:** ~35 minutes
 
 ## What you will be able to do

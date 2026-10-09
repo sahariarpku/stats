@@ -2,9 +2,9 @@
 
 > Both camps use probability to reason from data. They disagree on what it is a probability *of*. Seeing the same problem solved both ways clears up most of the confusion.
 
-**Type:** Learn
-**Tools:** Calculator, and the animation. Python is optional.
-**Prerequisites:** Lessons 2.5 (Bayes' theorem), 5.3 (intervals for proportions) and 6.2 to 6.4 (p-values and z-tests)
+**Type:** Learn  
+**Tools:** Calculator, and the animation. Python is optional.  
+**Prerequisites:** Lessons 2.5 (Bayes' theorem), 5.3 (intervals for proportions) and 6.2 to 6.4 (p-values and z-tests)  
 **Time:** ~55 minutes
 
 ## What you will be able to do

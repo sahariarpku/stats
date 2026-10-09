@@ -2,9 +2,9 @@
 
 > The p-value measures surprise under the null hypothesis. The significance level α is how much surprise you demand before you reject.
 
-**Type:** Learn
-**Tools:** Calculator, z-table, t-table. Python is optional.
-**Prerequisites:** Lessons 3.4, 5.2 and 6.1
+**Type:** Learn  
+**Tools:** Calculator, z-table, t-table. Python is optional.  
+**Prerequisites:** Lessons 3.4, 5.2 and 6.1  
 **Time:** ~45 minutes
 
 ## What you will be able to do

@@ -2,9 +2,9 @@
 
 > Probability is a number from 0 to 1 that says how likely something is. Counting outcomes is how you get it.
 
-**Type:** Learn
-**Tools:** Pen and paper. Python is optional.
-**Prerequisites:** Stage 1 (not strictly needed)
+**Type:** Learn  
+**Tools:** Pen and paper. Python is optional.  
+**Prerequisites:** Stage 1 (not strictly needed)  
 **Time:** ~30 minutes
 
 ## What you will be able to do

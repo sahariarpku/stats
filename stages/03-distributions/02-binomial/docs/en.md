@@ -2,9 +2,9 @@
 
 > Count the successes in a fixed number of independent yes/no trials.
 
-**Type:** Learn
-**Tools:** Calculator (with `nCr`). Python is optional.
-**Prerequisites:** Lessons 2.2, 2.3 and 3.1
+**Type:** Learn  
+**Tools:** Calculator (with `nCr`). Python is optional.  
+**Prerequisites:** Lessons 2.2, 2.3 and 3.1  
 **Time:** ~40 minutes
 
 ## What you will be able to do

@@ -2,9 +2,9 @@
 
 > When there are many trials, the binomial bar chart looks like a bell curve. Then a z-table can replace a very long sum.
 
-**Type:** Learn
-**Tools:** Calculator and the z-table. Python is optional.
-**Prerequisites:** Lessons 3.2 and 3.4
+**Type:** Learn  
+**Tools:** Calculator and the z-table. Python is optional.  
+**Prerequisites:** Lessons 3.2 and 3.4  
 **Time:** ~30 minutes
 
 ## What you will be able to do

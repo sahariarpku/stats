@@ -2,9 +2,9 @@
 
 > Every test is a machine built for certain conditions. Checking those conditions takes a few minutes, and saves you from confident wrong answers.
 
-**Type:** Learn
-**Tools:** A computer for the plots and tests. Python is optional.
-**Prerequisites:** Lessons 3.4 (normal distribution), 4.3 (central limit theorem), 6.6, 7.2 and 8.3
+**Type:** Learn  
+**Tools:** A computer for the plots and tests. Python is optional.  
+**Prerequisites:** Lessons 3.4 (normal distribution), 4.3 (central limit theorem), 6.6, 7.2 and 8.3  
 **Time:** ~50 minutes
 
 ## What you will be able to do

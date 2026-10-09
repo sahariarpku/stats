@@ -2,9 +2,9 @@
 
 > A p-value says an effect probably exists. The effect size says how big it is. You need both.
 
-**Type:** Learn
-**Tools:** Calculator. Python is optional.
-**Prerequisites:** Lessons 6.2, 6.3 and 6.6
+**Type:** Learn  
+**Tools:** Calculator. Python is optional.  
+**Prerequisites:** Lessons 6.2, 6.3 and 6.6  
 **Time:** ~35 minutes
 
 ## What you will be able to do

@@ -2,9 +2,9 @@
 
 > No formula for your statistic? Resample your own data thousands of times and look at how it varies.
 
-**Type:** Learn (bonus)
-**Tools:** Pen and paper. Python is helpful.
-**Prerequisites:** Lessons 4.1 and 4.2
+**Type:** Learn (bonus)  
+**Tools:** Pen and paper. Python is helpful.  
+**Prerequisites:** Lessons 4.1 and 4.2  
 **Time:** ~30 minutes
 
 ## What you will be able to do

@@ -2,9 +2,9 @@
 
 > Standard deviation is the typical distance from the average. Here is how to build it, one small step at a time.
 
-**Type:** Learn
-**Tools:** Pen and paper (a calculator helps). Python is optional.
-**Prerequisites:** Lessons 1.1 and 1.2
+**Type:** Learn  
+**Tools:** Pen and paper (a calculator helps). Python is optional.  
+**Prerequisites:** Lessons 1.1 and 1.2  
 **Time:** ~40 minutes
 
 ## What you will be able to do

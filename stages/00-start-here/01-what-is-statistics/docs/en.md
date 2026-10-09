@@ -2,9 +2,9 @@
 
 > Statistics turns piles of numbers into decisions you can defend.
 
-**Type:** Learn
-**Tools:** None
-**Prerequisites:** None
+**Type:** Learn  
+**Tools:** None  
+**Prerequisites:** None  
 **Time:** ~15 minutes
 
 ## What you will be able to do

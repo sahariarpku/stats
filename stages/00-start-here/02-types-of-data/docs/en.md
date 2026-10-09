@@ -2,9 +2,9 @@
 
 > The kind of data you hold decides which maths is allowed.
 
-**Type:** Learn
-**Tools:** None
-**Prerequisites:** Lesson 0.1
+**Type:** Learn  
+**Tools:** None  
+**Prerequisites:** Lesson 0.1  
 **Time:** ~25 minutes
 
 ## What you will be able to do

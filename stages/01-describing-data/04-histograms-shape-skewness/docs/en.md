@@ -2,9 +2,9 @@
 
 > Numbers summarise. A picture shows what the numbers cannot.
 
-**Type:** Learn
-**Tools:** Pen and paper. Python is optional.
-**Prerequisites:** Lessons 1.1 to 1.3
+**Type:** Learn  
+**Tools:** Pen and paper. Python is optional.  
+**Prerequisites:** Lessons 1.1 to 1.3  
 **Time:** ~35 minutes
 
 ## What you will be able to do

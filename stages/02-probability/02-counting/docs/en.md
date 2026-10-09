@@ -2,9 +2,9 @@
 
 > To find a probability you often need to count outcomes. Counting has only three tools. Learn which one to pick.
 
-**Type:** Learn
-**Tools:** Pen and paper, a calculator with a `!` and `nCr` key. Python is optional.
-**Prerequisites:** Lesson 2.1
+**Type:** Learn  
+**Tools:** Pen and paper, a calculator with a `!` and `nCr` key. Python is optional.  
+**Prerequisites:** Lesson 2.1  
 **Time:** ~35 minutes
 
 ## What you will be able to do
