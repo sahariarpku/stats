@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reading a Q-Q Plot</title>
+<link rel="stylesheet" href="../../../../assets/visuals.css">
+</head>
+<body>
+<main class="viz">
+  <div class="viz-head">
+    <div>
+      <h1>Reading a Q-Q plot</h1>
+      <p class="hint">Draw a sample from a chosen shape. The histogram shows the shape. The Q-Q plot lines up your sorted data against what a normal curve would give: points on the straight line mean "normal". Shapiro–Wilk turns the same idea into a p-value.</p>
+    </div>
+    <button id="theme" type="button">Theme: auto</button>
+  </div>
+
+  <div class="controls" id="shapes" role="group" aria-label="Distribution shape">
+    <button type="button" data-k="normal" aria-pressed="true">Normal</button>
+    <button type="button" data-k="right" aria-pressed="false">Right-skewed</button>
+    <button type="button" data-k="left" aria-pressed="false">Left-skewed</button>
+    <button type="button" data-k="heavy" aria-pressed="false">Heavy tails</button>
+    <button type="button" data-k="uniform" aria-pressed="false">Flat (uniform)</button>
+    <button type="button" data-k="bimodal" aria-pressed="false">Two humps</button>
+  </div>
+
+  <svg id="plot" viewBox="0 0 760 335" role="img" aria-label="A histogram of the sample on the left and its normal Q-Q plot on the right"></svg>
+
+  <div class="legend">
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="3" width="12" height="10" fill="var(--series-2)"/></svg>Histogram of the sample</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="var(--dot)"/></svg>Sorted data</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="6" width="14" height="3" fill="var(--series-1)"/></svg>"Perfectly normal" line</span>
+  </div>
+
+  <div class="readout" aria-live="polite">
+    <div class="card"><div class="label">Shapiro–Wilk W</div><div class="value" id="w"></div></div>
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>p-value</div><div class="value" id="p"></div></div>
+    <div class="card"><div class="label">Skewness</div><div class="value" id="sk"></div></div>
+    <div class="card"><div class="label">Sample size</div><div class="value" id="nn"></div></div>
+  </div>
+  <p class="verdict" id="verdict" aria-live="polite"></p>
+
+  <div class="controls col" id="sliders"></div>
+  <div class="controls"><button id="again" type="button">Draw a new sample</button></div>
+</main>
+
+<script src="../../../../assets/visuals.js"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+const svg = $("plot");
+const layer = Viz.el("g", {}, svg);
+let rand = Viz.rng(12345);
+const S = { kind: "normal", n: 40 };
+let data = [];
+
+const gens = {
+  normal: () => Viz.randn(rand),
+  right: () => -Math.log(1 - rand()),
+  left: () => Math.log(1 - rand()),
+  heavy: () => Viz.randn(rand) / Math.sqrt((Viz.randn(rand) ** 2 + Viz.randn(rand) ** 2) / 2),
+  uniform: () => rand(),
+  bimodal: () => Viz.randn(rand) * 0.55 + (rand() < 0.5 ? -1.5 : 1.5),
+};
+
+function shapiro(xs) {
+  const x = xs.slice().sort((a, b) => a - b), n = x.length;
+  const m = x.map((_, i) => Viz.normInv((i + 1 - 0.375) / (n + 0.25)));
+  const m2 = m.reduce((s, v) => s + v * v, 0), u = 1 / Math.sqrt(n), rm = Math.sqrt(m2);
+  const an = -2.706056 * u ** 5 + 4.434685 * u ** 4 - 2.07119 * u ** 3 - 0.147981 * u ** 2 + 0.221157 * u + m[n - 1] / rm;
+  const an1 = -3.582633 * u ** 5 + 5.682633 * u ** 4 - 1.752461 * u ** 3 - 0.293762 * u ** 2 + 0.042981 * u + m[n - 2] / rm;
+  const phi = (m2 - 2 * m[n - 1] ** 2 - 2 * m[n - 2] ** 2) / (1 - 2 * an ** 2 - 2 * an1 ** 2);
+  const a = new Array(n).fill(0);
+  for (let i = 2; i < n - 2; i++) a[i] = m[i] / Math.sqrt(phi);
+  a[n - 1] = an; a[n - 2] = an1; a[0] = -an; a[1] = -an1;
+  const mean = Viz.mean(x);
+  const ss = x.reduce((s, v) => s + (v - mean) ** 2, 0);
+  const w = a.reduce((s, ai, i) => s + ai * x[i], 0) ** 2 / ss;
+  const ln = Math.log(n);
+  const mu = 0.0038915 * ln ** 3 - 0.083751 * ln ** 2 - 0.31082 * ln - 1.5861;
+  const sg = Math.exp(0.0030302 * ln ** 2 - 0.082676 * ln - 0.4803);
+  return { w, p: 1 - Viz.normCdf((Math.log(1 - w) - mu) / sg), q: m };
+}
+function skew(x) {
+  const n = x.length, m = Viz.mean(x), s = Viz.sd(x);
+  return n / ((n - 1) * (n - 2)) * x.reduce((t, v) => t + ((v - m) / s) ** 3, 0);
+}
+
+function draw() { data = Array.from({ length: S.n }, () => gens[S.kind]()); render(); }
+
+function render() {
+  const sorted = data.slice().sort((a, b) => a - b);
+  const sw = shapiro(data);
+  layer.replaceChildren();
+  // histogram (left)
+  const lo = sorted[0], hi = sorted[sorted.length - 1];
+  const bins = Math.max(6, Math.min(16, Math.round(Math.sqrt(S.n) * 1.3)));
+  const bw = (hi - lo) / bins || 1;
+  const counts = new Array(bins).fill(0);
+  data.forEach((v) => { counts[Math.min(bins - 1, Math.floor((v - lo) / bw))]++; });
+  const top = Math.max(...counts);
+  const Xh = Viz.scale(lo, hi, 30, 345);
+  const Yh = Viz.scale(0, top * 1.1, 270, 30);
+  Viz.el("line", { class: "axis-line", x1: 30, x2: 345, y1: 270, y2: 270 }, layer);
+  counts.forEach((c, k) => { if (c) Viz.el("rect", { x: Xh(lo + k * bw) + 0.5, y: Yh(c), width: Xh(lo + bw) - Xh(lo) - 1, height: 270 - Yh(c), fill: "var(--series-2)", opacity: 0.9 }, layer); });
+  Viz.el("text", { x: 30, y: 20, class: "strong" }, layer).textContent = "Histogram";
+  // Q-Q (right)
+  const q = sw.q;
+  const qLo = -3, qHi = 3;
+  const mean = Viz.mean(data), sd = Viz.sd(data);
+  const yLo = Math.min(lo, mean + qLo * sd), yHi = Math.max(hi, mean + qHi * sd);
+  const Xq = Viz.scale(qLo, qHi, 420, 725);
+  const Yq = Viz.scale(yLo, yHi, 270, 30);
+  Viz.el("line", { class: "axis-line", x1: 420, x2: 725, y1: 270, y2: 270 }, layer);
+  Viz.el("line", { class: "axis-line", x1: 420, x2: 420, y1: 30, y2: 270 }, layer);
+  Viz.axisBottom(layer, Xq, { y: 270, from: -3, to: 3, step: 1 });
+  Viz.el("text", { x: 420, y: 20, class: "strong" }, layer).textContent = "Normal Q-Q plot";
+  Viz.el("text", { x: 725, y: 322, "text-anchor": "end", opacity: 0.85 }, layer).textContent = "what a normal sample would give";
+  Viz.el("line", { x1: Xq(qLo), x2: Xq(qHi), y1: Yq(mean + qLo * sd), y2: Yq(mean + qHi * sd), stroke: "var(--series-1)", "stroke-width": 3 }, layer);
+  sorted.forEach((v, i) => Viz.el("circle", { cx: Xq(q[i]), cy: Yq(v), r: S.n > 100 ? 3 : 5, fill: "var(--dot)", stroke: "var(--surface-1)", "stroke-width": 1.5 }, layer));
+
+  $("w").textContent = sw.w.toFixed(3);
+  $("p").textContent = sw.p < 0.0001 ? "< 0.0001" : sw.p.toFixed(3);
+  $("sk").textContent = skew(data).toFixed(2);
+  $("nn").textContent = S.n;
+  const notes = {
+    normal: "Points hug the line and the p-value is usually large. (Even for truly normal data, about 1 sample in 20 gets p < 0.05 by chance.)",
+    right: "A right-skewed sample bends upward at the right end of the Q-Q plot: the biggest values are bigger than a normal sample would give.",
+    left: "Left skew bends the Q-Q plot down at the left end: the smallest values are too small.",
+    heavy: "Heavy tails make an S: both ends curve away from the line, because extreme values appear more often than in a normal sample. A few wild points can also stretch the whole picture.",
+    uniform: "A flat shape has light tails: the Q-Q plot makes a backwards S, flatter at both ends.",
+    bimodal: "Two humps give a step in the middle of the Q-Q plot. A single mean would describe nobody well.",
+  };
+  const big = S.n >= 150;
+  $("verdict").textContent = notes[S.kind] + (big ? " With a large sample the test can flag even tiny departures, so lean on the plot and the sample size, not the p-value alone." : (S.n < 20 ? " With so few points, the test has little power to see anything. The plot is your main evidence." : ""));
+}
+
+document.querySelectorAll("#shapes button").forEach((b) => b.addEventListener("click", () => {
+  S.kind = b.dataset.k;
+  document.querySelectorAll("#shapes button").forEach((o) => o.setAttribute("aria-pressed", o === b));
+  draw();
+}));
+Viz.slider($("sliders"), { label: "Sample size", min: 12, max: 300, step: 1, value: S.n, format: (v) => v, onInput: (v) => { S.n = v; draw(); } });
+$("again").addEventListener("click", draw);
+Viz.themeToggle($("theme"));
+draw();
+</script>
+</body>
+</html>

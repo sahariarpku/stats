@@ -1,0 +1,60 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "On a normal Q-Q plot, what do points lying close to the straight line indicate?",
+      "options": ["The data are skewed", "The data are approximately normal", "The data contain outliers", "The variance is unequal"],
+      "correct": 1,
+      "explanation": "Points on the line mean the sorted data match what a normal distribution would give, so the data are approximately normal."
+    },
+    {
+      "stage": "pre",
+      "question": "The Shapiro–Wilk test has H₀: the data are normal. A p-value of 0.0004 means...",
+      "options": ["Strong evidence the data are normal", "Strong evidence the data are not normal", "The sample is too small", "The variances are equal"],
+      "correct": 1,
+      "explanation": "A small p-value is evidence against H₀, so against normality."
+    },
+    {
+      "stage": "post",
+      "question": "Response times have mean 5.9 s and median 2.95 s, skewness 2.6. What shape is this?",
+      "options": ["Symmetric", "Right-skewed", "Left-skewed", "Bimodal"],
+      "correct": 1,
+      "explanation": "A mean well above the median and a large positive skewness point to a long right tail."
+    },
+    {
+      "stage": "post",
+      "question": "Which transformation is most often helpful for right-skewed positive data?",
+      "options": ["Squaring", "Taking the logarithm", "Adding 1", "Ranking only"],
+      "correct": 1,
+      "explanation": "The log pulls in the long right tail. For the response times it cut the skewness from 2.6 to about 1 and made Shapiro–Wilk non-significant."
+    },
+    {
+      "stage": "post",
+      "question": "Why should a non-significant Shapiro–Wilk test on only 8 values not reassure you much?",
+      "options": ["The test is always wrong", "With so few points the test has very little power to detect non-normality", "8 values must be normal", "p-values are invalid below 10"],
+      "correct": 1,
+      "explanation": "Small samples rarely give p < 0.05, even for clearly skewed data. A high p-value there is weak evidence, so check the plot as well."
+    },
+    {
+      "stage": "post",
+      "question": "With n = 1,000 Shapiro–Wilk gives p = 0.001 but the Q-Q plot is almost a straight line. What is the best response?",
+      "options": ["Abandon the analysis", "Recognise the test is flagging a tiny departure; the mean-based test is still reliable at this size", "Remove 100 points", "Use a sample of 10 instead"],
+      "correct": 1,
+      "explanation": "Large samples make normality tests over-sensitive. The central limit theorem makes the mean's distribution close to normal, so a mild departure is harmless."
+    },
+    {
+      "stage": "post",
+      "question": "Two groups have SDs of 3 and 10. What is a sensible choice?",
+      "options": ["Pooled-variance t-test", "Welch's t-test, which does not assume equal variances", "Paired t-test", "No test is possible"],
+      "correct": 1,
+      "explanation": "The SD ratio is about 3.3, well above 2. Welch's test is designed for unequal variances."
+    },
+    {
+      "stage": "post",
+      "question": "In linear regression, normality is assumed for...",
+      "options": ["The predictor x", "The outcome y overall", "The residuals", "The slope only"],
+      "correct": 2,
+      "explanation": "Regression inference assumes roughly normal residuals with equal spread. The raw y or x need not be normal on their own."
+    }
+  ]
+}

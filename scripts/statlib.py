@@ -134,6 +134,31 @@ def t_two_sided_p(t, df):
     return 2 * (1 - t_cdf(abs(t), df))
 
 
+def shapiro_wilk(x):
+    """Shapiro-Wilk W and p-value (Royston 1995 approximation, valid for 12 <= n <= 5000)."""
+    x = sorted(x)
+    n = len(x)
+    if n < 12:
+        raise ValueError("this implementation covers n >= 12; use tables or SciPy for smaller samples")
+    m = [norm_ppf((i - 0.375) / (n + 0.25)) for i in range(1, n + 1)]
+    m2 = sum(v * v for v in m)
+    u = 1 / sqrt(n)
+    rm = sqrt(m2)
+    an = -2.706056 * u**5 + 4.434685 * u**4 - 2.071190 * u**3 - 0.147981 * u**2 + 0.221157 * u + m[-1] / rm
+    an1 = -3.582633 * u**5 + 5.682633 * u**4 - 1.752461 * u**3 - 0.293762 * u**2 + 0.042981 * u + m[-2] / rm
+    phi = (m2 - 2 * m[-1] ** 2 - 2 * m[-2] ** 2) / (1 - 2 * an**2 - 2 * an1**2)
+    a = [0.0] * n
+    for i in range(2, n - 2):
+        a[i] = m[i] / sqrt(phi)
+    a[-1], a[-2], a[0], a[1] = an, an1, -an, -an1
+    mean = sum(x) / n
+    w = sum(ai * xi for ai, xi in zip(a, x)) ** 2 / sum((v - mean) ** 2 for v in x)
+    ln = log(n)
+    mu = 0.0038915 * ln**3 - 0.083751 * ln**2 - 0.31082 * ln - 1.5861
+    sigma = exp(0.0030302 * ln**2 - 0.082676 * ln - 0.4803)
+    return w, 1 - norm_cdf((log(1 - w) - mu) / sigma)
+
+
 def _selftest():
     checks = [
         ("norm_ppf(.975)", norm_ppf(0.975), 1.959964),
@@ -149,6 +174,9 @@ def _selftest():
         ("f_ppf(.95, 2, 10)", f_ppf(0.95, 2, 10), 4.102821),
         ("f_ppf(.95, 5, 20)", f_ppf(0.95, 5, 20), 2.710890),
     ]
+    # Shapiro-Wilk against SciPy's result for one skewed sample (W = 0.739687, p = 0.000983)
+    w, p = shapiro_wilk([2.1, 2.5, 2.8, 3.0, 3.1, 3.3, 3.4, 3.8, 4.0, 4.2, 4.9, 5.5, 7.9, 12.4])
+    checks += [("shapiro W", w, 0.739687), ("shapiro p", p, 0.000983)]
     worst = 0.0
     for name, got, want in checks:
         worst = max(worst, abs(got - want))
