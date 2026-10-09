@@ -803,7 +803,7 @@
         },
       },
       {
-        say: `Why Welch? A small noisy group (10 people, SD 12) meets a big tight one (40 people, SD 4). The **pooled variance** blends them into one SD of ${N(Math.sqrt(sp2), 1)} and trusts the noisy group too much: p = ${N(pPool, 3)}. Welch keeps them apart: p = ${N(pW, 2)}. With no real difference, pooled cries wolf 26% of the time.`,
+        say: `Why Welch? A small noisy group (10 people, SD 12) meets a big tight one (40 people, SD 4). The **pooled variance** blends them into one SD of ${N(Math.sqrt(sp2), 1)}, underplaying the noisy group and shrinking the SE: p = ${N(pPool, 3)}. Welch keeps them apart: p = ${N(pW, 2)}. With no real difference, pooled cries wolf 26% of the time.`,
         run: async () => {
           S.clear();
           const gx = K.line({ min: 20, max: 85, x1: 200, x2: 760, y: 232, ticks: [20, 30, 40, 50, 60, 70, 80], hide: true });
@@ -902,7 +902,7 @@
           S.root.insertBefore(band, S.root.firstChild);
           const zero = S.marker(dx.x(0), 300, 390, "0 = no change", { color: "ink", dash: "7 5", size: 18, hide: true });
           const dm = S.marker(dx.x(dbar), 300, 390, `d̄ = ${N(dbar, 3)}`, { color: "green", size: 19, hide: true });
-          const sdl = S.text(dx.x(dbar + sdd) + 8, 362, `s_d = ${N(sdd, 2)}`, { size: 18, weight: 750, color: "green", anchor: "start", hide: true });
+          const sdl = S.text(dx.x(dbar + sdd) + 8, 362, `s_d = ${N(sdd, 3)}`, { size: 18, weight: 750, color: "green", anchor: "start", hide: true });
           await A.fadeIn([band, zero, dm, sdl], { stagger: 150 });
           const p1 = S.pill(400, 110, `SE = ${N(sdd, 3)} ÷ √8 = ${N(se, 3)}`, { size: 22, color: "purple", hide: true });
           const p2 = S.pill(400, 185, `t = ${N(dbar, 3)} ÷ ${N(se, 3)} = ${N(t, 2)} · df = ${df} · p = ${N(p, 4)}`, { size: 22, color: "green", hide: true });

@@ -1,0 +1,254 @@
+{
+  "Observational study": {
+    "explain": "In an observational study researchers watch and record what happens without assigning any treatment: people choose for themselves, or the exposure simply happens to them. Such studies can show that two things are associated, but not that one causes the other, because the groups may differ in other ways (confounders). They are essential when an experiment would be impossible or unethical, such as studying smoking. Cross-sectional, case-control and cohort studies are all observational.",
+    "example": "A hospital compares patients who chose a new treatment with patients who did not. In the lesson's simulation the treatment truly adds +5 points to recovery, but because sicker patients chose it, the comparison estimates −1.4.",
+    "joke": [
+      "What did the observational study say at the crime scene?",
+      "I saw everything, but I can't prove who did it."
+    ],
+    "walk": "randomisation"
+  },
+  "Experiment / RCT": {
+    "explain": "In an experiment the researchers decide who gets which treatment. In a randomised controlled trial (RCT) that decision is made by chance, and a control group gets a placebo or the standard treatment for comparison. Randomisation makes the groups alike on average in every way, measured or not, so a difference in outcomes can be credited to the treatment. Good RCTs also fix their outcome in advance, use blinding and analyse by intention to treat.",
+    "example": "In the lesson's simulation of 2,000 studies with 200 patients each, letting patients choose gave an average estimate of −1.40, while coin-flip assignment gave +4.99, right on the true effect of +5.",
+    "joke": [
+      "What is a randomised controlled trial's favourite game?",
+      "Heads you get the pill, tails you get the placebo."
+    ],
+    "walk": "randomisation"
+  },
+  "Confounder": {
+    "explain": "A confounder is a hidden third variable that is linked to both the 'treatment' (or the first variable) and the outcome, so it can create, hide or even reverse an apparent effect. Ice cream sales and drownings both rise in hot weather; the heat is the confounder. In observational data you can adjust for confounders you measured, but never for ones you did not. Randomisation is the only way to balance confounders you cannot see.",
+    "example": "Kidney stones: treatment A was given 263 large-stone cases out of 350, B only 80. Large stones are harder to treat, so stone size made A look worse overall (78.0% success against 82.6%) even though A did better for both small and large stones.",
+    "joke": [
+      "Why was the confounder thrown out of the study?",
+      "It kept meddling in everyone else's relationships."
+    ],
+    "walk": "confounding"
+  },
+  "Simpson's paradox": {
+    "explain": "Simpson's paradox happens when a trend that appears in every subgroup reverses once the subgroups are combined. It is caused by a confounder that changes the mix: one group ends up with far more of the hard (or easy) cases. The combined numbers are not wrong, but they answer an unfair comparison. The cure is to compare like with like within the subgroups, and to ask what else differs between the groups.",
+    "example": "Kidney stones: treatment A succeeded for 93.1% of small stones (B: 86.7%) and 73.0% of large stones (B: 68.8%), yet overall B wins, 82.6% to 78.0%, because 263 of A's 350 patients had large stones against only 80 of B's.",
+    "joke": [
+      "What do you call two doctors arguing over whether treatment A or B is better?",
+      "A paradox. (A pair of docs.)"
+    ],
+    "walk": "simpsons-paradox"
+  },
+  "Randomisation": {
+    "explain": "Randomisation means using chance, such as a coin flip or a computer, to decide who gets which treatment. Because chance cannot see who is sicker, richer or more motivated, those differences end up spread across the groups about equally, on average, including ones nobody measured. That leaves the treatment as the only systematic difference, which is what lets an experiment show cause and effect. It does not make the groups identical; it makes the comparison fair.",
+    "example": "Twenty patients, ten of them much sicker. When the patients chose, 8 of the 10 sicker ones took the treatment. When a coin decided, the sicker patients split 5 and 5 between the treatment and control groups.",
+    "joke": [
+      "Why did the coin get a job in medical research?",
+      "It's completely unbiased and never takes sides."
+    ],
+    "walk": "randomisation"
+  },
+  "Control group": {
+    "explain": "A control group is the comparison group in a study: it gets no treatment, a placebo or the usual treatment, while the other group gets the new one. It shows what would have happened anyway, through natural recovery, the placebo effect or simply time passing. Without it you cannot tell whether an improvement came from the treatment. In a good trial the control group is formed by randomisation, so it starts out just like the treatment group.",
+    "example": "If 60% of patients feel better after a new pill, that sounds impressive. But if 55% of a placebo control group also feel better, the pill's real benefit is only about 5 percentage points.",
+    "joke": [
+      "Why does every good trial need a control group?",
+      "Without one, things get out of control."
+    ],
+    "walk": "randomisation"
+  },
+  "Blinding": {
+    "explain": "Blinding means hiding who got which treatment. In a single-blind study the participants do not know; in a double-blind study the staff measuring the outcome do not know either. This stops expectations from changing the results: patients who know they got the real drug may feel better, and a doctor who knows may rate improvement more kindly. A placebo that looks identical to the real treatment is what makes blinding possible.",
+    "example": "In a double-blind pain trial every patient gets a numbered bottle of identical-looking pills. Neither the patient nor the nurse scoring their pain knows whether bottle 17 holds the real drug or the placebo until the study ends.",
+    "joke": [
+      "Why did the double-blind trial go so smoothly?",
+      "Nobody saw the results coming."
+    ],
+    "walk": "randomisation"
+  },
+  "Placebo": {
+    "explain": "A placebo is a fake treatment that looks and feels like the real one, such as a sugar pill or a saltwater injection. Believing you are being treated can make people feel better, or even get better (the placebo effect), so a placebo group shows how much improvement comes from belief alone. A real treatment has to beat the placebo, not just beat doing nothing. Placebos are also what make blinding possible.",
+    "example": "In a headache trial, 40% of the placebo group report relief within an hour and 65% of the drug group do. The drug's real effect is the 25-point gap, not the full 65%.",
+    "joke": [
+      "Why was the sugar pill so confident?",
+      "Everyone believed in it."
+    ],
+    "walk": "randomisation"
+  },
+  "Intention to treat": {
+    "explain": "Intention to treat (ITT) means analysing every participant in the group they were randomised to, even if they dropped out, switched treatments or never took a single pill. It sounds odd, but it protects the fairness that randomisation created: people who drop out are often different (sicker, or troubled by side effects), so removing them can bias the comparison. ITT answers the practical question 'what happens if we offer this treatment?'",
+    "example": "100 patients are randomised to a new drug and 20 stop taking it because of side effects. Under intention to treat, all 100 stay in the drug group's results, not just the 80 who finished.",
+    "joke": [
+      "Why does intention to treat still count the patients who quit?",
+      "It's the thought that counts."
+    ],
+    "walk": "randomisation"
+  },
+  "Selection bias": {
+    "explain": "Selection bias happens when the people in a sample, or in the groups being compared, differ systematically from the start. It can come from who volunteers, who replies, who survives to be counted or, in a study, who chooses which treatment. Unlike random error it does not shrink with a bigger sample; more of a biased sample just gives a more confident wrong answer. Random sampling and random assignment are the main defences.",
+    "example": "When patients choose their treatment and the sicker ones pick the new one, the treated group starts 1.06 SD sicker. In the lesson's simulation that turns a true benefit of +5 points into an estimate of −1.40, and doubling the sample size would not fix it.",
+    "joke": [
+      "Why did the online poll find that everybody uses the internet?",
+      "It only asked people who were online."
+    ],
+    "walk": "randomisation"
+  },
+  "Assumption": {
+    "explain": "An assumption is a condition that must be roughly true for a test's p-value and intervals to be trusted. For t-tests and ANOVA the usual ones are independent observations, roughly normal values in each group and similar spreads; regression adds a straight-line relationship. Independence comes from how the data were collected, so no plot can prove it. The others you can check with plots and tests, and if they fail you can transform the data or switch method.",
+    "example": "A one-sample t-test on 20 exam scores is fine: the Q-Q plot is straight and Shapiro–Wilk gives p = 0.9998. For 20 response times with a long right tail (skewness 2.60, Shapiro–Wilk p < 0.0001) the normality assumption fails, so log the times or use a rank test.",
+    "joke": [
+      "Why do statistical tests check their assumptions first?",
+      "So the p-value doesn't jump to conclusions."
+    ],
+    "walk": "qq-plot"
+  },
+  "Q-Q plot": {
+    "explain": "A Q-Q (quantile-quantile) plot checks whether data look like they came from a normal curve. Sort the data, then plot each value against the value a perfect normal sample of the same size would have in that position (its normal quantile). If the points lie close to a straight line, the data look normal. Bends show how the shape departs: curving up at the right end means right skew, an S-shape with both ends flying away means heavy tails, and a step suggests two groups.",
+    "example": "Twenty exam scores give a Q-Q plot whose points hug the line (correlation 0.997). Twenty response times curve sharply upward at the right end, driven by the slow 18.7 s and 31.2 s, and the correlation falls to 0.79.",
+    "joke": [
+      "Why did the data stand in a perfectly straight line on the Q-Q plot?",
+      "It wanted to prove it was completely normal."
+    ],
+    "walk": "qq-plot"
+  },
+  "Shapiro–Wilk": {
+    "explain": "The Shapiro–Wilk test checks the null hypothesis that the data come from a normal distribution. Its statistic W is close to 1 for normal-looking data and gets smaller as the data depart from normal; a small p-value is evidence of non-normality. Treat it as a helper, not a judge: with small samples it often misses real problems, and with very large samples it flags tiny, harmless departures. Always look at the Q-Q plot and think about the sample size as well.",
+    "example": "Exam scores: W = 0.993, p = 0.9998, no evidence against normality. Response times: W = 0.641, p < 0.0001, strong evidence they are not normal. After taking the log of each time, W = 0.921 and p = 0.10.",
+    "joke": [
+      "Why was the data so nervous before its Shapiro–Wilk test?",
+      "It was worried it wasn't normal."
+    ],
+    "walk": "qq-plot"
+  },
+  "Skewness": {
+    "explain": "Skewness measures how lopsided a distribution is. Zero means symmetric; a positive value means a long tail stretching to the right (a few unusually large values), and a negative value means a long tail to the left. As a rough guide, between −0.5 and +0.5 is fairly symmetric and beyond ±1 is strongly skewed. A tail pulls the mean towards it, so in right-skewed data the mean sits above the median, and a log transformation often reduces the skew.",
+    "example": "Twenty response times have a mean of 5.91 s but a median of only 2.95 s, and a skewness of 2.60: a long right tail. After taking the log of each time, the skewness falls to 0.97.",
+    "joke": [
+      "What did the right-skewed distribution say to the mean?",
+      "Stop chasing my tail!"
+    ],
+    "walk": "skewness"
+  },
+  "Robust": {
+    "explain": "A robust method still gives sensible answers when its assumptions are only roughly true or when there are a few outliers. The median is robust to outliers and the mean is not; rank-based tests are robust to skew; and a t-test on a mean becomes robust to non-normal data as the sample grows, thanks to the central limit theorem. Robustness is a matter of degree: heavy skew in a tiny sample can still fool a t-test.",
+    "example": "On strongly skewed data, a t-test aiming for 5% false alarms really gives 11.7% with n = 5, but 6.9% with n = 30 and 5.8% with n = 100. With larger samples it is robust.",
+    "joke": [
+      "Why did the median stay calm when a billionaire walked into the café?",
+      "It's robust: one rich outlier can't budge it."
+    ],
+    "walk": "rank-tests"
+  },
+  "Transformation": {
+    "explain": "A transformation applies the same function, such as a log or a square root, to every value in a dataset. For right-skewed positive data (incomes, times, concentrations) a log pulls in the long tail and spreads out the crowded small values, making the shape more symmetric and the spreads more equal. You then run the analysis on the transformed values. Results can be translated back to the original units, for example as a geometric mean.",
+    "example": "Twenty response times have skewness 2.60 and fail Shapiro–Wilk (p < 0.0001). After taking the log of each time the skewness is 0.97 and Shapiro–Wilk gives p = 0.10. The square root helps less (p = 0.0007).",
+    "joke": [
+      "Why did the skewed data book a weekend in a log cabin?",
+      "It needed a transformation to straighten itself out."
+    ],
+    "walk": "transformations"
+  },
+  "Levene's test": {
+    "explain": "Levene's test checks whether several groups have the same spread (variance). It measures how far each value sits from its group's centre (the Brown–Forsythe version uses the median) and then runs an ANOVA on those distances. A small p-value means the spreads differ, so pooled methods are risky and Welch's t-test or Welch's ANOVA is safer. Like any test it has little power in small samples, so look at the SDs too.",
+    "example": "The three teaching groups (SDs 3.5, 3.2 and 2.2) give Levene F = 0.385, p = 0.69: no sign of unequal spreads. Three groups with SDs 15.8, 1.1 and 1.6 give F = 8.48, p = 0.005: the spreads clearly differ.",
+    "joke": [
+      "Why did the sandwich shop hire Levene's test?",
+      "To check that every slice gets an equal spread."
+    ],
+    "walk": "transformations"
+  },
+  "Homoscedasticity": {
+    "explain": "Homoscedasticity is a long word for 'equal spread': the groups being compared (or, in regression, the residuals across the range of x) have about the same variance. Pooled t-tests, standard ANOVA and ordinary regression assume it. A quick check is that the largest SD is under about twice the smallest; formally, use Levene's test, or a residual plot in regression, where a fan shape signals trouble (heteroscedasticity). When it fails, Welch's methods or a transformation help.",
+    "example": "Two groups with SDs of 4 and 9 have a ratio of 9 ÷ 4 = 2.25, above the rough limit of 2, so equal spread is doubtful and Welch's t-test is the safer choice.",
+    "joke": [
+      "Why did the fan-shaped residual plot fail its exam?",
+      "It couldn't spell homoscedasticity, and it couldn't do it either."
+    ],
+    "walk": "transformations"
+  },
+  "Geometric mean": {
+    "explain": "The geometric mean is the average on a multiplying scale: take the log of every value, average the logs, then undo the log (the exp of the mean of the logs). It suits positive, right-skewed data such as times, incomes or growth factors, because a few huge values cannot drag it up the way they drag the ordinary mean. It is never larger than the ordinary (arithmetic) mean. For growth, it gives the steady rate that would produce the same overall change.",
+    "example": "Twenty response times have an ordinary mean of 5.91 s, pulled up by a few slow answers, and a median of 2.95 s. Their geometric mean is 3.73 s, a much better 'typical' time.",
+    "joke": [
+      "Why did the geometric mean stay calm when the outlier showed up?",
+      "It just logged the problem and moved on."
+    ],
+    "walk": "transformations"
+  },
+  "Prior": {
+    "explain": "The prior is what you believe before you see the new evidence, written as probabilities. For a single event it is one number, often the base rate: how common a condition is in the group being tested. For a parameter, such as a buying rate, it is a whole probability distribution showing which values seem plausible. Bayes' rule combines the prior with the evidence to give the posterior, so good practice is to state the prior openly and check how much the answer depends on it.",
+    "example": "If 1% of people have a disease, the prior before any test is P(sick) = 0.01. An analyst who is sceptical about a new checkout page might use the prior Beta(5, 15): centred on a 25% buying rate, as if she had already watched 5 of 20 customers buy.",
+    "joke": [
+      "Why was the prior never allowed on the jury?",
+      "It already had a previous conviction."
+    ],
+    "walk": "bayesian-updating"
+  },
+  "Likelihood": {
+    "explain": "The likelihood is how probable the evidence you saw would be if a particular hypothesis, or a particular value of a parameter, were true: P(evidence | hypothesis). It is what the data say before any prior is mixed in. For a medical test, the likelihood of a positive result given sickness is the test's sensitivity; for a buying rate it is a curve over all the possible rates. It is not the probability that the hypothesis is true, and Bayes' rule multiplies it by the prior to get there.",
+    "example": "With 14 buyers out of 40 customers, a true buying rate of 35% makes these data most likely, while rates of 15% or 60% make them very unlikely, so the likelihood curve peaks at 35%.",
+    "joke": [
+      "What did the likelihood say when the checkout data came in?",
+      "In all likelihood, the rate is about 35%."
+    ],
+    "walk": "bayesian-updating"
+  },
+  "Posterior": {
+    "explain": "The posterior is your updated belief after combining the prior with the evidence: posterior ∝ prior × likelihood. For a single event it is a probability such as P(sick | positive test); for a parameter it is a whole distribution. It usually lands between what the prior said and what the data say, and the more data you have, the more the data win. When new data arrive, today's posterior becomes tomorrow's prior.",
+    "example": "A sceptical prior Beta(5, 15) plus 14 buyers out of 40 gives the posterior Beta(19, 41), with mean 19 ÷ 60 = 31.7%: between the prior's 25% and the data's 35%.",
+    "joke": [
+      "What did the prior say to the posterior?",
+      "You've changed since you met the data."
+    ],
+    "walk": "bayesian-updating"
+  },
+  "Beta distribution": {
+    "explain": "The Beta distribution describes uncertainty about a proportion or rate, so it lives between 0 and 1. It has two parameters, a and b, which you can read as 'prior successes' and 'prior failures'; its mean is a ÷ (a + b). Beta(1, 1) is flat (every rate equally plausible), and a bigger a + b makes it narrower and more confident. It is the usual prior for proportions because, after yes/no data, the posterior is again a Beta.",
+    "example": "Beta(5, 15) has mean 5 ÷ 20 = 25% and is worth about 20 observations. After 14 buyers out of 40 customers it becomes Beta(5 + 14, 15 + 26) = Beta(19, 41), with mean 31.7%.",
+    "joke": [
+      "Why does the Beta distribution never feel finished?",
+      "It's always in beta, somewhere between 0 and 1."
+    ],
+    "walk": "bayesian-updating"
+  },
+  "Credible interval": {
+    "explain": "A credible interval is the Bayesian range for a parameter: given the data and the prior, there is (say) a 95% probability that the parameter lies inside it. It comes straight from the posterior distribution, usually by cutting 2.5% of the area off each end. That direct reading is exactly what people often wrongly say about confidence intervals. With a flat prior and a decent amount of data the two kinds of interval often agree in number, even though they mean different things.",
+    "example": "With a flat prior, 14 buyers out of 40 give the posterior Beta(15, 27) and a 95% credible interval of 22.1% to 50.6%. The 95% Wilson confidence interval from the same data is 22.1% to 50.5%.",
+    "joke": [
+      "Why did the judge accept the Bayesian's range of answers?",
+      "It was a credible interval."
+    ],
+    "walk": "bayesian-updating"
+  },
+  "Confidence interval": {
+    "explain": "A confidence interval is a range of plausible values for a parameter, usually built as estimate ± margin of error. The '95%' describes the method, not this one interval: if the study were repeated many times, 95% of the intervals built this way would capture the true value. It does not mean there is a 95% probability that the truth is inside this particular interval; that reading belongs to a Bayesian credible interval. Bigger samples give narrower, more precise intervals.",
+    "example": "14 of 40 customers bought on a new checkout page. The 95% Wilson confidence interval for the true buying rate is 22.1% to 50.5%: a wide range, because 40 customers is not many.",
+    "joke": [
+      "Why did the confidence interval bring a net to the study?",
+      "It catches the true value 95% of the time."
+    ],
+    "walk": "confidence-interval"
+  },
+  "Conjugate prior": {
+    "explain": "A conjugate prior is a prior that, combined with the likelihood, gives a posterior from the same family of distributions. The Beta prior is conjugate for yes/no (binomial) data: start with Beta(a, b), see k successes in n trials, and the posterior is Beta(a + k, b + n − k). Updating becomes simple addition, with no integrals. Conjugate pairs were essential before computers and are still handy for quick, exact answers.",
+    "example": "Start flat with Beta(1, 1). After 5 buyers among the first 15 customers you have Beta(6, 11); after 9 more among the next 25 you have Beta(15, 27), exactly the same as updating once with all 14 buyers out of 40.",
+    "joke": [
+      "Why do conjugate priors make such good partners?",
+      "However much data comes along, they stay in the family."
+    ],
+    "walk": "bayesian-updating"
+  },
+  "MCMC": {
+    "explain": "MCMC (Markov chain Monte Carlo) is a way to get a posterior distribution when there is no tidy formula, which is the usual case for real models with many parameters. A program takes a random walk through the possible parameter values, spending more time where the posterior is high. After many steps the visited values form a sample from the posterior, and you read means, intervals and probabilities off that sample. Tools such as Stan and PyMC run advanced versions of the idea.",
+    "example": "A 15-line Metropolis sampler aimed at the Beta(15, 27) posterior took 58,000 draws and found a mean of 35.7%, a 95% interval of 22.2% to 50.5% and P(rate > 25%) = 93.5%, all within a fraction of a point of the exact answers (35.7%, 22.1% to 50.6% and 93.3%).",
+    "joke": [
+      "Why is the MCMC sampler so relaxed about its past?",
+      "It's a Markov chain: only where it is right now matters."
+    ],
+    "walk": "bayesian-updating"
+  },
+  "Sensitivity analysis": {
+    "explain": "A sensitivity analysis checks how much a conclusion changes when you change a reasonable choice you made, such as the prior, how outliers are handled or the exact model. In Bayesian work you rerun the analysis with several sensible priors. If the answer barely moves, it is trustworthy; if it swings a lot, say so, and collect more data if you can. It is a habit of honesty rather than a single formula.",
+    "example": "With 14 buyers out of 40, the probability that the new page beats 25% is 93.3% with a flat prior, 86.9% with a sceptical prior and 98.8% with an optimistic one. With 140 buyers out of 400, all three priors give more than 99.9%.",
+    "joke": [
+      "Why did the Bayesian rerun her analysis with three different priors?",
+      "She's very sensitive about her conclusions."
+    ],
+    "walk": "bayesian-updating"
+  }
+}

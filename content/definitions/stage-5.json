@@ -1,0 +1,128 @@
+{
+  "Confidence interval": {
+    "explain": "A confidence interval is a range of plausible values for something you cannot measure directly, like the true average of a whole population. It is built as estimate ± margin of error, by a method that captures the true value a stated percentage of the time, often 95%. Wider intervals mean more uncertainty; narrower ones come from bigger samples or less noisy data. It is a range for the population value, not a range that holds 95% of the individual data points.",
+    "example": "A sample of 40 students averages 78.5 on an exam with known σ = 12. The 95% interval is 78.5 ± 1.96 × 12 ÷ √40 = 78.5 ± 3.72, so we are 95% confident the true mean score is between 74.78 and 82.22.",
+    "joke": [
+      "Why did the statistician go fishing with a net instead of a spear?",
+      "She wanted to be 95% confident of catching the truth."
+    ],
+    "walk": "confidence-interval"
+  },
+  "Confidence level": {
+    "explain": "The confidence level, such as 95%, is the long-run success rate of the method that builds the interval. If you repeated your study many times and built an interval each time, about 95% of those intervals would contain the true value. It is not the probability that one particular interval is right: once it is built, the truth is either inside it or not. Higher confidence levels need wider intervals.",
+    "example": "Imagine 40 repeats of the same exam study, each giving its own 95% interval. Typically about 38 of the 40 intervals contain the true mean and about 2 miss it. Raising the level to 99% makes every interval wider (±4.89 instead of ±3.72 in the exam example), so fewer miss.",
+    "joke": [
+      "Why did the 99% confidence interval buy a bigger belt?",
+      "Being more sure of yourself takes up more room."
+    ],
+    "walk": "confidence-interval"
+  },
+  "Point estimate": {
+    "explain": "A point estimate is your single best guess for an unknown value, worked out from the sample. The sample mean x̄ is the point estimate of the population mean μ, and p̂ is the point estimate of a population proportion p. It sits at the centre of the usual confidence interval. On its own it hides the uncertainty: a different sample would give a different point estimate, which is why we add a margin of error.",
+    "example": "Forty students average 78.5 points on an exam, so 78.5 is the point estimate of the true average. The 95% confidence interval, 74.78 to 82.22, adds the uncertainty around that single number.",
+    "joke": [
+      "Why do point estimates make terrible debaters?",
+      "They're very sharp, but they never leave room for error."
+    ],
+    "walk": "confidence-interval"
+  },
+  "Margin of error": {
+    "explain": "The margin of error is the half-width of a confidence interval: the distance from the point estimate to either end. It equals the critical value times the standard error, for example 1.96 × SE for 95% confidence. It is one number, while the confidence interval is a range: '54% ± 3 points' quotes the margin, and '51% to 57%' is the interval. It grows with more confidence or noisier data and shrinks with bigger samples.",
+    "example": "For 40 exam scores with σ = 12, the SE is 12 ÷ √40 = 1.897 and the 95% margin of error is 1.96 × 1.897 = 3.72. The interval is 78.5 ± 3.72, from 74.78 to 82.22.",
+    "joke": [
+      "What did the margin of error say to the point estimate?",
+      "Relax, I've got you covered on both sides."
+    ],
+    "walk": "confidence-interval"
+  },
+  "Critical value z*": {
+    "explain": "The critical value z\\* is how many standard errors you reach out from your estimate to get the confidence level you want. It comes from the normal curve: z\\* = 1.96 leaves 2.5% in each tail, so the middle 95% lies within ±1.96. Other common values are 1.645 for 90% and 2.576 for 99%. It is not a magic number, just a point on the bell curve, and you use the t-distribution's t\\* instead when σ is unknown.",
+    "example": "For 95% confidence, z\\* = 1.96. With SE = 1.897, the margin of error is 1.96 × 1.897 = 3.72. For 99% confidence you would use z\\* = 2.576, giving a margin of 2.576 × 1.897 = 4.89.",
+    "joke": [
+      "Why does z\\* get a star next to its name?",
+      "For outstanding work at the edge of the 95% zone."
+    ],
+    "walk": "confidence-interval"
+  },
+  "t-distribution": {
+    "explain": "The t-distribution is a family of bell-shaped curves with heavier tails than the normal curve. It describes the standardised mean t = (x̄ − μ) ÷ (s/√n) when you must estimate the spread with s because σ is unknown. The extra uncertainty in s makes extreme values more likely, so the tails are fatter and the critical values bigger. Its exact shape depends on the degrees of freedom, and as they grow the t curve becomes almost identical to the normal.",
+    "example": "With 15 patients (df = 14), the 95% critical value is t\\* = 2.145 instead of z\\* = 1.96. For x̄ = 72 and s = 8, the interval is 72 ± 2.145 × 8 ÷ √15 = 72 ± 4.43, from 67.57 to 76.43 bpm.",
+    "joke": [
+      "Why is the t-distribution never short of a story?",
+      "It has extra tales in its tails."
+    ],
+    "walk": "t-distribution"
+  },
+  "Degrees of freedom": {
+    "explain": "Degrees of freedom (df) count the independent pieces of information left for estimating spread. For a one-sample t-interval, df = n − 1: once you know the mean, only n − 1 of the deviations are free, because together they must add up to zero. The df picks which t curve to use: few degrees of freedom mean fat tails and a big t\\*, many mean a curve close to the normal. A common slip is to use n instead of n − 1.",
+    "example": "Nine river-water samples give df = 9 − 1 = 8, so the 95% critical value is t\\* = 2.306. With 30 samples (df = 29) it would be 2.045, and with a huge sample it approaches 1.96.",
+    "joke": [
+      "Why did the last data point feel trapped?",
+      "Once the mean was fixed, it had no degrees of freedom left."
+    ],
+    "walk": "t-distribution"
+  },
+  "t*": {
+    "explain": "t\\* is the critical value from the t-distribution: the multiplier you put in front of the standard error when σ is unknown. It depends on your confidence level and on the degrees of freedom. For small samples it is noticeably bigger than the normal's 1.96, which makes the interval wider and more honest about the extra uncertainty. As the sample grows, t\\* shrinks toward z\\*.",
+    "example": "At 95% confidence, t\\* is 4.303 with df = 2, 2.571 with df = 5, 2.131 with df = 15 and 2.009 with df = 50, sliding toward 1.96 as df grows.",
+    "joke": [
+      "Why does t\\* carry a bigger umbrella than z\\*?",
+      "It never trusts a forecast from a small sample."
+    ],
+    "walk": "t-distribution"
+  },
+  "σ unknown": {
+    "explain": "'σ unknown' is the normal, everyday situation: you do not know the true standard deviation of the whole population, only the sample SD s. Replacing σ with s adds uncertainty, because s itself changes from sample to sample. That is why you switch from the normal curve and z\\* to the t-distribution and t\\*. When in doubt use t: for large samples it gives almost the same answer as z anyway.",
+    "example": "A researcher has 15 heart rates with x̄ = 72 and s = 8, but no σ. She uses t\\* = 2.145 (df = 14) and gets 67.57 to 76.43 bpm. Using z\\* = 1.96 by mistake would give the narrower 67.95 to 76.05, claiming more certainty than she has.",
+    "joke": [
+      "Why did σ skip the experiment?",
+      "It prefers to remain unknown, so it sent s instead."
+    ],
+    "walk": "t-distribution"
+  },
+  "Wald interval": {
+    "explain": "The Wald interval is the textbook confidence interval for a proportion: p̂ ± z\\* × √[p̂(1 − p̂) ÷ n]. It is simple and works well for large samples where p̂ is not close to 0 or 1. For small samples or rare events it misbehaves: it can dip below 0% or above 100%, collapse to a single point when p̂ is 0, and catch the truth much less often than it claims. Check the success-failure condition before trusting it.",
+    "example": "A poll of 850 voters with 476 in favour gives p̂ = 0.56 and a Wald interval of 0.56 ± 1.96 × 0.01703 = 0.56 ± 0.033, or 52.7% to 59.3%. But 3 complications in 20 patients gives 0.15 ± 0.156, an impossible −0.6% to 30.6%.",
+    "joke": [
+      "Where's Wald-o when the sample is tiny?",
+      "Somewhere below 0%, where nobody should be."
+    ],
+    "walk": "ci-proportion"
+  },
+  "Wilson interval": {
+    "explain": "The Wilson (or score) interval is a better confidence interval for a proportion, especially with small samples or rates near 0% or 100%. Instead of plugging p̂ into the standard error, it finds every value of p that is consistent with the data. The result has its centre pulled slightly toward 50% and always stays between 0 and 1. Its real coverage stays close to the advertised 95%, which makes it the safe default.",
+    "example": "For 3 complications in 20 patients, the Wilson 95% interval is 5.2% to 36.0%, centred at 20.6% rather than 15%. The Wald interval for the same data, −0.6% to 30.6%, dips below zero.",
+    "joke": [
+      "Why is the Wilson interval so well grounded?",
+      "No matter how small the sample, it never sinks below zero."
+    ],
+    "walk": "ci-proportion"
+  },
+  "Exact (Clopper–Pearson)": {
+    "explain": "The exact, or Clopper–Pearson, interval for a proportion is built straight from the binomial distribution instead of a bell-curve approximation. It is guaranteed to cover the true value at least the advertised percentage of the time, which makes it popular for regulatory and safety reporting. The price is that it is a little conservative: usually wider than it strictly needs to be. Software computes it for you.",
+    "example": "For 3 complications in 20 patients, the exact 95% interval is 3.2% to 37.9%, a little wider than Wilson's 5.2% to 36.0%. For 0 complications in 20 it runs from 0% to 16.8%.",
+    "joke": [
+      "Why does the Clopper–Pearson interval always pack two umbrellas?",
+      "It would rather be too careful than ever under-cover."
+    ],
+    "walk": "ci-proportion"
+  },
+  "Coverage": {
+    "explain": "Coverage is the fraction of intervals that actually contain the true value when a study is repeated many times. A '95%' method should have coverage close to 95%; if it falls well below, the intervals are overconfident. Coverage is a property of the method, not of one particular interval. Simulations, or exact calculations, are the usual way to check it.",
+    "example": "With 20 patients and a true complication rate of 10%, the Wald 95% interval catches the truth only about 88% of the time in the long run, while the Wilson interval catches it about 96% of the time.",
+    "joke": [
+      "Why was the Wald interval fired from its bodyguard job?",
+      "It promised 95% coverage and delivered 88%."
+    ],
+    "walk": "ci-proportion"
+  },
+  "Rule of three": {
+    "explain": "The rule of three is a quick shortcut for when you observe zero events: after 0 events in n trials, the 95% upper bound for the true rate is about 3 ÷ n. It reminds you that seeing nothing in a small study does not prove the rate is zero. The lower bound is simply 0. It is an approximation, but a handy one for a quick answer.",
+    "example": "A new drug is given to 20 patients and none has a side effect. The rule of three says the true rate could still be as high as about 3 ÷ 20 = 15%. With 300 patients and no side effects, the bound would drop to 3 ÷ 300 = 1%.",
+    "joke": [
+      "How many statisticians does it take to doubt a perfect record?",
+      "Three, divided by n."
+    ],
+    "walk": "ci-proportion"
+  }
+}

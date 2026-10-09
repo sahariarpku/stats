@@ -349,7 +349,11 @@
     };
     const setV = (el, vals) => {
       let t = false;
-      for (const k in vals) { if (SPECIAL[k]) { el[SPECIAL[k]] = vals[k]; t = true; } else el.setAttribute(k, vals[k]); }
+      for (const k in vals) {
+        if (SPECIAL[k]) { el[SPECIAL[k]] = vals[k]; t = true; }
+        // An overshooting ease can dip a size below zero for a frame; SVG rejects that.
+        else el.setAttribute(k, (k === "height" || k === "width" || k === "r") && vals[k] < 0 ? 0 : vals[k]);
+      }
       if (el.tagName === "text" && "x" in vals) el.querySelectorAll(":scope > tspan").forEach((ts) => ts.setAttribute("x", vals.x));
       if (t) setT(el, el.__tx || 0, el.__ty || 0, el.__s === undefined ? 1 : el.__s, el.__rot || 0);
     };

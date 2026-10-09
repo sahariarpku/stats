@@ -4,6 +4,13 @@
 
   /* ---------- small maths helpers (local to this file) ---------- */
   const sum = (a) => a.reduce((s, v) => s + v, 0);
+  // Grow bars up from their base. Starts from a hairline rather than zero, so the first animation frame
+  // (whose timestamp can be a touch earlier than the tween start) never asks for a negative height.
+  const growBars = (A, rects, o = {}) => {
+    const arr = [rects].flat();
+    arr.forEach((r) => { const h = +r.getAttribute("height"), y = +r.getAttribute("y"); r.__gh = h; r.__gy = y; r.setAttribute("height", 0.5); r.setAttribute("y", y + h - 0.5); r.setAttribute("opacity", 1); });
+    return A.to(arr, (r) => ({ height: r.__gh, y: r.__gy }), { dur: 700, ...o });
+  };
   const mean = (a) => sum(a) / a.length;
   const sd = (a) => { const m = mean(a); return Math.sqrt(sum(a.map((v) => (v - m) ** 2)) / (a.length - 1)); };
   const median = (a) => { const s = [...a].sort((x, y) => x - y), n = s.length; return n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2; };
@@ -172,10 +179,10 @@
           const mk = (arr, color) => Object.entries(hist(arr)).map(([k, n]) => S.rect(ax.x(k * bw) + 1, ax.y - n * u, ax.x(bw) - ax.x(0) - 2, n * u, { fill: color, rx: 2 }));
           const truth = S.marker(ax.x(5), 92, ax.y, "true effect +5", { color: "ink", dash: "6 5", width: 2.5, size: 18, hide: true });
           const bS = mk(EST.self, "orange"), bC = mk(EST.coin, "green");
-          await A.grow(bS, { stagger: 20 });
+          await growBars(A, bS, { stagger: 20 });
           const lS = S.text(ax.x(mSelf), 150, `patients choose: ${sgn1(mSelf)}`, { size: 18, weight: 800, color: "orange", hide: true });
           await A.fadeIn(lS);
-          await A.grow(bC, { stagger: 20 });
+          await growBars(A, bC, { stagger: 20 });
           const lC = S.text(ax.x(mCoin) + 10, 150, `coin decides: ${sgn1(mCoin)}`, { size: 18, weight: 800, color: "green", anchor: "start", hide: true });
           await A.fadeIn([lC, truth]);
         },
@@ -289,8 +296,8 @@
           for (const [t, y, c] of rows) {
             S.text(x0 - 16, y + 9, t, { size: 26, weight: 800, color: c, anchor: "end" });
             const ws = D[t].small[1] * k, wl = D[t].large[1] * k;
-            const r1 = S.rect(x0, y - 26, 0, 52, { fill: "greenSoft", stroke: "green", rx: 6 });
-            const r2 = S.rect(x0 + ws, y - 26, 0, 52, { fill: "orange", rx: 6 });
+            const r1 = S.rect(x0, y - 26, 0.5, 52, { fill: "greenSoft", stroke: "green", rx: 6 });
+            const r2 = S.rect(x0 + ws, y - 26, 0.5, 52, { fill: "orange", rx: 6 });
             await A.to(r1, { width: ws - 3 }, { dur: 500 });
             await A.to(r2, { width: wl }, { dur: 600 });
             const t1 = S.text(x0 + ws / 2, y + 7, `${D[t].small[1]} small`, { size: 19, weight: 800, color: "green", hide: true });

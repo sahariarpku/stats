@@ -1,0 +1,200 @@
+{
+  "Sampling variability": {
+    "explain": "Sampling variability is the natural wobble you get because every sample contains different people or things. Ask two random groups the same question and their answers will differ a little, even if nobody made a mistake. Precisely, it is the sample-to-sample variation in a statistic such as a mean or a percentage. People call it 'random error', but it is not a blunder: it is unavoidable, and bigger samples make it smaller.",
+    "example": "Two pollsters each ask 1,000 randomly chosen voters about the same bill. One finds 54% support and the other 52%. Neither is wrong: they simply talked to different people, and a 2-point gap is the kind of wobble chance produces.",
+    "joke": [
+      "I tasted two spoonfuls of the same soup and they tasted slightly different. Is the soup broken?",
+      "No, that's just sampling vari-a-bowl-ity."
+    ],
+    "walk": "sampling-distribution"
+  },
+  "Sampling distribution": {
+    "explain": "A sampling distribution is the pattern you would see if you took every possible sample of the same size and worked out the same statistic for each one. It is not the spread of your data: it is the spread of a summary, such as the sample mean, across many imaginary repeats of your study. For the sample mean it is centred on the true mean μ and has spread σ ÷ √n. You only ever see one sample, but this distribution tells you how far that one result is likely to be from the truth.",
+    "example": "A hat holds tickets 2, 4 and 6. There are 9 equally likely samples of size 2 (drawn with replacement), with means 2, 3, 3, 4, 4, 4, 5, 5 and 6. That list is the sampling distribution: a mean of 4 is the most likely (3 chances in 9), and 2 or 6 the least likely (1 in 9 each).",
+    "joke": [
+      "What did one sample mean say to another at the family reunion?",
+      "You look just like me, give or take a standard error."
+    ],
+    "walk": "sampling-distribution"
+  },
+  "Unbiased": {
+    "explain": "An estimator is unbiased when it hits the truth on average. Any single sample can come out too high or too low, but if you averaged its answers over all possible samples, you would land exactly on the true value. The sample mean is unbiased for the population mean μ, which is one reason it is used so widely. Unbiased does not mean right every time: an unbiased estimate from a tiny sample can still be far off, just not off in a consistent direction.",
+    "example": "With tickets 2, 4 and 6 (true mean 4), the nine possible sample means of size 2 are 2, 3, 3, 4, 4, 4, 5, 5 and 6. Their average is 36 ÷ 9 = 4, exactly the true mean, so the sample mean is unbiased here, even though six of the nine samples miss 4.",
+    "joke": [
+      "Why was the sample mean chosen to referee the big match?",
+      "On average, it never takes sides."
+    ],
+    "walk": "sampling-distribution"
+  },
+  "Standard error": {
+    "explain": "The standard error is the standard deviation of a statistic's sampling distribution: how much that statistic typically wobbles from one sample to the next. For the sample mean it equals σ ÷ √n, so it shrinks as samples get bigger. A small standard error means your estimate would come out nearly the same if you repeated the study. Do not confuse it with the standard deviation of the data, which describes how much individual values differ.",
+    "example": "A population has σ = 12. For samples of n = 36, the standard error of the mean is 12 ÷ √36 = 12 ÷ 6 = 2. So sample means typically land about 2 units from the true mean, even though individual values are typically about 12 away.",
+    "joke": [
+      "I asked my estimate how sure it was about itself.",
+      "It said, 'Give or take one standard error.'"
+    ],
+    "walk": "standard-error"
+  },
+  "With replacement": {
+    "explain": "Sampling with replacement means you put each item back before the next draw, so it can be picked again. Every draw then faces exactly the same population, which makes the draws independent and the maths simple. It matters for tiny populations: from tickets 2, 4 and 6 you can draw 6 twice only if the first 6 goes back in the hat. When the population is huge compared with the sample, sampling without replacement behaves almost the same, which is why these formulas still work for real surveys.",
+    "example": "Drawing 2 tickets with replacement from 2, 4 and 6 gives 3 × 3 = 9 equally likely ordered samples, including (6, 6). Without replacement there are only 3 × 2 = 6 ordered samples, and (6, 6) is impossible.",
+    "joke": [
+      "Why is sampling with replacement like throwing a boomerang?",
+      "Whatever you draw, it always comes back."
+    ],
+    "walk": "sampling-distribution"
+  },
+  "Standard error (SE)": {
+    "explain": "The standard error (SE) tells you how precisely a sample statistic pins down the truth. It is the standard deviation of that statistic across repeated samples, so it measures the typical size of the sample-to-sample wobble. For a mean, SE = s ÷ √n: more data gives a smaller SE, but only through the square root, so four times the data halves it. The classic mix-up is quoting the SD when you mean the SE: the SD describes how much people differ, the SE describes how well you know the average.",
+    "example": "Eight students score 72, 85, 68, 91, 77, 83, 64 and 80 on a midterm. The SD is 9.09, so students differ by about 9 points, but the SE of their mean is 9.09 ÷ √8 = 3.21, so the class average of 77.5 is known to within about 3 points.",
+    "joke": [
+      "What do you call a mistake that follows all the rules?",
+      "A standard error."
+    ],
+    "walk": "standard-error"
+  },
+  "SE of the mean": {
+    "explain": "The SE of the mean is the standard error of a sample average: SE = s ÷ √n, where s is the sample standard deviation and n the sample size. It estimates how far your sample mean is likely to be from the true population mean. Because of the √n, it shrinks as samples grow: four times the data gives half the SE. People think of it as 'the SD, but smaller', but it answers a different question: not 'how varied are the values?' but 'how precise is the average?'",
+    "example": "Ten patients' systolic blood pressures have mean 144 and SD 10.03. The SE of the mean is 10.03 ÷ √10 = 10.03 ÷ 3.162 = 3.17, so the group's average blood pressure is pinned down to within about 3 mmHg.",
+    "joke": [
+      "Why did the class average move to a school four times bigger?",
+      "It wanted to cut its standard error in half."
+    ],
+    "walk": "standard-error"
+  },
+  "Precision": {
+    "explain": "Precision describes how tightly an estimate would cluster if you repeated the study many times. A precise estimate has a small standard error: repeat the sampling and you get nearly the same answer each time. Precision is not the same as accuracy: an estimate can be very precise and still wrong if the method is biased, like a scale that always reads 2 kg heavy. Bigger samples improve precision, but they cannot fix bias.",
+    "example": "With an SD of 10, a sample of 25 gives SE = 10 ÷ √25 = 2, while a sample of 400 gives SE = 10 ÷ √400 = 0.5. The bigger study is four times as precise, but it needed 16 times as much data to get there.",
+    "joke": [
+      "Why is my bathroom scale so proud of itself?",
+      "It's wrong by exactly 2 kg every single time. Talk about precision!"
+    ],
+    "walk": "standard-error"
+  },
+  "FPC": {
+    "explain": "The finite population correction (FPC) adjusts the standard error when your sample is a big slice of a small population. The usual SE formula assumes the population is huge, so every draw is fresh. If you have already surveyed a large share of everyone, there is less left to be uncertain about, so the real SE is smaller. Multiply the SE by √[(N − n) ÷ (N − 1)], where N is the population size; it only matters when n is more than about 5% to 10% of N.",
+    "example": "A company has N = 300 employees and you survey n = 30 of them (10%). The FPC is √(270 ÷ 299) = 0.950, so an uncorrected SE of 16.35 shrinks to 16.35 × 0.950 = 15.54.",
+    "joke": [
+      "Why are surveys in tiny villages so confident?",
+      "Once you've asked half the town, there's not much gossip left to guess."
+    ],
+    "walk": "standard-error"
+  },
+  "Central Limit Theorem": {
+    "explain": "The Central Limit Theorem (CLT) says that averages of many random values tend to follow a bell curve, even when the individual values do not. Take samples of size n from almost any population with mean μ and SD σ, and as n grows the sample means become approximately normal, centred at μ with standard error σ ÷ √n. That is why the normal table works for questions about averages of skewed things like waiting times or incomes. It does not say the data become normal: only the averages do.",
+    "example": "Clinic waiting times are very skewed, with mean 10 minutes and SD 10. For audits of 40 patients, the CLT says the audit average is roughly normal with mean 10 and SE 10 ÷ √40 = 1.581. An audit average of 12 minutes gives z = 2 ÷ 1.581 = 1.265, and about 10% of audits would be that high.",
+    "joke": [
+      "What did the Central Limit Theorem say to the badly skewed data?",
+      "Don't worry, your averages will turn out normal."
+    ],
+    "walk": "central-limit-theorem"
+  },
+  "x̄ ~ N(μ, σ/√n)": {
+    "explain": "This line is shorthand for the Central Limit Theorem's promise: the sample mean x̄ is approximately (~) normally distributed (N), centred on the true mean μ, with standard deviation σ ÷ √n. The first number tells you where sample means land on average, and the second tells you how spread out they are. Read the ~ as 'is approximately distributed as'. Some books put the variance σ²/n in the second slot instead, so check which convention is being used.",
+    "example": "Test scores have μ = 100 and σ = 15. For a class of 36, x̄ ~ N(100, 15 ÷ √36) = N(100, 2.5). A class mean above 105 needs z = 5 ÷ 2.5 = 2, which happens only about 2.3% of the time.",
+    "joke": [
+      "What's the sample mean's home address?",
+      "N(μ, σ/√n): right in the middle of town, give or take a few doors."
+    ],
+    "walk": "central-limit-theorem"
+  },
+  "n ≥ 30": {
+    "explain": "'n ≥ 30' is a rule of thumb for when the Central Limit Theorem usually makes the sample mean close enough to normal. It is not a law. If the population is already bell-shaped, even tiny samples are fine; if it is badly skewed or has extreme outliers, you may need far more than 30. And it never means the data themselves are normal: with n = 30 the data can be as lopsided as ever, and only their average behaves.",
+    "example": "For a strongly skewed population, the skewness of the sample mean falls from about 1.9 with n = 1 to 0.9 with n = 5, 0.35 with n = 30 and 0.2 with n = 100. By 30 the leftover lopsidedness is small, but it is not zero.",
+    "joke": [
+      "Why is n ≥ 30 only called a rule of thumb?",
+      "Because some skewed data need a whole hand."
+    ],
+    "walk": "central-limit-theorem"
+  },
+  "Approximation": {
+    "explain": "An approximation is an answer that is close to the exact one but not identical. The Central Limit Theorem gives an approximation: for any finite sample size the sample mean is only roughly normal, and the fit improves as n grows. For most practical questions it is excellent, but it can be noticeably off for small samples from very skewed or heavy-tailed populations. Treat CLT answers as good estimates, not exact truths.",
+    "example": "For clinic audits of 40 patients (mean wait 10 minutes, SD 10), the CLT's normal approximation says about 10.3% of audits average 12 minutes or more. A simulation of 20,000 audits gives 10.9%: close, but not exact.",
+    "joke": [
+      "How does a statistician describe her love life?",
+      "Approximately normal."
+    ],
+    "walk": "central-limit-theorem"
+  },
+  "Sample proportion p̂": {
+    "explain": "The sample proportion p̂ (said 'p-hat') is the fraction of your sample with some feature: p̂ = x ÷ n, the number of 'yes' answers divided by the sample size. It is your estimate of p, the true proportion in the whole population, which you usually never know. Like a sample mean, p̂ changes from sample to sample, but on average it hits p, so it is unbiased. The hat is the clue: in statistics, a hat marks an estimate.",
+    "example": "A poll asks 1,500 voters about a bill and 810 say yes. The sample proportion is p̂ = 810 ÷ 1,500 = 0.54, so an estimated 54% of all voters support the bill.",
+    "joke": [
+      "Why does p̂ always wear a hat?",
+      "It's only an estimate, so it likes to keep a low profile."
+    ],
+    "walk": "sample-proportion"
+  },
+  "SE of p̂": {
+    "explain": "The SE of p̂ is the typical size of the sample-to-sample wobble in a sample proportion. Its formula is √[p(1 − p) ÷ n], and in practice you plug in p̂ for the unknown p. It is largest when p is near 50% and shrinks as the sample grows, again through the square root, so quadrupling n halves it. It is the building block of the margin of error that polls report.",
+    "example": "In a poll of 1,500 voters with p̂ = 0.54, SE = √(0.54 × 0.46 ÷ 1,500) = 0.0129, about 1.3 percentage points. With only 20 people and p̂ = 0.35, SE = √(0.35 × 0.65 ÷ 20) = 0.107, a wobble of about 11 points.",
+    "joke": [
+      "Why did the poll of 1,500 people hardly wobble?",
+      "That's a lot of hands holding the pole steady."
+    ],
+    "walk": "sample-proportion"
+  },
+  "Success-failure condition": {
+    "explain": "The success-failure condition checks whether a bell curve is a fair model for a sample proportion. You need at least 10 expected successes and at least 10 expected failures: np ≥ 10 and n(1 − p) ≥ 10, using p̂ when p is unknown. With too few of either, the real distribution of p̂ is lumpy and lopsided, and normal-based answers can go wrong, even giving impossible negative percentages. Some textbooks use 5 instead of 10; the closer you are to the limit, the rougher the approximation.",
+    "example": "A poll of 1,500 with p̂ = 0.54 has 810 successes and 690 failures, so it passes easily. But 8 defective chips out of 400 gives np̂ = 8, which fails the condition, so a plain bell-curve interval is shaky there.",
+    "joke": [
+      "Why won't the bell curve model just 3 successes?",
+      "It needs at least 10 before it will ring true."
+    ],
+    "walk": "sample-proportion"
+  },
+  "Margin of error": {
+    "explain": "The margin of error is the 'plus or minus' part of a reported estimate: how far the truth could plausibly be from your number. At 95% confidence it is about 1.96 standard errors, so it is the half-width of a 95% interval. It only covers random sampling wobble: a badly worded question or a biased sample adds errors the margin does not include. Always say which confidence level a margin refers to.",
+    "example": "A poll of 1,500 voters finds 54% support, with SE = 0.0129. The margin of error is 1.96 × 0.0129 = 0.025, so the headline reads '54%, margin of error ±2.5 points', meaning roughly 51.5% to 56.5%.",
+    "joke": [
+      "Why did the pollster write so small in her notebook?",
+      "She always leaves a margin for error."
+    ],
+    "walk": "sample-proportion"
+  },
+  "Bootstrap sample": {
+    "explain": "A bootstrap sample is a pretend new sample made from your real one: you draw n values from your own data, at random and with replacement. Because each value goes back after it is drawn, some original values appear twice or more and others not at all. Each bootstrap sample imitates what a fresh sample from the population might have looked like. It can only contain values you actually observed, never new ones.",
+    "example": "From the heart rates 62, 70, 68, 75 and 65, one bootstrap sample might be 62, 62, 65, 65, 65, with mean 63.8. Another might be 70, 75, 75, 68, 62, with mean 70.",
+    "joke": [
+      "Why did the data set pull itself up by its own bootstraps?",
+      "Nobody would lend it a second sample."
+    ],
+    "walk": "bootstrap"
+  },
+  "Resampling": {
+    "explain": "Resampling means reusing the data you already have to imitate collecting new samples, again and again. The bootstrap is the best-known version: draw from your own sample with replacement, recompute your statistic, and repeat. It is not 'making up data': every resample uses only real observations. What it gives you is a picture of how much your statistic would wobble, which is often hard to get from a formula.",
+    "example": "With five heart rates (62, 70, 68, 75 and 65), resampling 10,000 times and recording each mean gives means with a spread of about 1.98 bpm. That is the bootstrap's estimate of how much the mean of 5 such heart rates would wobble.",
+    "joke": [
+      "Why are bootstrap fans so good at recycling?",
+      "They reuse the same data thousands of times."
+    ],
+    "walk": "bootstrap"
+  },
+  "Bootstrap SE": {
+    "explain": "The bootstrap SE is the standard deviation of a statistic across many bootstrap samples. It estimates the statistic's standard error without needing a formula, which is handy for medians, percentiles or anything awkward. For the mean it comes out close to the usual s ÷ √n, a little smaller in tiny samples because the bootstrap treats the sample's own spread as the truth. It is not 'a better SE': it is only as good as the sample it was built from.",
+    "example": "Resampling the heart rates 62, 70, 68, 75 and 65 ten thousand times gives bootstrap means with an SD of about 1.98 bpm. The formula s ÷ √n gives 4.95 ÷ √5 = 2.21, slightly larger, as expected with only 5 values.",
+    "joke": [
+      "Why did the median start wearing boots?",
+      "It had no formula for its standard error, so it bootstrapped one."
+    ],
+    "walk": "bootstrap"
+  },
+  "Percentile interval": {
+    "explain": "A percentile interval is a confidence interval read straight off the bootstrap results. Sort all your bootstrap statistics, cut off the lowest 2.5% and the highest 2.5%, and the middle 95% is the interval. It needs no normal curve and no formula, so it works for medians and other awkward statistics. It is only as trustworthy as your sample: a small or biased sample gives a rough or biased interval.",
+    "example": "From 10,000 bootstrap means of the heart rates 62, 70, 68, 75 and 65, the 2.5th percentile is about 64.4 and the 97.5th about 72.0. So the 95% percentile interval for the true mean is roughly 64.4 to 72.0 bpm.",
+    "joke": [
+      "Why is the percentile interval so modest?",
+      "It never lets the top 2.5% go to its head."
+    ],
+    "walk": "bootstrap"
+  },
+  "B": {
+    "explain": "B is the number of bootstrap resamples you run, typically between 1,000 and 10,000. A larger B makes the bootstrap results more stable, so running it twice gives nearly the same SE and interval. But B is not the sample size: raising B adds no information and does not make the interval narrower, because every resample still comes from the same n observations. Think of B as how carefully you look, not how much you know.",
+    "example": "Bootstrapping five heart rates with B = 2,000 might give a 95% interval of 64.1 to 71.9 bpm. Raising B to 20,000 makes the interval more stable from run to run, but it does not shrink it, because there are still only 5 people's worth of information.",
+    "joke": [
+      "Why is the bootstrap never caught off guard?",
+      "It always has a plan B. Usually about 10,000 of them."
+    ],
+    "walk": "bootstrap"
+  }
+}

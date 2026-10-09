@@ -1,0 +1,371 @@
+{
+  "Null hypothesis H₀": {
+    "explain": "The null hypothesis is the 'nothing special is going on' claim: no effect, no difference, the coin is fair. A test treats it like a defendant who is presumed innocent and asks whether the data are surprising enough to doubt it. It is always about a population value (such as μ or p) and always contains an equals sign. A common mix-up: H₀ is not what you hope to prove. It is the default you test against.",
+    "example": "A friend's coin lands heads 60 times in 100 flips. H₀: P(heads) = 0.5, the coin is fair. If H₀ is true, a result at least that lopsided happens 5.7% of the time, so at α = 0.05 the coin keeps its 'presumed fair' status.",
+    "joke": [
+      "Why did the null hypothesis refuse to get excited?",
+      "Nothing special was going on."
+    ],
+    "walk": "hypothesis-test"
+  },
+  "Alternative H₁": {
+    "explain": "The alternative hypothesis is the claim you are looking for evidence of: an effect, a difference, a bias. It sets the direction of the test: 'not equal' (two-tailed), 'greater than' (right-tailed) or 'less than' (left-tailed). You choose it before seeing the data, from the question you want answered. Rejecting H₀ counts as evidence for H₁, but never as proof.",
+    "example": "A school claims its students score above the national average of 72. H₀: μ = 72 and H₁: μ > 72, a right-tailed test. A sample of 16 students averaging 76 (SD 8) gives p = 0.032, which is evidence for H₁ at α = 0.05.",
+    "joke": [
+      "Why did the alternative hypothesis hire a lawyer?",
+      "The burden of proof was all on its side."
+    ],
+    "walk": "hypothesis-test"
+  },
+  "Test statistic": {
+    "explain": "A test statistic squeezes the evidence into one number that says how far the data sit from what H₀ predicts. Most are built as (estimate − claimed value) ÷ standard error, so they count how many standard errors away the result landed. The further out it is (in the direction H₁ cares about), the more surprising the data are under H₀. It is then turned into a p-value using a known curve, such as the normal curve or a t curve.",
+    "example": "A bottling plant claims 500 mL. 64 bottles average 503.6 mL with σ = 12 mL, so SE = 12 ÷ √64 = 1.5 and z = (503.6 − 500) ÷ 1.5 = 2.40. The result sits 2.4 standard errors above the claim.",
+    "joke": [
+      "What did the test statistic say about all that evidence?",
+      "I can sum it up in one number."
+    ],
+    "walk": "hypothesis-test"
+  },
+  "p-value": {
+    "explain": "The p-value answers one question: if H₀ were true, how often would we see a result at least as extreme as ours? A small p-value means the data would be rare under H₀, which counts as evidence against it. It is not the chance that H₀ is true, not the chance that the result is a fluke, and not a measure of how big or important the effect is. Compare it with α: if p ≤ α, reject H₀.",
+    "example": "Bottles should hold 500 mL; 64 bottles average 503.6 mL, giving z = 2.40. If the true mean really were 500, a sample mean at least this far out in either direction would turn up with probability 0.0082 + 0.0082 = 0.0164. Since 0.0164 ≤ 0.05, we reject H₀.",
+    "joke": [
+      "Why did the p-value get thrown out of the fortune-tellers' club?",
+      "It could only say how surprising things were, not whether they were true."
+    ],
+    "walk": "p-value"
+  },
+  "Significance level α": {
+    "explain": "The significance level α is the cut-off for 'too surprising', chosen before you look at the data. If the p-value is at or below α, you reject H₀. The usual choice is 0.05, with 0.01 for stricter settings and 0.10 for looser ones. It is also the false-alarm rate you accept: when H₀ is really true, you will wrongly reject it α of the time. It is not a measure of how confident you are in the result.",
+    "example": "With α = 0.05, a coin that gives 60 heads in 100 flips (p = 0.057) does not quite clear the bar, so we fail to reject 'the coin is fair'. 62 heads (p = 0.021) would clear it.",
+    "joke": [
+      "Why did α refuse to change its mind after seeing the data?",
+      "It had already set its standards."
+    ],
+    "walk": "hypothesis-test"
+  },
+  "Fail to reject": {
+    "explain": "'Fail to reject H₀' is the verdict when the evidence is not strong enough, meaning p > α. Like a jury's 'not guilty', it does not declare H₀ true: it only says these data could not rule it out. The sample may simply have been too small to detect a real effect. That is why careful statisticians never say 'accept H₀'.",
+    "example": "60 heads in 100 flips gives p = 0.057, just above α = 0.05, so we fail to reject 'the coin is fair'. Good wording: 'there is not sufficient evidence that the coin is biased'. Bad wording: 'the coin is fair'.",
+    "joke": [
+      "How does a statistician answer a suspicious alibi?",
+      "I fail to reject it, but I'm not buying it either."
+    ],
+    "walk": "hypothesis-test"
+  },
+  "α (significance level)": {
+    "explain": "α is the risk of a false alarm you agree to accept before running a test: the probability of rejecting H₀ when H₀ is actually true. It is also the cut-off for the p-value: reject when p ≤ α. With α = 0.05, the critical values for a two-tailed z-test are ±1.96, cutting off 2.5% in each tail. Choosing α after seeing the data, to get the answer you want, defeats its purpose.",
+    "example": "For the bottling plant, α = 0.05 puts 2.5% in each tail beyond ±1.96. Our z = 2.40 lies beyond that and p = 0.0164 ≤ 0.05, so we reject H₀. With the stricter α = 0.01 (cut-offs ±2.576) we would fail to reject.",
+    "joke": [
+      "Why is α such an easy guest at parties?",
+      "It decides in advance how much nonsense it will put up with."
+    ],
+    "walk": "p-value"
+  },
+  "Critical value": {
+    "explain": "A critical value is the test-statistic value that marks the edge of the rejection region. If your statistic lands beyond it, you reject H₀, which always gives the same decision as comparing p with α. It depends on α, on the number of tails and on the curve: for a z-test at α = 0.05 it is ±1.96 (two-tailed) or 1.645 (one-tailed). For a t-test it also depends on the degrees of freedom.",
+    "example": "Bottling plant: z = 2.40, and the two-tailed critical values at α = 0.05 are ±1.96. Since 2.40 is beyond 1.96 we reject H₀, matching p = 0.0164 ≤ 0.05. For the river t-test with df = 8 the critical values are ±2.306.",
+    "joke": [
+      "Why did the z-score get nervous as it passed 1.96?",
+      "It had reached a critical moment."
+    ],
+    "walk": "p-value"
+  },
+  "Rejection region": {
+    "explain": "The rejection region is the set of test-statistic values extreme enough to reject H₀. Its total probability under H₀ equals α, placed in one or both tails depending on H₁. If your statistic lands in it, the result is statistically significant. It is simply the critical-value approach drawn as a zone on the curve.",
+    "example": "For a two-tailed z-test at α = 0.05, the rejection region is z ≤ −1.96 or z ≥ 1.96, with 2.5% in each tail. The bottling plant's z = 2.40 lands inside it, so we reject H₀.",
+    "joke": [
+      "Why did the shy z-score stay near the middle of the curve?",
+      "It was afraid of rejection."
+    ],
+    "walk": "p-value"
+  },
+  "Statistically significant": {
+    "explain": "'Statistically significant' means p ≤ α: data this extreme would be unusual if H₀ were true, so we reject H₀. It is a statement about evidence, not about importance. A huge sample can make a tiny, useless difference significant, and a small sample can miss a big one. Always report the effect size and a confidence interval alongside it.",
+    "example": "A gain of 0.2 points on a scale with SD 15, with 50,000 people per group, gives p = 0.035: statistically significant. Yet Cohen's d is only 0.013, far too small to matter to anyone.",
+    "joke": [
+      "Why was the tiny effect so grateful to its enormous sample?",
+      "It finally felt significant."
+    ],
+    "walk": "p-value"
+  },
+  "Type I error (α)": {
+    "explain": "A Type I error is a false alarm: rejecting H₀ when H₀ is actually true. Its probability is α, which you choose in advance (often 0.05). In a courtroom it is convicting an innocent person. Lowering α makes false alarms rarer, but makes real effects easier to miss unless you collect more data.",
+    "example": "Suppose a teaching method truly does nothing, so class means of 36 students centre on 100 with SE 2.5. A one-tailed test at α = 0.05 says 'it works' whenever the class mean beats 104.1, which happens 5% of the time by pure luck. Each of those verdicts is a Type I error.",
+    "joke": [
+      "Why did the smoke alarm sign up for a statistics course?",
+      "It was already an expert in Type I errors."
+    ],
+    "walk": "errors-and-power"
+  },
+  "Type II error (β)": {
+    "explain": "A Type II error is a missed detection: failing to reject H₀ when there really is an effect. Its probability is β, which depends on the true effect size, the sample size, the spread and α. In a courtroom it is letting a guilty person walk free. Power is 1 − β.",
+    "example": "A teaching method truly raises the mean from 100 to 106 (σ = 15, n = 36, one-tailed α = 0.05). The test misses it whenever the class mean stays below the cut-off of 104.1, which happens with probability β = 0.225.",
+    "joke": [
+      "Why was the sleepy guard dog a statistician's nightmare?",
+      "Every burglar was a Type II error."
+    ],
+    "walk": "errors-and-power"
+  },
+  "Power (1 − β)": {
+    "explain": "Power is the probability that a test detects an effect that is really there: the chance of correctly rejecting H₀. It equals 1 − β. Power grows with a bigger sample, a bigger true effect, less noisy data and a larger α. Researchers usually plan for at least 80% power before collecting any data.",
+    "example": "A method truly adds 6 points to a score with σ = 15. With 36 students and a one-tailed test at α = 0.05, power is 0.775. With 16 students it falls to 0.48, and with 64 it rises to 0.94.",
+    "joke": [
+      "Why did the tiny study keep missing real effects?",
+      "It was running on low power."
+    ],
+    "walk": "errors-and-power"
+  },
+  "Effect size": {
+    "explain": "Effect size measures how big an effect is, separately from how sure we are that it exists. Examples are a raw difference (8 points), Cohen's d (the difference measured in standard deviations) and r² or η² (the share of variability explained). Unlike a p-value, it does not grow just because the sample gets larger. Report it next to every p-value, ideally with a confidence interval, so readers can judge whether the effect matters.",
+    "example": "A training group averages 78 and a control group 70, with a pooled SD of 11.05: d = 8 ÷ 11.05 = 0.72, a medium-to-large effect. Another study with 50,000 per group found a 'significant' gain of 0.2 points on an SD of 15: d = 0.013, practically nothing.",
+    "joke": [
+      "What did the effect size say to the tiny p-value?",
+      "You may be sure, but I decide whether it's a big deal."
+    ],
+    "walk": "effect-size"
+  },
+  "Under-powered": {
+    "explain": "A study is under-powered when it has too little chance of detecting the effect it is looking for, usually because the sample is too small. Its 'not significant' results are inconclusive, not evidence that there is no effect. Planning the sample size in advance, for example to reach 80% power, prevents this.",
+    "example": "A teaching method truly adds 6 points (σ = 15). With only 16 students, a one-tailed test at α = 0.05 has power 0.48: it would miss the real effect about half the time. With 64 students, power is 0.94.",
+    "joke": [
+      "Why couldn't the tiny study's torch find anything in the dark?",
+      "It was under-powered."
+    ],
+    "walk": "errors-and-power"
+  },
+  "z-test": {
+    "explain": "A z-test is a hypothesis test whose statistic follows the standard normal curve when H₀ is true. It is built as z = (estimate − hypothesised value) ÷ standard error, with the standard error worked out as if H₀ were true. Use it for proportions (with enough expected successes and failures) or for a mean when the population SD σ is truly known. If σ has to be estimated from the data, use a t-test instead.",
+    "example": "Bolts should be 10 mm, with σ = 0.5 mm. 50 bolts average 10.14 mm: SE = 0.5 ÷ √50 = 0.0707, z = 0.14 ÷ 0.0707 = 1.98, two-tailed p = 0.048. At α = 0.05 we reject H₀, but only just.",
+    "joke": [
+      "How does a z-test finish a bedtime story?",
+      "And they all lived normally ever after."
+    ],
+    "walk": "z-test"
+  },
+  "Hypothesised value (μ₀, p₀)": {
+    "explain": "The hypothesised value is the number H₀ claims for the population: μ₀ for a mean, p₀ for a proportion. It comes from a claim, a standard or past experience, never from the sample itself. The test measures how far the sample estimate lies from it, in standard errors. In a proportion test the standard error is also computed from p₀, because we assume H₀ is true.",
+    "example": "A firm claims 95% customer satisfaction, so p₀ = 0.95. A survey finds 184 of 200 satisfied (p̂ = 0.92). SE = √(0.95 × 0.05 ÷ 200) = 0.0154 and z = (0.92 − 0.95) ÷ 0.0154 = −1.95, a left-tailed p-value of 0.026.",
+    "joke": [
+      "Why is μ₀ such a stubborn house guest?",
+      "It sticks to its claim until the evidence shows it the door."
+    ],
+    "walk": "z-test"
+  },
+  "Pooled proportion": {
+    "explain": "The pooled proportion is the success rate of two groups combined: total successes ÷ total trials. A two-proportion z-test uses it because H₀ says both groups share one true rate, so the best estimate of that rate merges both samples. It goes into the test's standard error, not into the confidence interval for the difference.",
+    "example": "Page A gets 42 purchases from 1,000 visitors and page B gets 56 from 1,000. Pooled proportion = (42 + 56) ÷ 2,000 = 0.049, so SE = √[0.049 × 0.951 × (1/1000 + 1/1000)] = 0.00965 and z = (0.042 − 0.056) ÷ 0.00965 = −1.45, p = 0.147.",
+    "joke": [
+      "Why did the two web pages share a swimming pool?",
+      "H₀ said they were equal, so they pooled their proportions."
+    ],
+    "walk": "z-test"
+  },
+  "Success-failure condition": {
+    "explain": "The success-failure condition checks that a sample is big enough for the normal curve to describe a sample proportion: you need at least 10 expected successes and at least 10 expected failures. In a test, use the hypothesised value: n p₀ ≥ 10 and n(1 − p₀) ≥ 10. For a confidence interval, the observed p̂ is used instead. If the condition fails, use an exact binomial method.",
+    "example": "Testing a 95% satisfaction claim with 200 customers: 200 × 0.95 = 190 and 200 × 0.05 = 10, both at least 10, so the z-test is fine (just). Testing a 5% defect rate with only 30 items gives 30 × 0.05 = 1.5, far too few, so use the exact binomial.",
+    "joke": [
+      "Why was the tiny survey turned away from the normal curve's party?",
+      "It couldn't show ten successes and ten failures at the door."
+    ],
+    "walk": "z-test"
+  },
+  "One-sample t-test": {
+    "explain": "A one-sample t-test checks whether a population mean equals a stated value when the population SD is unknown, which is the usual situation. It estimates the spread with the sample SD s, computes t = (x̄ − μ₀) ÷ (s ÷ √n), and reads the p-value from a t curve with n − 1 degrees of freedom. It needs a random sample and roughly normal data, or a large n. With a small sample, look at a plot first.",
+    "example": "Nine river samples average 3.678 mg/L of nitrate (s = 0.554), against a guideline of 3.2. SE = 0.554 ÷ 3 = 0.185, so t = 0.478 ÷ 0.185 = 2.59 with df = 8, and the two-tailed p = 0.032. Reject H₀ at α = 0.05.",
+    "joke": [
+      "Why did the one-sample t-test bring its own ruler?",
+      "Nobody would lend it σ."
+    ],
+    "walk": "one-sample-t-test"
+  },
+  "t statistic": {
+    "explain": "The t statistic is the distance between the sample mean and the claimed value, measured in estimated standard errors: t = (x̄ − μ₀) ÷ (s ÷ √n). Think of it as signal ÷ noise: the gap is the signal and the standard error is the noise. It is read against a t curve, whose fatter tails allow for the extra uncertainty of estimating the SD from the same data.",
+    "example": "A school's 16 students average 76 against a national 72, with s = 8. SE = 8 ÷ √16 = 2, so t = (76 − 72) ÷ 2 = 2.00 with df = 15, giving a right-tailed p-value of 0.032.",
+    "joke": [
+      "Why did the t statistic get a job at the radio station?",
+      "It could always tell signal from noise."
+    ],
+    "walk": "one-sample-t-test"
+  },
+  "df": {
+    "explain": "Degrees of freedom (df) tell you which t curve to use. For a one-sample or paired t-test, df = n − 1: one is used up because the sample mean is estimated from the same data. Small df give fatter tails, which means more caution; as df grow, the t curve approaches the normal curve. Using n instead of n − 1, or a z-table for a small sample, makes the evidence look stronger than it is.",
+    "example": "With n = 9 river samples, df = 8 and the two-tailed 5% critical value is 2.306, rather than 1.96 for the normal curve. The same t = 2.2 gives p = 0.093 when n = 5 but p = 0.030 when n = 100.",
+    "joke": [
+      "Why did a sample of nine only get eight degrees of freedom?",
+      "Its mean was already spoken for."
+    ],
+    "walk": "one-sample-t-test"
+  },
+  "Test–CI duality": {
+    "explain": "Test–CI duality is the link between a two-tailed test and a confidence interval: a test at level α rejects H₀: μ = μ₀ exactly when μ₀ lies outside the (1 − α) confidence interval. So the interval lists every hypothesised value you would not reject. That is why reporting the interval tells readers more than a p-value alone.",
+    "example": "The river data give a 95% CI of 3.25 to 4.10 mg/L. The guideline 3.2 lies outside it, and the test rejects (p = 0.032). A claim of 3.3 lies inside it, and the test agrees: p = 0.075, fail to reject.",
+    "joke": [
+      "Why do the t-test and the confidence interval never fall out?",
+      "It's a duet, not a duel."
+    ],
+    "walk": "one-sample-t-test"
+  },
+  "Independent samples": {
+    "explain": "Independent samples are two groups of different individuals, with no link between any member of one group and any member of the other. Knowing one person's value tells you nothing about anyone in the other group. They are compared with a two-sample (Welch) t-test. If the same people are measured twice, or are matched in pairs, the samples are not independent and you need a paired test.",
+    "example": "60 students are split at random into two groups of 30: one studies with music (mean 74, SD 8), the other in silence (mean 79, SD 7). Different students and no pairing, so Welch's test applies: t = −2.58, p = 0.013.",
+    "joke": [
+      "Why don't independent samples ever text each other?",
+      "They have absolutely nothing to do with one another."
+    ],
+    "walk": "two-sample-t-test"
+  },
+  "Pooled variance": {
+    "explain": "The pooled variance combines two groups' sample variances into one weighted average, with weights based on each group's degrees of freedom. It is only valid if both populations really share the same variance. The classic Student's t-test uses it, but when the smaller group is also the more variable one it underestimates the standard error and raises false alarms. Welch's test avoids this, so it is the safer default.",
+    "example": "Music group: n = 30, SD 8; silence group: n = 30, SD 7. Pooled variance = (29 × 64 + 29 × 49) ÷ 58 = 56.5, a pooled SD of 7.52. With groups of 10 (SD 12) and 40 (SD 4), pooling gives an SD of 6.3, badly understating the noisy small group.",
+    "joke": [
+      "Why did the noisy little group hate the pooled variance?",
+      "Its voice got drowned out in the pool."
+    ],
+    "walk": "two-sample-t-test"
+  },
+  "Welch's test": {
+    "explain": "Welch's test is the version of the two-sample t-test that lets each group keep its own variance: SE = √(s₁²/n₁ + s₂²/n₂), with the degrees of freedom adjusted to match. When the spreads really are equal it loses almost nothing; when they are not, it protects you from false alarms. That makes it the sensible default for comparing two independent groups.",
+    "example": "Teaching sections A (n = 20, mean 78, SD 9) and B (n = 20, mean 83, SD 11): SE = √(81/20 + 121/20) = √10.1 = 3.178, so t = −5 ÷ 3.178 = −1.57 with Welch df = 36.6, and p = 0.124. Not significant.",
+    "joke": [
+      "Why does Welch's test never argue about variance?",
+      "It lets each group keep its own."
+    ],
+    "walk": "two-sample-t-test"
+  },
+  "Welch df": {
+    "explain": "Welch df are the adjusted degrees of freedom used in Welch's test, given by the Welch–Satterthwaite formula. They account for unequal spreads and unequal group sizes, and they are usually not a whole number. When one small group is very noisy, the Welch df shrink towards that group's size, which widens the t curve and keeps the test suitably cautious.",
+    "example": "Sections A and B (n = 20 each, SDs 9 and 11): df = (4.05 + 6.05)² ÷ (4.05²/19 + 6.05²/19) = 102.01 ÷ 2.79 = 36.6. With a noisy group of 10 against a tight group of 40, the Welch df drop to 9.5.",
+    "joke": [
+      "Why do Welch degrees of freedom never come in whole numbers?",
+      "They're always adjusting to fit in."
+    ],
+    "walk": "two-sample-t-test"
+  },
+  "CI for the difference": {
+    "explain": "The confidence interval for the difference gives a plausible range for μ₁ − μ₂, the true gap between two population means. If it excludes 0, the two-tailed test at the matching α is significant; if it includes 0, it is not. Unlike a p-value, it also shows the direction and the likely size of the gap, which is usually what readers care about.",
+    "example": "Music vs silence: the difference is −5 points with SE 1.94, so the 95% CI is −5 ± 2.00 × 1.94, from −8.9 to −1.1. Zero lies outside, so the difference is significant, and music costs somewhere between about 1 and 9 points.",
+    "joke": [
+      "What did the CI for the difference say to zero?",
+      "Sorry, you're out of my range."
+    ],
+    "walk": "two-sample-t-test"
+  },
+  "Paired data": {
+    "explain": "Data are paired when each value in one set is linked to exactly one value in the other: the same person before and after, a left and a right eye, twins, or two methods applied to the same sample. Pairing lets you compare each subject with themselves, which removes the big differences between subjects. Paired data need a paired test; treating them as two independent groups throws that advantage away.",
+    "example": "Eight patients' blood pressure is measured before and after a drug: patient 1 goes from 142 to 135, patient 2 from 138 to 134, and so on. Each 'after' belongs to one specific 'before', so the data are paired.",
+    "joke": [
+      "Why does the 'after' reading refuse to sit with strangers?",
+      "It only compares itself with its own 'before'."
+    ],
+    "walk": "paired-t-test"
+  },
+  "Difference d": {
+    "explain": "In a paired study, the difference d is worked out for each pair, for example before − after. These differences become the single new variable you analyse, so a two-column problem turns into a one-column problem. Decide the direction of subtraction in advance and keep it the same for every pair, because it sets the sign of the result.",
+    "example": "Blood pressure before − after for 8 patients: 7, 4, 7, 3, 8, 9, 3 and 8 mmHg. Their mean is d̄ = 49 ÷ 8 = 6.125 mmHg, an average drop of about 6 mmHg.",
+    "joke": [
+      "Why did the before and after readings split up?",
+      "They wanted to focus on their differences."
+    ],
+    "walk": "paired-t-test"
+  },
+  "s_d": {
+    "explain": "s_d is the standard deviation of the paired differences. It measures how much the change varies from pair to pair, not how much people differ from each other, so it is usually much smaller than the SD of either column. That small spread is exactly what gives the paired t-test its power.",
+    "example": "The 8 blood-pressure drops (7, 4, 7, 3, 8, 9, 3, 8) have s_d = 2.416 mmHg, while the 'before' readings alone have an SD of 10.7. The paired standard error is 2.416 ÷ √8 = 0.854.",
+    "joke": [
+      "Why is s_d so much calmer than the raw columns?",
+      "It only worries about changes, not personalities."
+    ],
+    "walk": "paired-t-test"
+  },
+  "Paired t-test": {
+    "explain": "A paired t-test is a one-sample t-test on the paired differences, testing H₀: the mean difference μ_d = 0. It uses t = d̄ ÷ (s_d ÷ √n) with df = n − 1, where n is the number of pairs. Because each subject is compared with themselves, the noise between people cancels out, so it can detect effects an independent test would miss. Use it only when observations really are linked one to one.",
+    "example": "Blood-pressure drops for 8 patients have d̄ = 6.125 and s_d = 2.416, so t = 6.125 ÷ (2.416 ÷ √8) = 7.17 with df = 7 and p = 0.0002. An independent test on the same 16 numbers gives p = 0.23 and misses the effect.",
+    "joke": [
+      "Why did the paired t-test win the dance contest?",
+      "It never lost its partner."
+    ],
+    "walk": "paired-t-test"
+  },
+  "Cohen's d": {
+    "explain": "Cohen's d is the difference between two group means divided by the pooled standard deviation, so it says how many SDs apart the groups are. That puts effects measured on different scales on the same footing. Rough benchmarks are 0.2 small, 0.5 medium and 0.8 large, but what counts as important depends on the field. For paired data, divide the mean difference by the SD of the differences instead.",
+    "example": "Memory training: trained group mean 78 (SD 10), control 70 (SD 12), 25 in each. Pooled SD = √[(24 × 100 + 24 × 144) ÷ 48] = 11.05, so d = 8 ÷ 11.05 = 0.72. The two groups' curves overlap by about 72%, and a random trainee beats a random control about 70% of the time.",
+    "joke": [
+      "Why does Cohen's d carry a tape measure marked in standard deviations?",
+      "So every effect gets sized up fairly."
+    ],
+    "walk": "effect-size"
+  },
+  "Hedges' g": {
+    "explain": "Hedges' g is Cohen's d with a small correction for small samples, where d tends to come out slightly too large. It multiplies d by a factor just under 1: 1 − 3 ÷ (4 × df − 1). With large samples the correction is negligible, so g and d are almost identical.",
+    "example": "In the memory-training study, d = 0.724 with df = 48. The correction factor is 1 − 3 ÷ 191 = 0.984, so g = 0.724 × 0.984 = 0.71.",
+    "joke": [
+      "Why does Hedges' g shave a little off d?",
+      "It likes to hedge its bets with small samples."
+    ],
+    "walk": "effect-size"
+  },
+  "Practical significance": {
+    "explain": "Practical significance asks whether an effect is large enough to matter in the real world, which a p-value cannot tell you. It depends on the size of the effect, the costs and benefits, and the context. A result can be statistically significant but practically trivial (a huge sample detecting a tiny gap), or large but not yet significant (a small study that is inconclusive).",
+    "example": "With 50,000 students per group, a gain of 0.2 points on a test with SD 15 is significant (p = 0.035) but d = 0.013, so it has no practical significance. A blood-pressure drug that lowers pressure by an extra 7 mmHg (d = 0.48) is both significant and clinically meaningful.",
+    "joke": [
+      "Why did the 0.2-point improvement get no applause?",
+      "It was significant, just not in any practical sense."
+    ],
+    "walk": "effect-size"
+  },
+  "η², ω², r²": {
+    "explain": "These effect sizes measure the share of the total variability that an effect explains, on a scale from 0 to 1. η² (eta squared) is the between-group variability ÷ the total variability in an ANOVA; ω² (omega squared) is a less biased version that usually comes out a little smaller. r² is the squared correlation: the share of variance two variables have in common. Rough benchmarks for η² are 0.01 small, 0.06 medium and 0.14 large.",
+    "example": "If the between-group sum of squares is 450 out of a total of 1,800, η² = 450 ÷ 1,800 = 0.25, and ω² = 0.16. A correlation of r = −0.42 between hours of sleep and errors gives r² = 0.18: 18% of the variation in errors is shared with sleep.",
+    "joke": [
+      "Why did η² bring a pie chart to the party?",
+      "It wanted everyone to see its share."
+    ],
+    "walk": "effect-size"
+  },
+  "Parametric test": {
+    "explain": "A parametric test assumes the data come from a particular kind of distribution, usually roughly normal, and tests parameters such as means. t-tests, ANOVA and Pearson correlation are parametric. When their assumptions hold, or the samples are large, they are the most powerful choice. With small, clearly skewed samples or outliers, a nonparametric alternative is safer.",
+    "example": "A baker compares the mean loaf weight from two machines, 15 loaves each, and the weights look roughly bell-shaped. A parametric Welch t-test is a good fit.",
+    "joke": [
+      "Why did the parametric test skip the skewed party?",
+      "It only feels normal around bell-shaped crowds."
+    ],
+    "walk": "choosing-a-test"
+  },
+  "Nonparametric test": {
+    "explain": "A nonparametric test replaces the raw values with ranks or signs, so it does not need the data to be normal. Examples are Mann–Whitney U (two independent groups), Wilcoxon signed-rank (paired data or one group) and Kruskal–Wallis (three or more groups). It suits small skewed samples, ordinal ratings and real outliers. It is not assumption-free (observations must still be independent), and it has a little less power when the data really are normal.",
+    "example": "Twelve incomes in one city, in thousands: 21, 24, 26, 27, 29, 31, 33, 36, 41, 48, 62 and 180. Ranked from 1 to 12, the huge 180 simply becomes rank 12, one step above 62. Mann–Whitney U compares two cities using those ranks.",
+    "joke": [
+      "Why don't nonparametric tests panic about outliers?",
+      "They just put them in their rank and carry on."
+    ],
+    "walk": "choosing-a-test"
+  },
+  "Paired vs independent": {
+    "explain": "This is the question 'can I link each value in group 1 to exactly one value in group 2?' If yes (the same people measured twice, twins, two methods on the same items), the data are paired. If the groups are simply different people, they are independent. The answer decides the test: the paired t-test or Welch's two-sample t-test. Getting it wrong can hide a real effect or invent a false one.",
+    "example": "The same 8 patients before and after a drug are paired: the paired t-test gives p = 0.0002. Running an independent test on those numbers gives p = 0.23 and misses the drop. Men's versus women's reaction times are independent, so Welch's test is right there.",
+    "joke": [
+      "How can you tell whether your data are paired?",
+      "Check if every value brought a plus-one."
+    ],
+    "walk": "choosing-a-test"
+  },
+  "Normality check": {
+    "explain": "A normality check asks whether the data (or, for paired tests, the differences) are roughly bell-shaped, as t-tests and ANOVA assume. Look at a plot first: a histogram, dot plot or Q–Q plot. A Shapiro–Wilk test can support the picture, but with small samples it has little power, so 'p > 0.05' does not prove normality. With about 30 or more per group, moderate non-normality is usually fine.",
+    "example": "Twelve incomes (in thousands) bunch between 21 and 62, with one value of 180. The dot plot shows a long right tail, so a t-test on such a small sample is risky and a rank-based test is safer.",
+    "joke": [
+      "Why did the histogram book an appointment with the doctor?",
+      "It was due for its normality check-up."
+    ],
+    "walk": "choosing-a-test"
+  },
+  "p-hacking": {
+    "explain": "p-hacking means trying analyses (different tests, outcomes, subgroups or cut-offs) until one gives p < 0.05, then reporting only that one. Every extra try is another chance of a false alarm, so the reported p-value no longer means what it claims. The fix is to choose the test from the study design before seeing any results, and to report every analysis you ran.",
+    "example": "If nothing real is going on, one test at α = 0.05 raises a false alarm 5% of the time. With 10 independent tries, the chance that at least one comes out 'significant' is 1 − 0.95¹⁰ = 40%.",
+    "joke": [
+      "Why didn't the p-hacker's big discovery ever grow again?",
+      "It had been cherry-picked."
+    ],
+    "walk": "choosing-a-test"
+  }
+}

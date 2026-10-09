@@ -4,6 +4,13 @@
 
   /* ---------- small maths helpers (local to this file) ---------- */
   const sum = (a) => a.reduce((s, v) => s + v, 0);
+  // Grow bars up from their base. Starts from a hairline rather than zero, so the first animation frame
+  // (whose timestamp can be a touch earlier than the tween start) never asks for a negative height.
+  const growBars = (A, rects, o = {}) => {
+    const arr = [rects].flat();
+    arr.forEach((r) => { const h = +r.getAttribute("height"), y = +r.getAttribute("y"); r.__gh = h; r.__gy = y; r.setAttribute("height", 0.5); r.setAttribute("y", y + h - 0.5); r.setAttribute("opacity", 1); });
+    return A.to(arr, (r) => ({ height: r.__gh, y: r.__gy }), { dur: 700, ...o });
+  };
   const mean = (a) => sum(a) / a.length;
   const lgamma = (x) => {
     const c = [0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313, -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
@@ -83,7 +90,7 @@
             bars.push(b1, b2);
           });
           await A.fadeIn(leg);
-          await A.grow(bars, { stagger: 150 });
+          await growBars(A, bars, { stagger: 150 });
           const lbls = [];
           bxs.forEach((x, i) => {
             lbls.push(S.text(x, base - (O[i][0] * unit) / 2 + 9, O[i][0], { size: 24, weight: 800, color: "#fff", hide: true }));
@@ -272,7 +279,7 @@
           const b2 = S.rect(290, base - R.msw * u, 100, R.msw * u, { fill: "blue", rx: 2, hide: true });
           S.line(110, base, 430, base, { color: "ink3", width: 2 });
           const lb = [S.text(200, 388, "MSB: signal", { size: 18, weight: 750, color: "orange" }), S.text(340, 388, "MSW: noise", { size: 18, weight: 750, color: "blue" })];
-          await A.grow([b1, b2], { stagger: 200 });
+          await growBars(A, [b1, b2], { stagger: 200 });
           const v1 = S.text(200, base - R.msb * u - 12, f1(R.msb), { size: 20, weight: 800, color: "orange", hide: true });
           const v2 = S.text(340, base - R.msw * u - 12, f2(R.msw), { size: 20, weight: 800, color: "blue", hide: true });
           await A.fadeIn([v1, v2, ...lb]);
@@ -373,7 +380,7 @@
           const head = S.text(400, 66, "chance of at least one false alarm", { size: 20, weight: 750, color: "ink2" });
           const five = S.line(160, base - 5 * u, 640, base - 5 * u, { color: "green", width: 2.5, dash: "7 5" });
           const fiveT = S.text(648, base - 5 * u + 6, "5%", { size: 18, weight: 800, color: "green", anchor: "start" });
-          await A.grow(bars, { stagger: 250 });
+          await growBars(A, bars, { stagger: 250 });
           const vals = fam.map((f, i) => S.text(xs[i], base - f.risk * 100 * u - 12, `${(f.risk * 100).toFixed(1)}%`, { size: 21, weight: 800, color: "orange", hide: true }));
           await A.fadeIn(vals, { stagger: 150 });
         },
@@ -386,7 +393,7 @@
           const f = S.pill(400, 74, `HSD = q × √(MSW ÷ n) = ${q} × √(${R.msw.toFixed(2)} ÷ ${n}) = ${hsd.toFixed(2)}`, { size: 20, color: "orange", hide: true });
           await A.fadeIn(f);
           const x0 = ax.x(66), w = ax.x(66 + hsd) - x0;
-          const stick = S.rect(x0, 160, 0, 16, { fill: "orange", rx: 4 });
+          const stick = S.rect(x0, 160, 0.5, 16, { fill: "orange", rx: 4 });
           await A.to(stick, { width: w }, { dur: 800 });
           const st = S.text(x0 + w / 2, 150, `yardstick: ${hsd.toFixed(2)}`, { size: 18, weight: 750, color: "orange", hide: true });
           await A.fadeIn(st);
@@ -402,7 +409,7 @@
           for (const r of rows) {
             const x1 = xs[r.a], x2 = xs[r.b];
             const br = S.brace(x1, x2, r.y, { up: true, color: "ink2", hide: true });
-            const stick = S.rect(x1, r.y + 6, 0, 14, { fill: "orange", rx: 3 });
+            const stick = S.rect(x1, r.y + 6, 0.5, 14, { fill: "orange", rx: 3 });
             const lab = S.text((x1 + x2) / 2, r.y - 22, `${pairInfo[r.i].diff.toFixed(1)} > ${hsd.toFixed(2)} ✓`, { size: 19, weight: 800, color: "green", hide: true });
             await A.fadeIn(br, { dur: 300 });
             await A.to(stick, { width: w }, { dur: 450 });
@@ -559,7 +566,7 @@
           S.line(90, base, 590, base, { color: "ink3", width: 2 });
           S.text(80, base + 6, "0", { size: 17, color: "ink3", anchor: "end" });
           const bars = DIFF.map((d, i) => (d > 0 ? S.rect(x(i) - 20, base - d * u, 40, d * u, { fill: "blue", rx: 3, hide: true }) : S.rect(x(i) - 20, base, 40, -d * u, { fill: "orange", rx: 3, hide: true })));
-          await A.grow(bars.filter((_, i) => DIFF[i] > 0), { stagger: 80 });
+          await growBars(A, bars.filter((_, i) => DIFF[i] > 0), { stagger: 80 });
           const neg = bars[DIFF.indexOf(-1)];
           await A.fadeIn(neg);
           const vals = DIFF.map((d, i) => S.text(x(i), d > 0 ? base - d * u - 9 : base - 9, minus(d > 0 ? "+" + d : d), { size: 18, weight: 800, color: d > 0 ? "blue" : "orange", hide: true }));

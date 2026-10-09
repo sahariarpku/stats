@@ -1,0 +1,200 @@
+{
+  "Observed / expected": {
+    "explain": "Observed counts are what actually happened: how many cases fell into each category. Expected counts are what you would see, on average, if the null hypothesis were true, for example if ad type made no difference to buying. In a two-way table each expected count is row total × column total ÷ grand total. A chi-square test measures how far the observed counts sit from the expected ones. Expected counts can be decimals like 52.5, which is fine because they are averages, not real people.",
+    "example": "200 people see either a video ad or a banner ad (100 each), and 105 of them buy. If ad type made no difference, each group of 100 would be expected to have 100 × 105 ÷ 200 = 52.5 buyers. The video group actually had 60 buyers (observed), 7.5 more than expected.",
+    "joke": [
+      "Why was the observed count always so stressed?",
+      "It could never quite live up to expectations."
+    ],
+    "walk": "chi-square"
+  },
+  "χ² statistic": {
+    "explain": "The chi-square statistic adds up how far every observed count is from its expected count: χ² = Σ (O − E)² ÷ E. Squaring stops gaps above and below from cancelling out, and dividing by E makes each gap count relative to the size that was expected. Small values are what chance alone tends to produce; a large value is evidence against the null hypothesis. The test is always right-tailed, and the curve you compare with depends on the degrees of freedom.",
+    "example": "For the ad data the four cells contribute 1.071 + 1.184 + 1.071 + 1.184, so χ² ≈ 4.51 with df = 1. The 5% cut-off is 3.84, and the p-value is 0.034, so ad type and buying look linked.",
+    "joke": [
+      "Why is the chi-square statistic never negative about anything?",
+      "It squares every difference before adding it up."
+    ],
+    "walk": "chi-square"
+  },
+  "Contingency table": {
+    "explain": "A contingency table counts how many cases fall into each combination of two categorical variables, such as ad type (video or banner) and outcome (bought or not). One variable runs down the rows, the other across the columns, with row and column totals around the edge. It is the starting point for a chi-square test of independence. It must hold counts, not percentages, because the test needs to know how many people sit behind each cell.",
+    "example": "Video ad: 60 bought, 40 did not. Banner ad: 45 bought, 55 did not. That 2×2 table has row totals 100 and 100, column totals 105 and 95, and a grand total of 200.",
+    "joke": [
+      "What is a statistician's backup plan for counting people?",
+      "A contingency table."
+    ],
+    "walk": "chi-square"
+  },
+  "Cramér's V": {
+    "explain": "Cramér's V measures how strong the link between two categorical variables is, on a scale from 0 (no link) to 1 (a perfect link). It is worked out from the chi-square statistic: V = √[χ² ÷ (N × (k − 1))], where N is the total count and k is the smaller of the number of rows and columns. A small p-value only says a link probably exists; V says whether it is big enough to care about. With very large samples even a weak link gives a tiny p-value, which is why you report V too.",
+    "example": "For the ad data χ² = 4.511 with N = 200 in a 2×2 table (k = 2), so V = √(4.511 ÷ 200) = 0.15: a small-to-moderate association.",
+    "joke": [
+      "Why does Cramér's V never go above 1?",
+      "It knows its limits."
+    ],
+    "walk": "chi-square"
+  },
+  "Fisher's exact test": {
+    "explain": "Fisher's exact test checks a 2×2 table for a link when the counts are too small for chi-square, usually when any expected count is below 5. Instead of an approximation, it keeps the row and column totals fixed and works out exactly how likely each possible table would be if there were no link (using the hypergeometric distribution). The p-value adds up the tables at least as extreme as the one observed. It works at any sample size, but it is the go-to choice for small studies.",
+    "example": "The 'lady tasting tea' claimed she could tell whether the milk went in first. Given 8 cups, 4 of each kind, she picked out all 4 milk-first cups. By pure guessing that happens 1 time in C(8, 4) = 70, so p = 1 ÷ 70 = 0.014.",
+    "joke": [
+      "Why is Fisher's test so good with tiny samples?",
+      "It knows how to handle the little fish."
+    ],
+    "walk": "chi-square"
+  },
+  "McNemar's test": {
+    "explain": "McNemar's test is for paired yes/no data: the same people answer the same question twice, such as before and after a campaign. People who gave the same answer both times say nothing about change, so the test uses only those who switched. If b people switched one way and c the other, χ² = (b − c)² ÷ (b + c) with 1 degree of freedom. An ordinary chi-square test would be wrong here, because both answers come from the same people.",
+    "example": "Of 200 voters, 45 switched from oppose to support after a campaign and 15 switched the other way. χ² = (15 − 45)² ÷ 60 = 900 ÷ 60 = 15.0 and p = 0.0001: support really rose.",
+    "joke": [
+      "Why did McNemar's test ignore everyone who answered yes both times?",
+      "It was only interested in a change of heart."
+    ],
+    "walk": "chi-square"
+  },
+  "ANOVA": {
+    "explain": "ANOVA (analysis of variance) tests whether three or more group means could all be equal. Rather than running many t-tests, which piles up false alarms, it asks one question: are the group means further apart than the scatter inside each group would explain? It splits the total variation into a between-group part (the signal) and a within-group part (the noise), and compares them with the F statistic. A significant result says at least one mean differs, but not which one.",
+    "example": "Three teaching methods, five students each, give mean exam scores of 80.0, 88.8 and 71.0. ANOVA gives F(2, 12) = 42.90 and p < 0.0001, so the methods do not all have the same mean.",
+    "joke": [
+      "Is comparing three means just running three t-tests?",
+      "No, that's ANOVA thing entirely."
+    ],
+    "walk": "anova"
+  },
+  "SSB / SSW / SST": {
+    "explain": "These are sums of squares, the raw measures of variation in ANOVA. SST (total) squares every value's distance from the grand mean and adds them up. SSB (between) squares each group mean's distance from the grand mean, counted once for every member of the group. SSW (within) squares each value's distance from its own group's mean. They always fit together: SST = SSB + SSW, so the total splits cleanly into 'lined up with the groups' and 'left over'.",
+    "example": "For the three teaching methods SSB = 792.1 and SSW = 110.8, so SST = 902.9. Most of the variation (792.1 of 902.9) lies between the groups.",
+    "joke": [
+      "Why do SSB and SSW never argue over the bill?",
+      "Their shares always add up to the total."
+    ],
+    "walk": "anova"
+  },
+  "MSB / MSW": {
+    "explain": "Mean squares turn sums of squares into averages, so they can be compared fairly. MSB = SSB ÷ (k − 1), where k is the number of groups, and MSW = SSW ÷ (N − k), where N is the total number of values. MSW is a pooled variance: the typical squared scatter inside a group. Their ratio, MSB ÷ MSW, is the F statistic.",
+    "example": "For the teaching methods, MSB = 792.1 ÷ 2 = 396.1 and MSW = 110.8 ÷ 12 = 9.23, so F = 396.1 ÷ 9.23 = 42.9.",
+    "joke": [
+      "What's the meanest thing you can do to a sum of squares?",
+      "Divide it by its degrees of freedom: then it's a mean square."
+    ],
+    "walk": "anova"
+  },
+  "F statistic": {
+    "explain": "The F statistic is ANOVA's signal-to-noise ratio: F = MSB ÷ MSW. If all the group means were truly equal, F would usually be close to 1, because the means would wobble only as much as the noise makes them wobble. A large F means the groups sit further apart than noise can explain. It is compared with the F distribution, which needs two degrees of freedom (between first, then within), and the test is right-tailed.",
+    "example": "Teaching methods: F = 396.1 ÷ 9.23 = 42.9 with df = (2, 12). The 5% critical value is 3.885, so 42.9 is far beyond it (p ≈ 0.0000034).",
+    "joke": [
+      "What did the F statistic say to the noisy group?",
+      "Keep it down, I'm trying to hear the signal!"
+    ],
+    "walk": "anova"
+  },
+  "Omnibus test": {
+    "explain": "An omnibus test asks one big question about all the groups at once: is there any difference anywhere? ANOVA's F test and the chi-square test of a large table are omnibus tests. A significant result says something differs, but not where, so it is followed by post-hoc tests. Testing everything in one go keeps the overall false-alarm rate at α instead of letting it pile up over many separate tests.",
+    "example": "With three teaching methods there are three pairs. One ANOVA (F = 42.9, p < 0.0001) answers 'do any differ?' with a 5% error rate, whereas three separate t-tests would carry about a 14.3% chance of at least one false alarm.",
+    "joke": [
+      "Why is it called an omnibus test?",
+      "Because every group gets on board at the same stop."
+    ],
+    "walk": "anova"
+  },
+  "Post-hoc test": {
+    "explain": "A post-hoc test ('after this' in Latin) compares specific pairs of groups once an omnibus test such as ANOVA has found that some difference exists. It answers the follow-up question: which groups differ? Methods such as Tukey's HSD and Bonferroni adjust for the number of comparisons, so checking many pairs does not inflate the false-alarm rate. Run them only after a significant F; otherwise you are fishing for differences.",
+    "example": "After the teaching-methods ANOVA (F = 42.9), Tukey's HSD compares A vs B (a gap of 8.8 points), A vs C (9.0) and B vs C (17.8) with a yardstick of 5.13 points. All three gaps are bigger, so all three methods differ.",
+    "joke": [
+      "Why are post-hoc tests never first in the queue?",
+      "They always wait for a significant F to wave them through."
+    ],
+    "walk": "post-hoc"
+  },
+  "Tukey's HSD": {
+    "explain": "Tukey's HSD (honestly significant difference) compares every pair of group means after a significant ANOVA, while keeping the chance of any false alarm across all the pairs at α. It builds one yardstick, HSD = q × √(MSW ÷ n), where q comes from the studentized range table and n is the size of each group. Any two means further apart than the HSD are significantly different. It is the standard choice when you want to compare all pairs.",
+    "example": "With 3 groups of 5 students and MSW = 9.23, the table gives q = 3.773 (k = 3, df = 12), so HSD = 3.773 × √(9.23 ÷ 5) = 5.13 points. The gaps 8.8, 9.0 and 17.8 all exceed 5.13.",
+    "joke": [
+      "Why is Tukey's test so trustworthy?",
+      "It's honestly significant. It says so in the name."
+    ],
+    "walk": "post-hoc"
+  },
+  "Bonferroni": {
+    "explain": "The Bonferroni correction protects you when you run several tests at once. If you plan m comparisons, test each one at α ÷ m instead of α; that keeps the chance of at least one false alarm across all of them at or below α. It is simple and works for any set of tests. The price is caution: with many comparisons each test becomes very strict, and real effects can be missed.",
+    "example": "Comparing 3 pairs of teaching methods, each pair is tested at 0.05 ÷ 3 = 0.0167. The p-values 0.0006, 0.0005 and under 0.0001 are all below 0.0167, so all three pairs differ. With 4 groups (6 pairs) each test would use 0.05 ÷ 6 = 0.0083.",
+    "joke": [
+      "How did Bonferroni share one cake among three hungry tests?",
+      "He cut α into three equal slices."
+    ],
+    "walk": "post-hoc"
+  },
+  "η² (eta squared)": {
+    "explain": "Eta squared is an effect size for ANOVA: the share of all the variation in the data that lines up with the groups. η² = SSB ÷ SST, so it runs from 0 (the groups explain nothing) to 1 (they explain everything). A rough guide: 0.01 is small, 0.06 medium and 0.14 large. It complements the p-value, which says whether a difference is real but not how big it is.",
+    "example": "For the teaching methods, η² = 792.1 ÷ 902.9 = 0.88: 88% of the variation in exam scores lines up with the teaching method, a very large effect.",
+    "joke": [
+      "Why did η² skip dessert after the teaching study?",
+      "It had already eta 88% of the variation."
+    ],
+    "walk": "anova"
+  },
+  "Rank": {
+    "explain": "A value's rank is its position after all the values are sorted from smallest to largest: 1 for the smallest, 2 for the next, and so on. Tied values share the average of the positions they occupy. Ranking keeps the order but throws away the distances, so an outlier of 95 counts exactly the same as a 31 if both are the largest. That is what makes rank-based tests resistant to outliers and odd shapes.",
+    "example": "The values 3, 7, 7, 10, 7 sort to 3, 7, 7, 7, 10. The three 7s occupy positions 2, 3 and 4, so each gets rank 3. The ranks are 3 → 1, each 7 → 3 and 10 → 5, and they add to 15 = 5 × 6 ÷ 2, as they should.",
+    "joke": [
+      "Why did the outlier lose its grip on the test?",
+      "The other values pulled rank."
+    ],
+    "walk": "rank-tests"
+  },
+  "Nonparametric": {
+    "explain": "A nonparametric test makes no assumption about the shape of the population, such as a normal curve. Most work with ranks or signs instead of the raw values, which makes them robust to skew and outliers and suitable for ordinal data like ratings. Examples are Mann–Whitney U, Wilcoxon signed-rank and Kruskal–Wallis. On truly normal data they have slightly less power than their parametric twins, so they are not automatically the better choice.",
+    "example": "Six app users per design, and the old design has one 95-second outlier. Welch's t-test gives p = 0.156, but the nonparametric Mann–Whitney test, working with ranks, gives p = 0.009.",
+    "joke": [
+      "Why don't nonparametric tests care what shape the data are in?",
+      "They never judge a distribution by its curves."
+    ],
+    "walk": "rank-tests"
+  },
+  "Mann–Whitney U": {
+    "explain": "The Mann–Whitney U test (also called the Wilcoxon rank-sum test) compares two independent groups. Pool all the values, rank them, and see whether one group's ranks bunch up at one end. U counts the pairs (one value from each group) in which the first group comes out ahead; if the groups were alike, U would be near n₁n₂ ÷ 2. Strictly it asks whether one group tends to give higher values, which matches a comparison of medians only when the two shapes are similar.",
+    "example": "New design: 11 to 19 seconds; old design: 17 to 95 seconds; six people each. The new design's ranks add to 23, so U = 23 − 6 × 7 ÷ 2 = 2: a new-design time was slower in only 2 of the 36 pairs, where about 18 would be expected. The exact p = 0.009.",
+    "joke": [
+      "Why is the Mann–Whitney test so supportive?",
+      "It's always counting on U."
+    ],
+    "walk": "rank-tests"
+  },
+  "Wilcoxon signed-rank": {
+    "explain": "The Wilcoxon signed-rank test is the rank-based version of the paired t-test. Take each pair's difference, drop any zeros, rank the sizes of the differences ignoring their signs, then add up the ranks of the positive and the negative differences separately. If nothing changed, the two sums should be similar; a lopsided split is evidence of a real shift. It also works as a one-sample test against a claimed median.",
+    "example": "Eight patients' pain falls by 4, 7, 2, 9, 3, −1, 6 and 5 points. Ranking the sizes gives W⁺ = 35 for the falls and W⁻ = 1 for the single rise, so W = 1 and the exact p = 0.016.",
+    "joke": [
+      "Why does the Wilcoxon test ignore minus signs at first?",
+      "It likes to size everyone up before asking which side they're on."
+    ],
+    "walk": "rank-tests"
+  },
+  "Kruskal–Wallis": {
+    "explain": "The Kruskal–Wallis test is the rank-based version of one-way ANOVA, for three or more independent groups. Rank all the values together, add up the ranks in each group, and compare the rank sums with what you would expect if the groups were alike. The H statistic is compared with a chi-square distribution with k − 1 degrees of freedom (or exact tables for tiny groups). Like ANOVA it only says that some group differs; Dunn's test finds which.",
+    "example": "Three teaching groups of three students: the rank sums are 15, 24 and 6, against 15 each if the groups were alike. H = 7.2 on 2 df gives p = 0.027 (the exact p for groups this small is 0.004).",
+    "joke": [
+      "Why is Kruskal–Wallis ANOVA's favourite understudy?",
+      "It knows all the same lines, just in rank order."
+    ],
+    "walk": "rank-tests"
+  },
+  "Rank-biserial r": {
+    "explain": "The rank-biserial correlation is an effect size that goes with the Mann–Whitney test: r = 1 − 2U ÷ (n₁n₂). It runs from 0 (the two groups are completely mixed) to 1 (they do not overlap at all). In plain terms it is how much more often a value from one group beats a value from the other than the other way round. Report it alongside the p-value, which only says the difference is probably real.",
+    "example": "For the app designs U = 2 with 6 people per group, so r = 1 − 2 × 2 ÷ 36 = 0.89. A new-design user beats an old-design user in 34 of the 36 pairs (94%).",
+    "joke": [
+      "Why is the rank-biserial r such a good race judge?",
+      "It only cares who finished ahead, never by how much."
+    ],
+    "walk": "rank-tests"
+  },
+  "Power": {
+    "explain": "Power is the chance that a test detects an effect that really exists: the probability of correctly rejecting a false null hypothesis (1 − β). It grows with bigger samples, bigger effects, less noise and a larger α. Different tests can have different power on the same data: on normal data a t-test has slightly more power than its rank-based twin, but on skewed or outlier-heavy data the rank test usually wins. Studies are often planned to reach 80% power.",
+    "example": "With 64 people per group, a two-sample t-test has about 80% power to detect a 5-point difference when the outcome's SD is 10 (a simulation of 4,000 studies found it 80.2% of the time). On the app data with one 95-second outlier, the rank test spotted the difference (p = 0.009) while the t-test missed it (p = 0.156).",
+    "joke": [
+      "Why did the tiny study miss the obvious effect?",
+      "It just didn't have the power to see it through."
+    ],
+    "walk": "errors-and-power"
+  }
+}
