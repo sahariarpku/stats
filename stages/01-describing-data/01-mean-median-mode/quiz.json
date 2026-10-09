@@ -1,0 +1,46 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Five people earn $10k, $10k, $10k, $10k and $60k. What is the mean?",
+      "options": ["$10k", "$20k", "$30k", "$60k"],
+      "correct": 1,
+      "explanation": "Add them up: 10 + 10 + 10 + 10 + 60 = 100. Divide by 5 people: 100 / 5 = 20. The mean is $20k, even though four of the five people earn $10k."
+    },
+    {
+      "stage": "pre",
+      "question": "What is the median of 3, 9, 1, 7, 5?",
+      "options": ["3", "5", "7", "9"],
+      "correct": 1,
+      "explanation": "Sort first: 1, 3, 5, 7, 9. The middle value is 5. Forgetting to sort is the most common mistake. The middle number in the original order, 1, is wrong."
+    },
+    {
+      "stage": "post",
+      "question": "The data are 2, 4, 4, 6, 100. Which measure best describes a typical value?",
+      "options": ["The mean (23.2)", "The median (4)", "The range (98)", "None of them can be used"],
+      "correct": 1,
+      "explanation": "The value 100 drags the mean up to 23.2, a number that no one in the group is close to. The median ignores how far away 100 is and reports 4, which matches the bulk of the data."
+    },
+    {
+      "stage": "post",
+      "question": "What is the median of 2, 4, 6, 8?",
+      "options": ["4", "5", "6", "There is no median"],
+      "correct": 1,
+      "explanation": "With an even count there is no single middle value, so average the two middle ones: (4 + 6) / 2 = 5."
+    },
+    {
+      "stage": "post",
+      "question": "What is the mode of 1, 2, 2, 3, 3?",
+      "options": ["2", "3", "Both 2 and 3", "There is no mode"],
+      "correct": 2,
+      "explanation": "The mode is the most frequent value. Here 2 and 3 each appear twice, so the data have two modes (bimodal). A dataset can have more than one."
+    },
+    {
+      "stage": "post",
+      "question": "A company's mean salary jumps when the CEO's pay rises, but no one else gets a raise. Why?",
+      "options": ["The median must have jumped too", "The mean uses every value, so one extreme value shifts it", "The mode changed", "Salaries are not suited to averages"],
+      "correct": 1,
+      "explanation": "The mean adds up every value, so one very large value pulls it upward. The median depends only on the middle position, so it barely moves. This is why income is usually reported as a median."
+    }
+  ]
+}

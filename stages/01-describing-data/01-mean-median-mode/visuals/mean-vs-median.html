@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mean vs Median</title>
+<link rel="stylesheet" href="../../../../assets/visuals.css">
+</head>
+<body>
+<main class="viz">
+  <div class="viz-head">
+    <div>
+      <h1>Who moves when one value moves?</h1>
+      <p class="hint">Each dot is one person's salary (in $1,000s). Drag a dot, or focus it and press the arrow keys. Then press "Add an outlier".</p>
+    </div>
+    <button id="theme" type="button">Theme: auto</button>
+  </div>
+
+  <svg id="plot" viewBox="0 0 760 225" role="group" aria-label="Salaries on a number line, with the mean and median marked"></svg>
+
+  <div class="legend">
+    <span>
+      <svg viewBox="0 0 14 14" aria-hidden="true"><path d="M1 2 L13 2 L7 12 Z" fill="var(--series-1)"/></svg>
+      Mean (add up, divide by count)
+    </span>
+    <span>
+      <svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 1 L13 7 L7 13 L1 7 Z" fill="var(--series-2)"/></svg>
+      Median (the middle value)
+    </span>
+  </div>
+
+  <div class="readout" aria-live="polite">
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>Mean</div><div class="value" id="mean-val"></div></div>
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-2)"></span>Median</div><div class="value" id="median-val"></div></div>
+    <div class="card"><div class="label">People</div><div class="value" id="count-val"></div></div>
+  </div>
+
+  <p class="verdict" id="verdict" aria-live="polite"></p>
+
+  <div class="controls">
+    <button id="add" type="button">Add an outlier</button>
+    <button id="reset" type="button">Reset</button>
+  </div>
+</main>
+
+<script src="../../../../assets/visuals.js"></script>
+<script>
+const START = [38, 42, 45, 47, 50, 52, 55, 58, 60];
+const OUTLIER = 200;
+const DOMAIN = { min: 20, max: 220 };
+const PLOT = { left: 30, right: 730, axisY: 140, baseY: 112, dot: 8, step: 17 };
+
+const svg = document.getElementById("plot");
+let values = [...START];
+const dots = [];
+
+const px = (v) => PLOT.left + ((v - DOMAIN.min) / (DOMAIN.max - DOMAIN.min)) * (PLOT.right - PLOT.left);
+const toValue = (clientX) => {
+  const box = svg.getBoundingClientRect();
+  const x = ((clientX - box.left) / box.width) * 760;
+  const v = DOMAIN.min + ((x - PLOT.left) / (PLOT.right - PLOT.left)) * (DOMAIN.max - DOMAIN.min);
+  return Math.round(Math.min(DOMAIN.max, Math.max(DOMAIN.min, v)));
+};
+
+Viz.el("line", { class: "axis-line", x1: PLOT.left, x2: PLOT.right, y1: PLOT.axisY, y2: PLOT.axisY }, svg);
+for (let t = DOMAIN.min; t <= DOMAIN.max; t += 20) {
+  Viz.el("line", { class: "axis-line", x1: px(t), x2: px(t), y1: PLOT.axisY, y2: PLOT.axisY + 5 }, svg);
+  const label = Viz.el("text", { x: px(t), y: PLOT.axisY + 20, "text-anchor": "middle" }, svg);
+  label.textContent = t;
+}
+
+const meanLine = Viz.el("line", { y1: 44, y2: 172, stroke: "var(--series-1)", "stroke-width": 2 }, svg);
+const medianLine = Viz.el("line", { y1: 44, y2: 172, stroke: "var(--series-2)", "stroke-width": 2, "stroke-dasharray": "5 4" }, svg);
+const meanMark = Viz.el("path", { fill: "var(--series-1)" }, svg);
+const meanText = Viz.el("text", { class: "strong", "text-anchor": "middle", y: 20 }, svg);
+const medianMark = Viz.el("path", { fill: "var(--series-2)" }, svg);
+const medianText = Viz.el("text", { class: "strong", "text-anchor": "middle", y: 204 }, svg);
+
+function makeDot(index) {
+  const dot = Viz.el("circle", {
+    class: "dot", r: PLOT.dot, fill: "var(--dot)",
+    stroke: "var(--surface-1)", "stroke-width": 2,
+    tabindex: 0, role: "slider",
+    "aria-valuemin": DOMAIN.min, "aria-valuemax": DOMAIN.max,
+  }, svg);
+  const title = Viz.el("title", {}, dot);
+  dot._title = title;
+
+  dot.addEventListener("pointerdown", (e) => {
+    dot.setPointerCapture(e.pointerId);
+    dot.focus();
+    dot._dragging = true;
+  });
+  dot.addEventListener("pointermove", (e) => {
+    if (!dot._dragging) return;
+    values[index] = toValue(e.clientX);
+    render();
+  });
+  const stop = () => { dot._dragging = false; };
+  dot.addEventListener("pointerup", stop);
+  dot.addEventListener("pointercancel", stop);
+  dot.addEventListener("keydown", (e) => {
+    const step = e.shiftKey ? 10 : 1;
+    if (e.key === "ArrowRight" || e.key === "ArrowUp") values[index] = Math.min(DOMAIN.max, values[index] + step);
+    else if (e.key === "ArrowLeft" || e.key === "ArrowDown") values[index] = Math.max(DOMAIN.min, values[index] - step);
+    else return;
+    e.preventDefault();
+    render();
+  });
+  return dot;
+}
+
+function stackLevels() {
+  const order = values.map((v, i) => i).sort((a, b) => values[a] - values[b]);
+  const placed = [];
+  const levels = new Array(values.length).fill(0);
+  for (const i of order) {
+    let level = 0;
+    while (placed.some((p) => p.level === level && Math.abs(px(values[p.i]) - px(values[i])) < PLOT.dot * 2 + 1)) level++;
+    levels[i] = level;
+    placed.push({ i, level });
+  }
+  return levels;
+}
+
+function verdictText(mean, median) {
+  const gap = mean - median;
+  if (Math.abs(gap) < 2) return "The mean and the median agree. Nothing is pulling either one away from the middle of the group.";
+  const dir = gap > 0 ? "above" : "below";
+  return "The mean sits " + Viz.fmt(Math.abs(gap)) + " " + dir + " the median. A few extreme values drag the mean toward them, while the median only cares about the middle position. Here, the median is the better description of a typical person.";
+}
+
+function render() {
+  while (dots.length < values.length) dots.push(makeDot(dots.length));
+  while (dots.length > values.length) dots.pop().remove();
+
+  const levels = stackLevels();
+  values.forEach((v, i) => {
+    dots[i].setAttribute("cx", px(v));
+    dots[i].setAttribute("cy", PLOT.baseY - levels[i] * PLOT.step);
+    dots[i].setAttribute("aria-valuenow", v);
+    dots[i].setAttribute("aria-label", "Person " + (i + 1) + " salary");
+    dots[i]._title.textContent = "Person " + (i + 1) + ": $" + v + "k";
+  });
+
+  const mean = Viz.mean(values);
+  const median = Viz.median(values);
+
+  meanLine.setAttribute("x1", px(mean)); meanLine.setAttribute("x2", px(mean));
+  medianLine.setAttribute("x1", px(median)); medianLine.setAttribute("x2", px(median));
+  meanMark.setAttribute("d", "M" + (px(mean) - 7) + " 26 L" + (px(mean) + 7) + " 26 L" + px(mean) + " 40 Z");
+  medianMark.setAttribute("d", "M" + px(median) + " 166 L" + (px(median) + 7) + " 173 L" + px(median) + " 180 L" + (px(median) - 7) + " 173 Z");
+  meanText.setAttribute("x", px(mean)); meanText.textContent = "Mean " + Viz.fmt(Math.round(mean * 10) / 10);
+  medianText.setAttribute("x", px(median)); medianText.textContent = "Median " + Viz.fmt(median);
+
+  document.getElementById("mean-val").textContent = "$" + Viz.fmt(Math.round(mean * 10) / 10) + "k";
+  document.getElementById("median-val").textContent = "$" + Viz.fmt(median) + "k";
+  document.getElementById("count-val").textContent = values.length;
+  document.getElementById("verdict").textContent = verdictText(mean, median);
+  document.getElementById("add").disabled = values.length > START.length;
+}
+
+document.getElementById("add").addEventListener("click", () => { values.push(OUTLIER); render(); });
+document.getElementById("reset").addEventListener("click", () => { values = [...START]; render(); });
+Viz.themeToggle(document.getElementById("theme"));
+render();
+</script>
+</body>
+</html>
