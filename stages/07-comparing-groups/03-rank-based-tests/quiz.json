@@ -1,0 +1,60 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Why might a rank-based test beat a t-test on a small sample with one extreme outlier?",
+      "options": ["Ranks make the data normal", "An outlier is just 'the largest rank', so it cannot inflate the spread", "Rank tests always have more power", "They need no assumptions at all"],
+      "correct": 1,
+      "explanation": "Ranks keep the order but throw away distances, so a value of 95 counts exactly the same as a value of 31 if both are the largest. A t-test uses the actual sizes, so one outlier inflates the standard deviation."
+    },
+    {
+      "stage": "pre",
+      "question": "Which rank-based test is the back-up for the independent two-sample t-test?",
+      "options": ["Wilcoxon signed-rank", "Kruskal–Wallis", "Mann–Whitney U", "Friedman"],
+      "correct": 2,
+      "explanation": "Mann–Whitney U (Wilcoxon rank-sum) compares two independent groups. Signed-rank is for paired data, Kruskal–Wallis for three or more groups."
+    },
+    {
+      "stage": "post",
+      "question": "What ranks do the values 5, 8, 8, 11 receive?",
+      "options": ["1, 2, 3, 4", "1, 2.5, 2.5, 4", "1, 2, 2, 4", "1, 3, 3, 4"],
+      "correct": 1,
+      "explanation": "The two 8s share ranks 2 and 3, so each gets the average, 2.5."
+    },
+    {
+      "stage": "post",
+      "question": "In a Mann–Whitney test with n₁ = n₂ = 6, the first group's ranks add to W = 23. What is U₁?",
+      "options": ["2", "23", "21", "34"],
+      "correct": 0,
+      "explanation": "U₁ = W − n₁(n₁ + 1) ÷ 2 = 23 − 21 = 2. The other group has U₂ = 36 − 2 = 34."
+    },
+    {
+      "stage": "post",
+      "question": "Which test do you use for 8 patients' pain scores measured before and after a treatment, when the scores are ordinal?",
+      "options": ["Mann–Whitney U", "Wilcoxon signed-rank", "Kruskal–Wallis", "Chi-square"],
+      "correct": 1,
+      "explanation": "Before and after on the same people is paired data, so the rank-based test is the Wilcoxon signed-rank test."
+    },
+    {
+      "stage": "post",
+      "question": "In a Wilcoxon signed-rank test, one patient has a difference of exactly 0. What do you do with that patient?",
+      "options": ["Give them rank 0", "Rank them with a plus sign", "Drop them and reduce n by one", "Count them in both W⁺ and W⁻"],
+      "correct": 2,
+      "explanation": "Zero differences carry no information about direction, so they are dropped before ranking and n is reduced."
+    },
+    {
+      "stage": "post",
+      "question": "Three groups have rank sums 15, 24 and 6 (N = 9). What is the Kruskal–Wallis H?",
+      "options": ["3.6", "5.0", "7.2", "9.0"],
+      "correct": 2,
+      "explanation": "H = [12 ÷ (9 × 10)] × (15²/3 + 24²/3 + 6²/3) − 3 × 10 = 0.1333 × 279 − 30 = 7.2."
+    },
+    {
+      "stage": "post",
+      "question": "For data that are roughly normal with a large sample, which choice is usually best?",
+      "options": ["A rank test, because it is always safer", "The t-test or ANOVA, which has slightly more power and a directly interpretable difference in means", "No test is possible", "Chi-square"],
+      "correct": 1,
+      "explanation": "When the assumptions hold, the parametric tests detect real effects a bit more often and report a difference in means. Rank tests are the back-up for skewed, tiny or ordinal data."
+    }
+  ]
+}

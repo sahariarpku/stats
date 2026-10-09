@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ranks Ignore Outliers</title>
+<link rel="stylesheet" href="../../../../assets/visuals.css">
+</head>
+<body>
+<main class="viz">
+  <div class="viz-head">
+    <div>
+      <h1>Ranks ignore outliers</h1>
+      <p class="hint">Task times in seconds for two app designs. Slide the slowest "old design" time up and down. The t-test reacts to every second. The rank-based test only cares about the order.</p>
+    </div>
+    <button id="theme" type="button">Theme: auto</button>
+  </div>
+
+  <svg id="plot" viewBox="0 0 760 310" role="img" aria-label="Task times for two designs on a number line, and the pooled ranks of all twelve values"></svg>
+
+  <div class="legend">
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="var(--series-1)"/></svg>New design</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="2" y="2" width="10" height="10" fill="var(--series-2)"/></svg>Old design</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="5.5" fill="none" stroke="var(--text-primary)" stroke-width="2"/></svg>The value you are moving</span>
+  </div>
+
+  <div class="readout" aria-live="polite">
+    <div class="card"><div class="label">Welch t-test p</div><div class="value" id="tp"></div></div>
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>Mann–Whitney p</div><div class="value" id="mp"></div></div>
+    <div class="card"><div class="label">U (smaller)</div><div class="value" id="u"></div></div>
+    <div class="card"><div class="label">Moving value's rank</div><div class="value" id="rk"></div></div>
+  </div>
+  <p class="verdict" id="verdict" aria-live="polite"></p>
+
+  <div class="controls col" id="sliders"></div>
+  <div class="controls">
+    <button id="b28" type="button">No outlier (28 s)</button>
+    <button id="b95" type="button">The lesson (95 s)</button>
+    <button id="b200" type="button">Extreme (200 s)</button>
+  </div>
+</main>
+
+<script src="../../../../assets/visuals.js"></script>
+<script>
+const NEW = [12, 15, 11, 14, 19, 13];
+const OLD = [18, 22, 25, 17, 30];
+let Z = 95;
+const svg = document.getElementById("plot");
+const $ = (id) => document.getElementById(id);
+const layer = Viz.el("g", {}, svg);
+
+// exact distribution of U for 6 vs 6 (all 924 ways to pick the ranks of the first group)
+const COUNTS = (() => {
+  const c = new Array(37).fill(0);
+  const pick = (start, left, sum) => {
+    if (left === 0) { c[sum - 21]++; return; }
+    for (let r = start; r <= 12 - left + 1; r++) pick(r + 1, left - 1, sum + r);
+  };
+  pick(1, 6, 0);
+  return c;
+})();
+const TOTAL = COUNTS.reduce((a, b) => a + b, 0);
+
+function rankAll(values) {
+  const idx = values.map((v, i) => i).sort((a, b) => values[a] - values[b]);
+  const ranks = new Array(values.length);
+  let i = 0;
+  while (i < idx.length) {
+    let j = i;
+    while (j + 1 < idx.length && values[idx[j + 1]] === values[idx[i]]) j++;
+    for (let k = i; k <= j; k++) ranks[idx[k]] = (i + j) / 2 + 1;
+    i = j + 1;
+  }
+  return ranks;
+}
+
+function welchP(a, b) {
+  const va = Viz.sd(a) ** 2 / a.length, vb = Viz.sd(b) ** 2 / b.length;
+  const t = (Viz.mean(a) - Viz.mean(b)) / Math.sqrt(va + vb);
+  const df = (va + vb) ** 2 / (va ** 2 / (a.length - 1) + vb ** 2 / (b.length - 1));
+  return Math.min(1, 2 * (1 - Viz.tCdf(Math.abs(t), df)));
+}
+
+function render() {
+  const old = OLD.concat([Z]);
+  const pooled = NEW.concat(old);
+  const ranks = rankAll(pooled);
+  const w1 = ranks.slice(0, 6).reduce((a, b) => a + b, 0);
+  const u1 = w1 - 21, u2 = 36 - u1, u = Math.min(u1, u2);
+  const ties = new Set(pooled).size < pooled.length;
+  let mp;
+  if (!ties) {
+    let cum = 0; for (let k = 0; k <= u; k++) cum += COUNTS[k];
+    mp = Math.min(1, 2 * cum / TOTAL);
+  } else {
+    const z = (u - 18) / Math.sqrt(36 * 13 / 12);
+    mp = Math.min(1, 2 * Viz.normCdf(z));
+  }
+  const tp = welchP(NEW, old);
+  const zRank = ranks[11];
+
+  layer.replaceChildren();
+  const X = Viz.scale(0, 210, 60, 725);
+  const rowN = 50, rowO = 100;
+  Viz.el("line", { x1: 60, x2: 725, y1: rowN, y2: rowN, stroke: "var(--grid)" }, layer);
+  Viz.el("line", { x1: 60, x2: 725, y1: rowO, y2: rowO, stroke: "var(--grid)" }, layer);
+  Viz.el("text", { x: 4, y: rowN + 5, class: "strong" }, layer).textContent = "New";
+  Viz.el("text", { x: 4, y: rowO + 5, class: "strong" }, layer).textContent = "Old";
+  Viz.axisBottom(layer, X, { y: 128, from: 0, to: 210, step: 30 });
+  Viz.el("text", { x: 725, y: 168, "text-anchor": "end", opacity: 0.85 }, layer).textContent = "seconds to finish the task";
+  const mN = Viz.mean(NEW), mO = Viz.mean(old);
+  Viz.el("line", { x1: X(mN), x2: X(mN), y1: rowN - 18, y2: rowN + 18, stroke: "var(--series-1)", "stroke-width": 4 }, layer);
+  Viz.el("line", { x1: X(mO), x2: X(mO), y1: rowO - 18, y2: rowO + 18, stroke: "var(--series-2)", "stroke-width": 4 }, layer);
+  Viz.el("text", { x: X(mN) + 6, y: rowN - 22 }, layer).textContent = "mean " + mN.toFixed(1);
+  Viz.el("text", { x: X(mO) + 6, y: rowO - 22 }, layer).textContent = "mean " + mO.toFixed(1);
+  NEW.forEach((v) => Viz.el("circle", { cx: X(v), cy: rowN, r: 6, fill: "var(--series-1)", stroke: "var(--surface-1)", "stroke-width": 2 }, layer));
+  OLD.forEach((v) => Viz.el("rect", { x: X(v) - 6, y: rowO - 6, width: 12, height: 12, fill: "var(--series-2)", stroke: "var(--surface-1)", "stroke-width": 2 }, layer));
+  Viz.el("rect", { x: X(Z) - 6, y: rowO - 6, width: 12, height: 12, fill: "var(--series-2)", stroke: "var(--surface-1)", "stroke-width": 2 }, layer);
+  Viz.el("circle", { cx: X(Z), cy: rowO, r: 11, fill: "none", stroke: "var(--text-primary)", "stroke-width": 2 }, layer);
+
+  // rank strip
+  Viz.el("text", { x: 60, y: 196, class: "strong" }, layer).textContent = "All 12 times in order (#rank)";
+  const order = pooled.map((v, i) => i).sort((a, b) => pooled[a] - pooled[b]);
+  order.forEach((idx, pos) => {
+    const x = 60 + pos * 56, y = 205;
+    const isNew = idx < 6;
+    const color = isNew ? "var(--series-1)" : "var(--series-2)";
+    Viz.el("rect", { x, y, width: 50, height: 42, rx: 4, fill: color, opacity: 0.9 }, layer);
+    if (idx === 11) Viz.el("rect", { x: x - 2, y: y - 2, width: 54, height: 46, rx: 5, fill: "none", stroke: "var(--text-primary)", "stroke-width": 2 }, layer);
+    const label = Viz.el("text", { x: x + 25, y: y + 19, "text-anchor": "middle", class: "strong", fill: "#fff" }, layer);
+    label.textContent = pooled[idx];
+    Viz.el("text", { x: x + 25, y: y + 36, "text-anchor": "middle", fill: "#fff" }, layer).textContent = "#" + ranks[idx];
+  });
+  Viz.el("text", { x: 60, y: 272, opacity: 0.85 }, layer).textContent = "Slide the circled value past 30: its rank stays 12.";
+  Viz.el("text", { x: 60, y: 296, opacity: 0.85 }, layer).textContent = "Only its distance from the others changes.";
+
+  const f = (p) => (p < 0.0001 ? "< 0.0001" : p.toFixed(3));
+  $("tp").textContent = f(tp);
+  $("mp").textContent = f(mp) + (ties ? " ≈" : "");
+  $("u").textContent = Number.isInteger(u) ? u : u.toFixed(1);
+  $("rk").textContent = zRank + " of 12";
+  $("verdict").textContent = (tp > 0.05 && mp <= 0.05
+    ? "Mann–Whitney detects the difference (p ≤ 0.05) while the t-test misses it: one slow outlier inflates the old design's spread. "
+    : tp <= 0.05 && mp <= 0.05
+      ? "Both tests agree: the new design is faster. "
+      : "Neither test is significant here. ")
+    + "Mean times: new " + mN.toFixed(1) + " s, old " + mO.toFixed(1) + " s." + (ties ? " Tied values get average ranks, so the rank test's p-value is approximate." : "");
+}
+
+const sl = Viz.slider($("sliders"), { label: "The slowest old-design time", min: 10, max: 200, step: 1, value: Z, format: (v) => v + " s", onInput: (v) => { Z = v; render(); } });
+const go = (v) => { Z = v; sl.set(v); render(); };
+$("b28").addEventListener("click", () => go(28));
+$("b95").addEventListener("click", () => go(95));
+$("b200").addEventListener("click", () => go(200));
+Viz.themeToggle($("theme"));
+render();
+</script>
+</body>
+</html>
