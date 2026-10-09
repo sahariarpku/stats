@@ -1,0 +1,46 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "When the population standard deviation σ is unknown and you use the sample SD s, the critical value comes from...",
+      "options": ["The normal distribution", "The t-distribution", "The binomial distribution", "The Poisson distribution"],
+      "correct": 1,
+      "explanation": "Replacing σ by s adds extra uncertainty, which the heavier-tailed t-distribution accounts for."
+    },
+    {
+      "stage": "pre",
+      "question": "For a one-sample t-interval, the degrees of freedom are...",
+      "options": ["n", "n − 1", "n − 2", "2n"],
+      "correct": 1,
+      "explanation": "One degree of freedom is used up by estimating the mean, leaving n − 1 for estimating the spread."
+    },
+    {
+      "stage": "post",
+      "question": "How does the t critical value (95%) compare with z = 1.96?",
+      "options": ["Always smaller", "Always larger, and it approaches 1.96 as df grows", "Equal for every n", "Larger only for n > 100"],
+      "correct": 1,
+      "explanation": "t* is bigger because t has fatter tails (e.g. 2.131 at df = 15). As df increases, the t curve converges to the normal curve and t* approaches 1.960."
+    },
+    {
+      "stage": "post",
+      "question": "n = 15, x̄ = 72, s = 8. With t* = 2.145 (df = 14), what is the 95% CI?",
+      "options": ["(67.57, 76.43)", "(64, 80)", "(70.9, 73.1)", "(55.6, 88.4)"],
+      "correct": 0,
+      "explanation": "SE = 8/√15 = 2.066 and ME = 2.145 × 2.066 = 4.43, so 72 ± 4.43 = (67.57, 76.43)."
+    },
+    {
+      "stage": "post",
+      "question": "What goes wrong if you use z = 1.96 instead of t when n is small and σ is unknown?",
+      "options": ["The interval is too wide", "The interval is too narrow, overstating precision", "Nothing, they are identical", "The mean shifts"],
+      "correct": 1,
+      "explanation": "z ignores the extra uncertainty in s. The interval comes out too narrow, so its true coverage falls below the claimed 95%."
+    },
+    {
+      "stage": "post",
+      "question": "Which is NOT a condition for the t-interval for a mean?",
+      "options": ["A random sample", "Independent observations", "Roughly normal data or large n", "The population σ must be known"],
+      "correct": 3,
+      "explanation": "The whole point of the t-interval is that σ is unknown. The conditions are randomness, independence and approximate normality (or large n)."
+    }
+  ]
+}

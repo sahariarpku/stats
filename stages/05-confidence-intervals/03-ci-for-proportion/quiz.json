@@ -1,0 +1,46 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Which formula gives the standard (Wald) 95% interval for a proportion?",
+      "options": ["p̂ ± 1.96 × √[p̂(1 − p̂)/n]", "p̂ ± 1.96 × n", "p̂ ± 1.96 × √n", "p̂ ± 0.05"],
+      "correct": 0,
+      "explanation": "The Wald interval is the estimate plus or minus z* times the standard error √[p̂(1 − p̂)/n]."
+    },
+    {
+      "stage": "pre",
+      "question": "For the Wald interval to be reliable, which condition should hold?",
+      "options": ["n ≥ 5", "n p̂ ≥ 10 and n(1 − p̂) ≥ 10", "p̂ = 0.5", "n is even"],
+      "correct": 1,
+      "explanation": "The success-failure condition ensures the normal model fits. With few successes or failures the interval misbehaves."
+    },
+    {
+      "stage": "post",
+      "question": "476 of 850 voters support a candidate. What is the Wald 95% CI?",
+      "options": ["(52.7%, 59.3%)", "(46%, 66%)", "(55.0%, 57.0%)", "(50%, 62%)"],
+      "correct": 0,
+      "explanation": "p̂ = 0.56, SE = 0.01703, margin = 1.96 × 0.01703 = 0.0334, so 0.56 ± 0.0334 = (0.527, 0.593)."
+    },
+    {
+      "stage": "post",
+      "question": "3 of 20 patients have a complication. Why is the Wald interval a poor choice here?",
+      "options": ["n is not an integer", "n p̂ = 3 < 10, and it produces a negative lower bound", "The interval is too wide", "Because 3 is odd"],
+      "correct": 1,
+      "explanation": "The success-failure condition fails. Wald gives (−0.6%, 30.6%), which includes impossible negative values, and its true coverage is below 95%."
+    },
+    {
+      "stage": "post",
+      "question": "In simulation with true p = 0.10 and n = 20, the nominal 95% Wald interval contains the truth about how often?",
+      "options": ["About 95%", "About 88%", "About 99%", "About 50%"],
+      "correct": 1,
+      "explanation": "Wald's actual coverage here was about 87.6%, well below the advertised 95%. Wilson achieved about 95.5%."
+    },
+    {
+      "stage": "post",
+      "question": "You observe 0 events in 30 trials. By the rule of three, an approximate 95% upper bound for the true rate is...",
+      "options": ["0", "About 3%", "About 10%", "About 30%"],
+      "correct": 2,
+      "explanation": "Rule of three: upper bound ≈ 3/n = 3/30 = 0.10, or 10%. No events in a small sample doesn't prove the rate is zero."
+    }
+  ]
+}

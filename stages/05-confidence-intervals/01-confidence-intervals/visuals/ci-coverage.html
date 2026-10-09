@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>One Hundred Intervals</title>
+<link rel="stylesheet" href="../../../../assets/visuals.css">
+</head>
+<body>
+<main class="viz">
+  <div class="viz-head">
+    <div>
+      <h1>One hundred intervals, one true mean</h1>
+      <p class="hint">The true mean is fixed at 50. Each line is a confidence interval from a fresh random sample. Blue lines catch the truth. Orange lines miss it.</p>
+    </div>
+    <button id="theme" type="button">Theme: auto</button>
+  </div>
+
+  <svg id="plot" viewBox="0 0 760 440" role="img" aria-label="One hundred horizontal confidence intervals around the true mean"></svg>
+
+  <div class="legend">
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="5.5" width="14" height="3" fill="var(--series-1)"/></svg>Captures the true mean</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="5.5" width="14" height="3" fill="var(--series-2)"/><circle cx="7" cy="7" r="3" fill="var(--series-2)"/></svg>Misses the true mean</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="6" y="0" width="2.5" height="14" fill="var(--text-primary)"/></svg>True mean μ = 50</span>
+  </div>
+
+  <div class="readout" aria-live="polite">
+    <div class="card"><div class="label">Intervals drawn</div><div class="value" id="total">0</div></div>
+    <div class="card"><div class="label">Captured the mean</div><div class="value" id="hit">—</div></div>
+    <div class="card"><div class="label">Missed</div><div class="value" id="miss">—</div></div>
+    <div class="card"><div class="label">Capture rate</div><div class="value" id="rate">—</div></div>
+  </div>
+  <p class="verdict" id="verdict" aria-live="polite">Press "Draw 100 intervals".</p>
+
+  <div class="controls col" id="sliders"></div>
+  <div class="controls">
+    <button id="draw" type="button">Draw 100 intervals</button>
+    <button id="more" type="button">Add 1,000 more (keep score)</button>
+    <button id="reset" type="button">Reset</button>
+  </div>
+</main>
+
+<script src="../../../../assets/visuals.js"></script>
+<script>
+const MU = 50, SIGMA = 10;
+let conf = 0.95, n = 25, shown = [], total = 0, hits = 0;
+const svg = document.getElementById("plot");
+const $ = (id) => document.getElementById(id);
+const X = Viz.scale(35, 65, 30, 730);
+const layer = Viz.el("g", {}, svg);
+const z = () => Viz.normInv(1 - (1 - conf) / 2);
+
+function one() {
+  let s = 0;
+  for (let i = 0; i < n; i++) s += MU + SIGMA * Viz.randn(Math.random);
+  const xbar = s / n, me = z() * SIGMA / Math.sqrt(n);
+  return { lo: xbar - me, hi: xbar + me, hit: xbar - me <= MU && MU <= xbar + me };
+}
+
+function render() {
+  layer.replaceChildren();
+  Viz.axisBottom(layer, X, { y: 405, from: 35, to: 65, step: 5 });
+  const rowH = 3.7;
+  shown.forEach((iv, i) => {
+    const y = 12 + i * rowH;
+    const color = iv.hit ? "var(--series-1)" : "var(--series-2)";
+    Viz.el("line", { x1: X(iv.lo), x2: X(iv.hi), y1: y, y2: y, stroke: color, "stroke-width": iv.hit ? 1.6 : 2.6, opacity: iv.hit ? 0.75 : 1 }, layer);
+    if (!iv.hit) Viz.el("circle", { cx: X((iv.lo + iv.hi) / 2), cy: y, r: 2.4, fill: color }, layer);
+  });
+  Viz.el("line", { x1: X(MU), x2: X(MU), y1: 4, y2: 405, stroke: "var(--text-primary)", "stroke-width": 2 }, layer);
+
+  const hitShown = shown.filter((v) => v.hit).length;
+  $("total").textContent = total.toLocaleString();
+  if (total) {
+    $("hit").textContent = hits.toLocaleString();
+    $("miss").textContent = (total - hits).toLocaleString();
+    $("rate").textContent = (100 * hits / total).toFixed(1) + "%";
+    $("verdict").textContent = "On screen: " + hitShown + " of " + shown.length + " intervals capture μ. Over all " + total.toLocaleString() + " drawn so far the capture rate is " + (100 * hits / total).toFixed(1) + "%, close to the " + Math.round(conf * 100) + "% promised. Every blue or orange line is built the same way. Only the luck of the sample differs.";
+  }
+}
+
+function draw(count, keepOnScreen) {
+  if (keepOnScreen) shown = [];
+  for (let i = 0; i < count; i++) {
+    const iv = one();
+    total++; if (iv.hit) hits++;
+    if (keepOnScreen) shown.push(iv);
+  }
+  render();
+}
+
+Viz.slider($("sliders"), { label: "Confidence level", min: 0.5, max: 0.99, step: 0.01, value: conf, format: (v) => Math.round(v * 100) + "%", onInput: (v) => { conf = v; shown = []; total = 0; hits = 0; render(); } });
+Viz.slider($("sliders"), { label: "Sample size (n)", min: 4, max: 200, step: 1, value: n, format: (v) => "n = " + v, onInput: (v) => { n = v; shown = []; total = 0; hits = 0; render(); } });
+$("draw").addEventListener("click", () => draw(100, true));
+$("more").addEventListener("click", () => draw(1000, false));
+$("reset").addEventListener("click", () => { shown = []; total = 0; hits = 0; $("hit").textContent = "—"; $("miss").textContent = "—"; $("rate").textContent = "—"; $("verdict").textContent = 'Press "Draw 100 intervals".'; render(); });
+Viz.themeToggle($("theme"));
+render();
+</script>
+</body>
+</html>

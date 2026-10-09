@@ -1,0 +1,46 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "A 95% confidence interval for a mean is built from...",
+      "options": ["The data's minimum and maximum", "Estimate ± critical value × standard error", "The mean ± the range", "Only the sample size"],
+      "correct": 1,
+      "explanation": "Every confidence interval is estimate ± (critical value × standard error)."
+    },
+    {
+      "stage": "pre",
+      "question": "Which critical value z* goes with 95% confidence?",
+      "options": ["1.645", "1.960", "2.326", "2.576"],
+      "correct": 1,
+      "explanation": "1.96 leaves 2.5% in each tail of the standard normal curve. (1.645 is for 90%, and 2.576 is for 99%.)"
+    },
+    {
+      "stage": "post",
+      "question": "σ = 12, n = 40, x̄ = 78.5. What is the 95% confidence interval?",
+      "options": ["(74.78, 82.22)", "(66.5, 90.5)", "(77.5, 79.5)", "(78.5, 82.22)"],
+      "correct": 0,
+      "explanation": "SE = 12/√40 = 1.897, ME = 1.96 × 1.897 = 3.72, so 78.5 ± 3.72 = (74.78, 82.22)."
+    },
+    {
+      "stage": "post",
+      "question": "Keeping everything else fixed, what happens to the interval if you switch from 95% to 99% confidence?",
+      "options": ["It gets narrower", "It gets wider", "It stays the same", "It moves left"],
+      "correct": 1,
+      "explanation": "A higher confidence level needs a larger critical value (2.576 vs 1.96), which widens the interval. More certainty costs precision."
+    },
+    {
+      "stage": "post",
+      "question": "How must n change to halve the margin of error?",
+      "options": ["Double it", "Multiply by √2", "Quadruple it", "Halve it"],
+      "correct": 2,
+      "explanation": "The margin is proportional to 1/√n. Halving it requires √n to double, so n must be four times as large."
+    },
+    {
+      "stage": "post",
+      "question": "Which is the correct reading of a 95% CI of (74.78, 82.22) for the mean exam score?",
+      "options": ["95% of students scored between 74.78 and 82.22", "We are 95% confident the true mean score lies between 74.78 and 82.22", "The sample mean has a 95% chance of being 78.5", "95% of future samples will have means in this range"],
+      "correct": 1,
+      "explanation": "The interval is about the population mean, not individual scores or future sample means. The 95% describes the long-run success rate of the method."
+    }
+  ]
+}

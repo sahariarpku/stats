@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>t versus Normal</title>
+<link rel="stylesheet" href="../../../../assets/visuals.css">
+</head>
+<body>
+<main class="viz">
+  <div class="viz-head">
+    <div>
+      <h1>t versus normal</h1>
+      <p class="hint">The t curve (orange) has fatter tails than the normal curve (dashed). Slide the degrees of freedom. The shaded tails each hold 2.5%, and the t critical value is where they begin.</p>
+    </div>
+    <button id="theme" type="button">Theme: auto</button>
+  </div>
+
+  <svg id="plot" viewBox="0 0 760 260" role="img" aria-label="A t curve and the standard normal curve with shaded 95% critical regions"></svg>
+
+  <div class="legend">
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="6" width="14" height="3" fill="var(--series-2)"/></svg>t-distribution</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="6" width="5" height="2" fill="var(--text-primary)"/><rect x="8" y="6" width="5" height="2" fill="var(--text-primary)"/></svg>Standard normal</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="3" width="12" height="9" fill="var(--series-1)" opacity="0.5"/></svg>Outer 5% under the t curve</span>
+  </div>
+
+  <div class="readout" aria-live="polite">
+    <div class="card"><div class="label">Degrees of freedom</div><div class="value" id="dfv"></div></div>
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-2)"></span>t* (95%)</div><div class="value" id="ts"></div></div>
+    <div class="card"><div class="label">z* (95%)</div><div class="value">1.960</div></div>
+    <div class="card"><div class="label">Interval is wider by</div><div class="value" id="wide"></div></div>
+  </div>
+  <p class="verdict" id="verdict" aria-live="polite"></p>
+  <div class="controls col" id="sliders"></div>
+</main>
+
+<script src="../../../../assets/visuals.js"></script>
+<script>
+const svg = document.getElementById("plot");
+const $ = (id) => document.getElementById(id);
+const X = Viz.scale(-5, 5, 30, 730);
+const layer = Viz.el("g", {}, svg);
+const tpdf = (x, v) => Viz.tPdf(x, v);
+const tinv = (p, v) => Viz.tInv(p, v);
+const f3 = (v) => (Math.round(v * 1000) / 1000).toFixed(3);
+let df = 5;
+
+function render() {
+  const tstar = tinv(0.975, df);
+  const Y = Viz.scale(0, 0.42, 205, 15);
+  layer.replaceChildren();
+  Viz.axisBottom(layer, X, { y: 205, from: -5, to: 5, step: 1 });
+  const pts = (fn) => { const a = []; for (let x = -5; x <= 5.001; x += 0.05) a.push(X(x) + "," + Y(fn(x))); return a; };
+  [[-1, -5, -tstar], [1, tstar, 5]].forEach(([, a, b]) => {
+    const p = []; for (let x = a; x <= b + 1e-9; x += (b - a) / 60) p.push([X(x), Y(tpdf(x, df))]);
+    Viz.el("path", { d: "M" + X(a) + " 205 " + p.map(([x, y]) => "L" + x + " " + y).join(" ") + " L" + X(b) + " 205 Z", fill: "var(--series-1)", opacity: 0.5 }, layer);
+  });
+  Viz.el("polyline", { points: pts((x) => Viz.normPdf(x)).join(" "), fill: "none", stroke: "var(--text-primary)", "stroke-width": 2, "stroke-dasharray": "6 4" }, layer);
+  Viz.el("polyline", { points: pts((x) => tpdf(x, df)).join(" "), fill: "none", stroke: "var(--series-2)", "stroke-width": 3 }, layer);
+  [-tstar, tstar].forEach((v) => {
+    Viz.el("line", { x1: X(v), x2: X(v), y1: Y(tpdf(v, df)), y2: 205, stroke: "var(--series-2)", "stroke-width": 2 }, layer);
+    Viz.el("text", { x: X(v), y: 245, "text-anchor": "middle", class: "strong" }, layer).textContent = (v < 0 ? "−" : "+") + f3(tstar);
+  });
+  $("dfv").textContent = df;
+  $("ts").textContent = f3(tstar);
+  $("wide").textContent = "+" + ((tstar / 1.959964 - 1) * 100).toFixed(1) + "%";
+  $("verdict").textContent = df <= 5
+    ? "With df = " + df + " the tails are very heavy: you must go out to ±" + f3(tstar) + " to catch the middle 95%, which makes the interval " + ((tstar / 1.959964 - 1) * 100).toFixed(0) + "% wider than a z-interval."
+    : df < 30 ? "With df = " + df + " the t curve is already close to the normal curve. The price for estimating σ is a modest " + ((tstar / 1.959964 - 1) * 100).toFixed(0) + "% wider interval."
+      : "With df = " + df + " the two curves are almost indistinguishable and t* ≈ z* = 1.960. Large samples can use either one.";
+}
+
+Viz.slider($("sliders"), { label: "Degrees of freedom (n − 1)", min: 1, max: 100, step: 1, value: df, format: (v) => "df = " + v, onInput: (v) => { df = v; render(); } });
+Viz.themeToggle($("theme"));
+render();
+</script>
+</body>
+</html>

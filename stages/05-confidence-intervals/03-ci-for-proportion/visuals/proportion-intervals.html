@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Three Intervals, One Data Set</title>
+<link rel="stylesheet" href="../../../../assets/visuals.css">
+</head>
+<body>
+<main class="viz">
+  <div class="viz-head">
+    <div>
+      <h1>Three intervals, one data set</h1>
+      <p class="hint">The same data, three ways to build a 95% interval. Try 0 successes, or a small sample, and watch the Wald interval fall apart.</p>
+    </div>
+    <button id="theme" type="button">Theme: auto</button>
+  </div>
+
+  <svg id="plot" viewBox="0 0 760 230" role="img" aria-label="Wald, Wilson and exact confidence intervals for a proportion on a 0 to 1 scale"></svg>
+
+  <div class="readout" aria-live="polite">
+    <div class="card"><div class="label">p̂ = x / n</div><div class="value" id="phat"></div></div>
+    <div class="card"><div class="label">Success-failure check</div><div class="value" id="cond" style="font-size:1.1rem"></div></div>
+  </div>
+  <table class="tally" id="tbl" style="width:100%;border-collapse:collapse;margin:6px 0 10px;font-variant-numeric:tabular-nums">
+    <thead><tr><th style="text-align:left">Method</th><th style="text-align:left">95% interval</th><th style="text-align:left">Width</th></tr></thead>
+    <tbody></tbody>
+  </table>
+  <p class="verdict" id="verdict" aria-live="polite"></p>
+
+  <div class="controls col" id="sliders"></div>
+  <div class="controls">
+    <button type="button" data-x="476" data-n="850">Poll: 476 of 850</button>
+    <button type="button" data-x="3" data-n="20">Clinic: 3 of 20</button>
+    <button type="button" data-x="0" data-n="20">None: 0 of 20</button>
+  </div>
+</main>
+
+<script src="../../../../assets/visuals.js"></script>
+<script>
+let n = 20, x = 3;
+const Z = 1.959964;
+const svg = document.getElementById("plot");
+const $ = (id) => document.getElementById(id);
+const X = Viz.scale(-0.1, 1.1, 40, 720);
+const logFact = [0];
+for (let i = 1; i <= 1000; i++) logFact[i] = logFact[i - 1] + Math.log(i);
+const bpmf = (k, N, p) => (p <= 0 ? (k === 0 ? 1 : 0) : p >= 1 ? (k === N ? 1 : 0) : Math.exp(logFact[N] - logFact[k] - logFact[N - k] + k * Math.log(p) + (N - k) * Math.log(1 - p)));
+const bcdf = (k, N, p) => { let s = 0; for (let i = 0; i <= k; i++) s += bpmf(i, N, p); return s; };
+const layer = Viz.el("g", {}, svg);
+const pct = (v) => (v * 100).toFixed(1) + "%";
+
+function wald() { const p = x / n, me = Z * Math.sqrt(p * (1 - p) / n); return [p - me, p + me]; }
+function wilson() { const p = x / n, d = 1 + Z * Z / n, c = (p + Z * Z / (2 * n)) / d, h = Z / d * Math.sqrt(p * (1 - p) / n + Z * Z / (4 * n * n)); return [c - h, c + h]; }
+function exact() {
+  const solve = (f) => { let lo = 0, hi = 1; for (let i = 0; i < 60; i++) { const m = (lo + hi) / 2; (f(m) ? lo = m : hi = m); } return (lo + hi) / 2; };
+  const lower = x === 0 ? 0 : solve((p) => 1 - bcdf(x - 1, n, p) < 0.025);
+  const upper = x === n ? 1 : solve((p) => bcdf(x, n, p) > 0.025);
+  return [lower, upper];
+}
+
+function render() {
+  const p = x / n;
+  const rows = [["Wald (textbook)", wald(), "var(--series-1)"], ["Wilson", wilson(), "var(--series-2)"], ["Exact (Clopper–Pearson)", exact(), "var(--text-secondary)"]];
+  layer.replaceChildren();
+  Viz.axisBottom(layer, X, { y: 195, from: 0, to: 1, step: 0.1, format: (v) => Math.round(v * 100) + "%" });
+  Viz.el("rect", { x: X(-0.1), y: 8, width: X(0) - X(-0.1), height: 187, fill: "var(--series-2)", opacity: 0.12 }, layer);
+  Viz.el("rect", { x: X(1), y: 8, width: X(1.1) - X(1), height: 187, fill: "var(--series-2)", opacity: 0.12 }, layer);
+  Viz.el("text", { x: X(-0.05), y: 24, "text-anchor": "middle" }, layer).textContent = "impossible";
+  Viz.el("text", { x: X(1.05), y: 24, "text-anchor": "middle" }, layer).textContent = "impossible";
+  Viz.el("line", { x1: X(p), x2: X(p), y1: 30, y2: 195, stroke: "var(--text-primary)", "stroke-width": 1.5, "stroke-dasharray": "4 4" }, layer);
+  Viz.el("text", { x: X(p), y: 40, "text-anchor": "middle", class: "strong" }, layer).textContent = "p̂ = " + pct(p);
+  const body = $("tbl").querySelector("tbody");
+  body.replaceChildren();
+  rows.forEach(([name, [lo, hi], color], i) => {
+    const y = 75 + i * 38;
+    Viz.el("line", { x1: X(Math.max(-0.1, lo)), x2: X(Math.min(1.1, hi)), y1: y, y2: y, stroke: color, "stroke-width": 7, "stroke-linecap": "round" }, layer);
+    Viz.el("text", { x: X(Math.max(-0.1, lo)), y: y - 12, "text-anchor": "start" }, layer).textContent = name;
+    const tr = document.createElement("tr");
+    const bad = lo < -1e-9 || hi > 1 + 1e-9 || (hi - lo) < 1e-9;
+    tr.innerHTML = "<td style='padding:4px 8px;border-bottom:1px solid var(--grid)'>" + name + "</td><td style='padding:4px 8px;border-bottom:1px solid var(--grid)'>(" + pct(lo) + ", " + pct(hi) + ")" + (bad ? " ⚠" : "") + "</td><td style='padding:4px 8px;border-bottom:1px solid var(--grid)'>" + pct(hi - lo) + "</td>";
+    body.appendChild(tr);
+  });
+  $("phat").textContent = pct(p);
+  const okS = x >= 10, okF = n - x >= 10;
+  $("cond").textContent = "x = " + x + ", n − x = " + (n - x) + (okS && okF ? " ✓ both ≥ 10" : " ✗ not both ≥ 10");
+  const [wl, wh] = wald();
+  $("verdict").textContent = wh - wl < 1e-9
+    ? "With 0 successes the Wald interval collapses to a single point, claiming the true rate is exactly 0. That is absurd after " + n + " trials. Wilson and the exact interval stay sensible."
+    : wl < 0 || wh > 1
+      ? "The Wald interval reaches " + pct(wl < 0 ? wl : wh) + ", which is impossible for a proportion. Wilson and the exact interval stay inside 0 to 100%."
+      : okS && okF ? "The success-failure condition holds, so all three methods give nearly the same interval. Wald is fine here." : "Wald is shaky here (the condition fails), and the Wilson interval is the safer default.";
+}
+
+Viz.slider($("sliders"), { label: "Sample size (n)", min: 5, max: 1000, step: 1, value: n, format: (v) => "n = " + v, onInput: (v) => { n = v; x = Math.min(x, n); xs.input.max = n; xs.set(x); render(); } });
+const xs = Viz.slider($("sliders"), { label: "Successes (x)", min: 0, max: n, step: 1, value: x, format: (v) => "x = " + v, onInput: (v) => { x = v; render(); } });
+document.querySelectorAll("button[data-x]").forEach((b) => b.addEventListener("click", () => {
+  n = +b.dataset.n; x = +b.dataset.x;
+  const rows = document.querySelectorAll(".ctrl input");
+  rows[0].value = n; rows[0].nextElementSibling.textContent = "n = " + n;
+  rows[1].max = n; rows[1].value = x; rows[1].nextElementSibling.textContent = "x = " + x;
+  render();
+}));
+Viz.themeToggle($("theme"));
+render();
+</script>
+</body>
+</html>
