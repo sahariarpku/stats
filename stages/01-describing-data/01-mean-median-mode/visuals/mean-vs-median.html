@@ -163,6 +163,14 @@ function render() {
 document.getElementById("add").addEventListener("click", () => { values.push(OUTLIER); render(); });
 document.getElementById("reset").addEventListener("click", () => { values = [...START]; render(); });
 Viz.themeToggle(document.getElementById("theme"));
+Viz.tour([
+  { target: "#plot", title: "Meet the people", text: "Each grey dot is **one person**, placed along the line by their salary in thousands of dollars. Further right means a bigger salary. Nine people earn between $38k and $60k." },
+  { target: "#plot", title: "Two kinds of middle", text: "The **blue triangle** is the **mean**: add all salaries and divide by 9. The **orange diamond** is the **median**: line everyone up and take the person in the middle. Right now they sit almost together." },
+  { target: ".readout", title: "The exact numbers", text: "These cards show the mean and the median in dollars. Keep an eye on them in the next step." },
+  { target: "#add", title: "Invite a millionaire... nearly", text: "Let us add one person who earns **$200k**. Before you press it, guess: which marker will move more?", action: { label: "Add the outlier for me", run: () => document.getElementById("add").click() } },
+  { target: "#plot", title: "What happened?", text: "The **mean jumped** towards the big salary, because it adds every value in. The **median barely moved**, because it only cares who is in the middle. That is why house prices and salaries are usually reported with the median." },
+  { target: "#plot", title: "Your turn", text: "**Drag any dot** (or click it and use the arrow keys) and watch both markers. Press **Reset** to start again." },
+]);
 render();
 </script>
 </body>

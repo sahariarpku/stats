@@ -73,21 +73,28 @@ Each animation is one HTML file with its CSS and JavaScript shared from [`assets
 
 ## The website
 
-`index.html` is a complete website for the course: a friendly home page, the learning path, lessons with the animations built in, warm-up questions and quizzes you can click, cheat sheets, a searchable glossary, an animation gallery and the statistical tables. Progress is saved in each visitor's browser.
+`index.html` is a complete website for the course:
+
+- a friendly home page and learning path with saved progress,
+- lessons with **animated walkthroughs** (narrated, step-by-step animations of every key idea, one of them in 3D with three.js), the interactive animations built in, warm-up questions and clickable quizzes,
+- every **definition** with a fuller explanation, a worked example and a dad joke (click to reveal the punchline), opened by clicking a highlighted word in any lesson,
+- a **playground** of all interactive animations, each with a "👋 Show me how" guided tour,
+- a searchable glossary, the statistical tables, cheat sheets and search.
 
 It is fully static, so it runs anywhere with no build step:
 
-- **On your computer:** double-click `index.html`.
+- **On your computer:** double-click `index.html` (or run `python3 -m http.server` and open http://localhost:8000).
 - **On Vercel:** Add New → Project → import this repository → Framework Preset *Other* → leave the build command and output directory empty → Deploy.
 - **On GitHub Pages or Netlify:** publish the repository root.
 
-All lesson text is bundled into `site/` by a script. After editing a lesson, run:
+All lesson text is bundled into `site/` by a script. After editing a lesson or a definition, run:
 
 ```bash
 python3 scripts/build_site.py      # refresh the website data
 python3 scripts/build_indexes.py   # refresh stage pages, glossary, animation list
-NODE_PATH=$(npm root -g) node scripts/make_thumbs.js   # optional: refresh gallery thumbnails (needs Playwright)
 ```
+
+Writing a new walkthrough or definition? See [`site/walk/AUTHORING.md`](site/walk/AUTHORING.md). Definitions live in `content/definitions/`, walkthroughs in `site/walks/`.
 
 ## Running the code (optional)
 
@@ -100,8 +107,11 @@ python3 stages/06-hypothesis-testing/05-one-sample-t-test/code/one_sample_t.py
 Two helper scripts check the whole course:
 
 ```bash
-python3 scripts/check_repo.py          # runs every lesson script, validates quizzes and links
+python3 scripts/check_repo.py          # runs every lesson script, validates quizzes, links, definitions and site data
 python3 scripts/crosscheck_scipy.py    # optional: compares key results with SciPy (pip install scipy)
+# optional browser checks (need Node + Playwright and `python3 -m http.server 8765` running):
+NODE_PATH=$(npm root -g) node scripts/walk_qa.js   # every walkthrough: no errors, no overlapping text
+NODE_PATH=$(npm root -g) node scripts/tour_qa.js   # every guided tour: targets exist, no errors
 ```
 
 If you change a lesson, run `python3 scripts/build_indexes.py` to refresh the stage pages, glossary and animation list.

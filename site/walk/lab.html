@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Walkthrough lab</title>
+<link rel="stylesheet" href="../app.css">
+<style>
+  body { padding: 20px; }
+  .lab { display: grid; grid-template-columns: 260px 1fr; gap: 24px; max-width: 1240px; margin: 0 auto; }
+  .lab nav { max-height: 90vh; overflow: auto; font-size: 0.9rem; }
+  .lab nav a { display: block; padding: 5px 8px; border-radius: 8px; text-decoration: none; color: var(--ink-2); }
+  .lab nav a.on { background: var(--accent-soft); color: var(--accent-ink); }
+  #host { max-width: 900px; }
+  @media (max-width: 800px) { .lab { grid-template-columns: 1fr; } .lab nav { max-height: 30vh; } }
+</style>
+</head>
+<body>
+<div class="lab"><nav id="list"></nav><div><div id="host"></div><pre id="out" class="muted"></pre></div></div>
+<script>window.WALK_BASE = "../../";</script>
+<script src="../../assets/vendor/marked.umd.js"></script>
+<script src="../data.js"></script>
+<script src="engine.js"></script>
+<script>
+(async function () {
+  // ?files=site/walks/stage-3.js,... loads only those files; otherwise every file listed in site/data.js.
+  const only = new URLSearchParams(location.search).get("files");
+  const files = only ? only.split(",") : [...new Set(window.COURSE.walks.map((w) => w.file))];
+  await Promise.all(files.map((f) => new Promise((res) => { const s = document.createElement("script"); s.src = "../../" + f; s.onload = res; s.onerror = res; document.head.appendChild(s); })));
+  const params = new URLSearchParams(location.search);
+  const ids = Walk.ids();
+  document.getElementById("list").innerHTML = ids.map((id) => `<a href="?id=${id}${only ? "&files=" + only : ""}" class="${params.get("id") === id ? "on" : ""}">${Walk.meta(id).lesson} · ${Walk.meta(id).title}</a>`).join("");
+  const id = params.get("id") || ids[0];
+  if (id) window.player = Walk.mount(document.getElementById("host"), id, { step: Number(params.get("step") || 0) });
+
+  // QA: render every step instantly; report text overlaps and text outside the stage.
+  window.WALK_QA = async function (wid) {
+    const host = document.getElementById("host");
+    const p = Walk.mount(host, wid, { step: 0, animateFirst: false });
+    const issues = [];
+    for (let k = 0; k < p.steps; k++) {
+      await p.go(k, false);
+      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+      const svg = host.querySelector(".wk-stage svg");
+      const R = svg.getBoundingClientRect(), sc = 800 / R.width;
+      const vis = (el) => { let o = 1; for (let n = el; n && n !== svg; n = n.parentNode) { const a = n.getAttribute && n.getAttribute("opacity"); if (a !== null && a !== undefined && a !== "") o *= parseFloat(a); if (n.style && n.style.display === "none") return 0; } return o; };
+      const boxes = [...svg.querySelectorAll("text")].filter((t) => vis(t) > 0.1 && t.textContent.trim()).map((t) => { const b = t.getBoundingClientRect(); return { t: t.textContent.trim().slice(0, 30), x1: (b.left - R.left) * sc, y1: (b.top - R.top) * sc, x2: (b.right - R.left) * sc, y2: (b.bottom - R.top) * sc }; });
+      boxes.forEach((b) => { if (b.x1 < -2 || b.y1 < -2 || b.x2 > 802 || b.y2 > 452) issues.push(`step ${k + 1}: text outside the stage: "${b.t}"`); });
+      for (let i = 0; i < boxes.length; i++) for (let j = i + 1; j < boxes.length; j++) {
+        const a = boxes[i], b = boxes[j];
+        const w = Math.min(a.x2, b.x2) - Math.max(a.x1, b.x1), h = Math.min(a.y2, b.y2) - Math.max(a.y1, b.y1);
+        if (w > 3 && h > 3) { const area = w * h, small = Math.min((a.x2 - a.x1) * (a.y2 - a.y1), (b.x2 - b.x1) * (b.y2 - b.y1)); if (area > 0.12 * small) issues.push(`step ${k + 1}: text overlap "${a.t}" / "${b.t}"`); }
+      }
+    }
+    return { steps: p.steps, issues };
+  };
+  window.WALK_READY = true;
+})();
+</script>
+</body>
+</html>

@@ -20,6 +20,8 @@
   const ANIM_BY_PATH = {};
   C.animations.forEach((a) => { ANIM[a.slug] = a; ANIM_BY_PATH[a.path] = a; });
   const TOTAL_MIN = LESSONS.reduce((s, l) => s + l.minutes, 0);
+  // One gentle colour per stage, used for badges, banners and tiles.
+  const HUES = [168, 214, 262, 330, 24, 42, 145, 190, 232, 280];
 
   /* ---------- saved progress (only in this browser) ---------- */
   const store = {
@@ -152,7 +154,7 @@
   function stageCard(st) {
     const d = doneCount(st.lessons);
     const mins = st.lessons.reduce((s, l) => s + l.minutes, 0);
-    return `<a class="card stage-card" href="#/stage/${st.num}">
+    return `<a class="card stage-card" style="--hue:${HUES[st.num]}" href="#/stage/${st.num}">
       <div class="stage-badge" aria-hidden="true">${st.icon}<small>${st.num}</small></div>
       <div><h3>Stage ${st.num}: ${esc(st.title)}</h3><p>${esc(st.goal)}</p></div>
       <div class="stage-meta"><span class="chip ${d === st.lessons.length ? "done" : ""}">${d === st.lessons.length ? "✓ Done" : st.lessons.length + " lessons · " + hours(mins)}</span>${progressBar(d, st.lessons.length)}</div>
@@ -226,10 +228,130 @@
     try {
       const d = frame.contentDocument;
       const target = d.querySelector(".viz") || d.body;
-      const fit = () => { frame.style.height = Math.ceil(target.getBoundingClientRect().height + 40) + "px"; };
+      let raf = 0;
+      const fit = () => {
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(() => {
+          let bottom = target.getBoundingClientRect().bottom;
+          d.querySelectorAll(".tour-card").forEach((c) => { bottom = Math.max(bottom, c.getBoundingClientRect().bottom); });
+          frame.style.height = Math.ceil(bottom + (d.defaultView.scrollY || 0) + 30) + "px";
+        });
+      };
       fit();
       new ResizeObserver(fit).observe(target);
+      new MutationObserver(fit).observe(d.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["style", "class"] });
     } catch (e) { /* cross-origin when opened from disk: keep the default height */ }
+  }
+
+  /* ---------- definitions (glossary terms with explanation, example, joke, walkthrough) ---------- */
+  const GLOSS = {};
+  C.glossary.forEach((g) => { GLOSS[g.term.toLowerCase()] = g; });
+  const WALKS = {};
+  (C.walks || []).forEach((w) => { WALKS[w.id] = w; });
+  const walksFor = (lessonId) => (C.walks || []).filter((w) => w.lesson === lessonId);
+  const termOf = (t) => GLOSS[String(t).toLowerCase()];
+
+  let enginePromise = null;
+  const loadedWalkFiles = {};
+  function loadScript(src) { return new Promise((res, rej) => { const s = document.createElement("script"); s.src = src; s.onload = res; s.onerror = () => rej(new Error("Could not load " + src)); document.head.appendChild(s); }); }
+  function ensureWalk(id) {
+    const w = WALKS[id];
+    if (!w) return Promise.reject(new Error("Unknown walkthrough " + id));
+    if (!enginePromise) enginePromise = window.Walk ? Promise.resolve() : loadScript("site/walk/engine.js");
+    return enginePromise.then(() => (loadedWalkFiles[w.file] = loadedWalkFiles[w.file] || loadScript(w.file)));
+  }
+  function openWalk(id) {
+    ensureWalk(id).then(() => window.Walk.open(id)).catch((e) => alert(e.message));
+  }
+  // An inline walkthrough that starts when the reader presses play (nothing animates until asked).
+  function walkBlock(id, opts = {}) {
+    const w = WALKS[id];
+    const box = document.createElement("div");
+    box.className = "walk-block";
+    box.innerHTML = `<button type="button" class="walk-poster"><span class="walk-play" aria-hidden="true">▶</span><span><span class="walk-kicker">🎬 ${opts.kicker || "Animated walkthrough"}</span><strong>${esc(w.title)}</strong><span class="walk-sub">A short, narrated animation. Go at your own pace with Next and Back.</span></span></button>`;
+    $("button", box).addEventListener("click", () => {
+      box.innerHTML = '<div class="loading" style="padding:40px 0">Loading the animation...</div>';
+      ensureWalk(id).then(() => { box.replaceChildren(); const host = document.createElement("div"); box.appendChild(host); window.Walk.mount(host, id); host.focus({ preventScroll: true }); })
+        .catch((e) => { box.innerHTML = `<p class="muted">${esc(e.message)}</p>`; });
+    });
+    return box;
+  }
+
+  // The punchline is hidden until the reader asks for it.
+  function jokeEl(joke) {
+    const box = document.createElement("div");
+    box.className = "joke";
+    box.innerHTML = `<div class="joke-q"><span class="joke-face" aria-hidden="true">😄</span><span>${mdInline(joke[0])}</span></div><button type="button" class="joke-btn">Tell me!</button><div class="joke-a" hidden>${mdInline(joke[1])}</div>`;
+    const btn = $(".joke-btn", box), a = $(".joke-a", box);
+    btn.addEventListener("click", () => { a.hidden = false; btn.remove(); box.classList.add("told"); });
+    return box;
+  }
+
+  function termCard(g, opts = {}) {
+    const card = document.createElement("article");
+    card.className = "card term" + (opts.open ? " open" : "");
+    const id = "term-" + g.term.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    card.id = opts.noId ? "" : id;
+    const hasMore = !!(g.explain || g.example || g.joke);
+    card.innerHTML = `<div class="term-top"><h3>${mdInline(esc(g.term))}</h3>${opts.lessonChip ? `<a class="chip" href="#/lesson/${g.lesson}">Lesson ${g.lesson}</a>` : ""}</div>
+      <p class="term-short">${mdInline(g.meaning)}</p>
+      <div class="term-more" ${opts.open ? "" : "hidden"}>
+        ${g.explain ? `<p class="term-explain">${mdInline(g.explain)}</p>` : ""}
+        ${g.example ? `<div class="term-example"><span class="term-lbl">Example</span><p>${mdInline(g.example)}</p></div>` : ""}
+      </div>
+      <div class="term-actions">
+        ${hasMore && !opts.open ? '<button type="button" class="btn-mini term-toggle" aria-expanded="false">Explain more</button>' : ""}
+        ${g.walk && WALKS[g.walk] ? '<button type="button" class="btn-mini btn-walk">▶ Watch it animated</button>' : ""}
+      </div>`;
+    if (g.joke) $(".term-more", card).appendChild(jokeEl(g.joke));
+    const tog = $(".term-toggle", card);
+    if (tog) tog.addEventListener("click", () => { const m = $(".term-more", card); m.hidden = !m.hidden; card.classList.toggle("open", !m.hidden); tog.textContent = m.hidden ? "Explain more" : "Show less"; tog.setAttribute("aria-expanded", String(!m.hidden)); });
+    const wb = $(".btn-walk", card);
+    if (wb) wb.addEventListener("click", () => openWalk(g.walk));
+    return card;
+  }
+
+  // A small dialog with one definition (opened from a highlighted word in a lesson).
+  function openTerm(g) {
+    const back = document.createElement("div");
+    back.className = "wk-modal";
+    back.innerHTML = `<div class="wk-dialog term-dialog" role="dialog" aria-modal="true" aria-label="${esc(g.term)}"><button class="wk-x term-x" type="button" aria-label="Close">✕</button></div>`;
+    const dlg = $(".wk-dialog", back);
+    dlg.appendChild(termCard(g, { open: true, noId: true, lessonChip: true }));
+    const close = () => { back.remove(); document.body.classList.remove("wk-lock"); document.removeEventListener("keydown", onKey); };
+    const onKey = (e) => { if (e.key === "Escape") close(); };
+    back.addEventListener("click", (e) => { if (e.target === back) close(); });
+    $(".term-x", back).addEventListener("click", close);
+    const wb = $(".btn-walk", dlg);
+    if (wb) wb.addEventListener("click", close, { capture: true });
+    document.addEventListener("keydown", onKey);
+    document.body.appendChild(back);
+    document.body.classList.add("wk-lock");
+    requestAnimationFrame(() => { back.classList.add("in"); $(".term-x", back).focus(); });
+  }
+
+  // Turn the first bold mention of each of the lesson's key terms into a clickable definition.
+  function linkTerms(root, lesson) {
+    const norm = (s) => s.toLowerCase().replace(/\([^)]*\)/g, "").replace(/[^a-z0-9α-ωσμχλρη²]+/g, " ").trim();
+    const wanted = new Map();
+    lesson.terms.forEach((t) => { const g = termOf(t); if (g) wanted.set(norm(t), g); });
+    const done = new Set();
+    $$("strong", root).forEach((el) => {
+      if (el.closest("a, button, h2, h3, .callout, table, .term")) return;
+      const k = norm(el.textContent);
+      if (!k) return;
+      let g = wanted.get(k);
+      if (!g) for (const [key, val] of wanted) { if (key.length > 3 && (k === key + "s" || k === key + "es")) { g = val; break; } }
+      if (!g || done.has(g.term)) return;
+      done.add(g.term);
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "term-link";
+      b.title = "What does this mean?";
+      b.innerHTML = el.innerHTML;
+      b.addEventListener("click", () => openTerm(g));
+      el.replaceWith(b);
+    });
   }
 
   /* ---------- hero animation: dots fall into a bell curve ---------- */
@@ -309,57 +431,70 @@
     const up = nextUp();
     const started = Object.keys(progress.done).length > 0 || progress.last;
     const done = Object.keys(progress.done).filter((k) => BY_ID[k]).length;
+    const nWalks = (C.walks || []).length;
+    const nJokes = C.glossary.filter((g) => g.joke).length;
     setView(`
-      <section class="hero"><div class="wrap hero-grid">
-        <div>
-          <div class="eyebrow">Free · No experience needed</div>
-          <h1>Statistics, finally <em>explained.</em></h1>
-          <p class="lead">${LESSONS.length} short lessons that start from zero. Every idea comes with a story, a picture you can play with, a worked example and a quick check, so it actually sticks.</p>
+      <section class="hero"><div class="hero-bg" aria-hidden="true"></div><div class="wrap hero-grid">
+        <div class="hero-copy">
+          <div class="pill-eyebrow">✨ Free · No maths background needed</div>
+          <h1>Statistics, <em>finally</em> explained.</h1>
+          <p class="lead">Start from zero and go all the way to regression. Every idea comes with a story, a narrated animation, a picture you can play with, a worked example and a quick check, so it actually sticks.</p>
           <div class="hero-cta">
-            <a class="btn btn-primary" href="#/lesson/${up.id}">${started ? "Continue: Lesson " + up.id + " →" : "Start the first lesson →"}</a>
-            <a class="btn btn-soft" href="#/learn">See all lessons</a>
+            <a class="btn btn-primary btn-lg" href="#/lesson/${up.id}">${started ? "Continue: Lesson " + up.id + " →" : "Start learning, it's free →"}</a>
+            <a class="btn btn-soft btn-lg" href="#/walks">🎬 Watch a walkthrough</a>
           </div>
           <div class="hero-note">${done ? `You have finished ${done} of ${LESSONS.length} lessons. Progress is saved in this browser.` : started ? `Welcome back. You were last on Lesson ${up.id}.` : "If you can add, subtract, multiply and divide, you are ready."}</div>
+          <div class="hero-stats">
+            <div><b>${LESSONS.length}</b><span>bite-size lessons</span></div>
+            <div><b>${nWalks}</b><span>animated walkthroughs</span></div>
+            <div><b>${C.animations.length}</b><span>playgrounds</span></div>
+            <div><b>${nJokes || C.glossary.length}</b><span>${nJokes ? "terms, each with a joke" : "terms explained"}</span></div>
+          </div>
         </div>
-        <div class="card hero-art" id="heroArt"><div class="cap">Random dots, one at a time, build a bell curve. You will learn why in Stage 4.</div></div>
+        <div class="card hero-art" id="heroArt"><div class="cap">Random dots, one at a time, build a bell curve. You will find out why in Stage 4.</div></div>
       </div></section>
 
       <section class="section"><div class="wrap">
-        <h2>How every lesson works</h2>
-        <p class="section-sub">The same four friendly steps, every time, so you always know what comes next.</p>
-        <div class="steps4">
-          <div class="card step"><div class="ico">🧩</div><h3>1. A real problem</h3><p>Each lesson opens with a story where not knowing the idea leads to a wrong decision.</p></div>
-          <div class="card step"><div class="ico">💡</div><h3>2. The big idea</h3><p>Plain words and a picture first. Formulas only once the idea makes sense.</p></div>
-          <div class="card step"><div class="ico">🎛️</div><h3>3. Play with it</h3><p>Drag sliders and watch the numbers change. Seeing it move beats memorising.</p></div>
-          <div class="card step"><div class="ico">✅</div><h3>4. Check yourself</h3><p>Tiny questions along the way, practice problems with answers, and a quiz.</p></div>
+        <div class="section-head"><span class="kicker">How it works</span><h2>Every lesson, the same five friendly steps</h2><p class="section-sub">You always know what comes next, and nothing is assumed.</p></div>
+        <div class="steps5">
+          <div class="card step"><div class="step-n">1</div><div class="ico">🧩</div><h3>A real problem</h3><p>A story where not knowing the idea leads to a wrong decision.</p></div>
+          <div class="card step"><div class="step-n">2</div><div class="ico">🎬</div><h3>Watch it happen</h3><p>A narrated animation builds the idea one step at a time.</p></div>
+          <div class="card step"><div class="step-n">3</div><div class="ico">🎛️</div><h3>Play with it</h3><p>Drag sliders and press "Show me how" for a guided tour.</p></div>
+          <div class="card step"><div class="step-n">4</div><div class="ico">😄</div><h3>Remember it</h3><p>Every definition has an example and a groan-worthy dad joke.</p></div>
+          <div class="card step"><div class="step-n">5</div><div class="ico">✅</div><h3>Check yourself</h3><p>Tiny questions, practice with answers, and a quiz.</p></div>
         </div>
       </div></section>
 
       <section class="section"><div class="wrap">
-        <h2>Where do you want to start?</h2>
-        <p class="section-sub">You do not have to read everything. Pick what sounds like you.</p>
+        <div class="section-head"><span class="kicker">Try it now</span><h2>See it, then get it</h2><p class="section-sub">This is what learning here feels like. Press play on the animation, or have a laugh first.</p></div>
+        <div class="demo-grid">
+          <div id="demoWalk"></div>
+          <div class="card joke-card" id="jokeCard"></div>
+        </div>
+      </div></section>
+
+      <section class="section"><div class="wrap">
+        <div class="section-head"><span class="kicker">Start anywhere</span><h2>Where do you want to start?</h2><p class="section-sub">You do not have to read everything. Pick what sounds like you.</p></div>
         <div class="goals">
           <a class="card goal" href="#/lesson/0.1"><div class="ico">🌱</div><strong>I am completely new</strong><span>Start at the very beginning: what statistics is and why it matters.</span></a>
           <a class="card goal" href="#/stage/1"><div class="ico">🎓</div><strong>I have a course or exam</strong><span>Follow the stages in order and revise with the one-page cheat sheets.</span></a>
           <a class="card goal" href="#/lesson/6.2"><div class="ico">🤔</div><strong>What is a p-value?</strong><span>The most misunderstood idea in statistics, explained slowly.</span></a>
           <a class="card goal" href="#/play/6.9-test-chooser"><div class="ico">🧭</div><strong>Which test do I use?</strong><span>Answer a few questions about your data and get the right test.</span></a>
           <a class="card goal" href="#/stage/8"><div class="ico">📈</div><strong>I want to predict things</strong><span>Correlation and regression: how one variable tells you about another.</span></a>
-          <a class="card goal" href="#/animations"><div class="ico">🎛️</div><strong>Just show me</strong><span>Browse all ${C.animations.length} interactive animations.</span></a>
+          <a class="card goal" href="#/glossary"><div class="ico">📖</div><strong>I just need a definition</strong><span>${C.glossary.length} terms in plain English, each with an example.</span></a>
         </div>
       </div></section>
 
       <section class="section" id="path"><div class="wrap">
-        <h2>Your learning path</h2>
-        <p class="section-sub">${C.stages.length} stages, ${LESSONS.length} lessons, about ${Math.round(TOTAL_MIN / 60)} hours in total. Most lessons take 20 to 60 minutes.</p>
+        <div class="section-head"><span class="kicker">The route</span><h2>Your learning path</h2><p class="section-sub">${C.stages.length} stages, ${LESSONS.length} lessons, about ${Math.round(TOTAL_MIN / 60)} hours in total. Most lessons take 20 to 60 minutes.</p></div>
         <div class="path">${C.stages.map(stageCard).join("")}</div>
       </div></section>
 
       <section class="section"><div class="wrap">
-        <h2>Handy tools</h2>
-        <p class="section-sub">Keep these open while you study or work.</p>
+        <div class="section-head"><span class="kicker">Keep these handy</span><h2>Tools</h2></div>
         <div class="extras">
-          <a class="card goal" href="#/glossary"><div class="ico">📖</div><strong>Glossary</strong><span>${C.glossary.length} terms in plain English.</span></a>
-          <a class="card goal" href="#/animations"><div class="ico">🎞️</div><strong>Animations</strong><span>Every interactive picture in one place.</span></a>
+          <a class="card goal" href="#/walks"><div class="ico">🎬</div><strong>Walkthroughs</strong><span>Every narrated animation, one idea each.</span></a>
+          <a class="card goal" href="#/animations"><div class="ico">🎛️</div><strong>Playground</strong><span>All ${C.animations.length} interactive pictures with guided tours.</span></a>
           <a class="card goal" href="#/tables"><div class="ico">🧮</div><strong>Statistical tables</strong><span>z, t, chi-square, F and more, as printable PDFs.</span></a>
           <a class="card goal" href="#/play/6.9-test-chooser"><div class="ico">🧭</div><strong>Test chooser</strong><span>A short flowchart to pick the right test.</span></a>
         </div>
@@ -367,6 +502,25 @@
     const art = heroArt();
     $("#heroArt").prepend(art.svg);
     cleanup.push(art.stop);
+    if (WALKS.mean) $("#demoWalk").appendChild(walkBlock("mean", { kicker: "60-second demo" }));
+    drawJokeCard($("#jokeCard"));
+  }
+
+  // A "joke break" card that serves a new joke (and its term) every time.
+  function drawJokeCard(box) {
+    const pool = C.glossary.filter((g) => g.joke);
+    if (!pool.length) { box.innerHTML = `<div class="joke-card-in"><span class="kicker">Coming soon</span><h3>Joke break</h3><p class="muted">Dad jokes for every definition are on their way.</p></div>`; return; }
+    const show = () => {
+      const g = pool[Math.floor(Math.random() * pool.length)];
+      box.innerHTML = `<div class="joke-card-in"><span class="kicker">😄 Joke break</span><h3>A joke about <a href="#/lesson/${g.lesson}">${esc(g.term)}</a></h3><div class="jk"></div>
+        <p class="joke-term">${mdInline(g.meaning)}</p>
+        <div class="joke-card-actions"><button type="button" class="btn btn-soft" id="jkNext">🔄 Another one</button>${g.walk && WALKS[g.walk] ? '<button type="button" class="btn btn-soft" id="jkWalk">▶ Explain it properly</button>' : ""}</div></div>`;
+      $(".jk", box).appendChild(jokeEl(g.joke));
+      $("#jkNext", box).addEventListener("click", () => { box.classList.remove("pop"); void box.offsetWidth; box.classList.add("pop"); show(); });
+      const w = $("#jkWalk", box);
+      if (w) w.addEventListener("click", () => openWalk(g.walk));
+    };
+    show();
   }
 
   function viewLearn() {
@@ -374,7 +528,7 @@
       <div class="page-head"><div class="eyebrow">All lessons</div><h1>The whole course</h1>
       <p>${LESSONS.length} lessons in ${C.stages.length} stages. Go in order if you are new. Each stage builds on the one before.</p>
       <div style="max-width:420px;margin-top:16px">${progressBar(doneCount(LESSONS), LESSONS.length)}<div class="muted" style="font-size:.9rem;margin-top:6px">${doneCount(LESSONS)} of ${LESSONS.length} done</div></div></div>
-      ${C.stages.map((st) => `<h2 class="section-title" style="font-size:1.35rem;margin-top:30px">${st.icon} Stage ${st.num}: ${esc(st.title)}</h2><p class="section-sub" style="margin-bottom:10px">${esc(st.goal)}</p><div class="lesson-list">${st.lessons.map(lessonRow).join("")}</div>`).join("")}
+      ${C.stages.map((st) => `<h2 class="section-title stage-title" style="--hue:${HUES[st.num]}"><span class="stage-dot">${st.icon}</span> Stage ${st.num}: ${esc(st.title)}</h2><p class="section-sub" style="margin-bottom:10px">${esc(st.goal)}</p><div class="lesson-list">${st.lessons.map(lessonRow).join("")}</div>`).join("")}
     </div>`, "All lessons", "learn");
   }
 
@@ -385,9 +539,9 @@
     const first = st.lessons.find((l) => !isDone(l.id)) || st.lessons[0];
     const prev = C.stages.find((s) => s.num === num - 1), next = C.stages.find((s) => s.num === num + 1);
     setView(`<div class="wrap">
-      <div class="page-head">
+      <div class="page-head stage-banner" style="--hue:${HUES[st.num]}">
         <div class="crumbs"><a href="#/">Home</a> › <a href="#/learn">Lessons</a> › Stage ${st.num}</div>
-        <h1>${st.icon} ${esc(st.title)}</h1>
+        <div class="banner-row"><span class="banner-icon" aria-hidden="true">${st.icon}</span><div><div class="eyebrow">Stage ${st.num} of ${C.stages.length - 1}</div><h1>${esc(st.title)}</h1></div></div>
         <p>${esc(st.goal)}</p>
         <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:18px">
           <a class="btn btn-primary" href="#/lesson/${first.id}">${d ? "Continue" : "Start"} with Lesson ${first.id} →</a>
@@ -427,11 +581,12 @@
         ${st.lessons.map((x) => `<a href="#/lesson/${x.id}" class="${x.id === id ? "here" : ""}"><span class="dot ${isDone(x.id) ? "done" : ""}">${isDone(x.id) ? "✓" : ""}</span><span>${x.id} ${esc(x.title)}</span></a>`).join("")}
       </div></aside>
       <article class="article">
-        <header class="lesson-head">
+        <header class="lesson-head" style="--hue:${HUES[st.num]}">
           <div class="crumbs"><a href="#/">Home</a> › <a href="#/stage/${st.num}">Stage ${st.num}: ${esc(st.title)}</a> › Lesson ${l.id}</div>
+          <div class="lesson-kicker"><span class="banner-icon small" aria-hidden="true">${st.icon}</span> Lesson ${l.id}</div>
           <h1>${esc(l.title)}</h1>
           <p class="motto">${mdInline(l.motto)}</p>
-          <div class="chips"><span class="chip">⏱ About ${l.minutes} min</span><span class="chip">Lesson ${l.id} of ${LESSONS.length}</span>${l.prereq && l.prereq !== "None" ? `<span class="chip" id="prereq">Before this: ${esc(l.prereq)}</span>` : '<span class="chip">No prerequisites</span>'}${isDone(id) ? '<span class="chip done">✓ Completed</span>' : ""}</div>
+          <div class="chips"><span class="chip">⏱ About ${l.minutes} min</span>${walksFor(l.id).length ? `<span class="chip">🎬 ${walksFor(l.id).length} walkthrough${walksFor(l.id).length > 1 ? "s" : ""}</span>` : ""}${l.prereq && l.prereq !== "None" ? `<span class="chip" id="prereq">Before this: ${esc(l.prereq)}</span>` : '<span class="chip">No prerequisites</span>'}${isDone(id) ? '<span class="chip done">✓ Completed</span>' : ""}</div>
         </header>
         <div class="prose" id="lessonBody"><div class="loading">Loading the lesson...</div></div>
       </article>
@@ -557,11 +712,31 @@
           intro: "Click an answer to see if you are right, and why.",
           onDone: (r, n) => { if (r >= Math.ceil(n / 2) && !isDone(l.id)) markDone(l.id, true); },
         }));
+      } else if (key === "The Concept") {
+        // the lesson's animated walkthroughs, right where the big idea is introduced
+        const ws = walksFor(l.id);
+        if (ws.length) {
+          const box = document.createElement("div");
+          box.className = "walk-strip";
+          ws.forEach((w, i) => box.appendChild(walkBlock(w.id, { kicker: ws.length > 1 ? `Walkthrough ${i + 1} of ${ws.length}` : "Watch the idea, step by step" })));
+          (nodes[0] || h).after(box);
+        }
+      } else if (key === "Key Terms") {
+        // replace the table with friendly cards: explanation, example, joke and walkthrough for each term
+        nodes.forEach((n) => n.remove());
+        const intro = document.createElement("p");
+        intro.className = "muted";
+        intro.textContent = "Tap “Explain more” for a fuller explanation, a worked example and a joke to help it stick.";
+        const grid = document.createElement("div");
+        grid.className = "term-grid";
+        l.terms.forEach((t) => { const g = termOf(t); if (g) grid.appendChild(termCard(g)); });
+        h.after(intro, grid);
       } else if (key === "Next") {
         nodes.forEach((n) => n.remove());
         h.remove();
       }
     });
+    linkTerms(body, l);
 
     // finish block
     const fin = document.createElement("div");
@@ -635,8 +810,8 @@
 
   function viewAnimations() {
     setView(`<div class="wrap">
-      <div class="page-head"><div class="eyebrow">Learn by playing</div><h1>All animations</h1>
-      <p>${C.animations.length} interactive pictures. Each one opens full screen, and each belongs to a lesson that explains it.</p></div>
+      <div class="page-head"><div class="eyebrow">Learn by playing</div><h1>Playground</h1>
+      <p>${C.animations.length} interactive pictures you can drag and poke. Each has a "👋 Show me how" guided tour, and each belongs to a lesson that explains it.</p></div>
       <div class="filterbar"><label class="sr-only" for="af">Filter animations</label><input id="af" type="search" placeholder="Filter, e.g. normal, regression, p-value"></div>
       <div class="gallery" id="gal"></div>
     </div>`, "Animations", "animations");
@@ -673,24 +848,74 @@
   }
 
   function viewGlossary() {
-    setView(`<div class="wrap" style="max-width:980px">
+    const withContent = C.glossary.filter((g) => g.explain).length;
+    setView(`<div class="wrap" style="max-width:1100px">
       <div class="page-head"><div class="eyebrow">Plain-English dictionary</div><h1>Glossary</h1>
-      <p>${C.glossary.length} terms. Each one links to the lesson that teaches it.</p></div>
-      <div class="filterbar"><label class="sr-only" for="gf">Find a term</label><input id="gf" type="search" placeholder="Type a word, e.g. variance"></div>
-      <div class="gloss" id="gl"></div>
+      <p>${C.glossary.length} terms, each with a fuller explanation, a worked example, a joke to help it stick, and an animated walkthrough.</p></div>
+      <div class="filterbar"><label class="sr-only" for="gf">Find a term</label><input id="gf" type="search" placeholder="Type a word, e.g. variance">
+      <button type="button" class="btn btn-soft" id="rnd">🎲 Surprise me</button></div>
+      <div id="gl"></div>
     </div>`, "Glossary", "glossary");
     const draw = (q) => {
       const ql = q.toLowerCase();
-      let letter = "";
-      const rows = C.glossary.filter((g) => !q || (g.term + " " + g.meaning).toLowerCase().includes(ql));
-      $("#gl").innerHTML = rows.map((g) => {
-        const L = g.term[0].toUpperCase();
-        const head = !q && L !== letter ? `<div class="letter">${esc((letter = L))}</div>` : "";
-        return `${head}<div class="card g"><strong>${mdInline(esc(g.term))}</strong><p>${mdInline(g.meaning)}</p><a class="chip" href="#/lesson/${g.lesson}">Lesson ${g.lesson}</a></div>`;
-      }).join("") || '<p class="muted">No term matches. Try a shorter word.</p>';
+      const rows = C.glossary.filter((g) => !q || (g.term + " " + g.meaning + " " + (g.explain || "")).toLowerCase().includes(ql));
+      const out = $("#gl");
+      out.replaceChildren();
+      if (!rows.length) { out.innerHTML = '<p class="muted">No term matches. Try a shorter word.</p>'; return; }
+      let letter = "", grid = null;
+      rows.forEach((g) => {
+        const L = /[a-z]/i.test(g.term[0]) ? g.term[0].toUpperCase() : "#";
+        if (!grid || (!q && L !== letter)) {
+          if (!q) { const h = document.createElement("div"); h.className = "letter"; h.textContent = (letter = L); out.appendChild(h); }
+          grid = document.createElement("div"); grid.className = "term-grid"; out.appendChild(grid);
+        }
+        grid.appendChild(termCard(g, { lessonChip: true }));
+      });
     };
     $("#gf").addEventListener("input", (e) => draw(e.target.value.trim()));
+    $("#rnd").addEventListener("click", () => { const pool = C.glossary.filter((g) => g.explain); const g = pool[Math.floor(Math.random() * pool.length)]; if (g) openTerm(g); });
     draw("");
+    if (!withContent) $("#rnd").hidden = true;
+  }
+
+  function viewWalks() {
+    setView(`<div class="wrap">
+      <div class="page-head"><div class="eyebrow">See it, then get it</div><h1>Animated walkthroughs</h1>
+      <p>${(C.walks || []).length} short narrated animations, one idea each. Press play, then go at your own pace with Next and Back.</p></div>
+      ${C.stages.map((st) => {
+        const ws = (C.walks || []).filter((w) => BY_ID[w.lesson] && BY_ID[w.lesson].stage === st);
+        if (!ws.length) return "";
+        return `<h2 class="section-title stage-title" style="--hue:${HUES[st.num]}"><span class="stage-dot">${st.icon}</span> Stage ${st.num}: ${esc(st.title)}</h2>
+          <div class="walk-grid">${ws.map((w) => `<a class="card walk-tile" style="--hue:${HUES[st.num]}" href="#/walk/${w.id}"><span class="walk-tile-play" aria-hidden="true">▶</span><span><small>Lesson ${w.lesson}</small><strong>${esc(w.title)}</strong></span></a>`).join("")}</div>`;
+      }).join("")}
+    </div>`, "Animated walkthroughs", "walks");
+  }
+
+  function viewWalk(id) {
+    const w = WALKS[id];
+    if (!w) return viewMissing();
+    const l = BY_ID[w.lesson];
+    const terms = C.glossary.filter((g) => g.walk === id);
+    const all = C.walks || [];
+    const i = all.findIndex((x) => x.id === id);
+    const prev = all[i - 1], next = all[i + 1];
+    setView(`<div class="wrap" style="max-width:980px">
+      <div class="page-head" style="padding-bottom:14px">
+        <div class="crumbs"><a href="#/">Home</a> › <a href="#/walks">Walkthroughs</a> › Lesson ${w.lesson}</div>
+      </div>
+      <div id="wkHost"><div class="loading">Loading the animation...</div></div>
+      <div class="walk-after">
+        <a class="btn btn-soft" href="#/lesson/${l.id}">📘 Read the lesson: ${l.id} ${esc(l.title)}</a>
+      </div>
+      ${terms.length ? `<h2 class="section-title" style="font-size:1.3rem;margin-top:34px">📖 Terms this walkthrough explains</h2><div class="term-grid" id="wkTerms"></div>` : ""}
+      <div class="pn" style="margin:30px 0 40px">
+        ${prev ? `<a class="card" href="#/walk/${prev.id}"><small>← Previous walkthrough</small>${esc(prev.title)}</a>` : "<span></span>"}
+        ${next ? `<a class="card next" href="#/walk/${next.id}"><small>Next walkthrough →</small>${esc(next.title)}</a>` : ""}
+      </div>
+    </div>`, w.title, "walks");
+    if (terms.length) terms.forEach((g) => $("#wkTerms").appendChild(termCard(g, { lessonChip: true })));
+    ensureWalk(id).then(() => { const host = $("#wkHost"); if (!host) return; host.replaceChildren(); const p = window.Walk.mount(host, id); cleanup.push(() => p && p.stop()); })
+      .catch((e) => { $("#wkHost").innerHTML = `<p class="muted">${esc(e.message)}</p>`; });
   }
 
   function viewTables() {
@@ -736,16 +961,19 @@ The lessons are built from the StatisticsFundamentals.com teaching materials. Ev
       if (hit(hay)) score += 1;
       return { l, score };
     }).filter((x) => x.score).sort((a, b) => b.score - a.score);
-    const terms = C.glossary.filter((g) => hit(g.term + " " + g.meaning)).slice(0, 12);
+    const terms = C.glossary.filter((g) => hit(g.term + " " + g.meaning + " " + (g.explain || ""))).sort((a, b) => (hit(b.term) ? 1 : 0) - (hit(a.term) ? 1 : 0)).slice(0, 12);
+    const walks = (C.walks || []).filter((w) => hit(w.title + " " + w.terms.join(" "))).slice(0, 8);
     const anims = C.animations.filter((a) => hit(a.title + " " + a.hint)).slice(0, 6);
     setView(`<div class="wrap" style="max-width:900px">
       <div class="page-head"><div class="eyebrow">Search</div><h1>Results for “${esc(q)}”</h1></div>
-      ${terms.length ? `<h2 class="section-title" style="font-size:1.2rem">📖 In the glossary</h2><div class="results">${terms.map((g) => `<a class="card" href="#/lesson/${g.lesson}"><strong>${mark(g.term)}</strong> <small>· Lesson ${g.lesson}</small><p>${mark(g.meaning.replace(/\*\*/g, ""))}</p></a>`).join("")}</div>` : ""}
+      ${terms.length ? `<h2 class="section-title" style="font-size:1.2rem">📖 Definitions</h2><div class="term-grid" id="srTerms"></div>` : ""}
+      ${walks.length ? `<h2 class="section-title" style="font-size:1.2rem">🎬 Walkthroughs</h2><div class="results">${walks.map((w) => `<a class="card" href="#/walk/${w.id}"><small>Lesson ${w.lesson}</small><br><strong>${mark(w.title)}</strong></a>`).join("")}</div>` : ""}
       ${lessons.length ? `<h2 class="section-title" style="font-size:1.2rem">📘 Lessons</h2><div class="results">${lessons.map(({ l }) => `<a class="card" href="#/lesson/${l.id}"><small>Lesson ${l.id}</small><br><strong>${mark(l.title)}</strong><p>${mark(l.motto)}</p></a>`).join("")}</div>` : ""}
       ${anims.length ? `<h2 class="section-title" style="font-size:1.2rem">🎛️ Animations</h2><div class="results">${anims.map((a) => `<a class="card" href="#/play/${a.slug}"><strong>${mark(a.title)}</strong><p>${mark(a.hint)}</p></a>`).join("")}</div>` : ""}
-      ${!terms.length && !lessons.length && !anims.length ? `<p class="muted">Nothing found. Try a shorter or different word, or <a href="#/glossary">browse the glossary</a>.</p>` : ""}
+      ${!terms.length && !lessons.length && !anims.length && !walks.length ? `<p class="muted">Nothing found. Try a shorter or different word, or <a href="#/glossary">browse the glossary</a>.</p>` : ""}
     </div>`, "Search", "");
     $("#q").value = q;
+    terms.forEach((g) => $("#srTerms").appendChild(termCard(g, { lessonChip: true })));
   }
 
   function viewMissing() {
@@ -766,6 +994,8 @@ The lessons are built from the StatisticsFundamentals.com teaching materials. Ev
       case "animations": return viewAnimations();
       case "play": return viewPlay(parts.slice(1).join("/"));
       case "glossary": return viewGlossary();
+      case "walks": return viewWalks();
+      case "walk": return viewWalk(parts[1]);
       case "tables": return viewTables();
       case "t-table": return viewDoc(C.tTable, "t-table", "tables", '<a href="#/tables">Tables</a> › t-table');
       case "about": return viewAbout();

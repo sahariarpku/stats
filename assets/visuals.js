@@ -146,6 +146,92 @@ const Viz = {
     return { input, set(v) { input.value = v; update(); } };
   },
 
+  /* Guided tour: a "Show me how" button that walks a beginner through the animation.
+     steps: [{ target: "#plot" (CSS selector or null), title: "...", text: "...",
+               action: { label: "Do it for me", run: () => ... } }]
+     The target is highlighted, a card explains it, and an optional button performs an action. */
+  tour(steps, opts = {}) {
+    const head = document.querySelector(".viz-head");
+    if (!head || !steps || !steps.length) return;
+    const tools = document.createElement("div");
+    tools.className = "tour-tools";
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "tour-btn";
+    btn.innerHTML = '<span aria-hidden="true">👋</span> Show me how';
+    tools.appendChild(btn);
+    const theme = head.querySelector("#theme");
+    if (theme) { head.insertBefore(tools, theme); tools.appendChild(theme); } else head.appendChild(tools);
+    let i = 0, card = null, ring = null;
+    const key = "viz-tour-seen:" + location.pathname.split("/").slice(-2).join("/");
+    const esc = (e) => { if (e.key === "Escape") end(); };
+    function end() {
+      if (card) card.remove();
+      if (ring) ring.classList.remove("tour-ring");
+      card = ring = null;
+      document.removeEventListener("keydown", esc);
+      btn.focus();
+    }
+    function show(k) {
+      i = k;
+      const st = steps[i];
+      if (ring) ring.classList.remove("tour-ring");
+      ring = st.target ? document.querySelector(st.target) : null;
+      if (ring) { ring.classList.add("tour-ring"); ring.scrollIntoView({ block: "center", behavior: "smooth" }); }
+      if (!card) {
+        card = document.createElement("div");
+        card.className = "tour-card";
+        card.setAttribute("role", "dialog");
+        card.setAttribute("aria-label", "Guided tour");
+        document.body.appendChild(card);
+        document.addEventListener("keydown", esc);
+      }
+      card.innerHTML = `<div class="tour-top"><span class="tour-step">Step ${i + 1} of ${steps.length}</span><button type="button" class="tour-x" aria-label="Close the tour">✕</button></div>` +
+        (st.title ? `<div class="tour-title"></div>` : "") + `<p class="tour-text"></p>` +
+        `<div class="tour-nav"><button type="button" class="tour-back">← Back</button>` +
+        (st.action ? `<button type="button" class="tour-do"></button>` : "") +
+        `<button type="button" class="tour-next">${i === steps.length - 1 ? "Finish ✓" : "Next →"}</button></div>`;
+      if (st.title) card.querySelector(".tour-title").textContent = st.title;
+      card.querySelector(".tour-text").innerHTML = st.text.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+      card.querySelector(".tour-back").disabled = i === 0;
+      card.querySelector(".tour-x").addEventListener("click", end);
+      card.querySelector(".tour-back").addEventListener("click", () => show(i - 1));
+      card.querySelector(".tour-next").addEventListener("click", () => { if (i === steps.length - 1) end(); else show(i + 1); });
+      if (st.action) {
+        const d = card.querySelector(".tour-do");
+        d.textContent = "▶ " + (st.action.label || "Do it for me");
+        d.addEventListener("click", () => { st.action.run(); d.textContent = "✓ Done. Watch what changed"; });
+      }
+      place();
+      card.querySelector(".tour-next").focus({ preventScroll: true });
+    }
+    function place() {
+      if (!card) return;
+      const vw = document.documentElement.clientWidth;
+      const w = Math.min(360, vw - 24);
+      card.style.width = w + "px";
+      if (!ring) { card.style.left = Math.max(12, (vw - w) / 2) + "px"; card.style.top = (window.scrollY + 90) + "px"; return; }
+      const r = ring.getBoundingClientRect();
+      const ch = card.offsetHeight;
+      let top = r.bottom + window.scrollY + 12;
+      if (r.bottom + ch + 24 > window.innerHeight && r.top - ch - 12 > 0) top = r.top + window.scrollY - ch - 12;
+      if (r.height > window.innerHeight * 0.6) top = window.scrollY + Math.max(12, window.innerHeight - ch - 16);
+      card.style.top = top + "px";
+      card.style.left = Math.min(vw - w - 12, Math.max(12, r.left + r.width / 2 - w / 2)) + "px";
+    }
+    window.addEventListener("resize", place);
+    window.addEventListener("scroll", () => { if (card && ring) { clearTimeout(place.t); place.t = setTimeout(place, 120); } }, { passive: true });
+    btn.addEventListener("click", () => { try { localStorage.setItem(key, "1"); } catch (e) { /* ignore */ } nudge.remove(); show(0); });
+    // A gentle nudge the first time someone opens this animation.
+    const nudge = document.createElement("div");
+    nudge.className = "tour-nudge";
+    nudge.textContent = opts.nudge || "New here? Take the 30-second tour.";
+    let seen = false;
+    try { seen = localStorage.getItem(key) === "1"; } catch (e) { /* ignore */ }
+    if (!seen) tools.appendChild(nudge);
+    Viz._tour = { show, end, steps };
+  },
+
   themeToggle(button) {
     const modes = ["auto", "light", "dark"];
     let index = 0;

@@ -67,6 +67,40 @@ def visual_info(html: Path):
     return h1, hint
 
 
+WALK_RE = re.compile(r'Walk\.register\(\s*"([\w.-]+)"\s*,\s*(\{[^{}]*\})\s*,')
+
+
+def read_walks():
+    """Metadata of every animated walkthrough in site/walks/*.js."""
+    walks = []
+    for f in sorted((SITE / "walks").glob("*.js")):
+        for m in WALK_RE.finditer(f.read_text(encoding="utf-8")):
+            meta = json.loads(m.group(2))
+            walks.append({"id": m.group(1), "title": meta["title"], "lesson": meta["lesson"],
+                          "terms": meta.get("terms", []), "file": f"site/walks/{f.name}"})
+    return walks
+
+
+def read_definitions():
+    """Explanations, examples, jokes and walkthrough links for glossary terms (content/definitions/*.json)."""
+    defs = {}
+    for f in sorted((ROOT / "content" / "definitions").glob("*.json")):
+        for term, d in json.loads(f.read_text(encoding="utf-8")).items():
+            defs[term.lower()] = d
+    return defs
+
+
+def people_say(text):
+    """The middle 'What people say' column of a lesson's Key Terms table, by term."""
+    m = re.search(r"^## Key Terms\s*\n(.*?)(?=^## )", text, re.M | re.S)
+    out = {}
+    for line in (m.group(1).splitlines() if m else []):
+        cells = [c.strip().replace("\\|", "|") for c in re.split(r"(?<!\\)\|", line.strip().strip("|"))]
+        if len(cells) == 3 and not cells[0].startswith(("Term", "---")):
+            out[cells[0].replace("**", "").replace("\\*", "*")] = cells[1].strip('"“”')
+    return out
+
+
 def section(text, heading):
     m = re.search(rf"^## {re.escape(heading)}\s*\n(.*?)(?=^## |\Z)", text, re.M | re.S)
     return m.group(1).strip() if m else ""
@@ -97,8 +131,10 @@ def build():
                     "path": f"{path}/visuals/{html.name}",
                     "thumb": f"site/thumbs/{slug}.jpg" if thumb.exists() else None,
                 })
+            terms = [(t.replace("\\*", "*"), m) for t, m in terms]
+            says = people_say(text)
             for term, meaning in terms:
-                course["glossary"].append({"term": term, "meaning": meaning, "lesson": lid})
+                course["glossary"].append({"term": term, "meaning": meaning, "lesson": lid, "say": says.get(term, "")})
             st["lessons"].append({
                 "id": lid, "slug": lesson.name, "path": path, "title": ltitle, "motto": motto,
                 "minutes": minutes, "prereq": prereq.group(1) if prereq else "", "goals": goals,
@@ -117,6 +153,12 @@ def build():
     for f in sorted((ROOT / "reference" / "tables").iterdir()):
         course["tables"].append({"name": TABLE_NAMES.get(f.stem, f.stem.replace("-", " ")), "file": f"reference/tables/{f.name}",
                                  "kind": f.suffix[1:].upper()})
+    course["walks"] = read_walks()
+    defs = read_definitions()
+    for g in course["glossary"]:
+        d = defs.get(g["term"].lower())
+        if d:
+            g.update({k: d[k] for k in ("explain", "example", "joke", "walk") if k in d})
     course["sources"] = (ROOT / "SOURCE_NOTES.md").read_text(encoding="utf-8")
     course["tTable"] = (ROOT / "reference" / "t-table.md").read_text(encoding="utf-8")
 
@@ -131,6 +173,15 @@ def build():
 
 def main():
     out = build()
+    if "--coverage" in sys.argv:
+        course = json.loads(out[SITE / "data.js"].split("window.COURSE = ", 1)[1].rstrip().rstrip(";"))
+        ids = {w["id"] for w in course["walks"]}
+        missing = [g["term"] for g in course["glossary"] if "explain" not in g]
+        nowalk = [g["term"] for g in course["glossary"] if "explain" in g and g.get("walk") not in ids]
+        print(f"{len(course['walks'])} walkthroughs; {len(course['glossary']) - len(missing)} of {len(course['glossary'])} terms have content")
+        if missing: print("  no content:", "; ".join(missing))
+        if nowalk: print("  walk id missing or unknown:", "; ".join(nowalk))
+        sys.exit(1 if missing or nowalk else 0)
     if "--check" in sys.argv:
         stale = [p for p, text in out.items() if not p.exists() or p.read_text(encoding="utf-8") != text]
         if stale:
