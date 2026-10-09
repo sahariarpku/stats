@@ -1,0 +1,46 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "A z-test for a mean requires which of these?",
+      "options": ["σ is known (or n is very large)", "n must equal 30 exactly", "The data must be categorical", "H₀ must be false"],
+      "correct": 0,
+      "explanation": "The z-test for a mean assumes the population standard deviation σ is known. Otherwise the t-test is the right tool."
+    },
+    {
+      "stage": "pre",
+      "question": "In a one-proportion z-test, the standard error uses...",
+      "options": ["The observed p̂", "The hypothesised p₀", "The sample size only", "The sample mean"],
+      "correct": 1,
+      "explanation": "A test assumes H₀ is true, so SE = √[p₀(1 − p₀)/n]. (Confidence intervals use p̂.)"
+    },
+    {
+      "stage": "post",
+      "question": "μ₀ = 10, σ = 0.5, n = 50, x̄ = 10.14. What is the z statistic?",
+      "options": ["0.28", "1.98", "2.80", "14.0"],
+      "correct": 1,
+      "explanation": "SE = 0.5/√50 = 0.0707. z = 0.14/0.0707 = 1.98."
+    },
+    {
+      "stage": "post",
+      "question": "184 of 200 customers are satisfied. Test H₀: p = 0.95 against H₁: p < 0.95. What is z (approximately)?",
+      "options": ["−1.95", "−0.03", "1.95", "−9.2"],
+      "correct": 0,
+      "explanation": "p̂ = 0.92, SE = √(0.95 × 0.05/200) = 0.01541, so z = −0.03/0.01541 ≈ −1.947. The left-tail p-value is about 0.026."
+    },
+    {
+      "stage": "post",
+      "question": "A/B test: 42 of 1,000 vs 56 of 1,000 convert. The z-test gives z = −1.45, p = 0.147. What is the right conclusion at α = 0.05?",
+      "options": ["B is clearly better", "Not enough evidence of a difference", "A is better", "The test is invalid"],
+      "correct": 1,
+      "explanation": "p = 0.147 > 0.05, so we fail to reject H₀. The observed gap could easily be sampling noise at this sample size."
+    },
+    {
+      "stage": "post",
+      "question": "You find 0 defects in 30 items and want to test H₀: p = 0.05. Why is the normal approximation a poor choice?",
+      "options": ["n is too large", "n p₀ = 1.5 is far below 10", "p₀ is greater than 0.5", "There are no data"],
+      "correct": 1,
+      "explanation": "The success-failure condition needs n p₀ ≥ 10. With n p₀ = 1.5 you should use the exact binomial probability instead."
+    }
+  ]
+}

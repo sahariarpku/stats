@@ -1,0 +1,46 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "A Type I error occurs when you...",
+      "options": ["Fail to reject a false H₀", "Reject a true H₀", "Accept H₁ without data", "Use the wrong table"],
+      "correct": 1,
+      "explanation": "A Type I error is a false alarm: rejecting H₀ when it is actually true. Its probability is α."
+    },
+    {
+      "stage": "pre",
+      "question": "Power is the probability of...",
+      "options": ["Rejecting H₀ when it is true", "Rejecting H₀ when it is false", "Failing to reject H₀ when it is false", "Choosing α correctly"],
+      "correct": 1,
+      "explanation": "Power = 1 − β: the chance of correctly detecting a real effect."
+    },
+    {
+      "stage": "post",
+      "question": "A test has β = 0.20. What is its power?",
+      "options": ["0.20", "0.80", "0.95", "0.05"],
+      "correct": 1,
+      "explanation": "Power = 1 − β = 1 − 0.20 = 0.80."
+    },
+    {
+      "stage": "post",
+      "question": "Which change increases power, other things being equal?",
+      "options": ["Smaller sample size", "Larger sample size", "Smaller true effect", "More variable data"],
+      "correct": 1,
+      "explanation": "A larger n reduces the standard error, making real effects easier to detect. A smaller effect or noisier data lower power."
+    },
+    {
+      "stage": "post",
+      "question": "What happens to Type II error risk if you lower α from 0.05 to 0.01 without changing anything else?",
+      "options": ["It decreases", "It increases", "It stays the same", "It becomes zero"],
+      "correct": 1,
+      "explanation": "A stricter cut-off makes rejection harder, so you miss more real effects: β rises and power falls (0.67 → 0.43 in the lesson's example)."
+    },
+    {
+      "stage": "post",
+      "question": "A study with low power returns a non-significant result. The best interpretation is...",
+      "options": ["The treatment does not work", "The result is inconclusive", "H₀ is proved", "α was too high"],
+      "correct": 1,
+      "explanation": "An under-powered test might miss a real effect. A non-significant result then says little. It does not show the effect is absent."
+    }
+  ]
+}

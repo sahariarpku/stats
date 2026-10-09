@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>p-value as a Tail Area</title>
+<link rel="stylesheet" href="../../../../assets/visuals.css">
+<style>button[aria-pressed="true"] { background: var(--surface-2); border-color: var(--series-1); }</style>
+</head>
+<body>
+<main class="viz">
+  <div class="viz-head">
+    <div>
+      <h1>p-value as a tail area</h1>
+      <p class="hint">If H₀ is true, test statistics follow the bell curve. Move your z-score along it. The shaded area beyond it is the p-value. Compare it with α.</p>
+    </div>
+    <button id="theme" type="button">Theme: auto</button>
+  </div>
+
+  <div class="controls" id="tails" role="group" aria-label="Type of test">
+    <button type="button" data-t="two" aria-pressed="true">Two-tailed</button>
+    <button type="button" data-t="right" aria-pressed="false">Right-tailed</button>
+    <button type="button" data-t="left" aria-pressed="false">Left-tailed</button>
+  </div>
+
+  <svg id="plot" viewBox="0 0 760 250" role="img" aria-label="Standard normal curve with the p-value tail area shaded and the rejection region marked" style="margin-top:10px"></svg>
+
+  <div class="legend">
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="3" width="12" height="9" fill="var(--series-2)" opacity="0.6"/></svg>p-value area</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="6" y="0" width="3" height="14" fill="var(--series-1)"/></svg>Your test statistic</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="6" width="5" height="2" fill="var(--text-muted)"/><rect x="8" y="6" width="5" height="2" fill="var(--text-muted)"/></svg>Critical value(s) for α</span>
+  </div>
+
+  <div class="readout" aria-live="polite">
+    <div class="card"><div class="label">z</div><div class="value" id="zv"></div></div>
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-2)"></span>p-value</div><div class="value" id="pv"></div></div>
+    <div class="card"><div class="label">α</div><div class="value" id="av"></div></div>
+    <div class="card"><div class="label">Decision</div><div class="value" id="dec" style="font-size:1.2rem"></div></div>
+  </div>
+  <p class="verdict" id="verdict" aria-live="polite"></p>
+
+  <div class="controls col" id="sliders"></div>
+  <div class="controls" id="alphas" role="group" aria-label="Significance level">
+    <button type="button" data-a="0.10" aria-pressed="false">α = 0.10</button>
+    <button type="button" data-a="0.05" aria-pressed="true">α = 0.05</button>
+    <button type="button" data-a="0.01" aria-pressed="false">α = 0.01</button>
+  </div>
+</main>
+
+<script src="../../../../assets/visuals.js"></script>
+<script>
+let z = 2.4, tail = "two", alpha = 0.05;
+const svg = document.getElementById("plot");
+const $ = (id) => document.getElementById(id);
+const X = Viz.scale(-4, 4, 30, 730);
+const layer = Viz.el("g", {}, svg);
+const Y = Viz.scale(0, 0.42, 195, 15);
+
+function pvalue() {
+  const right = 1 - Viz.normCdf(z), left = Viz.normCdf(z);
+  return tail === "right" ? right : tail === "left" ? left : 2 * Math.min(left, right);
+}
+
+function render() {
+  const p = pvalue();
+  const crit = tail === "two" ? Viz.normInv(1 - alpha / 2) : Viz.normInv(1 - alpha);
+  layer.replaceChildren();
+  const shade = (a, b, color, op) => {
+    const pts = []; for (let i = 0; i <= 80; i++) { const x = a + (b - a) * i / 80; pts.push([X(x), Y(Viz.normPdf(x))]); }
+    Viz.el("path", { d: "M" + X(a) + " 195 " + pts.map(([x, y]) => "L" + x + " " + y).join(" ") + " L" + X(b) + " 195 Z", fill: color, opacity: op }, layer);
+  };
+  const az = Math.abs(z);
+  if (tail === "two") { shade(-4, -Math.min(4, az), "var(--series-2)", 0.6); shade(Math.min(4, az), 4, "var(--series-2)", 0.6); }
+  else if (tail === "right") shade(Math.max(-4, z), 4, "var(--series-2)", 0.6);
+  else shade(-4, Math.min(4, z), "var(--series-2)", 0.6);
+
+  const pts = []; for (let x = -4; x <= 4.001; x += 0.05) pts.push(X(x) + "," + Y(Viz.normPdf(x)));
+  Viz.el("polyline", { points: pts.join(" "), fill: "none", stroke: "var(--text-primary)", "stroke-width": 2.5 }, layer);
+  Viz.axisBottom(layer, X, { y: 195, from: -4, to: 4, step: 1 });
+  const crits = tail === "two" ? [-crit, crit] : tail === "right" ? [crit] : [-crit];
+  crits.forEach((c) => {
+    Viz.el("line", { x1: X(c), x2: X(c), y1: 30, y2: 195, stroke: "var(--text-muted)", "stroke-width": 1.5, "stroke-dasharray": "5 4" }, layer);
+    Viz.el("text", { x: X(c), y: 24, "text-anchor": "middle" }, layer).textContent = (c < 0 ? "−" : "") + Math.abs(c).toFixed(2);
+  });
+  Viz.el("line", { x1: X(z), x2: X(z), y1: 38, y2: 195, stroke: "var(--series-1)", "stroke-width": 3 }, layer);
+  Viz.el("text", { x: X(z), y: 54, "text-anchor": z > 0 ? "start" : "end", class: "strong", dx: z > 0 ? 6 : -6 }, layer).textContent = "z = " + z.toFixed(2);
+  Viz.el("text", { x: 380, y: 236, "text-anchor": "middle" }, layer).textContent = "Test statistic under H₀ (standard normal)";
+
+  const reject = p <= alpha;
+  $("zv").textContent = z.toFixed(2);
+  $("pv").textContent = p < 0.0001 ? "< 0.0001" : p.toFixed(4);
+  $("av").textContent = alpha.toFixed(2);
+  $("dec").textContent = reject ? "Reject H₀" : "Fail to reject";
+  $("verdict").textContent = "The shaded area is " + (p < 0.0001 ? "< 0.0001" : p.toFixed(4)) + (reject ? ", which is at or below α = " : ", which is above α = ") + alpha + ". " +
+    (reject ? "A statistic this extreme would be too surprising if H₀ were true, so we reject H₀. (The line sits beyond the dashed critical value.)" : "A statistic this extreme is not surprising enough, so H₀ stays standing. (The line is inside the dashed critical value.)") +
+    (tail !== "two" ? " Try the two-tailed button: the p-value doubles." : "");
+}
+
+Viz.slider($("sliders"), { label: "Test statistic z", min: -4, max: 4, step: 0.01, value: z, format: (v) => v.toFixed(2), onInput: (v) => { z = v; render(); } });
+document.querySelectorAll("#tails button").forEach((b) => b.addEventListener("click", () => { tail = b.dataset.t; document.querySelectorAll("#tails button").forEach((x) => x.setAttribute("aria-pressed", x === b)); render(); }));
+document.querySelectorAll("#alphas button").forEach((b) => b.addEventListener("click", () => { alpha = +b.dataset.a; document.querySelectorAll("#alphas button").forEach((x) => x.setAttribute("aria-pressed", x === b)); render(); }));
+Viz.themeToggle($("theme"));
+render();
+</script>
+</body>
+</html>

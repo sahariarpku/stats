@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Two Curves, Two Errors</title>
+<link rel="stylesheet" href="../../../../assets/visuals.css">
+</head>
+<body>
+<main class="viz">
+  <div class="viz-head">
+    <div>
+      <h1>Two curves, two errors</h1>
+      <p class="hint">Grey: sample means when H₀ is true. Blue: sample means when the true mean is higher. The dashed line is where you start rejecting. Slide the controls and watch α, β and power trade off.</p>
+    </div>
+    <button id="theme" type="button">Theme: auto</button>
+  </div>
+
+  <svg id="plot" viewBox="0 0 760 280" role="img" aria-label="Null and alternative sampling distributions with error regions shaded"></svg>
+
+  <div class="legend">
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="3" width="12" height="9" fill="var(--series-2)" opacity="0.7"/></svg>α: false alarms (Type I)</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="3" width="12" height="9" fill="var(--dot)" opacity="0.7"/></svg>β: misses (Type II)</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="3" width="12" height="9" fill="var(--series-1)" opacity="0.6"/></svg>Power: real effect detected</span>
+  </div>
+
+  <div class="readout" aria-live="polite">
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-2)"></span>α (Type I)</div><div class="value" id="av"></div></div>
+    <div class="card"><div class="label">β (Type II)</div><div class="value" id="bv"></div></div>
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>Power = 1 − β</div><div class="value" id="pv"></div></div>
+    <div class="card"><div class="label">Shift of the blue curve</div><div class="value" id="sv"></div></div>
+  </div>
+  <p class="verdict" id="verdict" aria-live="polite"></p>
+
+  <div class="controls col" id="sliders"></div>
+</main>
+
+<script src="../../../../assets/visuals.js"></script>
+<script>
+let d = 0.4, n = 36, alpha = 0.05;
+const svg = document.getElementById("plot");
+const $ = (id) => document.getElementById(id);
+const X = Viz.scale(-3.5, 8.5, 30, 730);
+const Y = Viz.scale(0, 0.42, 210, 15);
+const layer = Viz.el("g", {}, svg);
+const pct = (v) => (v * 100).toFixed(1) + "%";
+
+function render() {
+  const shift = d * Math.sqrt(n);
+  const zc = Viz.normInv(1 - alpha);
+  const beta = Viz.normCdf(zc - shift);
+  const power = 1 - beta;
+  layer.replaceChildren();
+  const fill = (fn, a, b, color, op) => {
+    const pts = []; for (let i = 0; i <= 80; i++) { const x = a + (b - a) * i / 80; pts.push([X(x), Y(fn(x))]); }
+    Viz.el("path", { d: "M" + X(a) + " 210 " + pts.map(([x, y]) => "L" + x + " " + y).join(" ") + " L" + X(b) + " 210 Z", fill: color, opacity: op }, layer);
+  };
+  const f0 = (x) => Viz.normPdf(x), f1 = (x) => Viz.normPdf(x, shift, 1);
+  fill(f1, zc, 8.5, "var(--series-1)", 0.5);
+  fill(f1, -3.5, zc, "var(--dot)", 0.55);
+  fill(f0, zc, 8.5, "var(--series-2)", 0.85);
+  const curve = (fn, color, w, dash) => { const p = []; for (let x = -3.5; x <= 8.501; x += 0.05) p.push(X(x) + "," + Y(fn(x))); Viz.el("polyline", { points: p.join(" "), fill: "none", stroke: color, "stroke-width": w, "stroke-dasharray": dash || "none" }, layer); };
+  curve(f0, "var(--text-primary)", 2.5);
+  curve(f1, "var(--series-1)", 2.5);
+  Viz.axisBottom(layer, X, { y: 210, from: -3, to: 8, step: 1 });
+  Viz.el("line", { x1: X(zc), x2: X(zc), y1: 20, y2: 210, stroke: "var(--text-primary)", "stroke-width": 2, "stroke-dasharray": "6 4" }, layer);
+  Viz.el("text", { x: X(zc) + 6, y: 28, class: "strong" }, layer).textContent = "reject if z ≥ " + zc.toFixed(2);
+  Viz.el("text", { x: X(0), y: 250, "text-anchor": "middle", class: "strong" }, layer).textContent = "H₀ true";
+  Viz.el("text", { x: X(shift), y: 250, "text-anchor": "middle", class: "strong" }, layer).textContent = "true mean (shift " + shift.toFixed(2) + " SE)";
+  Viz.el("text", { x: 380, y: 272, "text-anchor": "middle" }, layer).textContent = "Test statistic z (right-tailed test)";
+
+  $("av").textContent = pct(alpha);
+  $("bv").textContent = pct(beta);
+  $("pv").textContent = pct(power);
+  $("sv").textContent = shift.toFixed(2) + " SE";
+  $("verdict").textContent = "With effect size d = " + d.toFixed(2) + " and n = " + n + ", the blue curve sits " + shift.toFixed(2) + " standard errors to the right. The test detects a real effect " + pct(power) + " of the time and misses it " + pct(beta) + " of the time. " +
+    (power >= 0.8 ? "That meets the usual 80% power target." : "That is below the usual 80% power target: raise n, hope for a larger effect, or accept a larger α.");
+}
+
+Viz.slider($("sliders"), { label: "Effect size d = (μ₁ − μ₀)/σ", min: 0, max: 1.5, step: 0.05, value: d, format: (v) => v.toFixed(2), onInput: (v) => { d = v; render(); } });
+Viz.slider($("sliders"), { label: "Sample size (n)", min: 4, max: 200, step: 1, value: n, format: (v) => "n = " + v, onInput: (v) => { n = v; render(); } });
+Viz.slider($("sliders"), { label: "Significance level (α)", min: 0.005, max: 0.2, step: 0.005, value: alpha, format: (v) => v.toFixed(3), onInput: (v) => { alpha = v; render(); } });
+Viz.themeToggle($("theme"));
+render();
+</script>
+</body>
+</html>

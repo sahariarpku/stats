@@ -1,0 +1,46 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Which design needs a paired t-test?",
+      "options": ["Test scores of two different classes", "Each of 20 patients' blood pressure before and after a drug", "Men versus women", "Treatment versus control with different people"],
+      "correct": 1,
+      "explanation": "Measuring the same people twice creates natural pairs. The other designs compare different people, which is the independent two-sample case."
+    },
+    {
+      "stage": "pre",
+      "question": "A paired t-test is equivalent to a one-sample t-test on...",
+      "options": ["The raw 'before' values", "The differences within each pair", "The pooled data", "The larger group"],
+      "correct": 1,
+      "explanation": "You compute each pair's difference and test whether the mean difference is 0."
+    },
+    {
+      "stage": "post",
+      "question": "Eight pairs have differences 7, 4, 7, 3, 8, 9, 3, 8 (mean 6.125, SD 2.416). What is t?",
+      "options": ["2.53", "7.17", "1.25", "6.13"],
+      "correct": 1,
+      "explanation": "SE = 2.416/√8 = 0.854, so t = 6.125/0.854 = 7.17 with df = 7."
+    },
+    {
+      "stage": "post",
+      "question": "How many degrees of freedom does the paired t-test above have?",
+      "options": ["16", "15", "8", "7"],
+      "correct": 3,
+      "explanation": "df = n − 1 where n is the number of pairs (8), so df = 7."
+    },
+    {
+      "stage": "post",
+      "question": "Why does the independent test miss an effect that the paired test finds?",
+      "options": ["It uses fewer subjects", "The large differences between people inflate its standard error", "It uses the wrong α", "It is a one-tailed test"],
+      "correct": 1,
+      "explanation": "Between-person variation is part of the independent SE. In a paired design each person acts as their own control, so that variation cancels out of the differences."
+    },
+    {
+      "stage": "post",
+      "question": "20 students' scores before and after a review session rise by 6.2 points on average. Why can't the paired test alone prove the review caused the gain?",
+      "options": ["The test is invalid", "There is no control group: practice or familiarity could explain the improvement", "The p-value is too small", "Paired tests cannot be significant"],
+      "correct": 1,
+      "explanation": "Statistics can show that scores changed. Establishing the cause needs a design with a comparison (control) group."
+    }
+  ]
+}

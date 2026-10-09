@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Test and Interval Agree</title>
+<link rel="stylesheet" href="../../../../assets/visuals.css">
+</head>
+<body>
+<main class="viz">
+  <div class="viz-head">
+    <div>
+      <h1>The test and the interval always agree</h1>
+      <p class="hint">Nine river nitrate readings give a 95% confidence interval. Slide the claimed mean μ₀. The test rejects exactly when μ₀ leaves the interval.</p>
+    </div>
+    <button id="theme" type="button">Theme: auto</button>
+  </div>
+
+  <svg id="plot" viewBox="0 0 760 190" role="img" aria-label="A 95 percent confidence interval with a movable hypothesised mean"></svg>
+
+  <div class="readout" aria-live="polite">
+    <div class="card"><div class="label">t statistic (df = 8)</div><div class="value" id="tv"></div></div>
+    <div class="card"><div class="label">Two-tailed p-value</div><div class="value" id="pv"></div></div>
+    <div class="card"><div class="label">Inside the 95% CI?</div><div class="value" id="in"></div></div>
+    <div class="card"><div class="label">Decision (α = 0.05)</div><div class="value" id="dec" style="font-size:1.2rem"></div></div>
+  </div>
+  <p class="verdict" id="verdict" aria-live="polite"></p>
+  <div class="controls col" id="sliders"></div>
+</main>
+
+<script src="../../../../assets/visuals.js"></script>
+<script>
+const DATA = [3.1, 4.2, 2.8, 3.9, 4.5, 3.3, 4.1, 3.7, 3.5];
+const n = DATA.length, xbar = Viz.mean(DATA), s = Viz.sd(DATA), se = s / Math.sqrt(n);
+const tc = Viz.tInv(0.975, n - 1);
+const lo = xbar - tc * se, hi = xbar + tc * se;
+let mu0 = 3.2;
+const svg = document.getElementById("plot");
+const $ = (id) => document.getElementById(id);
+const X = Viz.scale(2.4, 5.0, 40, 720);
+const layer = Viz.el("g", {}, svg);
+
+function render() {
+  const t = (xbar - mu0) / se;
+  const p = 2 * (1 - Viz.tCdf(Math.abs(t), n - 1));
+  const inside = mu0 >= lo && mu0 <= hi;
+  layer.replaceChildren();
+  Viz.axisBottom(layer, X, { y: 130, from: 2.4, to: 5.0, step: 0.2, format: (v) => v.toFixed(1) });
+  Viz.el("rect", { x: X(lo), y: 48, width: X(hi) - X(lo), height: 26, fill: "var(--series-1)", opacity: 0.55, rx: 3 }, layer);
+  Viz.el("line", { x1: X(xbar), x2: X(xbar), y1: 42, y2: 80, stroke: "var(--series-1)", "stroke-width": 3 }, layer);
+  Viz.el("text", { x: X(lo), y: 40, "text-anchor": "middle" }, layer).textContent = lo.toFixed(2);
+  Viz.el("text", { x: X(hi), y: 40, "text-anchor": "middle" }, layer).textContent = hi.toFixed(2);
+  Viz.el("text", { x: X(xbar), y: 98, "text-anchor": "middle", class: "strong" }, layer).textContent = "x̄ = " + xbar.toFixed(2);
+  const color = inside ? "var(--text-primary)" : "var(--series-2)";
+  Viz.el("path", { d: "M" + X(mu0) + " 124 L" + (X(mu0) - 8) + " 108 L" + (X(mu0) + 8) + " 108 Z", fill: color }, layer);
+  Viz.el("line", { x1: X(mu0), x2: X(mu0), y1: 20, y2: 124, stroke: color, "stroke-width": 2, "stroke-dasharray": "5 4" }, layer);
+  Viz.el("text", { x: X(mu0), y: 16, "text-anchor": "middle", class: "strong" }, layer).textContent = "μ₀ = " + mu0.toFixed(2);
+  Viz.el("text", { x: 380, y: 172, "text-anchor": "middle" }, layer).textContent = "Nitrate (mg/L)";
+
+  $("tv").textContent = t.toFixed(2);
+  $("pv").textContent = p < 0.0001 ? "< 0.0001" : p.toFixed(4);
+  $("in").textContent = inside ? "Yes" : "No";
+  $("dec").textContent = p <= 0.05 ? "Reject H₀" : "Fail to reject";
+  $("verdict").textContent = inside
+    ? "μ₀ = " + mu0.toFixed(2) + " lies inside (" + lo.toFixed(2) + ", " + hi.toFixed(2) + "), so it is a plausible value for the true mean and the test cannot reject it (p = " + p.toFixed(3) + ")."
+    : "μ₀ = " + mu0.toFixed(2) + " lies outside (" + lo.toFixed(2) + ", " + hi.toFixed(2) + "), so the test rejects it (p = " + p.toFixed(3) + "). Slide μ₀ across the edge of the interval and watch the p-value cross 0.05 at exactly the same moment.";
+}
+
+Viz.slider($("sliders"), { label: "Claimed mean μ₀", min: 2.5, max: 4.9, step: 0.01, value: mu0, format: (v) => v.toFixed(2), onInput: (v) => { mu0 = v; render(); } });
+Viz.themeToggle($("theme"));
+render();
+</script>
+</body>
+</html>

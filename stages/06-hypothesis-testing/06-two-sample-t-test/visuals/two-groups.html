@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Two Groups, Two Tests</title>
+<link rel="stylesheet" href="../../../../assets/visuals.css">
+</head>
+<body>
+<main class="viz">
+  <div class="viz-head">
+    <div>
+      <h1>Two groups, two tests</h1>
+      <p class="hint">Each curve shows how one group's scores spread. The small boxes show how precisely each group's mean is known (± 1 SE). Change the groups and compare the pooled and Welch tests.</p>
+    </div>
+    <button id="theme" type="button">Theme: auto</button>
+  </div>
+
+  <svg id="plot" viewBox="0 0 760 260" role="img" aria-label="Two group distributions with standard error bars for their means"></svg>
+
+  <div class="legend">
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="6" width="14" height="3" fill="var(--series-1)"/></svg>Group 1</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="6" width="14" height="3" fill="var(--series-2)"/></svg>Group 2</span>
+  </div>
+
+  <table style="width:100%;border-collapse:collapse;margin:6px 0 10px;font-variant-numeric:tabular-nums" aria-live="polite">
+    <thead><tr><th style="text-align:left;padding:4px 8px">Test</th><th style="text-align:left;padding:4px 8px">SE</th><th style="text-align:left;padding:4px 8px">t</th><th style="text-align:left;padding:4px 8px">df</th><th style="text-align:left;padding:4px 8px">p</th><th style="text-align:left;padding:4px 8px">At α = 0.05</th></tr></thead>
+    <tbody id="tbody"></tbody>
+  </table>
+  <p class="verdict" id="verdict" aria-live="polite"></p>
+
+  <div class="controls col" id="sliders"></div>
+  <div class="controls">
+    <button type="button" id="p1">Music vs silence</button>
+    <button type="button" id="p2">Small noisy group (pooled test misleads)</button>
+  </div>
+</main>
+
+<script src="../../../../assets/visuals.js"></script>
+<script>
+const G = { m1: 74, s1: 8, n1: 30, m2: 79, s2: 7, n2: 30 };
+const svg = document.getElementById("plot");
+const $ = (id) => document.getElementById(id);
+const X = Viz.scale(20, 100, 30, 730);
+const layer = Viz.el("g", {}, svg);
+const sliders = {};
+const tp = (t, df) => 2 * (1 - Viz.tCdf(Math.abs(t), df));
+
+function render() {
+  const { m1, s1, n1, m2, s2, n2 } = G;
+  const Y = Viz.scale(0, Math.max(Viz.normPdf(0, 0, Math.min(s1, s2)) * 1.1, 0.06), 170, 15);
+  layer.replaceChildren();
+  Viz.axisBottom(layer, X, { y: 170, from: 20, to: 100, step: 10 });
+  [[m1, s1, n1, "var(--series-1)", 70], [m2, s2, n2, "var(--series-2)", 70]].forEach(([m, s, n, color], i) => {
+    const pts = []; for (let x = 20; x <= 100; x += 0.5) pts.push(X(x) + "," + Y(Viz.normPdf(x, m, s)));
+    Viz.el("polyline", { points: pts.join(" "), fill: "none", stroke: color, "stroke-width": 2.5 }, layer);
+    const se = s / Math.sqrt(n);
+    Viz.el("rect", { x: X(m - se), y: 208 + i * 20, width: Math.max(2, X(m + se) - X(m - se)), height: 10, fill: color, opacity: 0.85, rx: 2 }, layer);
+    Viz.el("line", { x1: X(m), x2: X(m), y1: Y(Viz.normPdf(m, m, s)), y2: 170, stroke: color, "stroke-width": 1.5, "stroke-dasharray": "4 4" }, layer);
+    Viz.el("text", { x: X(m + se) + 6, y: 217 + i * 20 }, layer).textContent = "mean " + m + " ± SE " + se.toFixed(2);
+  });
+
+  const sp2 = ((n1 - 1) * s1 ** 2 + (n2 - 1) * s2 ** 2) / (n1 + n2 - 2);
+  const sePool = Math.sqrt(sp2 * (1 / n1 + 1 / n2)), dfPool = n1 + n2 - 2;
+  const v1 = s1 ** 2 / n1, v2 = s2 ** 2 / n2;
+  const seW = Math.sqrt(v1 + v2), dfW = (v1 + v2) ** 2 / (v1 ** 2 / (n1 - 1) + v2 ** 2 / (n2 - 1));
+  const tPool = (m1 - m2) / sePool, tW = (m1 - m2) / seW;
+  const pPool = tp(tPool, dfPool), pW = tp(tW, dfW);
+  const row = (name, se, t, df, p) => "<tr><td style='padding:4px 8px;border-top:1px solid var(--grid)'>" + name + "</td><td style='padding:4px 8px;border-top:1px solid var(--grid)'>" + se.toFixed(3) + "</td><td style='padding:4px 8px;border-top:1px solid var(--grid)'>" + t.toFixed(2) + "</td><td style='padding:4px 8px;border-top:1px solid var(--grid)'>" + df.toFixed(1) + "</td><td style='padding:4px 8px;border-top:1px solid var(--grid)'>" + (p < 0.0001 ? "< 0.0001" : p.toFixed(4)) + "</td><td style='padding:4px 8px;border-top:1px solid var(--grid)'>" + (p <= 0.05 ? "<b>Reject H₀</b>" : "Fail to reject") + "</td></tr>";
+  $("tbody").innerHTML = row("Pooled", sePool, tPool, dfPool, pPool) + row("Welch", seW, tW, dfW, pW);
+  const disagree = (pPool <= 0.05) !== (pW <= 0.05);
+  $("verdict").textContent = disagree
+    ? "The two tests disagree! The pooled test " + (pPool <= 0.05 ? "says significant" : "says not significant") + " while Welch says the opposite. The group sizes and spreads are unequal, so Welch is the one to trust."
+    : Math.abs(sePool - seW) / seW < 0.03
+      ? "Equal spreads and similar sizes: both tests agree almost exactly. With unequal sizes and spreads they would not."
+      : "The two versions use different standard errors (" + sePool.toFixed(2) + " vs " + seW.toFixed(2) + "). Here they reach the same decision, but Welch is the safer choice in general.";
+}
+
+const mk = (key, label, min, max, step, fmt) => { sliders[key] = Viz.slider($("sliders"), { label, min, max, step, value: G[key], format: fmt, onInput: (v) => { G[key] = v; render(); } }); };
+mk("m1", "Mean of group 1", 30, 90, 1, (v) => v);
+mk("m2", "Mean of group 2", 30, 90, 1, (v) => v);
+mk("s1", "SD of group 1", 2, 20, 0.5, (v) => v);
+mk("s2", "SD of group 2", 2, 20, 0.5, (v) => v);
+mk("n1", "Size of group 1", 5, 100, 1, (v) => "n = " + v);
+mk("n2", "Size of group 2", 5, 100, 1, (v) => "n = " + v);
+const setAll = (o) => { Object.assign(G, o); Object.keys(o).forEach((k) => sliders[k].set(o[k])); render(); };
+$("p1").addEventListener("click", () => setAll({ m1: 74, s1: 8, n1: 30, m2: 79, s2: 7, n2: 30 }));
+$("p2").addEventListener("click", () => setAll({ m1: 50, s1: 12, n1: 10, m2: 55, s2: 4, n2: 40 }));
+Viz.themeToggle($("theme"));
+render();
+</script>
+</body>
+</html>

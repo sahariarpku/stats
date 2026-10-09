@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Would a Fair Coin Do This</title>
+<link rel="stylesheet" href="../../../../assets/visuals.css">
+</head>
+<body>
+<main class="viz">
+  <div class="viz-head">
+    <div>
+      <h1>Would a fair coin do this?</h1>
+      <p class="hint">Each experiment flips a fair coin 100 times and records the heads. Set the result you saw, then run many experiments. How often does a fair coin land as far from 50 as you did?</p>
+    </div>
+    <button id="theme" type="button">Theme: auto</button>
+  </div>
+
+  <svg id="plot" viewBox="0 0 760 270" role="img" aria-label="Histogram of heads counts for fair coins with the extreme tails shaded"></svg>
+
+  <div class="legend">
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="2" width="12" height="11" fill="var(--series-1)"/></svg>Fair-coin experiments (not extreme)</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="2" width="12" height="11" fill="var(--series-2)"/></svg>At least as extreme as your result</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 1 L13 7 L7 13 L1 7 Z" fill="var(--text-primary)"/></svg>Exact binomial chance</span>
+  </div>
+
+  <div class="readout" aria-live="polite">
+    <div class="card"><div class="label">Experiments run</div><div class="value" id="count">0</div></div>
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-2)"></span>As extreme as yours</div><div class="value" id="frac">—</div></div>
+    <div class="card"><div class="label">Exact p-value (two-sided)</div><div class="value" id="exact"></div></div>
+  </div>
+  <p class="verdict" id="verdict" aria-live="polite">Press "Run 1,000 experiments".</p>
+
+  <div class="controls col" id="sliders"></div>
+  <div class="controls">
+    <button id="r1" type="button">Run 1 experiment</button>
+    <button id="r100" type="button">Run 100</button>
+    <button id="r1000" type="button">Run 1,000</button>
+    <button id="reset" type="button">Reset</button>
+  </div>
+</main>
+
+<script src="../../../../assets/visuals.js"></script>
+<script>
+const N = 100;
+let observed = 60, counts = new Array(N + 1).fill(0), total = 0;
+const svg = document.getElementById("plot");
+const $ = (id) => document.getElementById(id);
+const X = Viz.scale(29.5, 70.5, 40, 730);
+const layer = Viz.el("g", {}, svg);
+const logFact = [0];
+for (let i = 1; i <= N; i++) logFact[i] = logFact[i - 1] + Math.log(i);
+const pmf = (k) => Math.exp(logFact[N] - logFact[k] - logFact[N - k] - N * Math.log(2));
+const tails = (obs) => { const d = Math.abs(obs - 50); let p = 0; for (let k = 0; k <= N; k++) if (Math.abs(k - 50) >= d) p += pmf(k); return p; };
+const isExtreme = (k) => Math.abs(k - 50) >= Math.abs(observed - 50);
+
+function runExperiments(m) {
+  for (let t = 0; t < m; t++) {
+    let h = 0;
+    for (let i = 0; i < N; i++) if (Math.random() < 0.5) h++;
+    counts[h]++; total++;
+  }
+  render();
+}
+
+function render() {
+  layer.replaceChildren();
+  const peak = Math.max(0.09, ...counts.map((c) => (total ? c / total : 0)), pmf(50));
+  const Y = Viz.scale(0, peak * 1.12, 215, 15);
+  for (let k = 30; k <= 70; k++) {
+    const share = total ? counts[k] / total : 0;
+    const x0 = X(k - 0.5), x1 = X(k + 0.5);
+    if (share > 0) Viz.el("rect", { x: x0 + 0.4, y: Y(share), width: Math.max(0.8, x1 - x0 - 0.8), height: 215 - Y(share), fill: isExtreme(k) ? "var(--series-2)" : "var(--series-1)" }, layer);
+    const d = 4.5, cx = (x0 + x1) / 2, cy = Y(pmf(k));
+    Viz.el("path", { d: "M" + cx + " " + (cy - d) + " L" + (cx + d) + " " + cy + " L" + cx + " " + (cy + d) + " L" + (cx - d) + " " + cy + " Z", fill: "var(--text-primary)", opacity: 0.85 }, layer);
+  }
+  Viz.axisBottom(layer, X, { y: 215, from: 30, to: 70, step: 5 });
+  Viz.el("text", { x: 385, y: 258, "text-anchor": "middle" }, layer).textContent = "Heads in 100 flips of a fair coin";
+  [observed, 100 - observed].forEach((v) => {
+    Viz.el("line", { x1: X(v), x2: X(v), y1: 15, y2: 215, stroke: "var(--text-primary)", "stroke-width": 1.5, "stroke-dasharray": "4 4" }, layer);
+  });
+  Viz.el("text", { x: X(observed), y: 12, "text-anchor": "middle", class: "strong" }, layer).textContent = "your result " + observed;
+
+  $("count").textContent = total.toLocaleString();
+  const exact = tails(observed);
+  $("exact").textContent = exact < 0.0001 ? "< 0.0001" : exact.toFixed(4);
+  if (total) {
+    const extreme = counts.reduce((a, c, k) => a + (isExtreme(k) ? c : 0), 0);
+    $("frac").textContent = (100 * extreme / total).toFixed(1) + "%";
+    $("verdict").textContent = "Out of " + total.toLocaleString() + " fair-coin experiments, " + (100 * extreme / total).toFixed(1) + "% gave a result at least as lopsided as " + observed + " heads (or " + (100 - observed) + " or fewer). That share estimates the p-value (exact: " + (exact < 0.0001 ? "< 0.0001" : exact.toFixed(4)) + "). " + (exact <= 0.05 ? "Below 0.05: a fair coin rarely does this, so we reject H₀." : "Above 0.05: a fair coin does this often enough that we cannot call it unfair.");
+  }
+}
+
+Viz.slider($("sliders"), { label: "Heads you observed", min: 30, max: 70, step: 1, value: observed, format: (v) => v + " of 100", onInput: (v) => { observed = v; render(); } });
+$("r1").addEventListener("click", () => runExperiments(1));
+$("r100").addEventListener("click", () => runExperiments(100));
+$("r1000").addEventListener("click", () => runExperiments(1000));
+$("reset").addEventListener("click", () => { counts = new Array(N + 1).fill(0); total = 0; $("frac").textContent = "—"; $("verdict").textContent = 'Press "Run 1,000 experiments".'; render(); });
+Viz.themeToggle($("theme"));
+render();
+</script>
+</body>
+</html>

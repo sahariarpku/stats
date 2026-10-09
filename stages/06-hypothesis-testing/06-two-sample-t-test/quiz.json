@@ -1,0 +1,46 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Which situation calls for a two-sample (independent) t-test?",
+      "options": ["The same 12 patients measured before and after a drug", "Reaction times of 40 men versus 35 women", "One sample compared with a known value", "Counts of defects in categories"],
+      "correct": 1,
+      "explanation": "Two separate groups of different people are independent samples. Before/after on the same people is paired, and one sample against a value is a one-sample test."
+    },
+    {
+      "stage": "pre",
+      "question": "H₀ for a two-sample t-test (two-tailed) is usually...",
+      "options": ["μ₁ ≠ μ₂", "μ₁ = μ₂", "x̄₁ = x̄₂", "s₁ = s₂"],
+      "correct": 1,
+      "explanation": "H₀ says the population means are equal. It concerns parameters, not sample means."
+    },
+    {
+      "stage": "post",
+      "question": "Group A (n = 30, mean 74, SD 8) and Group B (n = 30, mean 79, SD 7). What is the t statistic?",
+      "options": ["−2.58", "−0.65", "−5.00", "−1.29"],
+      "correct": 0,
+      "explanation": "SE = √(8²/30 + 7²/30) = √3.767 = 1.941. t = (74 − 79)/1.941 = −2.576."
+    },
+    {
+      "stage": "post",
+      "question": "For the same data (df ≈ 57, critical value 2.002), what is the decision at α = 0.05?",
+      "options": ["Fail to reject, since the difference is small", "Reject H₀, since |t| = 2.58 > 2.002", "Cannot decide without a z-table", "Reject only with a one-tailed test"],
+      "correct": 1,
+      "explanation": "|t| = 2.576 exceeds the critical value, so p ≈ 0.013 < 0.05. Reject H₀."
+    },
+    {
+      "stage": "post",
+      "question": "Why is Welch's t-test the safer default?",
+      "options": ["It always gives a smaller p-value", "It does not assume equal population variances and keeps the false-alarm rate near α", "It needs less data", "It works for paired data"],
+      "correct": 1,
+      "explanation": "When variances and sample sizes differ, the pooled test can have a false-alarm rate far above 5% (26% in the lesson's example), while Welch stays near 5%."
+    },
+    {
+      "stage": "post",
+      "question": "A 95% CI for μ₁ − μ₂ is (−8.9, −1.1). What does this tell you?",
+      "options": ["The groups do not differ", "Group 1's mean is lower, by roughly 1 to 9 units", "Group 1's mean is higher", "The test is invalid"],
+      "correct": 1,
+      "explanation": "The interval excludes 0, so the difference is significant at 5%. It is entirely negative, so group 1 is lower, and the interval shows how big the gap plausibly is."
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "You test whether a mean equals a stated value, σ is unknown, and n = 16. Which test and df do you use?",
+      "options": ["z-test", "one-sample t-test with df = 15", "one-sample t-test with df = 16", "chi-square test"],
+      "correct": 1,
+      "explanation": "σ is unknown, so use the t-test. df = n − 1 = 15."
+    },
+    {
+      "stage": "pre",
+      "question": "The one-sample t statistic is...",
+      "options": ["(x̄ − μ₀) ÷ σ", "(x̄ − μ₀) ÷ (s/√n)", "x̄ ÷ s", "(μ₀ − s) ÷ n"],
+      "correct": 1,
+      "explanation": "t = (x̄ − μ₀) ÷ (s/√n): the distance of the sample mean from the claim, measured in estimated standard errors."
+    },
+    {
+      "stage": "post",
+      "question": "n = 16, x̄ = 76, s = 8, H₀: μ = 72 (right-tailed). What are t and the decision at α = 0.05 (critical value 1.753)?",
+      "options": ["t = 2.00, reject", "t = 0.50, fail to reject", "t = 4.00, reject", "t = 2.00, fail to reject"],
+      "correct": 0,
+      "explanation": "SE = 8/4 = 2, t = 4/2 = 2.00. Since 2.00 > 1.753 (p ≈ 0.032), reject H₀."
+    },
+    {
+      "stage": "post",
+      "question": "The 95% CI for a mean is (47.9, 56.1). A two-tailed test at α = 0.05 of H₀: μ = 50 would...",
+      "options": ["Reject H₀", "Fail to reject H₀", "Be invalid", "Give p = 0.05 exactly"],
+      "correct": 1,
+      "explanation": "50 lies inside the interval, so the test fails to reject. A two-tailed α-test rejects μ₀ exactly when μ₀ is outside the (1 − α) CI."
+    },
+    {
+      "stage": "post",
+      "question": "For a statistic of 2.2, why is the p-value from the z curve smaller than from the t curve when n = 5?",
+      "options": ["z curves have fatter tails", "t curves have fatter tails, so extreme values are less surprising", "n does not matter", "t uses α instead of p"],
+      "correct": 1,
+      "explanation": "Heavier tails mean values like 2.2 occur more often under the t curve, so the tail area (p-value) is larger. Using z would overstate the evidence."
+    },
+    {
+      "stage": "post",
+      "question": "A t-test on n = 7 data points contains one extreme outlier. What should you do?",
+      "options": ["Trust the t-test anyway", "Look at the data, as the t-test is sensitive to outliers in small samples", "Use the z-test instead", "Increase α"],
+      "correct": 1,
+      "explanation": "The t-test assumes roughly normal data. With a tiny sample, one outlier can distort x̄ and s. Inspect the data and consider a robust or nonparametric alternative."
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "The null hypothesis H₀ usually states that...",
+      "options": ["There is a large effect", "There is no effect or no difference", "The sample mean is wrong", "The alternative is true"],
+      "correct": 1,
+      "explanation": "H₀ is the default 'nothing special' claim. Evidence is gathered against it."
+    },
+    {
+      "stage": "pre",
+      "question": "Which pair of hypotheses fits the claim 'the mean bolt diameter has changed from 10 mm'?",
+      "options": ["H₀: μ = 10, H₁: μ ≠ 10", "H₀: μ = 10, H₁: μ > 10", "H₀: x̄ = 10, H₁: x̄ ≠ 10", "H₀: μ ≠ 10, H₁: μ = 10"],
+      "correct": 0,
+      "explanation": "'Changed' is two-sided, and H₀ contains the equality. Hypotheses concern the population mean μ, not the sample mean x̄."
+    },
+    {
+      "stage": "post",
+      "question": "Which is the correct pair for 'a new drug lowers blood pressure'?",
+      "options": ["H₀: μ_change = 0, H₁: μ_change < 0", "H₀: μ_change = 0, H₁: μ_change > 0", "H₀: μ_change < 0, H₁: μ_change = 0", "H₀: μ_change ≠ 0, H₁: μ_change = 0"],
+      "correct": 0,
+      "explanation": "H₀ is 'no effect' (change = 0). A drop in pressure is a negative change, so H₁ is μ_change < 0 (left-tailed)."
+    },
+    {
+      "stage": "post",
+      "question": "A fair-coin experiment (100 flips, 60 heads) has an exact two-sided p-value of 0.0569. At α = 0.05, what is the decision?",
+      "options": ["Reject H₀", "Fail to reject H₀", "Accept H₀", "Prove the coin is fair"],
+      "correct": 1,
+      "explanation": "0.0569 > 0.05, so we fail to reject H₀. This does not prove the coin is fair. The evidence is simply not quite strong enough."
+    },
+    {
+      "stage": "post",
+      "question": "Which conclusion is worded correctly after failing to reject H₀?",
+      "options": ["The null hypothesis is true", "We accept H₀", "There is not sufficient evidence to conclude the effect exists", "The treatment has no effect"],
+      "correct": 2,
+      "explanation": "Failing to reject H₀ leaves H₀ standing but does not prove it. The honest wording is 'not sufficient evidence'."
+    },
+    {
+      "stage": "post",
+      "question": "The p-value is best described as...",
+      "options": ["The probability that H₀ is true", "The probability of data at least this extreme if H₀ were true", "The probability that H₁ is true", "1 minus the significance level"],
+      "correct": 1,
+      "explanation": "The p-value is computed assuming H₀ is true. It says how surprising the data are under that assumption, not how likely H₀ itself is."
+    }
+  ]
+}

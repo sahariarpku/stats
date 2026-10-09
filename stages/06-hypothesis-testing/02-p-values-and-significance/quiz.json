@@ -1,0 +1,46 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "A p-value of 0.02 means...",
+      "options": ["There is a 2% chance that H₀ is true", "If H₀ were true, data this extreme would occur about 2% of the time", "The effect is 98% likely to be real", "The test is 2% accurate"],
+      "correct": 1,
+      "explanation": "The p-value is computed assuming H₀ is true. It is the probability of data at least this extreme under H₀, not the probability of H₀ itself."
+    },
+    {
+      "stage": "pre",
+      "question": "You reject H₀ when...",
+      "options": ["p > α", "p ≤ α", "p = 1", "α = 0"],
+      "correct": 1,
+      "explanation": "A p-value at or below the pre-chosen significance level α means the data are too surprising under H₀."
+    },
+    {
+      "stage": "post",
+      "question": "A two-tailed z-test gives z = 2.40. What is the p-value (approximately) and the decision at α = 0.05?",
+      "options": ["p = 0.0082, reject", "p = 0.0164, reject", "p = 0.0164, fail to reject", "p = 0.16, fail to reject"],
+      "correct": 1,
+      "explanation": "P(Z > 2.40) = 0.0082 in each tail, so the two-tailed p = 0.0164, which is below 0.05. Reject H₀."
+    },
+    {
+      "stage": "post",
+      "question": "For z = 1.80, the right-tailed p is 0.0359. What is the two-tailed p?",
+      "options": ["0.0180", "0.0359", "0.0719", "0.9641"],
+      "correct": 2,
+      "explanation": "The two-tailed p doubles the one-tailed p: 2 × 0.0359 = 0.0719. At α = 0.05 the right-tailed test rejects but the two-tailed test does not."
+    },
+    {
+      "stage": "post",
+      "question": "Why must the direction of the test (one- vs two-tailed) be chosen BEFORE looking at the data?",
+      "options": ["Software requires it", "Switching to one-tailed after seeing the result halves the p-value and inflates false alarms", "One-tailed tests are always better", "Two-tailed tests are illegal"],
+      "correct": 1,
+      "explanation": "Choosing the direction after the fact is cherry-picking: it makes significance easier to reach and the true false-alarm rate higher than α."
+    },
+    {
+      "stage": "post",
+      "question": "A study finds p < 0.001 with n = 50,000 and a difference of 0.02 points on a 100-point scale. The best reading is...",
+      "options": ["A huge, important effect", "Statistically significant, but practically negligible", "The test must be wrong", "H₀ is definitely true"],
+      "correct": 1,
+      "explanation": "With a very large n, even trivial differences become 'significant'. The effect size shows whether the difference matters."
+    }
+  ]
+}
