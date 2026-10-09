@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Choice versus Coin Flip</title>
+<link rel="stylesheet" href="../../../../assets/visuals.css">
+</head>
+<body>
+<main class="viz">
+  <div class="viz-head">
+    <div>
+      <h1>Choice versus coin flip</h1>
+      <p class="hint">A treatment truly adds +5 points to recovery. In each study, 200 patients are compared with and without it. When sicker patients tend to choose the treatment, the comparison goes wrong. A coin flip fixes it. Run many studies and watch where the estimates land.</p>
+    </div>
+    <button id="theme" type="button">Theme: auto</button>
+  </div>
+
+  <svg id="plot" viewBox="0 0 760 360" role="img" aria-label="Two histograms of estimated treatment effects, one for patients who choose their treatment and one for random assignment, with the true effect marked at plus five"></svg>
+
+  <div class="legend">
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="3" width="12" height="10" fill="var(--series-2)"/></svg>Patients choose the treatment</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="3" width="12" height="10" fill="var(--series-1)"/></svg>Random assignment</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><line x1="7" y1="0" x2="7" y2="14" stroke="var(--text-primary)" stroke-width="2" stroke-dasharray="3 2"/></svg>True effect (+5)</span>
+  </div>
+
+  <div class="readout" aria-live="polite">
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-2)"></span>Choice: average estimate</div><div class="value" id="m1">–</div></div>
+    <div class="card"><div class="label">Treated group sicker by</div><div class="value" id="b1">–</div></div>
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>Random: average estimate</div><div class="value" id="m2">–</div></div>
+    <div class="card"><div class="label">Treated group sicker by</div><div class="value" id="b2">–</div></div>
+  </div>
+  <p class="verdict" id="verdict" aria-live="polite"></p>
+
+  <div class="controls col" id="sliders"></div>
+  <div class="controls">
+    <button id="run1" type="button">Run 100 studies: patients choose</button>
+    <button id="run2" type="button">Run 100 studies: coin flip</button>
+    <button id="clear" type="button">Clear</button>
+  </div>
+</main>
+
+<script src="../../../../assets/visuals.js"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+const svg = $("plot");
+const layer = Viz.el("g", {}, svg);
+const rand = Viz.rng(31415);
+const S = { strength: 1.5 };
+const R = { choice: { est: [], bal: [] }, random: { est: [], bal: [] } };
+const sig = (z) => 1 / (1 + Math.exp(-z));
+const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function study(randomise) {
+  let sa = 0, na = 0, sb = 0, nb = 0, va = 0, vb = 0;
+  for (let i = 0; i < 200; i++) {
+    const s = Viz.randn(rand);
+    const t = randomise ? rand() < 0.5 : rand() < sig(S.strength * s);
+    const y = 50 - 6 * s + 5 * (t ? 1 : 0) + 5 * Viz.randn(rand);
+    if (t) { sa += y; va += s; na++; } else { sb += y; vb += s; nb++; }
+  }
+  return { d: sa / na - sb / nb, b: va / na - vb / nb };
+}
+
+function render() {
+  layer.replaceChildren();
+  const X = Viz.scale(-8, 12, 50, 725);
+  const bins = 40, lo = -8, hi = 12, w = (hi - lo) / bins;
+  const rows = [{ key: "choice", color: "var(--series-2)", y0: 150, label: "Patients choose" }, { key: "random", color: "var(--series-1)", y0: 320, label: "Random assignment" }];
+  rows.forEach(({ key, color, y0, label }) => {
+    const counts = new Array(bins).fill(0);
+    R[key].est.forEach((v) => { const k = Math.min(bins - 1, Math.max(0, Math.floor((v - lo) / w))); counts[k]++; });
+    const top = Math.max(10, ...counts);
+    const Yc = Viz.scale(0, top, y0, y0 - 105);
+    Viz.el("line", { class: "axis-line", x1: 50, x2: 725, y1: y0, y2: y0 }, layer);
+    counts.forEach((c, k) => { if (c) Viz.el("rect", { x: X(lo + k * w) + 0.5, y: Yc(c), width: X(lo + w) - X(lo) - 1, height: y0 - Yc(c), fill: color, opacity: 0.9 }, layer); });
+    Viz.el("text", { x: 52, y: y0 - 112, class: "strong" }, layer).textContent = label;
+    if (key === "random") Viz.axisBottom(layer, X, { y: y0, from: -8, to: 12, step: 2 });
+  });
+  Viz.el("line", { x1: X(5), x2: X(5), y1: 20, y2: 320, stroke: "var(--text-primary)", "stroke-width": 2, "stroke-dasharray": "5 4" }, layer);
+  Viz.el("line", { x1: X(0), x2: X(0), y1: 20, y2: 320, stroke: "var(--text-muted)", "stroke-width": 1 }, layer);
+  Viz.el("text", { x: X(5) + 6, y: 16 }, layer).textContent = "true effect +5";
+  Viz.el("text", { x: X(0) - 6, y: 16, "text-anchor": "end" }, layer).textContent = "no effect";
+  Viz.el("text", { x: 725, y: 352, "text-anchor": "end", opacity: 0.85 }, layer).textContent = "estimated effect in each study (treated minus untreated)";
+
+  const f = (a) => (a.length ? Viz.mean(a) : null);
+  const m1 = f(R.choice.est), m2 = f(R.random.est), b1 = f(R.choice.bal), b2 = f(R.random.bal);
+  $("m1").textContent = m1 === null ? "–" : (m1 >= 0 ? "+" : "") + m1.toFixed(2);
+  $("m2").textContent = m2 === null ? "–" : (m2 >= 0 ? "+" : "") + m2.toFixed(2);
+  $("b1").textContent = b1 === null ? "–" : b1.toFixed(2) + " SD";
+  $("b2").textContent = b2 === null ? "–" : Math.abs(b2).toFixed(2) + " SD";
+  let v = "Press a run button to simulate 100 studies.";
+  if (m1 !== null || m2 !== null) {
+    v = "";
+    if (m1 !== null) v += "When patients choose, the treated group starts out sicker, so the estimates centre on " + m1.toFixed(1) + (m1 < 0 ? ": the treatment even looks harmful, though it truly helps. " : ": wrong by " + Math.abs(5 - m1).toFixed(1) + " points. ");
+    if (m2 !== null) v += "With a coin flip the groups start out alike, and the estimates centre on " + m2.toFixed(1) + ", the true +5. ";
+    v += "More patients would shrink the spread, but never cure the bias from self-selection.";
+  }
+  $("verdict").textContent = v;
+}
+
+function run(key, randomise) {
+  let left = 100;
+  const step = () => {
+    const batch = reduce ? left : Math.min(5, left);
+    for (let i = 0; i < batch; i++) { const r = study(randomise); R[key].est.push(r.d); R[key].bal.push(r.b); }
+    left -= batch;
+    render();
+    if (left > 0) requestAnimationFrame(step);
+  };
+  step();
+}
+
+Viz.slider($("sliders"), { label: "How strongly sicker patients choose the treatment", min: 0, max: 3, step: 0.1, value: S.strength, format: (v) => v.toFixed(1), onInput: (v) => { S.strength = v; R.choice.est = []; R.choice.bal = []; render(); } });
+$("run1").addEventListener("click", () => run("choice", false));
+$("run2").addEventListener("click", () => run("random", true));
+$("clear").addEventListener("click", () => { R.choice.est = []; R.choice.bal = []; R.random.est = []; R.random.bal = []; render(); });
+Viz.themeToggle($("theme"));
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Which design can best support a cause-and-effect conclusion?",
+      "options": ["A survey", "A randomised controlled trial", "A case study", "A cohort study without adjustment"],
+      "correct": 1,
+      "explanation": "Random assignment makes the groups alike on average in every respect, so a difference in outcome can be attributed to the treatment."
+    },
+    {
+      "stage": "pre",
+      "question": "In a study of coffee and heart disease, smokers drink more coffee and also have more heart disease. Smoking is a...",
+      "options": ["Placebo", "Confounder", "Control group", "Random sample"],
+      "correct": 1,
+      "explanation": "A confounder is linked to both the exposure and the outcome and can create or hide an association."
+    },
+    {
+      "stage": "post",
+      "question": "Why does random assignment help?",
+      "options": ["It makes every participant identical", "It balances known and unknown factors between the groups, on average", "It guarantees a significant result", "It increases the sample size"],
+      "correct": 1,
+      "explanation": "Randomisation spreads all characteristics, measured or not, evenly across groups on average, so the treatment is the only systematic difference."
+    },
+    {
+      "stage": "post",
+      "question": "Treatment A beats B within small stones and within large stones, but B looks better overall. What is this called?",
+      "options": ["Regression to the mean", "Simpson's paradox", "The placebo effect", "Survivorship bias"],
+      "correct": 1,
+      "explanation": "A trend in every subgroup that reverses when the groups are combined is Simpson's paradox, here caused by stone size (a confounder)."
+    },
+    {
+      "stage": "post",
+      "question": "In a self-selected study the treatment looks harmful even though it truly helps. If you triple the sample size, what happens to the estimate?",
+      "options": ["It moves to the true value", "It stays biased, just more precisely", "It becomes random", "It becomes significant in the other direction"],
+      "correct": 1,
+      "explanation": "A larger sample shrinks random error, not bias. The estimate settles on the wrong value with greater confidence."
+    },
+    {
+      "stage": "post",
+      "question": "A double-blind trial means...",
+      "options": ["The sample is twice as large", "Neither participants nor those measuring the outcome know who got which treatment", "Both groups get the real treatment", "Two researchers analyse the data"],
+      "correct": 1,
+      "explanation": "Hiding assignments from both patients and assessors prevents expectations from influencing behaviour or measurements."
+    },
+    {
+      "stage": "post",
+      "question": "With σ = 10 and a smallest important difference of 5, about how many people per group give 80% power at α = 0.05?",
+      "options": ["16", "32", "63", "126"],
+      "correct": 2,
+      "explanation": "n = 2(1.96 + 0.84)² σ² ÷ δ² = 2 × 7.84 × 100 ÷ 25 = 62.7, so 63 per group."
+    },
+    {
+      "stage": "post",
+      "question": "A magazine studies only the companies that are still successful after 20 years and concludes that bold risk-taking leads to success. Which bias is this?",
+      "options": ["Recall bias", "Survivorship bias", "Placebo effect", "Observer bias"],
+      "correct": 1,
+      "explanation": "Companies that took bold risks and failed have vanished from the sample. Looking only at survivors gives a skewed picture."
+    }
+  ]
+}
