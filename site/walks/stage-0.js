@@ -173,11 +173,11 @@
         say: "**Question 1: category or amount?** Blood type and shirt size put students into groups: **categorical**. Siblings and height are amounts where arithmetic works: **numerical**.",
         run: async () => {
           await A.fadeOut([table.el, colBad, colGood, bad, good, note], { dur: 350 });
-          const lines = [link(362, 64, 200, 127), link(438, 64, 600, 127)];
-          tree.root = node(400, 40, "Variable", "ink", 22);
-          tree.cat = node(200, 150, "Categorical", "purple");
-          tree.num = node(600, 150, "Numerical", "blue");
-          q1 = ask(400, 96, "category or amount?");
+          const lines = [link(350, 60, 200, 135), link(450, 60, 600, 135)];
+          tree.root = node(400, 36, "Variable", "ink", 22);
+          tree.cat = node(200, 158, "Categorical", "purple");
+          tree.num = node(600, 158, "Numerical", "blue");
+          q1 = ask(400, 118, "category or amount?");
           await A.fadeIn(tree.root);
           await A.draw(lines, { dur: 500 });
           await A.fadeIn([tree.cat, tree.num, q1]);
@@ -186,9 +186,9 @@
           cards.sib = S.pill(500, 410, "Siblings", { size: 19, color: "ink2", hide: true });
           cards.height = S.pill(670, 410, "Height", { size: 19, color: "ink2", hide: true });
           await A.fadeIn(Object.values(cards), { stagger: 100 });
-          await A.all([A.move(cards.blood, 118, 232), A.move(cards.shirt, 282, 232)]);
+          await A.all([A.move(cards.blood, 118, 228), A.move(cards.shirt, 282, 228)]);
           tint(cards.blood, "purple"); tint(cards.shirt, "purple");
-          await A.all([A.move(cards.sib, 528, 232), A.move(cards.height, 672, 232)]);
+          await A.all([A.move(cards.sib, 528, 228), A.move(cards.height, 672, 228)]);
           tint(cards.sib, "blue"); tint(cards.height, "blue");
         },
       },
@@ -196,16 +196,16 @@
         say: "**Question 2, for categories: is there a natural order?** Blood types have none: **nominal**. Shirt sizes go S < M < L < XL, but the gaps between sizes are not equal: **ordinal**.",
         run: async () => {
           await A.fadeOut(q1, { dur: 300 });
-          const lines = [link(150, 173, 110, 249), link(250, 173, 310, 249)];
-          tree.nom = node(110, 272, "Nominal", "purple");
-          tree.ord = node(310, 272, "Ordinal", "purple");
-          q2 = ask(372, 150, "← in order?");
+          const lines = [link(150, 181, 110, 253), link(250, 181, 310, 253)];
+          tree.nom = node(110, 276, "Nominal", "purple");
+          tree.ord = node(310, 276, "Ordinal", "purple");
+          q2 = ask(372, 158, "← in order?");
           await A.fadeIn(q2);
-          await A.all([A.move(cards.blood, 110, 352), A.move(cards.shirt, 310, 352)]);
+          await A.all([A.move(cards.blood, 110, 346), A.move(cards.shirt, 310, 346)]);
           await A.draw(lines, { dur: 450 });
           await A.fadeIn([tree.nom, tree.ord]);
-          ex.push(S.text(110, 400, "A · B · AB · O", { size: 18, weight: 600, color: "ink2", hide: true }));
-          ex.push(S.text(310, 400, "S < M < L < XL", { size: 18, weight: 600, color: "ink2", hide: true }));
+          ex.push(S.text(110, 394, "A · B · AB · O", { size: 18, weight: 600, color: "ink2", hide: true }));
+          ex.push(S.text(310, 394, "S < M < L < XL", { size: 18, weight: 600, color: "ink2", hide: true }));
           await A.fadeIn(ex.slice(0, 2), { stagger: 200 });
         },
       },
@@ -213,16 +213,16 @@
         say: "**Question 3, for amounts: counted or measured?** You count siblings: 0, 1, 2, 3, never 2.5. That is **discrete**. You measure height, and there is always another possible value in between: **continuous**.",
         run: async () => {
           await A.fadeOut(q2, { dur: 300 });
-          const lines = [link(560, 173, 500, 249), link(640, 173, 700, 249)];
-          tree.dis = node(500, 272, "Discrete", "blue");
-          tree.con = node(700, 272, "Continuous", "blue");
-          q3 = S.pill(414, 150, "counted or measured? →", { size: 16, color: "orange", hide: true });
+          const lines = [link(560, 181, 500, 253), link(640, 181, 700, 253)];
+          tree.dis = node(500, 276, "Discrete", "blue");
+          tree.con = node(700, 276, "Continuous", "blue");
+          q3 = S.pill(405, 158, "counted or measured? →", { size: 16, color: "orange", hide: true });
           await A.fadeIn(q3);
-          await A.all([A.move(cards.sib, 500, 352), A.move(cards.height, 700, 352)]);
+          await A.all([A.move(cards.sib, 500, 346), A.move(cards.height, 700, 346)]);
           await A.draw(lines, { dur: 450 });
           await A.fadeIn([tree.dis, tree.con]);
-          ex.push(S.text(500, 400, "0, 1, 2, 3 … never 2.5", { size: 18, weight: 600, color: "ink2", hide: true }));
-          ex.push(S.text(700, 400, "162.5, 162.51, …", { size: 18, weight: 600, color: "ink2", hide: true }));
+          ex.push(S.text(500, 394, "0, 1, 2, 3 … never 2.5", { size: 18, weight: 600, color: "ink2", hide: true }));
+          ex.push(S.text(700, 394, "162.5, 162.51, …", { size: 18, weight: 600, color: "ink2", hide: true }));
           await A.fadeIn(ex.slice(2), { stagger: 200 });
         },
       },
@@ -232,8 +232,8 @@
           await A.fadeOut([q3, ...ex], { dur: 300 });
           const more = [["ZIP code", 110, "purple"], ["Satisfaction", 310, "purple"], ["Goals in a match", 500, "blue"], ["Temperature", 700, "blue"]];
           for (const [label, x, c] of more) {
-            const p = S.pill(x, 420, label, { size: 19, color: c, hide: true });
-            await A.all([A.fadeIn(p, { dur: 350 }), A.move(p, x, 404, { dur: 450 })]);
+            const p = S.pill(x, 416, label, { size: 19, color: c, hide: true });
+            await A.all([A.fadeIn(p, { dur: 350 }), A.move(p, x, 398, { dur: 450 })]);
           }
         },
       },
@@ -383,7 +383,7 @@
         say: "**The vocabulary.** **P**opulation goes with **P**arameter: μ, fixed but usually unknown. **S**ample goes with **S**tatistic: x̄, known but different every time. **Sampling error** = statistic − parameter.",
         run: async () => {
           S.clear();
-          const t = S.table(70, 50, [["", "Population", "Sample"], ["its number is a", "parameter", "statistic"], ["mean", `μ = ${S.fmt(mu)}`, `x̄ = ${r2(xbar.A)}, ${r2(xbar.B)}, …`], ["it is", "fixed, usually unknown", "known, changes each time"]], { colW: [150, 250, 260], rowH: 50, size: 19, hide: true });
+          const t = S.table(65, 50, [["", "Population", "Sample"], ["number", "parameter", "statistic"], ["mean", `μ = ${S.fmt(mu)}`, `x̄ = ${r2(xbar.A)}, ${r2(xbar.B)}, …`], ["", "fixed, usually unknown", "known, changes each time"]], { colW: [120, 270, 280], rowH: 50, size: 19, hide: true });
           t.cells[0][1].setAttribute("fill", S.col("green")); t.cells[1][1].setAttribute("fill", S.col("green"));
           t.cells[0][2].setAttribute("fill", S.col("orange")); t.cells[1][2].setAttribute("fill", S.col("orange"));
           const p = S.pill(400, 315, "sampling error = statistic − parameter", { size: 24, color: "orange", hide: true });
@@ -460,7 +460,7 @@
       {
         say: `Take **100 readings** on each. Scale A's average closes in on **${a100.toFixed(1)} kg**. Scale B's average stays stuck at **${b100.toFixed(1)} kg**. More data shrinks random error, but it never fixes bias.`,
         run: async () => {
-          await A.to([...dotsA, ...dotsB], { opacity: 0.2 }, { dur: 400 });
+          await A.fadeOut([...dotsA, ...dotsB], { dur: 400 });
           const j = S.rng(99);
           const small = (vals, base, color) => vals.map((v) => S.circle(sx(v), base - 4 - j() * 34, 3.5, { fill: color, ring: false, hide: true }));
           const sa = small([...A10, ...moreA], LA, "blue"), sb = small([...B10, ...moreB], LB, "orange");

@@ -103,17 +103,19 @@
         say: `A new sample, 2 and 4, has mean **3**. Different samples give different means: that wobble is **sampling variability**. After 20 samples the means pile up in the middle (${nMid} of them landed on 4), because a mean of 2 or 6 needs both tickets to be extreme.`,
         run: async () => {
           counter = S.text(705, 250, "2 samples", { size: 19, weight: 700, color: "ink2", hide: true });
+          const pending = [];
           for (let s = 1; s < draws.length; s++) {
             const slow = s === 1;
-            await drawInto(0, draws[s][0], slow);
-            await drawInto(1, draws[s][1], slow);
+            if (slow) { await drawInto(0, draws[s][0], true); await drawInto(1, draws[s][1], true); }
+            else await A.all([drawInto(0, draws[s][0], false), drawInto(1, draws[s][1], false)]);
             S.setText(meanPill.__text, "x̄ = " + simMeans[s]);
             if (slow) await A.pulse(meanPill, { times: 1 });
             S.setText(counter, (s + 1) + " samples");
             if (s === 1) A.fadeIn(counter);
-            await dropMean(simMeans[s], slow);
-            if (!slow) await A.wait(40);
+            if (slow) await dropMean(simMeans[s], true);
+            else { pending.push(dropMean(simMeans[s], false)); await A.wait(170); }
           }
+          await A.all(pending);
         },
       },
       {
@@ -310,7 +312,7 @@
       nPill = S.pill(600, 175, "average of " + n + " waits", { size: 21, color: "orange", hide: true });
       counter = S.text(600, 224, "0 averages", { size: 19, weight: 700, color: "ink2", hide: true });
       await A.fadeIn([nPill, counter]);
-      for (let j = 0; j < 3; j++) {
+      for (let j = 0; j < 2; j++) {
         const s = sims[k][j];
         const minis = s.xs.map((v, i) => S.circle(ax.x(Math.min(v, 45)), POPY - 6 - s.jy[i], 3.4, { fill: "blue", ring: false, hide: true }));
         await A.fadeIn(minis, { dur: 250, stagger: Math.min(70, 400 / n) });
@@ -324,7 +326,7 @@
         await A.height(bars[b], c[b] * unit, { dur: 150 });
         S.setText(counter, (j + 1) + (j ? " averages" : " average"));
       }
-      await A.all([A.all(bars.map((b, i) => A.height(b, counts[k][i] * unit, { dur: 1500 }))), A.count(counter, 3, B, { decimals: 0, suffix: " averages", dur: 1500 })]);
+      await A.all([A.all(bars.map((b, i) => A.height(b, counts[k][i] * unit, { dur: 1500 }))), A.count(counter, 2, B, { decimals: 0, suffix: " averages", dur: 1500 })]);
     }
 
     return [
@@ -569,8 +571,9 @@
           await A.to(cards[i], { ty: CY - 14 }, { dur: 180 });
           A.to(cards[i], { ty: CY }, { dur: 180 });
           await A.move(c, CX[k], RY, { dur: 480 });
-        } else await A.move(c, CX[k], RY, { dur: 140 });
+        }
       }
+      if (!slow) await A.all(copies.map((c, k) => A.move(c, CX[k], RY, { dur: 260 })));
       S.setText(rPill.__text, "mean = " + f1(bm[b]));
       if (slow) await A.pulse(rPill, { times: 1 });
       const x = ax.x(bm[b]);
@@ -598,9 +601,9 @@
           slots = CX.map((x) => S.rect(x - 40, RY - 28, 80, 56, { fill: "none", stroke: "ink3", dash: "6 5", rx: 11, hide: true }));
           ax = S.axis({ min: 60, max: 76, step: 2, x1: 80, x2: 720, y: 372, label: "mean of a bootstrap sample (bpm)", hide: true });
           rPill = S.pill(MX, RY, "mean = 63.8", { size: 21, color: "orange", hide: true });
-          await A.fadeIn([rlabel, ...slots, ax.el]);
+          S.setText(rPill.__text, "mean = ?");
+          await A.fadeIn([rlabel, ...slots, ax.el, rPill]);
           await resample(0, true);
-          await A.fadeIn(rPill);
         },
       },
       {

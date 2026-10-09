@@ -42,7 +42,7 @@
     let items = [], cells = [], heads = [], ax, fracs = [], pills = [];
     return [
       {
-        say: "Roll two dice and add them up. The roll itself is a picture of dots, but the **total** is a number. A **random variable** is exactly that: a rule that turns each chance outcome into a number. Here X = the total of the two dice.",
+        say: "Roll two dice and add them up. The roll is a picture of dots, but the **total** is a number. A **random variable** is a rule like this, turning each chance outcome into a number: here, X = the total of the two dice.",
         run: async () => {
           for (let i = 0; i < rolls.length; i++) {
             const [a, b] = rolls[i], cx = 190 + i * 210;
@@ -63,7 +63,7 @@
         },
       },
       {
-        say: "There are 6 × 6 = **36** equally likely ways for two dice to land. Write the total in each square. Some totals are common: **six** squares make 7 (orange). Others are rare: only one square makes 2, and only one makes 12.",
+        say: "Two dice can land in 6 × 6 = **36** equally likely ways, so write the total in each square. Some totals are common: **six** squares make 7 (orange). Others are rare: only one square makes 2, and only one makes 12.",
         run: async () => {
           await A.remove(items, { dur: 300 });
           for (let i = 0; i < 6; i++) {
@@ -122,7 +122,7 @@
         },
       },
       {
-        say: "**In short.** A random variable turns chance outcomes into numbers. Its distribution lists every value with its probability. For counts that list is the **PMF**, and it must add up to 1. The values with probability above zero form the support.",
+        say: "**In short.** A random variable turns chance outcomes into numbers, and its **distribution** lists every value with its probability. For counts that list is the **PMF**, which must add up to 1. The values with probability above zero form the **support**.",
         run: async () => {
           S.clear();
           const els = [
@@ -207,7 +207,7 @@
         },
       },
       {
-        say: "Now a **continuous** variable. A bus arrives at a random moment between 9:00 and 9:20, every moment equally likely. Its **PDF** (density curve) is flat. Its height, 1/20, is chosen so the total **area** is 20 × 1/20 = **1**.",
+        say: "Now a **continuous** variable: a bus arrives at a random moment between 9:00 and 9:20, every moment equally likely. Its **PDF** (density curve) is flat. The height, 1/20, is chosen so the total **area** is 20 × 1/20 = **1**.",
         run: async () => {
           S.clear();
           B = S.frame({ x1: 100, x2: 700, y1: 110, y2: 320, xmin: 0, xmax: 20, ymin: 0, ymax: 0.08, xstep: 5, xfmt: clock, xlabel: "time the bus arrives", ylabel: "density", hide: true });
@@ -223,7 +223,7 @@
         },
       },
       {
-        say: "For a continuous variable, **probability is area**. P(9:05 to 9:12) = 7 × 1/20 = **0.35**. Now squeeze the window down to the single instant 9:07: the area shrinks to **0**. One exact moment has probability 0, so we always ask about ranges.",
+        say: "For a continuous variable, **probability is area**: P(9:05 to 9:12) = 7 × 1/20 = **0.35**. Squeeze the window down to the single instant 9:07 and the area shrinks to **0**. One exact moment has probability 0, so we always ask about ranges.",
         run: async () => {
           await A.remove(topPill, { dur: 250 });
           shade = S.rect(B.X(5), B.Y(0.05), B.X(12) - B.X(5), B.Y(0) - B.Y(0.05), { fill: "orange", opacity: 0, rx: 0 });
@@ -316,7 +316,7 @@
     const px = (i) => 130 + i * 60;
     return [
       {
-        say: "A drug works for **70%** of patients. Ten patients take it. Each patient is one **trial**, and \"the drug works\" is the outcome we count, so we call it a **success**. Two numbers set the scene: **n = 10** trials and **p = 0.7**, the chance of success each time.",
+        say: "A drug works for **70%** of patients, and ten patients take it. Each patient is one **trial**, and \"the drug works\" is the outcome we count, so we call it a **success**. Two numbers set the scene: **n = 10** trials and **p = 0.7**, the chance of success each time.",
         run: async () => {
           intro.push(S.text(400, 88, "10 patients try the new drug", { size: 24, weight: 700, hide: true }));
           people = pattern.map((_, i) => S.person(px(i), 228, { color: "blue", s: 1.15, label: String(i + 1), size: 17, hide: true }));
@@ -327,7 +327,7 @@
         },
       },
       {
-        say: "Give each patient the drug. Green means it worked (a success); grey means it did not. This time **7** of the 10 responded, so **X = 7**. X, the number of successes in n independent trials with the same p, is a **binomial** random variable.",
+        say: "Green means the drug worked (a success); grey means it did not. This time **7** of the 10 responded, so **X = 7**. X, the number of successes in n independent trials with the same p, is a **binomial** random variable.",
         run: async () => {
           await A.remove(intro.slice(1), { dur: 250 });
           counter = S.pill(400, 336, "X = 0 successes", { size: 24, color: "green", hide: true });
@@ -435,7 +435,7 @@
     const tx = (m) => 150 + m * 8;   // minute m on a timeline
     return [
       {
-        say: "An emergency room averages **4 patients an hour**. They arrive one at a time, independently, at random moments: a **Poisson process**. Watch five different hours. The counts jump around: " + counts.slice(0, 4).join(", ") + " and " + counts[4] + " (an average of " + mean(counts) + ").",
+        say: "An emergency room averages **4 patients an hour**, arriving one at a time, independently, at random moments: a **Poisson process**. Here are five different hours. The counts jump around: " + counts.slice(0, 4).join(", ") + " and " + counts[4] + " (an average of " + mean(counts) + ").",
         run: async () => {
           const axis = S.axis({ min: 0, max: 60, step: 15, x1: 150, x2: 630, y: 360, label: "minutes into the hour", hide: true });
           const head = S.text(700, 68, "count", { size: 17, color: "ink3", weight: 650, hide: true });
@@ -493,7 +493,7 @@
         },
       },
       {
-        say: "**λ must match the window.** For a **30-minute** window, λ = 4 × 0.5 = **2**, and the whole hill slides left (the dashed outline is the old one-hour hill). Now P(nobody arrives) = e⁻² = **" + P2[0].toFixed(3) + "**. The rule: **λ = rate × length of the window**.",
+        say: "**λ must match the window.** For a **30-minute** window, λ = 4 × 0.5 = **2**, and the hill slides left (dashed: the old one-hour hill). Now P(nobody arrives) = e⁻² = **" + P2[0].toFixed(3) + "**, and the rule is **λ = rate × length of the window**.",
         run: async () => {
           await A.remove(marks, { dur: 300 });
           bars.forEach((b) => b.setAttribute("fill", S.col("blue")));
@@ -512,7 +512,7 @@
         },
       },
       {
-        say: "For a Poisson count, **mean = variance = λ**. Ten steady hours: mean " + mean(steady).toFixed(1) + ", variance " + variance(steady).toFixed(1) + ". A second ER gets patients in bunches (after a big match, say): same mean, variance " + variance(clumpy).toFixed(1) + ". Variance far above the mean is **overdispersion**: those counts are not Poisson.",
+        say: "For a Poisson count, **mean = variance = λ**: ten steady hours give mean " + mean(steady).toFixed(1) + " and variance " + variance(steady).toFixed(1) + ". A second ER gets patients in bunches (after a big match, say): same mean, but variance " + variance(clumpy).toFixed(1) + ". Variance far above the mean is **overdispersion**, a sign the counts are not Poisson.",
         run: async () => {
           S.clear();
           const a1 = S.axis({ min: 0, max: 16, step: 2, x1: 140, x2: 700, y: 190, hide: true });
@@ -593,7 +593,7 @@
         },
       },
       {
-        say: "Two numbers describe the whole bell. The **mean μ = 100** sets the centre. The **standard deviation σ = 15** sets the width. Increase μ and the bell slides right. Increase σ and it gets wider and flatter, but the total area stays 1.",
+        say: "Two numbers describe the whole bell: the **mean μ = 100** sets the centre and the **standard deviation σ = 15** sets the width. Increase μ and the bell slides right. Increase σ and it gets wider and flatter, but the total area stays 1.",
         run: async () => {
           await A.remove(bars, { dur: 300 });
           marker = S.marker(ax.x(MU), 112, BASE, "μ = 100", { color: "ink", dash: "6 5", width: 2.5, hide: true });
@@ -623,7 +623,7 @@
         },
       },
       {
-        say: "One ruler for every bell: subtract μ and divide by σ. **z = (IQ − 100) ÷ 15** turns IQ 115 into z = 1 and IQ 70 into z = −2. The bell measured in z units, with mean 0 and SD 1, is the **standard normal**. Printed tables are made for it.",
+        say: "One ruler for every bell: subtract μ and divide by σ, so **z = (IQ − 100) ÷ 15** turns IQ 115 into z = 1 and IQ 70 into z = −2. The bell measured in z units, with mean 0 and SD 1, is the **standard normal**. Printed tables are made for it.",
         run: async () => {
           await A.remove([...areas, ...spans, axLbl], { dur: 350 });
           zrow.push(S.text(78, BASE + 28, "IQ", { size: 17, weight: 750, color: "ink3", anchor: "end", hide: true }));
@@ -653,7 +653,7 @@
         },
       },
       {
-        say: "Going backwards: which IQ is the **90th percentile**? Find 0.90 inside the table: the closest is " + Phi(1.28).toFixed(4) + " at **z = 1.28**. Convert back: 100 + 1.28 × 15 = **" + (100 + 1.28 * 15).toFixed(1) + "**. Only 10% of people score higher.",
+        say: "Going backwards: which IQ is the **90th percentile**? The table value closest to 0.90 is " + Phi(1.28).toFixed(4) + ", at **z = 1.28**. Convert back: 100 + 1.28 × 15 = **" + (100 + 1.28 * 15).toFixed(1) + "**, and only 10% of people score higher.",
         run: async () => {
           await A.remove([table.el, ...extra], { dur: 300 });
           table = tableOf([1.2, 1.25, 1.28, 1.3, 1.35], 2);
@@ -717,7 +717,7 @@
     const zoom = (lo, hi, dur) => { const a = { ...view }; return A.tween(dur, (q) => { const t = Math.min(1, Math.max(0, q)); view.lo = a.lo + (lo - a.lo) * t; view.hi = a.hi + (hi - a.hi) * t; layout(); }); };
     return [
       {
-        say: "An airline books **200** passengers, and each one has a **10%** chance of not showing up. The number of no-shows X is Binomial(200, 0.1). What is the chance of **fewer than 15** no-shows? Done exactly, that means adding up 15 bars: P(0) + P(1) + … + P(14).",
+        say: "An airline books **200** passengers, and each has a **10%** chance of not showing up, so the number of no-shows is X ~ Binomial(200, 0.1). What is the chance of **fewer than 15** no-shows? Done exactly, that means adding 15 bars: P(0) + P(1) + … + P(14).",
         run: async () => {
           const defs = S.el("defs");
           const cp = S.el("clipPath", { id: clipId }, defs);
@@ -735,7 +735,7 @@
         },
       },
       {
-        say: "With 200 trials the bars form a smooth hill, so lay a normal curve over them with the **same mean and SD**: μ = np = **20** and σ = √(np(1 − p)) = √18 ≈ **" + sd.toFixed(2) + "**. Safe to do? The **np ≥ 10 rule**: np = 20 and n(1 − p) = 180, both at least 10, so yes.",
+        say: "The 200-trial bars form a smooth hill, so lay a normal curve over them with the **same mean and SD**: μ = np = **20**, σ = √(np(1 − p)) = √18 ≈ **" + sd.toFixed(2) + "**. Is that safe? The **np ≥ 10 rule** says yes: np = 20 and n(1 − p) = 180 are both at least 10.",
         run: async () => {
           await A.remove(pills, { dur: 250 });
           curve = S.path("", { color: "ink", width: 3.5, parent: plot, hide: true });
@@ -750,7 +750,7 @@
         },
       },
       {
-        say: "Zoom in. Each bar is 1 unit wide, so bar 14 really covers **13.5 to 14.5**. \"Fewer than 15\" means bars 0 to 14, so the curve's area should stop at the right edge of bar 14: **14.5**, not 14. That half-unit shift is the **continuity correction**.",
+        say: "Zoom in: each bar is 1 unit wide, so bar 14 really covers **13.5 to 14.5**. \"Fewer than 15\" means bars 0 to 14, so the curve's area should stop at the right edge of bar 14, **14.5**, not 14. That half-unit shift is the **continuity correction**.",
         run: async () => {
           await A.remove([...pills, axLabel], { dur: 250 });
           await zoom(8.5, 20.5, 1400);
@@ -788,7 +788,7 @@
         },
       },
       {
-        say: "When the rule fails, so does the bell. With **n = 10** and **p = 0.1**, np = **1**, far below 10. The bars are lopsided and the bell even spills below 0, onto impossible counts. Exact P(X = 0) = 0.9¹⁰ = **" + binom(0, 10, 0.1).toFixed(3) + "**, but the bell gives only about **" + Phi((0.5 - 1) / Math.sqrt(0.9)).toFixed(2) + "**.",
+        say: "When the rule fails, so does the bell: with **n = 10** and **p = 0.1**, np = **1**, far below 10. The bars are lopsided and the bell even spills below 0, onto impossible counts. Exact P(X = 0) = 0.9¹⁰ = **" + binom(0, 10, 0.1).toFixed(3) + "**, but the bell gives only about **" + Phi((0.5 - 1) / Math.sqrt(0.9)).toFixed(2) + "**.",
         run: async () => {
           S.clear();
           const m2 = 1, s2 = Math.sqrt(10 * 0.1 * 0.9), U2 = 520, B2 = 330;

@@ -1,0 +1,146 @@
+{
+  "Random variable": {
+    "explain": "A random variable is a rule that turns the result of a chance process into a number. Rolling two dice gives you a picture of dots, but 'the total of the two dice' is a number, and that number is the random variable. We usually call it X. Before the chance process happens we do not know which value X will take, only how likely each value is. Despite the name, it is not an unknown from algebra: it is the numerical outcome of something random, such as the number of defects in a batch or the height of a randomly chosen adult.",
+    "example": "Roll two dice and let X be their total. A roll of 3 and 5 gives X = 8, and a roll of 6 and 6 gives X = 12. Of the 36 equally likely rolls, 6 give a total of 7, so P(X = 7) = 6/36 ≈ 0.17.",
+    "joke": ["Why did the two dice hire a random variable?", "They wanted someone to put a number on their relationship."],
+    "walk": "random-variable"
+  },
+  "Distribution": {
+    "explain": "A distribution is the full picture of how probability is spread over all the values a random variable can take. For a count it is a list (or bar chart) of every value with its probability. For a measurement it is a smooth curve. Either way the probabilities add up to 1, because something has to happen. People often say 'distribution' when they mean the data, but strictly it describes the chances: the long-run pattern the data come from.",
+    "example": "An inspector finds 0, 1, 2, 3 or 4 defects per batch with probabilities 0.20, 0.35, 0.25, 0.15 and 0.05. That list is the distribution of X. It adds up to 1.00, and its mean is 0(0.20) + 1(0.35) + 2(0.25) + 3(0.15) + 4(0.05) = 1.5 defects per batch.",
+    "joke": ["Why did the distribution get a job at the post office?", "It was already great at spreading things out."],
+    "walk": "random-variable"
+  },
+  "PMF": {
+    "explain": "PMF stands for probability mass function. It gives the probability of each exact value of a discrete (countable) random variable, written P(X = x). Picture a bar chart with one bar per value: every bar is between 0 and 1, and all the bars add up to exactly 1. It only works for countable values like 0, 1, 2 and so on. For measurements on a continuous scale you need a PDF instead.",
+    "example": "For the total of two dice, the PMF is 1/36 for a total of 2, 2/36 for 3, rising to 6/36 for 7 and falling back to 1/36 for 12. Adding all eleven bars: (1 + 2 + 3 + 4 + 5 + 6 + 5 + 4 + 3 + 2 + 1)/36 = 36/36 = 1.",
+    "joke": ["Why did the PMF start going to the gym?", "It had a lot of probability mass to look after."],
+    "walk": "random-variable"
+  },
+  "PDF": {
+    "explain": "PDF stands for probability density function: the smooth curve that describes a continuous random variable, such as a waiting time or a height. The area under the curve between two values is the probability of landing in that range, and the total area under the whole curve is 1. The height of the curve is not a probability (it can even be bigger than 1). Any single exact value has probability 0, because a single point has no width, which is why continuous questions are always about ranges.",
+    "example": "A bus arrives at a random moment between 9:00 and 9:20, so its PDF is flat at height 1/20 (total area 20 × 1/20 = 1). The chance it arrives between 9:05 and 9:12 is the area 7 × 1/20 = 0.35, and the chance it arrives at exactly 9:07 is 0.",
+    "joke": ["Is the PDF curve clever?", "It's a bit dense, but it covers a lot of area."],
+    "walk": "pdf-cdf"
+  },
+  "CDF": {
+    "explain": "The CDF (cumulative distribution function) is the running total of probability from the left: F(x) = P(X ≤ x). It starts at 0 on the far left, never goes down, and climbs to 1 on the far right. It turns 'at most' questions into one lookup, and 'between' questions into a subtraction: P(a < X ≤ b) = F(b) − F(a). Watch the ≤ versus < for whole numbers: P(X < 3) is the same as P(X ≤ 2).",
+    "example": "For defects per batch (probabilities 0.20, 0.35, 0.25, 0.15, 0.05), the CDF is 0.20, 0.55, 0.80, 0.95 and 1.00. So P(X ≤ 2) = 0.80, P(X > 2) = 1 − 0.80 = 0.20, and P(1 ≤ X ≤ 3) = F(3) − F(0) = 0.95 − 0.20 = 0.75.",
+    "joke": ["Why is the CDF such an optimist?", "It never goes down. It just keeps adding up."],
+    "walk": "pdf-cdf"
+  },
+  "Support": {
+    "explain": "The support of a random variable is the set of values it can actually take: the values where its probability (or density) is greater than zero. For the total of two dice the support is 2, 3, ..., 12, because a total of 1 or 13 is impossible. Knowing the support stops you giving probability to things that cannot happen, such as a negative number of patients. It is the precise version of 'the possible values'.",
+    "example": "A bus arrives at a random moment between 9:00 and 9:20, so the support of its arrival time is 9:00 to 9:20. Inside that window the density is 1/20 per minute; at 9:25 it is 0, because 9:25 is outside the support.",
+    "joke": ["Why did the dice total of 13 feel so lonely?", "It got no support at all."],
+    "walk": "random-variable"
+  },
+  "Binomial": {
+    "explain": "A binomial random variable counts the successes in a fixed number n of independent yes/no trials, each with the same chance of success p. Check the BINS conditions: Binary outcomes, Independent trials, a fixed Number of trials and the Same success probability. The chance of exactly k successes is P(X = k) = C(n, k) × pᵏ × (1 − p)ⁿ⁻ᵏ, where C(n, k) counts the different orders the successes can come in. 'Two outcomes' describes each single trial; the binomial describes the total count.",
+    "example": "A drug works for 70% of patients and 10 patients take it, so X ~ Binomial(10, 0.7). P(exactly 7 respond) = C(10, 7) × 0.7⁷ × 0.3³ = 120 × 0.0823543 × 0.027 ≈ 0.267.",
+    "joke": ["What is a binomial's favourite kind of question?", "Yes or no. Asked n times, please."],
+    "walk": "binomial"
+  },
+  "Trial": {
+    "explain": "A trial is one single run of a yes/no experiment: one coin flip, one patient taking a drug, one item coming off a production line. Each trial ends in either a success or a failure. In a binomial setting the number of trials n is fixed in advance, and the trials are independent, so one result does not change the next. If you keep going 'until the first head', the number of trials is not fixed and the binomial does not apply.",
+    "example": "Flipping a fair coin 8 times is 8 trials, each with a 0.5 chance of heads. There are 2⁸ = 256 equally likely patterns, and C(8, 3) = 56 of them have exactly 3 heads, so P(3 heads) = 56/256 ≈ 0.219.",
+    "joke": ["Why was the coin so nervous before being flipped?", "It was on trial, and the verdict was heads or tails."],
+    "walk": "binomial"
+  },
+  "Success": {
+    "explain": "In probability, a success is simply whichever outcome you are counting, whether it is good news or bad news. If you count defective items, a defective item is a 'success'. If you count patients who recover, recovering is the success. The word is a label, not a judgement. Its probability on each trial is written p, and the chance of a failure is 1 − p.",
+    "example": "A factory line has a 5% defect rate and we count defects in a batch of 20, so a defect is the 'success' with p = 0.05. P(0 successes) = 0.95²⁰ ≈ 0.358, so about 36% of batches have no defects at all.",
+    "joke": ["Why did the statistician cheer when a light bulb broke?", "She was counting broken bulbs, so it was a success."],
+    "walk": "binomial"
+  },
+  "n, p": {
+    "explain": "n and p are the two parameters of a binomial distribution: n is the number of trials and p is the probability of success on each one. Once you know both, the whole distribution is fixed: every probability, the mean np and the standard deviation √(np(1 − p)). Changing p slides the hill of bars left or right, and changing n spreads it over more values. Naming n and p correctly is the first step of every binomial problem.",
+    "example": "Guessing every answer on a 10-question test with 4 options each gives n = 10 and p = 0.25. Then P(exactly 2 correct) = C(10, 2) × 0.25² × 0.75⁸ = 45 × 0.0625 × 0.1001 ≈ 0.282.",
+    "joke": ["What do n and p call themselves?", "The binomial's pair-ameters."],
+    "walk": "binomial"
+  },
+  "np": {
+    "explain": "np is the mean (expected value) of a binomial distribution: the number of trials times the chance of success. It is not a rough guess. It is exactly the long-run average count you would see if you repeated the n trials many times. It does not have to be a whole number, and any single run can easily miss it. Its partner is the standard deviation √(np(1 − p)), which tells you how far a typical run lands from np.",
+    "example": "A drug works for 70% of patients and 10 take it: np = 10 × 0.7 = 7 responders on average, with SD = √(10 × 0.7 × 0.3) = √2.1 ≈ 1.45. Guessing a 10-question, 4-option test gives np = 10 × 0.25 = 2.5 correct: not a possible score, but still the right average.",
+    "joke": ["Why do binomials always ask np for advice?", "It knows exactly what to expect."],
+    "walk": "binomial"
+  },
+  "λ (lambda)": {
+    "explain": "λ (the Greek letter lambda) is the average number of events in one interval of time or space, and it is the only number a Poisson distribution needs. If an emergency room averages 4 arrivals an hour, then λ = 4 for a one-hour window. From λ alone you get the chance of any count: P(X = k) = e^(−λ) × λᵏ ÷ k!. Remember that λ is an average, not the count you will see: any particular hour can have more or fewer.",
+    "example": "An emergency room averages λ = 4 patients per hour. P(exactly 2 in the next hour) = e⁻⁴ × 4² ÷ 2! = 0.018316 × 16 ÷ 2 ≈ 0.147, and P(nobody arrives) = e⁻⁴ ≈ 0.018.",
+    "joke": ["What do you call a sheep that counts arrivals per hour?", "A lamb-da."],
+    "walk": "poisson"
+  },
+  "Poisson process": {
+    "explain": "A Poisson process is a stream of events that happen one at a time, independently of each other, at a steady average rate. Calls to a help desk, customers at a shop door and typos on a page are typical examples. If events really behave like this, the count in any window follows a Poisson distribution, and twice the window gives twice the expected count. It is not just 'anything random': if events come in bunches, or the rate changes during the day, the Poisson model breaks down.",
+    "example": "Calls reach a call centre independently at an average of 6 per minute, so the count in a minute is Poisson(6). P(8 or more calls) = 1 − P(7 or fewer) = 1 − 0.7440 = 0.2560, about a quarter of all minutes.",
+    "joke": ["A fisherman gets bites at random, about 3 an hour. What does he call it?", "A Poisson process. 'Poisson' is French for fish."],
+    "walk": "poisson"
+  },
+  "Rate vs λ": {
+    "explain": "A rate is the average number of events per unit of time (say 18 per hour), while λ is the average for the exact window you are asking about. To get λ, multiply: λ = rate × length of the window. A common mistake is to plug in the hourly rate when the question is about 15 minutes, which makes every answer wrong. Always rescale the rate to the window first.",
+    "example": "An ATM averages 18 transactions per hour. For a 15-minute window, λ = 18 × 1/4 = 4.5, so P(exactly 5 transactions) = e⁻⁴·⁵ × 4.5⁵ ÷ 5! ≈ 0.171.",
+    "joke": ["Why did the 30-minute window refuse λ = 4?", "It asked for a rate cut, down to 2."],
+    "walk": "poisson"
+  },
+  "Overdispersion": {
+    "explain": "Overdispersion means counts are more spread out than a Poisson model allows: their variance is clearly bigger than their mean. In a true Poisson distribution the mean and the variance are equal (both are λ), so comparing them is a quick check. Overdispersion usually means events come in clumps or the rate keeps changing, for example patients arriving in groups after a big match. If you ignore it, the Poisson model will underestimate how often very quiet and very busy periods happen.",
+    "example": "Ten hours of emergency room arrivals: 0, 1, 0, 12, 2, 0, 9, 1, 0 and 15. The mean is 40 ÷ 10 = 4, but the variance is about 32.9, roughly eight times the mean, so these counts are overdispersed and not Poisson.",
+    "joke": ["Why did the Poisson model turn away the clumpy counts?", "Their variance was too big for its mean."],
+    "walk": "poisson"
+  },
+  "Normal distribution": {
+    "explain": "The normal distribution is the famous bell curve: smooth, symmetric and centred on its mean μ, with its width set by the standard deviation σ. Its mean, median and mode are all the same, and probabilities are areas under the curve, with a total area of 1. Many measurements, such as heights, test scores and measurement errors, are close to normal. Not every hump-shaped graph is normal, though: the normal is one specific curve, fixed completely by μ and σ.",
+    "example": "Adult men's heights in the US are roughly normal with μ = 69.1 inches and σ = 2.9 inches. A height of 66 inches has z = (66 − 69.1) ÷ 2.9 ≈ −1.07, so about 14% of men are shorter than 66 inches.",
+    "joke": ["What did the statistician say when the church bell rang?", "That sounds perfectly normal."],
+    "walk": "normal-distribution"
+  },
+  "Standard normal": {
+    "explain": "The standard normal is the normal distribution with mean 0 and standard deviation 1, usually written Z. Any normal value converts to it with z = (x − μ) ÷ σ, which counts how many standard deviations x is from the mean. That is why one printed table works for every normal distribution: translate your problem into z units, look up the area, and you are done. It is the same bell shape as any other normal, just measured on a standard ruler.",
+    "example": "IQ scores are normal with μ = 100 and σ = 15. An IQ of 130 becomes z = (130 − 100) ÷ 15 = 2, and the table gives P(Z < 2) = 0.9772, so about 2.3% of people score above 130.",
+    "joke": ["Why is the standard normal so easy to get along with?", "It has zero mean and only one standard."],
+    "walk": "normal-distribution"
+  },
+  "Empirical rule": {
+    "explain": "The empirical rule (the 68-95-99.7 rule) says that for a normal distribution about 68% of values lie within 1 standard deviation of the mean, about 95% within 2, and about 99.7% within 3. It lets you sketch a normal distribution in your head without a table. It only holds for data that are roughly bell-shaped: for skewed data the shares can be quite different. The exact figures are 68.27%, 95.45% and 99.73%, and exactly 95% lies within 1.96 standard deviations.",
+    "example": "Exam scores have mean 78 and SD 6. About 95% of students score between 78 − 2 × 6 = 66 and 78 + 2 × 6 = 90, and about 99.7% score between 60 and 96.",
+    "joke": ["How does the bell curve describe its family reunion?", "68% sit close, 95% stay nearby, 99.7% at least show up."],
+    "walk": "normal-distribution"
+  },
+  "Percentile": {
+    "explain": "A percentile is the value below which a given percentage of the data falls. Being at the 90th percentile means 90% of people scored lower than you and only 10% scored higher. It is not the same as a percentage score: you could get 60% on a hard test and still be at the 90th percentile. For a normal distribution you find a percentile backwards with the table: find the z with that area to its left, then convert back with x = μ + zσ.",
+    "example": "Men's heights are normal with μ = 69.1 and σ = 2.9 inches. The 90th percentile has z ≈ 1.28, so x = 69.1 + 1.28 × 2.9 ≈ 72.8 inches: only 10% of men are taller.",
+    "joke": ["What did the percentile say to the percentage?", "You tell people how much. I tell them where they stand."],
+    "walk": "normal-distribution"
+  },
+  "Left-tail table": {
+    "explain": "A standard normal table (z-table) usually lists the area to the left of each z value: P(Z < z). Every other area comes from that one number. The right tail is 1 minus the table value, and the area between two z values is the bigger left area minus the smaller one. The classic mistake is reading the table value as the answer to a 'greater than' question. For negative z, use symmetry: P(Z < −z) = 1 − P(Z < z).",
+    "example": "Final exam scores are normal with μ = 72 and σ = 11. For a score above 90, z = (90 − 72) ÷ 11 ≈ 1.64 and the table gives 0.9495, so P(above 90) = 1 − 0.9495 = 0.0505, about 5%.",
+    "joke": ["Why does the z-table never look to the right?", "It only knows what's left."],
+    "walk": "normal-distribution"
+  },
+  "Normal approximation": {
+    "explain": "The normal approximation replaces a discrete distribution, such as a binomial, with the normal curve that has the same mean and standard deviation. For a binomial that means μ = np and σ = √(np(1 − p)). With many trials the bars form a smooth hill, so one z-score and a table lookup can stand in for adding up dozens of bars. It works well only when both np and n(1 − p) are at least 10, and it needs the continuity correction to be accurate.",
+    "example": "An airline books 200 passengers, each with a 10% chance of not showing up, so μ = 20 and σ = √18 ≈ 4.24. P(fewer than 15 no-shows) ≈ P(Z < (14.5 − 20) ÷ 4.24) = P(Z < −1.30) ≈ 0.097, close to the exact binomial answer of 0.0929.",
+    "joke": ["Why did the bar chart put on a bell-shaped coat?", "It was trying to pass as normal."],
+    "walk": "normal-approximation"
+  },
+  "Continuity correction": {
+    "explain": "The continuity correction is the half-unit shift you make when a smooth curve stands in for whole-number counts. Each count k is really a bar that spans k − 0.5 to k + 0.5, so the curve's area should start or stop at a bar's edge, not its middle. For example, P(X ≤ 14) becomes P(Y < 14.5), and P(X ≥ 25) becomes P(Y > 24.5). It is not a fudge factor: skipping it can make the answer noticeably worse.",
+    "example": "For the airline (μ = 20, σ ≈ 4.24), the exact P(X ≤ 14) is 0.0929. Cutting the normal curve at 14.5 gives 0.0974, but cutting at 14 gives only 0.0786, much further off.",
+    "joke": ["Why are continuity corrections such good dancers?", "They always know when to take half a step."],
+    "walk": "normal-approximation"
+  },
+  "np ≥ 10 rule": {
+    "explain": "The np ≥ 10 rule is the check that tells you whether a bell curve can stand in for a binomial: both np and n(1 − p) should be at least 10 (some books accept 5). If either is small, the bars are lopsided and squashed against 0 or n, and a symmetric bell fits badly. It is a guideline rather than a law, but ignoring it can give clearly wrong answers, and the bell may even put probability on impossible negative counts.",
+    "example": "For n = 200 and p = 0.1, np = 20 and n(1 − p) = 180, so the approximation is fine. For n = 10 and p = 0.1, np = 1: the exact P(X = 0) is 0.9¹⁰ ≈ 0.349, but the normal curve gives only about 0.30.",
+    "joke": ["Why wouldn't the bell curve stand in for Binomial(10, 0.1)?", "Its np was only 1, and the bell has standards."],
+    "walk": "normal-approximation"
+  },
+  "Exact vs approximate": {
+    "explain": "An exact answer comes straight from the true distribution, for example by adding up every binomial bar. An approximate answer uses a convenient stand-in, such as the normal curve, to save work by hand. The two are close when the conditions hold, but they are not the same thing, so say which one you used. Software can now compute exact binomial and Poisson probabilities instantly, so the approximation matters most for quick estimates and for understanding why bell curves appear everywhere.",
+    "example": "A fair coin is flipped 100 times. The exact chance of exactly 45 heads is 0.0485. The normal approximation, P(44.5 < Y < 45.5) with μ = 50 and σ = 5, gives 0.0484.",
+    "joke": ["How accurate is the normal approximation?", "Exactly approximately right."],
+    "walk": "normal-approximation"
+  }
+}

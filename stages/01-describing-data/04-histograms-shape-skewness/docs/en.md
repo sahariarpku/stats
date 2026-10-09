@@ -80,7 +80,7 @@ Twenty exam scores:
 
 ### Step 2: Read the shape
 
-Looking at the tally: most scores cluster at 60 to 79. The tail trails off to the right (84 and 98). That is a **mild right skew**.
+Looking at the tally: most scores cluster at 60 to 79. The tail trails off to the right (84 and 98). That is a **moderate right skew**.
 
 Check with the numbers: mean = 65.7 and median = 65.5. They are close, but the mean sits slightly higher, which is the right-skew signature. The long right tail comes mostly from the single score of 98.
 
@@ -100,7 +100,7 @@ The same 20 scores with different widths:
 
 ### Step 4: Put a number on skew
 
-**Skewness** measures asymmetry. The sign gives the direction, and the size gives the strength. For the 20 scores, the sample skewness is **g₁ ≈ 0.53**, which is mildly right-skewed.
+**Skewness** measures asymmetry. The sign gives the direction, and the size gives the strength. For the 20 scores, the sample skewness is **g₁ ≈ 0.53**, just past 0.5, so it counts as moderately right-skewed.
 
 A common rule of thumb:
 
