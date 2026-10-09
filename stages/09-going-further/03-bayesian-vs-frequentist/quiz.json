@@ -1,0 +1,60 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "In the Bayesian approach, the unknown parameter θ is treated as...",
+      "options": ["A fixed constant with no uncertainty", "A random quantity described by a probability distribution", "The same as the sample mean", "Always 0.5"],
+      "correct": 1,
+      "explanation": "Bayesians express uncertainty about a parameter with a probability distribution, which is updated as data arrive."
+    },
+    {
+      "stage": "pre",
+      "question": "Which statement matches a 95% credible interval of (22%, 51%)?",
+      "options": ["95% of repeated studies would produce an interval containing θ", "Given the data and prior, there is a 95% probability that θ lies between 22% and 51%", "θ is exactly 36%", "The p-value is 0.05"],
+      "correct": 1,
+      "explanation": "A credible interval is a direct probability statement about the parameter, given the data and the prior."
+    },
+    {
+      "stage": "post",
+      "question": "Prior Beta(1, 1), data: 14 successes in 40 trials. What is the posterior?",
+      "options": ["Beta(14, 40)", "Beta(15, 27)", "Beta(14, 26)", "Beta(1, 1)"],
+      "correct": 1,
+      "explanation": "Posterior = Beta(a + k, b + n − k) = Beta(1 + 14, 1 + 26) = Beta(15, 27)."
+    },
+    {
+      "stage": "post",
+      "question": "What is the mean of a Beta(15, 27) posterior?",
+      "options": ["0.333", "0.357", "0.500", "0.650"],
+      "correct": 1,
+      "explanation": "Mean = a ÷ (a + b) = 15 ÷ 42 = 0.357."
+    },
+    {
+      "stage": "post",
+      "question": "The one-sided p-value is 0.072, and the posterior probability that θ > 25% is 93%. Which statement is true?",
+      "options": ["They are the same probability", "The p-value is P(data this extreme | θ = 25%), the posterior is P(θ > 25% | data): different questions", "The p-value is wrong", "The posterior is not a probability"],
+      "correct": 1,
+      "explanation": "One conditions on θ and asks about data, the other conditions on the data and asks about θ. They happen to be nearly complementary here because the prior is flat."
+    },
+    {
+      "stage": "post",
+      "question": "With the same 14 of 40, a sceptical prior gives P(θ > 25%) = 87% and an optimistic one gives 99%. What does this tell you?",
+      "options": ["Bayesian statistics does not work", "With little data, the prior has a noticeable effect, so check prior sensitivity", "The data are invalid", "You must always use the flat prior"],
+      "correct": 1,
+      "explanation": "With a small sample the prior still influences the posterior. Good practice is to state the prior and see how much conclusions change."
+    },
+    {
+      "stage": "post",
+      "question": "What happens to the influence of the prior as the sample grows (same observed rate)?",
+      "options": ["It grows", "It fades; different priors converge to similar posteriors", "It stays identical", "It reverses"],
+      "correct": 1,
+      "explanation": "With 400 customers all three priors in the lesson gave posterior means within one point of each other. Data overwhelm the prior."
+    },
+    {
+      "stage": "post",
+      "question": "What is MCMC used for?",
+      "options": ["Calculating p-values from tables", "Drawing samples from a posterior distribution that has no simple formula", "Replacing the data", "Choosing the sample size"],
+      "correct": 1,
+      "explanation": "MCMC builds a chain of parameter values whose long-run distribution is the posterior, so you can summarise any posterior from the draws."
+    }
+  ]
+}
