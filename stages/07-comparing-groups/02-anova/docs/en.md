@@ -4,7 +4,7 @@
 
 **Type:** Learn
 **Tools:** Calculator and the [F table (PDF)](../../../../reference/tables/f-table-alpha-05.pdf). Python is optional.
-**Prerequisites:** Lessons 3.4 (variance), 6.1 to 6.3 and 6.6
+**Prerequisites:** Lessons 1.3 (variance), 6.1 to 6.3 and 6.6
 **Time:** ~60 minutes
 
 ## What you will be able to do
