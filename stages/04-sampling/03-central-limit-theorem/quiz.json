@@ -1,0 +1,46 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "According to the Central Limit Theorem, what becomes approximately normal as the sample size grows?",
+      "options": ["The population", "Each individual observation", "The distribution of the sample mean", "The sample standard deviation"],
+      "correct": 2,
+      "explanation": "The CLT is about the sampling distribution of the mean (and sums). The raw data and the population keep whatever shape they had."
+    },
+    {
+      "stage": "pre",
+      "question": "A common rule of thumb for the CLT to work well is...",
+      "options": ["n ≥ 5", "n ≥ 30", "n ≥ 1000", "n = 10 exactly"],
+      "correct": 1,
+      "explanation": "n ≥ 30 is the usual guideline. Strongly skewed populations may need more, and bell-shaped ones need far fewer."
+    },
+    {
+      "stage": "post",
+      "question": "A population has μ = 80 and σ = 20. For n = 100, the sample mean is approximately normal with what mean and SD?",
+      "options": ["80 and 20", "80 and 2", "8 and 2", "80 and 0.2"],
+      "correct": 1,
+      "explanation": "Mean = μ = 80 and SD = σ/√n = 20/10 = 2."
+    },
+    {
+      "stage": "post",
+      "question": "Using the same population (μ = 80, σ = 20) and n = 100, what is P(x̄ > 83)?",
+      "options": ["About 0.067", "About 0.5", "About 0.15", "About 0.023"],
+      "correct": 0,
+      "explanation": "z = (83 − 80)/2 = 1.5, and 1 − 0.9332 = 0.0668."
+    },
+    {
+      "stage": "post",
+      "question": "A bag process has μ = 300 g and σ = 12 g. A sample of 36 bags has a mean of 296 g. What is P(x̄ < 296) if the process is on target?",
+      "options": ["About 0.16", "About 0.023", "About 0.37", "About 0.5"],
+      "correct": 1,
+      "explanation": "SE = 12/6 = 2, so z = (296 − 300)/2 = −2, and P(Z < −2) = 0.0228. A small probability suggests the process may be underfilling."
+    },
+    {
+      "stage": "post",
+      "question": "Which statement about n ≥ 30 is correct?",
+      "options": ["It makes the data normally distributed", "It makes the sample mean approximately normal, while the data can remain skewed", "It guarantees an unbiased sample", "It removes the need for random sampling"],
+      "correct": 1,
+      "explanation": "Large n smooths out the distribution of the mean. It does nothing for the shape of the data and cannot repair a biased or non-random sample."
+    }
+  ]
+}

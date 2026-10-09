@@ -1,0 +1,46 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Which statistic describes how precisely a sample mean estimates the population mean?",
+      "options": ["Standard deviation", "Standard error", "Range", "Variance"],
+      "correct": 1,
+      "explanation": "The standard error measures the sampling variability of the mean. The standard deviation describes how spread out individual values are."
+    },
+    {
+      "stage": "pre",
+      "question": "Collecting more data generally makes the standard deviation of a sample...",
+      "options": ["Shrink toward zero", "Settle near the population's value", "Grow without limit", "Equal the mean"],
+      "correct": 1,
+      "explanation": "More people do not make individuals more alike, so s stabilises near σ. It is the standard error that keeps shrinking."
+    },
+    {
+      "stage": "post",
+      "question": "A sample has n = 49 and s = 14. What is the standard error of the mean?",
+      "options": ["14", "7", "2", "0.29"],
+      "correct": 2,
+      "explanation": "SE = s ÷ √n = 14 ÷ 7 = 2."
+    },
+    {
+      "stage": "post",
+      "question": "For the midterm scores 72, 85, 68, 91, 77, 83, 64, 80 (SD ≈ 9.09, n = 8), what is the SE?",
+      "options": ["9.09", "3.21", "1.14", "0.28"],
+      "correct": 1,
+      "explanation": "SE = 9.09 ÷ √8 = 9.09 ÷ 2.828 ≈ 3.21."
+    },
+    {
+      "stage": "post",
+      "question": "You want to cut your SE in half. By what factor must the sample size increase?",
+      "options": ["2", "√2", "4", "8"],
+      "correct": 2,
+      "explanation": "SE ∝ 1/√n. Halving it requires √n to double, so n must quadruple."
+    },
+    {
+      "stage": "post",
+      "question": "A pilot study suggests σ ≈ 15. What is the smallest n that gives SE ≤ 1?",
+      "options": ["15", "30", "100", "225"],
+      "correct": 3,
+      "explanation": "SE = 15 ÷ √n ≤ 1 requires √n ≥ 15, so n ≥ 225."
+    }
+  ]
+}

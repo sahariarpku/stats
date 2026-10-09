@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Hundred Polls</title>
+<link rel="stylesheet" href="../../../../assets/visuals.css">
+</head>
+<body>
+<main class="viz">
+  <div class="viz-head">
+    <div>
+      <h1>A hundred polls of the same population</h1>
+      <p class="hint">The true support is fixed. Each poll asks n random people and reports a percentage. Run many polls and watch how far they stray, and how often they land within the margin of error.</p>
+    </div>
+    <button id="theme" type="button">Theme: auto</button>
+  </div>
+
+  <svg id="plot" viewBox="0 0 760 270" role="img" aria-label="Histogram of poll results around the true proportion"></svg>
+
+  <div class="legend">
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="2" width="12" height="11" fill="var(--series-1)"/></svg>Polls inside the 95% margin</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="2" width="12" height="11" fill="var(--series-2)"/></svg>Polls outside it</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="6" y="0" width="2.5" height="14" fill="var(--text-primary)"/></svg>True support p</span>
+  </div>
+
+  <div class="readout" aria-live="polite">
+    <div class="card"><div class="label">Polls run</div><div class="value" id="count">0</div></div>
+    <div class="card"><div class="label">Margin of error 1.96·SE</div><div class="value" id="moe"></div></div>
+    <div class="card"><div class="label">Polls within the margin</div><div class="value" id="cover">—</div></div>
+    <div class="card"><div class="label">Lowest and highest poll</div><div class="value" id="range">—</div></div>
+  </div>
+  <p class="verdict" id="verdict" aria-live="polite">Press "Run 100 polls".</p>
+
+  <div class="controls col" id="sliders"></div>
+  <div class="controls">
+    <button id="run100" type="button">Run 100 polls</button>
+    <button id="run1000" type="button">Run 1,000 polls</button>
+    <button id="reset" type="button">Reset</button>
+  </div>
+</main>
+
+<script src="../../../../assets/visuals.js"></script>
+<script>
+let p = 0.54, n = 1000, polls = [];
+const svg = document.getElementById("plot");
+const $ = (id) => document.getElementById(id);
+const layer = Viz.el("g", {}, svg);
+const pct = (v, d = 1) => (v * 100).toFixed(d) + "%";
+
+function runPolls(k) {
+  for (let i = 0; i < k; i++) {
+    let x = 0;
+    for (let j = 0; j < n; j++) if (Math.random() < p) x++;
+    polls.push(x / n);
+  }
+  render();
+}
+
+function render() {
+  const se = Math.sqrt(p * (1 - p) / n), moe = 1.96 * se;
+  const lo = Math.max(0, p - 0.15), hi = Math.min(1, p + 0.15);
+  const X = Viz.scale(lo, hi, 30, 730);
+  const bw = 0.005;
+  layer.replaceChildren();
+  const bins = new Map();
+  polls.forEach((v) => { const k = Math.round((v - lo) / bw); bins.set(k, (bins.get(k) || 0) + 1); });
+  const top = Math.max(1, ...bins.values());
+  const Y = Viz.scale(0, Math.max(top * 1.15, 3), 215, 20);
+  bins.forEach((c, k) => {
+    const x0 = lo + k * bw - bw / 2;
+    const inside = Math.abs(lo + k * bw - p) <= moe + 1e-9;
+    Viz.el("rect", { x: X(x0) + 0.5, y: Y(c), width: Math.max(1, X(x0 + bw) - X(x0) - 1), height: 215 - Y(c), fill: inside ? "var(--series-1)" : "var(--series-2)" }, layer);
+  });
+  Viz.el("line", { class: "axis-line", x1: 30, x2: 730, y1: 215, y2: 215 }, layer);
+  for (let t = Math.ceil(lo * 20) / 20; t <= hi + 1e-9; t += 0.05) {
+    Viz.el("line", { class: "axis-line", x1: X(t), x2: X(t), y1: 215, y2: 220 }, layer);
+    Viz.el("text", { x: X(t), y: 236, "text-anchor": "middle" }, layer).textContent = Math.round(t * 100) + "%";
+  }
+  [[p - moe, "−1.96 SE"], [p + moe, "+1.96 SE"]].forEach(([v, label]) => {
+    Viz.el("line", { x1: X(v), x2: X(v), y1: 20, y2: 215, stroke: "var(--text-muted)", "stroke-width": 1.5, "stroke-dasharray": "4 4" }, layer);
+    Viz.el("text", { x: X(v), y: 14, "text-anchor": "middle", opacity: 0.85 }, layer).textContent = label;
+  });
+  Viz.el("line", { x1: X(p), x2: X(p), y1: 20, y2: 215, stroke: "var(--text-primary)", "stroke-width": 2.5 }, layer);
+  Viz.el("text", { x: 380, y: 262, "text-anchor": "middle" }, layer).textContent = "Poll result (share saying yes)";
+
+  $("count").textContent = polls.length.toLocaleString();
+  $("moe").textContent = "± " + (moe * 100).toFixed(1) + " pts";
+  if (polls.length) {
+    const inside = polls.filter((v) => Math.abs(v - p) <= moe).length;
+    $("cover").textContent = pct(inside / polls.length, 0);
+    $("range").textContent = pct(Math.min(...polls), 1) + " – " + pct(Math.max(...polls), 1);
+    $("verdict").textContent = "True support is " + pct(p, 0) + ". With n = " + n.toLocaleString() + ", about 95% of polls land within ±" + (moe * 100).toFixed(1) + " points of the truth (here " + pct(inside / polls.length, 0) + "), and the odd poll misses by more. Raise n to shrink the margin: it falls like 1/√n.";
+  }
+}
+
+Viz.slider($("sliders"), { label: "True support (p)", min: 0.2, max: 0.8, step: 0.01, value: p, format: (v) => pct(v, 0), onInput: (v) => { p = v; polls = []; render(); } });
+Viz.slider($("sliders"), { label: "People per poll (n)", min: 50, max: 3000, step: 50, value: n, format: (v) => v.toLocaleString(), onInput: (v) => { n = v; polls = []; render(); } });
+$("run100").addEventListener("click", () => runPolls(100));
+$("run1000").addEventListener("click", () => runPolls(1000));
+$("reset").addEventListener("click", () => { polls = []; $("cover").textContent = "—"; $("range").textContent = "—"; $("verdict").textContent = 'Press "Run 100 polls".'; render(); });
+Viz.themeToggle($("theme"));
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Two random samples from the same population have different sample means. What does this show?",
+      "options": ["One sample is wrong", "Sampling variability: statistics vary from sample to sample", "The population mean changed", "The samples were not random"],
+      "correct": 1,
+      "explanation": "Different random samples naturally give different statistics. The parameter stays fixed. This variation is expected and measurable."
+    },
+    {
+      "stage": "pre",
+      "question": "The sampling distribution of the sample mean is the distribution of...",
+      "options": ["The raw data values", "The sample mean over all possible samples of size n", "The population", "The sample's standard deviation"],
+      "correct": 1,
+      "explanation": "It describes how x̄ itself varies across repeated samples of the same size."
+    },
+    {
+      "stage": "post",
+      "question": "A population has μ = 50 and σ = 12. What is the SD of the sample mean for n = 36?",
+      "options": ["12", "6", "2", "0.33"],
+      "correct": 2,
+      "explanation": "σ/√n = 12 ÷ √36 = 12 ÷ 6 = 2."
+    },
+    {
+      "stage": "post",
+      "question": "The mean of all possible sample means (for a given n) equals...",
+      "options": ["σ/√n", "μ", "s", "n"],
+      "correct": 1,
+      "explanation": "The sample mean is an unbiased estimator: on average over all samples it equals the population mean μ."
+    },
+    {
+      "stage": "post",
+      "question": "To cut the spread of the sample mean in half, you need...",
+      "options": ["Twice as much data", "Four times as much data", "Half as much data", "Ten times as much data"],
+      "correct": 1,
+      "explanation": "The spread is σ/√n. Halving it needs √n to double, so n must quadruple."
+    },
+    {
+      "stage": "post",
+      "question": "For the population {2, 4, 6}, samples of size 2 are drawn with replacement. How many equally likely samples are there, and what is their average mean?",
+      "options": ["6 samples, average 4", "9 samples, average 4", "9 samples, average 3", "3 samples, average 4"],
+      "correct": 1,
+      "explanation": "3 × 3 = 9 ordered samples. Their means are 2, 3, 4, 3, 4, 5, 4, 5, 6, and the average is 36 ÷ 9 = 4 = μ."
+    }
+  ]
+}

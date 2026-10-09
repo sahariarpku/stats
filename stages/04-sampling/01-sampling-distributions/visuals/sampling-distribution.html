@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sampling Distribution Builder</title>
+<link rel="stylesheet" href="../../../../assets/visuals.css">
+<style>button[aria-pressed="true"] { background: var(--surface-2); border-color: var(--series-1); }</style>
+</head>
+<body>
+<main class="viz">
+  <div class="viz-head">
+    <div>
+      <h1>Sampling distribution builder</h1>
+      <p class="hint">Top: the whole population. Bottom: the average of each random sample you draw. Pick a population shape, set the sample size, and keep drawing.</p>
+    </div>
+    <button id="theme" type="button">Theme: auto</button>
+  </div>
+
+  <div class="controls" id="shapes" role="group" aria-label="Population shape"></div>
+
+  <svg id="plot" viewBox="0 0 760 360" role="img" aria-label="Population histogram above a histogram of sample means" style="margin-top:10px"></svg>
+
+  <div class="legend">
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="2" width="12" height="11" fill="var(--dot)" opacity="0.7"/></svg>Population</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="2" width="12" height="11" fill="var(--series-1)"/></svg>Sample means</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="6" width="14" height="3" fill="var(--series-2)"/></svg>Prediction: normal, mean μ, SD σ/√n</span>
+  </div>
+
+  <div class="readout" aria-live="polite">
+    <div class="card"><div class="label">Population μ, σ</div><div class="value" id="pop"></div></div>
+    <div class="card"><div class="label">Samples drawn</div><div class="value" id="count">0</div></div>
+    <div class="card"><div class="label">Average of the sample means</div><div class="value" id="mm">—</div></div>
+    <div class="card"><div class="label">SD of means: observed / σ/√n</div><div class="value" id="se">—</div></div>
+  </div>
+  <p class="verdict" id="verdict" aria-live="polite">Press "Draw 1 sample" or "Draw 200 samples".</p>
+
+  <div class="controls col" id="sliders"></div>
+  <div class="controls">
+    <button id="one" type="button">Draw 1 sample</button>
+    <button id="many" type="button">Draw 200 samples</button>
+    <button id="reset" type="button">Reset</button>
+    <button id="pred" type="button" aria-pressed="true">Prediction curve: on</button>
+  </div>
+</main>
+
+<script src="../../../../assets/visuals.js"></script>
+<script>
+const rand = Viz.rng(5);
+const exp1 = () => -Math.log(1 - rand());
+const clip = (v) => Math.min(100, Math.max(0, v));
+const POOL = 20000;
+const SHAPES = {
+  bell: { name: "Bell-shaped", gen: () => clip(50 + 12 * Viz.randn(rand)) },
+  skew: { name: "Skewed right", gen: () => clip(15 + 15 * exp1()) },
+  uniform: { name: "Uniform (flat)", gen: () => 10 + 80 * rand() },
+  bimodal: { name: "Two humps", gen: () => clip((rand() < 0.5 ? 30 : 70) + 6 * Viz.randn(rand)) },
+};
+Object.values(SHAPES).forEach((s) => { s.pool = Array.from({ length: POOL }, s.gen); s.mu = Viz.mean(s.pool); s.sigma = Viz.sd(s.pool, false); });
+
+let shape = "skew", n = 5, means = [], showPred = true;
+const svg = document.getElementById("plot");
+const $ = (id) => document.getElementById(id);
+const X = Viz.scale(0, 100, 30, 730);
+const layer = Viz.el("g", {}, svg);
+const f1 = (v) => (Math.round(v * 10) / 10).toString();
+
+function hist(values, width) {
+  const bins = new Array(Math.ceil(100 / width)).fill(0);
+  values.forEach((v) => { bins[Math.min(bins.length - 1, Math.floor(v / width))]++; });
+  return bins.map((c) => c / (values.length * width));
+}
+
+function drawPanel(dens, width, base, height, color, opacity) {
+  const top = Math.max(...dens);
+  dens.forEach((d, i) => {
+    const h = (d / top) * height;
+    Viz.el("rect", { x: X(i * width) + 0.3, y: base - h, width: Math.max(0.6, X((i + 1) * width) - X(i * width) - 0.6), height: h, fill: color, opacity }, layer);
+  });
+}
+
+function render() {
+  const S = SHAPES[shape];
+  layer.replaceChildren();
+  const popDens = hist(S.pool, 2);
+  const popTop = Math.max(...popDens);
+  Viz.el("text", { x: 30, y: 14, class: "strong" }, layer).textContent = "Population";
+  drawPanel(popDens, 2, 125, 95, "var(--dot)", 0.7);
+  Viz.axisBottom(layer, X, { y: 125, from: 0, to: 100, step: 10 });
+  Viz.el("line", { x1: X(S.mu), x2: X(S.mu), y1: 24, y2: 125, stroke: "var(--series-1)", "stroke-width": 2 }, layer);
+  Viz.el("text", { x: X(S.mu) + 5, y: 34 }, layer).textContent = "μ = " + f1(S.mu);
+
+  const se = S.sigma / Math.sqrt(n);
+  Viz.el("text", { x: 30, y: 172, class: "strong" }, layer).textContent = means.length ? "Means of " + means.length + " samples of size n = " + n : "Means of your samples (n = " + n + ")";
+  const base2 = 325, h2 = 120;
+  let top = 0;
+  let dens = [];
+  if (means.length) { dens = hist(means, 1); top = Math.max(...dens); }
+  const predPeak = Viz.normPdf(S.mu, S.mu, se);
+  top = Math.max(top, showPred ? predPeak : 0) * 1.05 || predPeak;
+  dens.forEach((d, i) => {
+    const h = (d / top) * h2;
+    Viz.el("rect", { x: X(i) + 0.3, y: base2 - h, width: Math.max(0.6, X(i + 1) - X(i) - 0.6), height: h, fill: "var(--series-1)" }, layer);
+  });
+  Viz.axisBottom(layer, X, { y: base2, from: 0, to: 100, step: 10 });
+  if (showPred) {
+    const pts = [];
+    for (let x = 0; x <= 100; x += 0.5) pts.push(X(x) + "," + (base2 - (Viz.normPdf(x, S.mu, se) / top) * h2));
+    Viz.el("polyline", { points: pts.join(" "), fill: "none", stroke: "var(--series-2)", "stroke-width": 3 }, layer);
+  }
+
+  $("pop").textContent = f1(S.mu) + ", " + f1(S.sigma);
+  $("count").textContent = means.length;
+  if (means.length > 1) {
+    $("mm").textContent = f1(Viz.mean(means));
+    $("se").textContent = (Math.round(Viz.sd(means) * 100) / 100) + " / " + (Math.round(se * 100) / 100);
+    $("verdict").textContent = "With samples of " + n + ", the sample means centre on μ = " + f1(S.mu) + " (unbiased) and spread about σ/√n = " + (Math.round(se * 100) / 100) + ". " +
+      (n < 5 && shape !== "bell" ? "With such small samples the means still look like the population." : shape !== "bell" ? "The population is not bell-shaped, but the means are looking more like a bell." : "Bigger n gives a narrower, taller pile of means.");
+  }
+}
+
+function draw(times) {
+  const pool = SHAPES[shape].pool;
+  for (let t = 0; t < times; t++) {
+    let s = 0;
+    for (let i = 0; i < n; i++) s += pool[Math.floor(Math.random() * POOL)];
+    means.push(s / n);
+  }
+  render();
+}
+
+Object.entries(SHAPES).forEach(([key, s]) => {
+  const b = document.createElement("button");
+  b.type = "button"; b.textContent = s.name; b.setAttribute("aria-pressed", key === shape);
+  b.addEventListener("click", () => { shape = key; means = []; [...$("shapes").children].forEach((c) => c.setAttribute("aria-pressed", c === b)); render(); });
+  $("shapes").appendChild(b);
+});
+
+Viz.slider($("sliders"), { label: "Sample size (n)", min: 1, max: 100, step: 1, value: n, format: (v) => "n = " + v, onInput: (v) => { n = v; means = []; render(); } });
+$("one").addEventListener("click", () => draw(1));
+$("many").addEventListener("click", () => draw(200));
+$("reset").addEventListener("click", () => { means = []; $("verdict").textContent = 'Press "Draw 1 sample" or "Draw 200 samples".'; $("mm").textContent = "—"; $("se").textContent = "—"; render(); });
+$("pred").addEventListener("click", () => { showPred = !showPred; $("pred").setAttribute("aria-pressed", showPred); $("pred").textContent = "Prediction curve: " + (showPred ? "on" : "off"); render(); });
+Viz.themeToggle($("theme"));
+render();
+</script>
+</body>
+</html>
