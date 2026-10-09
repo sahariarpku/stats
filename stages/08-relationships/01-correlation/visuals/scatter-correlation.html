@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Feel the Correlation</title>
+<link rel="stylesheet" href="../../../../assets/visuals.css">
+</head>
+<body>
+<main class="viz">
+  <div class="viz-head">
+    <div>
+      <h1>Feel the correlation</h1>
+      <p class="hint">Forty points. Slide the strength of the relationship (for the curved shapes it sets how tightly the points hug the curve), change its shape, or add one outlier, and watch Pearson's r and Spearman's ρ respond.</p>
+    </div>
+    <button id="theme" type="button">Theme: auto</button>
+  </div>
+
+  <svg id="plot" viewBox="0 0 760 360" role="img" aria-label="Scatter plot of forty points with a fitted line"></svg>
+
+  <div class="legend">
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="var(--dot)"/></svg>Data point</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="5.5" fill="var(--series-2)"/></svg>The outlier</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="6" width="14" height="3" fill="var(--series-1)"/></svg>Best straight line</span>
+  </div>
+
+  <div class="readout" aria-live="polite">
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>Pearson r</div><div class="value" id="pr"></div></div>
+    <div class="card"><div class="label">Spearman ρ</div><div class="value" id="sr"></div></div>
+    <div class="card"><div class="label">r² (variation shared)</div><div class="value" id="r2"></div></div>
+    <div class="card"><div class="label">In words</div><div class="value" id="word" style="font-size:1.1rem"></div></div>
+  </div>
+  <p class="verdict" id="verdict" aria-live="polite"></p>
+
+  <div class="controls col" id="sliders"></div>
+  <div class="controls">
+    <button id="shape-line" type="button" aria-pressed="true">Straight</button>
+    <button id="shape-curve" type="button" aria-pressed="false">Rising curve</button>
+    <button id="shape-u" type="button" aria-pressed="false">U shape</button>
+    <button id="outlier" type="button" aria-pressed="false">Add an outlier</button>
+  </div>
+</main>
+
+<script src="../../../../assets/visuals.js"></script>
+<script>
+const N = 40;
+const rand = Viz.rng(2024);
+let z1 = Array.from({ length: N }, () => Viz.randn(rand));
+let e0 = Array.from({ length: N }, () => Viz.randn(rand));
+const mean = Viz.mean;
+const center = (a) => { const m = mean(a); return a.map((v) => v - m); };
+const norm = (a) => { const c = center(a); const s = Math.sqrt(c.reduce((t, v) => t + v * v, 0) / c.length); return c.map((v) => v / s); };
+z1 = norm(z1);
+// make the noise exactly uncorrelated with z1, so r equals the slider
+const dot = e0.map((v, i) => v * z1[i]).reduce((a, b) => a + b, 0) / N;
+const e = norm(e0.map((v, i) => v - dot * z1[i]));
+
+const S = { r: 0.8, shape: "line", outlier: false };
+const svg = document.getElementById("plot");
+const $ = (id) => document.getElementById(id);
+const layer = Viz.el("g", {}, svg);
+
+function ranks(v) {
+  const idx = v.map((x, i) => i).sort((a, b) => v[a] - v[b]);
+  const out = new Array(v.length);
+  let i = 0;
+  while (i < idx.length) {
+    let j = i;
+    while (j + 1 < idx.length && v[idx[j + 1]] === v[idx[i]]) j++;
+    for (let k = i; k <= j; k++) out[idx[k]] = (i + j) / 2 + 1;
+    i = j + 1;
+  }
+  return out;
+}
+function pearson(x, y) {
+  const mx = mean(x), my = mean(y);
+  let sxy = 0, sxx = 0, syy = 0;
+  for (let i = 0; i < x.length; i++) { sxy += (x[i] - mx) * (y[i] - my); sxx += (x[i] - mx) ** 2; syy += (y[i] - my) ** 2; }
+  return sxy / Math.sqrt(sxx * syy);
+}
+const describe = (r) => {
+  const a = Math.abs(r);
+  const s = a >= 0.8 ? "very strong" : a >= 0.6 ? "strong" : a >= 0.4 ? "moderate" : a >= 0.2 ? "weak" : "none";
+  return s === "none" ? "no linear pattern" : s + (r > 0 ? " positive" : " negative");
+};
+
+function build() {
+  const rr = S.r, k = Math.sqrt(1 - rr * rr);
+  let xs, ys;
+  if (S.shape === "line") {
+    xs = z1.slice();
+    ys = z1.map((v, i) => rr * v + k * e[i]);
+  } else {
+    // symmetric x values, so the U shape is exactly balanced
+    xs = Array.from({ length: N }, (_, i) => Viz.normInv((i + 0.5) / N));
+    const noise = 1.4 * (1 - Math.abs(rr));
+    const base = S.shape === "curve" ? xs.map((v) => Math.exp(0.8 * v)) : xs.map((v) => v * v - 1);
+    ys = base.map((v, i) => v + noise * e[i]);
+    if (rr < 0) ys = ys.map((v) => -v);
+  }
+  if (S.outlier) { xs.push(3.4); ys.push(S.shape === "u" ? 7 : -3.2); }
+  return { xs, ys };
+}
+
+function render() {
+  const { xs, ys } = build();
+  const X = Viz.scale(-3.8, 3.8, 50, 725);
+  const lo = Math.min(-3.6, ...ys) - 0.2, hi = Math.max(3.6, ...ys) + 0.2;
+  const Y = Viz.scale(lo, hi, 330, 20);
+  layer.replaceChildren();
+  Viz.el("line", { class: "axis-line", x1: 50, x2: 725, y1: Y(0), y2: Y(0) }, layer);
+  Viz.el("line", { class: "axis-line", x1: X(0), x2: X(0), y1: 20, y2: 330 }, layer);
+  Viz.el("text", { x: 725, y: Y(0) - 8, "text-anchor": "end", opacity: 0.85 }, layer).textContent = "x";
+  Viz.el("text", { x: X(0) + 8, y: 34, opacity: 0.85 }, layer).textContent = "y";
+
+  const r = pearson(xs, ys);
+  const mx = mean(xs), my = mean(ys);
+  let sxy = 0, sxx = 0;
+  xs.forEach((x, i) => { sxy += (x - mx) * (ys[i] - my); sxx += (x - mx) ** 2; });
+  const b = sxy / sxx, a = my - b * mx;
+  Viz.el("line", { x1: X(-3.6), x2: X(3.6), y1: Y(a + b * -3.6), y2: Y(a + b * 3.6), stroke: "var(--series-1)", "stroke-width": 3, "stroke-linecap": "round" }, layer);
+  xs.forEach((x, i) => {
+    const out = S.outlier && i === xs.length - 1;
+    Viz.el("circle", { cx: X(x), cy: Y(ys[i]), r: out ? 8 : 5, fill: out ? "var(--series-2)" : "var(--dot)", stroke: "var(--surface-1)", "stroke-width": 2, opacity: out ? 1 : 0.9 }, layer);
+  });
+  const rho = pearson(ranks(xs), ranks(ys));
+  const f2 = (v) => (Math.abs(v) < 0.005 ? 0 : v).toFixed(2);
+  $("pr").textContent = f2(r);
+  $("sr").textContent = f2(rho);
+  $("r2").textContent = (100 * r * r).toFixed(0) + "%";
+  $("word").textContent = describe(r);
+  let v = "";
+  if (S.shape === "u") v = "A clear pattern, yet r ≈ 0 and ρ ≈ 0: correlation only sees straight-line (or steadily rising) relationships, not U shapes.";
+  else if (S.shape === "curve") v = "The curve always rises, so ρ is close to 1, but r is lower because the points do not sit on a straight line.";
+  else v = "Points that line up closely give r near ±1. A shapeless cloud gives r near 0.";
+  if (S.outlier) v += " The orange outlier is dragging r far more than ρ, because ranks cannot be fooled by distance.";
+  $("verdict").textContent = v;
+}
+
+const sl = Viz.slider($("sliders"), { label: "Strength of the relationship", min: -1, max: 1, step: 0.05, value: 0.8, format: (v) => v.toFixed(2), onInput: (v) => { S.r = Math.max(-0.999, Math.min(0.999, v)); render(); } });
+const shapes = { line: $("shape-line"), curve: $("shape-curve"), u: $("shape-u") };
+Object.entries(shapes).forEach(([k, btn]) => btn.addEventListener("click", () => {
+  S.shape = k;
+  Object.entries(shapes).forEach(([kk, bb]) => bb.setAttribute("aria-pressed", kk === k));
+  render();
+}));
+$("outlier").addEventListener("click", () => { S.outlier = !S.outlier; $("outlier").setAttribute("aria-pressed", S.outlier); render(); });
+Viz.themeToggle($("theme"));
+render();
+</script>
+</body>
+</html>

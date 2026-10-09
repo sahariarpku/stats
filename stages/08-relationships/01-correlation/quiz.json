@@ -1,0 +1,60 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "A correlation of r = −0.85 between two variables means...",
+      "options": ["There is almost no relationship", "A strong tendency for one to go down as the other goes up", "85% of cases fall as the other rises", "One variable causes the other to fall"],
+      "correct": 1,
+      "explanation": "The sign gives the direction (negative: as one rises the other falls) and the size gives the strength (0.85 is strong). Correlation says nothing about cause."
+    },
+    {
+      "stage": "pre",
+      "question": "What should you do before computing a correlation?",
+      "options": ["Nothing, just compute r", "Draw a scatter plot", "Rank the data", "Compute a p-value"],
+      "correct": 1,
+      "explanation": "The scatter plot shows direction, strength, shape and outliers. Curves and outliers can make r misleading."
+    },
+    {
+      "stage": "post",
+      "question": "For the study data, S_xy = 166, S_xx = 42 and S_yy = 798. What is r?",
+      "options": ["0.21", "0.82", "0.91", "3.95"],
+      "correct": 2,
+      "explanation": "r = 166 ÷ √(42 × 798) = 166 ÷ 183.07 = 0.907. (0.82 is r², and 3.95 is the regression slope, which comes next.)"
+    },
+    {
+      "stage": "post",
+      "question": "r = 0.907 for n = 8. What is the test statistic t and its degrees of freedom?",
+      "options": ["t = 5.27, df = 6", "t = 5.27, df = 8", "t = 0.907, df = 7", "t = 13.3, df = 6"],
+      "correct": 0,
+      "explanation": "t = r√(n − 2) ÷ √(1 − r²) = 0.907 × 2.449 ÷ 0.4217 = 5.27, with n − 2 = 6 degrees of freedom."
+    },
+    {
+      "stage": "post",
+      "question": "y = x² for x from −3 to 3 gives r = 0. What does that mean?",
+      "options": ["y and x are unrelated", "There is no straight-line relationship, even though y depends exactly on x", "The data contain an outlier", "The sample is too small"],
+      "correct": 1,
+      "explanation": "r only measures straight-line association. A U shape has a perfect pattern but no linear trend, which is why a scatter plot comes first."
+    },
+    {
+      "stage": "post",
+      "question": "For a curved but steadily rising relationship such as y = 2ˣ, which statistic comes out at exactly +1?",
+      "options": ["Pearson's r", "Spearman's ρ", "Both", "Neither"],
+      "correct": 1,
+      "explanation": "Spearman's ρ uses ranks, and the ranks of x and y match perfectly, so ρ = 1. Pearson's r is only about 0.80 because the points do not lie on a line."
+    },
+    {
+      "stage": "post",
+      "question": "Ice-cream sales and swimming accidents are strongly correlated across the year. The best explanation is...",
+      "options": ["Ice cream causes accidents", "Accidents cause ice-cream sales", "Hot weather drives both (a confounder)", "It is pure coincidence"],
+      "correct": 2,
+      "explanation": "Summer heat increases both ice-cream buying and swimming. A hidden third variable can create a correlation with no causal link between the two variables."
+    },
+    {
+      "stage": "post",
+      "question": "With n = 1,000, a study finds r = 0.08 and p = 0.011. Which statement is best?",
+      "options": ["A strong relationship", "Statistically significant but tiny: it explains well under 1% of the variation", "Not significant", "The data must be wrong"],
+      "correct": 1,
+      "explanation": "Large samples make tiny correlations significant. r² = 0.0064, so the relationship is real but explains only 0.6% of the variation."
+    }
+  ]
+}
