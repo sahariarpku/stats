@@ -603,11 +603,15 @@ Walk.register("multiple-regression", {"title": "Multiple regression: from a line
           const avgLine = S.marker(mon.x(classAvg), yM - 50, yM, "average " + classAvg, { color: "ink3", dash: "5 5", width: 2, size: 17, hide: true });
           await A.fadeIn(avgLine);
           marks.push(avgLine);
+          const eqn = S.pill(400, 320, "each score = skill + luck", { size: 24, color: "purple", hide: true });
+          await A.fadeIn(eqn);
+          marks.push(eqn);
         },
       },
       {
         say: `Pick out the three **highest** scorers (orange, average **${avg(MON, "top")}**) and the three **lowest** (blue, average **${avg(MON, "bot")}**). On **Friday** the same ten students take a similar quiz. What will these two groups score?`,
         run: async () => {
+          await A.fadeOut(marks[1], { dur: 250 });
           dM.forEach((d, i) => recolor(d, C[grp(i)], S));
           await A.pulse(dM.filter((_, i) => grp(i) !== "mid"), { times: 1 });
           const tb = S.brace(mon.x(81) - 12, mon.x(89) + 12, yM - 30, { up: true, color: "orange", label: "top 3: avg " + avg(MON, "top"), size: 18, hide: true });
@@ -685,6 +689,297 @@ Walk.register("multiple-regression", {"title": "Multiple regression: from a line
           const p3 = S.pill(400, 280, "cause: luck does not repeat (r < 1)", { size: 23, color: "ink", hide: true });
           const tip = S.text(400, 365, "Would they have drifted back anyway?", { size: 19, color: "ink3", hide: true });
           await A.fadeIn([p1, p2, p3, tip], { stagger: 300 });
+        },
+      },
+    ];
+  });
+
+
+  /* ------------------------------------------------------------------ 8.3 R-squared */
+  Walk.register("r-squared", {"title": "R²: how much of the variation does the line explain?", "lesson": "8.3", "terms": ["SST, SSR, SSE", "R²", "Adjusted R²"]}, (S, A) => {
+    const F = fitLine(HOURS, SCORES);
+    const PX = 655;
+    const SHOE = [9, 7, 10, 8, 8, 11, 9, 10];   // a useless second predictor
+    // R² for score ~ hours + shoe size, from the normal equations (3 x 3, solved by Cramer's rule)
+    const X = HOURS.map((h, i) => [1, h, SHOE[i]]);
+    const XtX = [0, 1, 2].map((p) => [0, 1, 2].map((q) => sum(X.map((r) => r[p] * r[q]))));
+    const Xty = [0, 1, 2].map((p) => sum(X.map((r, i) => r[p] * SCORES[i])));
+    const det3 = (m) => m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1]) - m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0]) + m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0]);
+    const B = [0, 1, 2].map((k) => det3(XtX.map((row, i) => row.map((v, j) => (j === k ? Xty[i] : v)))) / det3(XtX));
+    const sse2 = sum(X.map((r, i) => (SCORES[i] - r[0] * B[0] - r[1] * B[1] - r[2] * B[2]) ** 2));
+    const R2b = 1 - sse2 / F.syy;
+    const adj = (r2, k) => 1 - (1 - r2) * (F.n - 1) / (F.n - k - 1);
+    let fr, dots, gaps, line, expl, left, panel = [];
+    return [
+      {
+        say: `Suppose we ignored hours and guessed the average, **${F.my}**, for every student. The grey gaps show how far each score is from that guess. Square them and add them up: **SST = ${F.syy}**. That is the **total variation** a line could try to explain.`,
+        run: async () => {
+          fr = S.frame({ x1: 80, x2: 500, y1: 50, y2: 340, xmin: 0, xmax: 9, ymin: 40, ymax: 90, xstep: 1, ystep: 10, xlabel: "hours of study", ylabel: "exam score", hide: true });
+          await A.fadeIn(fr.el);
+          dots = HOURS.map((h, i) => S.circle(fr.X(h), fr.Y(SCORES[i]), 9, { fill: "blue", hide: true }));
+          await A.fadeIn(dots, { stagger: 70 });
+          const ml = S.line(fr.X(0), fr.Y(F.my), fr.X(9), fr.Y(F.my), { color: "ink3", width: 2.5, dash: "7 6", hide: true });
+          const mt = S.text(fr.X(0) + 6, fr.Y(F.my) - 9, "average " + F.my, { size: 17, weight: 650, color: "ink2", anchor: "start", hide: true });
+          await A.fadeIn([ml, mt]);
+          gaps = HOURS.map((h, i) => S.line(fr.X(h), fr.Y(F.my), fr.X(h), fr.Y(SCORES[i]), { color: "grey", width: 4, hide: true }));
+          S.root.insertBefore(S.group(), dots[0]).append(...gaps);
+          await A.fadeIn(gaps, { stagger: 80 });
+          panel = [S.pill(PX, 150, `SST = Σ(y − ȳ)² = ${F.syy}`, { size: 21, color: "ink", hide: true }), S.text(PX, 192, "total variation", { size: 18, color: "ink3", hide: true })];
+          await A.fadeIn(panel);
+        },
+      },
+      {
+        say: `Now draw the regression line. Each grey gap splits in two: from the average to the line is the part **explained** by hours (green), and from the line to the dot is **left over** (orange). Student 8 is 17 points above average: ${(F.fitted[7] - F.my).toFixed(1)} explained + ${F.res[7].toFixed(1)} left over.`,
+        run: async () => {
+          await A.fadeOut(panel, { dur: 250 });
+          line = S.line(fr.X(0), fr.Y(F.a), fr.X(9), fr.Y(F.a + 9 * F.b), { color: "ink", width: 3, hide: true });
+          await A.draw(line);
+          const layer = S.group();
+          S.root.insertBefore(layer, dots[0]);
+          expl = HOURS.map((h, i) => S.line(fr.X(h) - 4, fr.Y(F.my), fr.X(h) - 4, fr.Y(F.fitted[i]), { color: "green", width: 4, hide: true, parent: layer }));
+          left = HOURS.map((h, i) => S.line(fr.X(h) + 4, fr.Y(F.fitted[i]), fr.X(h) + 4, fr.Y(SCORES[i]), { color: "orange", width: 4, hide: true, parent: layer }));
+          await A.all([A.fadeOut(gaps, { dur: 400 }), A.fadeIn(expl, { dur: 600 }), A.fadeIn(left, { dur: 600 })]);
+          panel = [
+            S.text(PX, 110, "student 8:  82 − 65 = 17", { size: 19, weight: 700, color: "ink", hide: true }),
+            S.pill(PX, 165, `${(F.fitted[7] - F.my).toFixed(1)} explained`, { size: 21, color: "green", hide: true }),
+            S.text(PX, 207, "+", { size: 24, weight: 800, color: "ink2", hide: true }),
+            S.pill(PX, 245, `${F.res[7].toFixed(1)} left over`, { size: 21, color: "orange", hide: true }),
+          ];
+          await A.fadeIn(panel, { stagger: 200 });
+          await A.pulse([expl[7], left[7]]);
+        },
+      },
+      {
+        say: `Square every piece and add them up. The total, **SST = ${F.syy}**, splits exactly into **SSR = ${F.ssr.toFixed(1)}** explained by the line (green) plus **SSE = ${F.sse.toFixed(1)}** left over (orange). So **SST = SSR + SSE**.`,
+        run: async () => {
+          await A.fadeOut(panel, { dur: 250 });
+          const k = 250 / F.syy, base = 330;
+          const tot = S.rect(570, base - F.syy * k, 70, F.syy * k, { fill: "grey", rx: 4, hide: true });
+          const g = S.rect(690, base - F.ssr * k, 70, F.ssr * k, { fill: "green", rx: 4, hide: true });
+          const o = S.rect(690, base - F.syy * k, 70, F.sse * k, { fill: "orange", rx: 4, hide: true });
+          panel = [
+            S.text(605, base - F.syy * k - 12, "SST", { size: 19, weight: 750, color: "ink2", hide: true }),
+            S.text(605, base - F.syy * k / 2 + 7, String(F.syy), { size: 20, weight: 800, color: "#fff", hide: true }),
+            S.text(665, base - F.syy * k / 2 + 9, "=", { size: 28, weight: 800, color: "ink2", hide: true }),
+            S.text(725, base - F.syy * k - 12, "SSR + SSE", { size: 19, weight: 750, color: "ink2", hide: true }),
+            S.text(725, base - F.ssr * k / 2 + 7, F.ssr.toFixed(1), { size: 19, weight: 800, color: "#fff", hide: true }),
+            S.text(725, base - F.syy * k + F.sse * k / 2 + 7, F.sse.toFixed(1), { size: 17, weight: 800, color: "#fff", hide: true }),
+          ];
+          await A.grow(tot);
+          await A.fadeIn(panel.slice(0, 2));
+          await A.fadeIn(panel[2]);
+          await A.grow(g); await A.grow(o);
+          await A.fadeIn(panel.slice(3));
+        },
+      },
+      {
+        say: `**R²** is the explained share: ${F.ssr.toFixed(1)} ÷ ${F.syy} = **${F.r2.toFixed(3)}**. Hours account for **${(F.r2 * 100).toFixed(0)}%** of the variation in scores. The rest comes from things the line knows nothing about, like sleep or luck. In simple regression R² is just the correlation squared, r².`,
+        run: async () => {
+          S.clear();
+          const x0 = 100, W = 600, w1 = W * F.r2;
+          S.text(400, 90, "all the variation in exam scores (SST)", { size: 20, weight: 700, color: "ink2" });
+          const g = S.rect(x0, 120, 0, 64, { fill: "green", rx: 6 });
+          const o = S.rect(x0 + w1, 120, 0, 64, { fill: "orange", rx: 6 });
+          await A.to(g, { width: w1 - 2 }, { dur: 900 });
+          await A.to(o, { width: W - w1 }, { dur: 400 });
+          const tg = S.text(x0 + w1 / 2, 160, `${(F.r2 * 100).toFixed(1)}% explained by hours`, { size: 21, weight: 800, color: "#fff", hide: true });
+          const to = S.text(x0 + w1 + (W - w1) / 2, 160, `${(100 - F.r2 * 100).toFixed(1)}%`, { size: 19, weight: 800, color: "#fff", hide: true });
+          const tl = S.text(x0 + w1 + (W - w1) / 2, 214, "left over", { size: 17, weight: 650, color: "orange", hide: true });
+          await A.fadeIn([tg, to, tl], { stagger: 200 });
+          const p = S.pill(400, 290, `R² = SSR ÷ SST = ${F.ssr.toFixed(1)} ÷ ${F.syy} = ${F.r2.toFixed(3)}`, { size: 26, color: "green", hide: true });
+          await A.fadeIn(p);
+          const q = S.text(400, 365, `same as r²: ${F.r.toFixed(4)}² = ${F.r2.toFixed(3)}`, { size: 20, weight: 650, color: "ink2", hide: true });
+          await A.fadeIn(q);
+        },
+      },
+      {
+        say: "R² runs from **0** to **1**. At 0 the best line is flat: knowing hours does not help at all. At 1 every dot sits exactly on the line. Careful: R² = 0.82 does not mean 82% of the dots are on the line. It is a share of the **variation**.",
+        run: async () => {
+          S.clear();
+          const e = [3, -7, 6, -2, 8, -5, 1, -4];
+          const kx = sum(HOURS.map((h, i) => (h - 4.5) * e[i])) / F.sxx;
+          const flat = HOURS.map((h, i) => 65 + e[i] - kx * (h - 4.5));       // exactly uncorrelated with hours
+          const sets = [[flat, "R² = 0", "line no better than the average"], [SCORES, `R² = ${F.r2.toFixed(2)}`, "our students"], [F.fitted, "R² = 1", "every dot on the line"]];
+          for (let j = 0; j < 3; j++) {
+            const [ys, t1, t2] = sets[j], cx = 150 + j * 250, G = fitLine(HOURS, ys);
+            const f = S.frame({ x1: cx - 95, x2: cx + 95, y1: 70, y2: 270, xmin: 0, xmax: 9, ymin: 40, ymax: 90, hide: true });
+            const pts = HOURS.map((h, i) => S.circle(f.X(h), f.Y(ys[i]), 6.5, { fill: "blue", hide: true }));
+            const ln = S.line(f.X(0.3), f.Y(G.a + 0.3 * G.b), f.X(8.7), f.Y(G.a + 8.7 * G.b), { color: j === 1 ? "ink" : j === 0 ? "orange" : "green", width: 3, hide: true });
+            const a = S.text(cx, 320, t1, { size: 26, weight: 800, color: j === 0 ? "orange" : j === 2 ? "green" : "ink", hide: true });
+            const b = S.text(cx, 352, t2, { size: 17, color: "ink2", hide: true });
+            await A.fadeIn([f.el, ...pts], { dur: 350 });
+            await A.fadeIn([ln, a, b], { dur: 400 });
+          }
+        },
+      },
+      {
+        say: `R² never goes down when you add a predictor, even a useless one. Add each student's **shoe size**: R² creeps up from ${F.r2.toFixed(3)} to ${R2b.toFixed(3)}. **Adjusted R²** charges a penalty for each predictor, so it drops from ${adj(F.r2, 1).toFixed(3)} to ${adj(R2b, 2).toFixed(3)}: shoe size is not earning its place.`,
+        run: async () => {
+          S.clear();
+          const tb = S.table(110, 70, [["model", "R²", "adjusted R²"], ["hours", F.r2.toFixed(3), adj(F.r2, 1).toFixed(3)], ["hours + shoe size", R2b.toFixed(3) + " ↑", adj(R2b, 2).toFixed(3) + " ↓"]], { colW: [250, 150, 180], rowH: 52, size: 21, hide: true });
+          await A.fadeIn(tb.el);
+          recolor(tb.cells[2][1], "orange", S); recolor(tb.cells[2][2], "green", S);
+          await A.pulse([tb.cells[2][1]]);
+          await A.pulse([tb.cells[2][2]]);
+          const f = S.pill(400, 290, "adjusted R² = 1 − (1 − R²) × (n − 1) ÷ (n − k − 1)", { size: 22, color: "ink", hide: true });
+          const n = S.text(400, 340, "n = 8 students   ·   k = number of predictors", { size: 18, color: "ink3", hide: true });
+          await A.fadeIn([f, n], { stagger: 250 });
+          const t = S.text(400, 400, "R² always rises; adjusted R² rises only if the new predictor really helps", { size: 18, weight: 650, color: "ink2", hide: true });
+          await A.fadeIn(t);
+        },
+      },
+      {
+        say: `**The recipe.** SST = SSR + SSE splits the total variation into explained and left over, and **R² = SSR ÷ SST** (${F.r2.toFixed(3)} here). Use adjusted R² to compare models with different numbers of predictors. A high R² does not prove the line is the right shape: check the residuals.`,
+        run: async () => {
+          S.clear();
+          const p1 = S.pill(400, 95, "SST = SSR + SSE", { size: 28, color: "ink", hide: true });
+          const p2 = S.pill(400, 180, `R² = SSR ÷ SST = ${F.ssr.toFixed(1)} ÷ ${F.syy} = ${F.r2.toFixed(3)}`, { size: 25, color: "green", hide: true });
+          const p3 = S.pill(400, 265, `adjusted R² = ${adj(F.r2, 1).toFixed(3)} (fair when comparing models)`, { size: 22, hide: true });
+          const tip = S.text(400, 350, "R² measures fit, not shape or cause: look at the residuals too.", { size: 19, color: "ink3", hide: true });
+          await A.fadeIn([p1, p2, p3, tip], { stagger: 300 });
+        },
+      },
+    ];
+  });
+
+  /* ------------------------------------------------------------------ 8.3 residual plots */
+  Walk.register("residual-plots", {"title": "Residual plots, leverage and two kinds of interval", "lesson": "8.3", "terms": ["Residual plot", "Heteroscedasticity", "Leverage", "Influential point", "Confidence interval (mean)", "Prediction interval"]}, (S, A) => {
+    const F = fitLine(HOURS, SCORES);
+    const PX = 655, T6 = 2.446912;                 // t* for 95% with 6 degrees of freedom
+    // A scatter with its line on top, and the residual plot underneath. Dots slide down into the residual plot.
+    async function twoPanel(xs, ys, o) {
+      const G = fitLine(xs, ys);
+      const top = S.frame({ x1: 100, x2: 500, y1: 45, y2: 185, xmin: o.xmin, xmax: o.xmax, ymin: o.ymin, ymax: o.ymax, ystep: o.ystep, ylabel: o.ylabel, hide: true });
+      const bot = S.frame({ x1: 100, x2: 500, y1: 245, y2: 375, xmin: o.xmin, xmax: o.xmax, ymin: -o.rmax, ymax: o.rmax, xstep: o.xstep, ystep: o.rmax, xlabel: o.xlabel, ylabel: "residual", hide: true });
+      await A.fadeIn(top.el);
+      const pts = xs.map((x, i) => S.circle(top.X(x), top.Y(ys[i]), 7, { fill: "blue", hide: true }));
+      await A.fadeIn(pts, { stagger: 50, dur: 300 });
+      const ln = S.line(top.X(o.xmin), top.Y(G.a + G.b * o.xmin), top.X(o.xmax), top.Y(G.a + G.b * o.xmax), { color: "ink", width: 2.5, hide: true });
+      await A.draw(ln);
+      const sticks = xs.map((x, i) => S.line(top.X(x), top.Y(ys[i]), top.X(x), top.Y(G.fitted[i]), { color: "orange", width: 2.5, hide: true }));
+      await A.fadeIn(sticks, { dur: 300 });
+      await A.fadeIn(bot.el);
+      const zero = S.line(100, bot.Y(0), 500, bot.Y(0), { color: "ink", width: 2.5, hide: true });
+      await A.fadeIn(zero);
+      const rd = xs.map((x, i) => S.circle(top.X(x), top.Y(ys[i]), 7, { fill: "orange" }));
+      await A.all(rd.map((d, i) => A.move(d, bot.X(xs[i]), bot.Y(G.res[i]), { dur: 1000 })));
+      return { G, top, bot, rd };
+    }
+    return [
+      {
+        say: "A **residual plot** takes each student's miss (actual minus predicted) and plots it on its own, around a line at zero. Our eight residuals bounce above and below zero with no pattern: a **shapeless band**. That is what a healthy straight-line fit looks like.",
+        run: async () => {
+          await twoPanel(HOURS, SCORES, { xmin: 0, xmax: 9, xstep: 1, ymin: 40, ymax: 90, ystep: 25, rmax: 8, xlabel: "hours of study", ylabel: "exam score" });
+          const band = soft(S.rect(110, 245 + 65 - 40, 380, 80, { fill: "green", stroke: "green", dash: "6 5", rx: 30, hide: true }), 0.08);
+          await A.fadeIn(band);
+          const p = [S.pill(PX, 250, "shapeless band", { size: 22, color: "green", hide: true }), S.text(PX, 292, "the straight line is fine", { size: 18, color: "ink2", hide: true })];
+          await A.fadeIn(p);
+        },
+      },
+      {
+        say: "A different dataset: a tomato plant's height, week by week. A straight line still scores **R² = 0.95**, which sounds great. But the residuals make a **U**: positive at both ends, negative in the middle. The plant's growth speeds up, so a straight line is the wrong shape.",
+        run: async () => {
+          S.clear();
+          const wk = [1, 2, 3, 4, 5, 6, 7, 8], ht = [4, 6, 9, 13, 19, 25, 33, 42];
+          const P = await twoPanel(wk, ht, { xmin: 0, xmax: 9, xstep: 1, ymin: 0, ymax: 45, ystep: 15, rmax: 6, xlabel: "week", ylabel: "plant height (cm)" });
+          const u = S.path(S.curvePath((x) => P.bot.X(x), (x) => P.bot.Y(0.55 * (x - 4.6) ** 2 - 3), 0.8, 8.4), { color: "orange", width: 2.5, dash: "6 6", hide: true });
+          await A.fadeIn(u);
+          const p = [S.text(PX, 110, `R² = ${P.G.r2.toFixed(2)}`, { size: 30, weight: 800, color: "ink", hide: true }), S.pill(PX, 250, "U shape", { size: 22, color: "orange", hide: true }), S.text(PX, 292, "the pattern is curved:\na line is the wrong shape", { size: 18, color: "ink2", hide: true })];
+          await A.fadeIn(p, { stagger: 200 });
+        },
+      },
+      {
+        say: "Holiday spending against family income. Now the residuals spread out like a **fan**: small misses for low incomes, big ones for high incomes. Unequal spread like this is called **heteroscedasticity**. Predictions are far less reliable where the fan is wide.",
+        run: async () => {
+          S.clear();
+          const inc = [20, 28, 36, 44, 52, 60, 68, 76, 84, 92, 100, 108];
+          const d = [0.2, -0.3, -0.5, 0.6, 0.9, -1.1, -0.4, 1.6, -2.3, 2.0, 2.9, -3.2];
+          const sp = inc.map((v, i) => 1 + 0.05 * v + d[i]);
+          const P = await twoPanel(inc, sp, { xmin: 10, xmax: 115, xstep: 15, ymin: 0, ymax: 12, ystep: 6, rmax: 4, xlabel: "family income (£ thousand)", ylabel: "holiday spend (£ thousand)" });
+          const fan = S.path(`M${P.bot.X(15)} ${P.bot.Y(0.5)} L${P.bot.X(112)} ${P.bot.Y(3.7)} M${P.bot.X(15)} ${P.bot.Y(-0.5)} L${P.bot.X(112)} ${P.bot.Y(-3.7)}`, { color: "purple", width: 2.5, dash: "6 6", hide: true });
+          await A.fadeIn(fan);
+          const p = [S.pill(PX, 250, "fan shape", { size: 22, color: "purple", hide: true }), S.text(PX, 292, "unequal spread:\nheteroscedasticity", { size: 18, color: "ink2", hide: true })];
+          await A.fadeIn(p, { stagger: 200 });
+        },
+      },
+      {
+        say: "Add one student who scored just 30. If they sit in the **middle** (4.5 hours), the line only slides down a little: the slope stays 3.95. Put them **far out** at 9 hours and they drag the slope down to **0.43**. Far-out x means high **leverage**. Add a big miss and the point is **influential**.",
+        run: async () => {
+          S.clear();
+          const fr = S.frame({ x1: 80, x2: 500, y1: 50, y2: 340, xmin: 0, xmax: 10, ymin: 20, ymax: 90, xstep: 1, ystep: 10, xlabel: "hours of study", ylabel: "exam score" });
+          HOURS.forEach((h, i) => S.circle(fr.X(h), fr.Y(SCORES[i]), 8, { fill: "blue" }));
+          const ghost = S.line(fr.X(0), fr.Y(F.a), fr.X(10), fr.Y(F.a + 10 * F.b), { color: "green", width: 2.5, dash: "7 6" });
+          const ln = S.line(fr.X(0), fr.Y(F.a), fr.X(10), fr.Y(F.a + 10 * F.b), { color: "ink", width: 3 });
+          let cur = [F.a, F.b];
+          const tilt = async (G) => { const [a0, b0] = cur; await A.tween(1300, (t) => { const a = a0 + (G.a - a0) * t, b = b0 + (G.b - b0) * t; setLine(ln, fr.X(0), fr.Y(a), fr.X(10), fr.Y(a + 10 * b)); }); cur = [G.a, G.b]; };
+          S.text(PX, 70, `without them: slope ${F.b.toFixed(2)}`, { size: 18, weight: 700, color: "green" });
+          void ghost;
+          // 1) the same miss in the middle of the x-range
+          const Gm = fitLine([...HOURS, 4.5], [...SCORES, 30]);
+          const mid = S.circle(fr.X(4.5), fr.Y(30), 9, { fill: "orange", hide: true });
+          await A.fadeIn(mid);
+          await tilt(Gm);
+          const p1 = [S.pill(PX, 140, `middle: slope ${Gm.b.toFixed(2)}`, { size: 21, color: "purple", hide: true }), S.text(PX, 178, "line just shifts down", { size: 17, color: "ink2", hide: true })];
+          await A.fadeIn(p1);
+          await A.wait(600);
+          await A.fadeOut(mid, { dur: 300 });
+          await tilt(F);
+          // 2) the same miss far out in x
+          const Gf = fitLine([...HOURS, 9], [...SCORES, 30]);
+          const far = S.circle(fr.X(9), fr.Y(30), 9, { fill: "orange", hide: true });
+          await A.fadeIn(far);
+          await tilt(Gf);
+          const lev = (x, G) => 1 / G.n + (x - G.mx) ** 2 / G.sxx;
+          const p2 = [S.pill(PX, 240, `far out: slope ${Gf.b.toFixed(2)}`, { size: 21, color: "orange", hide: true }), S.text(PX, 278, `R² falls from ${F.r2.toFixed(3)} to ${Gf.r2.toFixed(3)}`, { size: 17, color: "ink2", hide: true }),
+            S.text(PX, 340, `leverage: middle ${lev(4.5, Gm).toFixed(2)}, far ${lev(9, Gf).toFixed(2)}`, { size: 17, weight: 650, color: "ink3", hide: true })];
+          await A.fadeIn(p2, { stagger: 200 });
+        },
+      },
+      {
+        say: `At 6.5 hours the line predicts ${(F.a + 6.5 * F.b).toFixed(1)}. The **confidence interval** for the *average* score of all such students is narrow: **67.3 to 78.5**. The **prediction interval** for *one* new student must also cover their own scatter, so it is much wider: **59.8 to 86.0**.`,
+        run: async () => {
+          S.clear();
+          const fr = S.frame({ x1: 80, x2: 500, y1: 50, y2: 340, xmin: 0, xmax: 9, ymin: 30, ymax: 100, xstep: 1, ystep: 10, xlabel: "hours of study", ylabel: "exam score" });
+          const half = (x, one) => T6 * F.s * Math.sqrt(one + 1 / F.n + (x - F.mx) ** 2 / F.sxx);
+          const band = (one, c) => { const up = S.curvePath(fr.X, (x) => fr.Y(F.a + F.b * x + half(x, one)), 1, 8, 60), dn = S.curvePath(fr.X, (x) => fr.Y(F.a + F.b * x - half(x, one)), 8, 1, 60); return S.path(up + " L" + dn.slice(1) + " Z", { fill: c, hide: true }); };
+          const pb = band(1, "purpleSoft"), cb = band(0, "blueSoft");
+          const ln = S.line(fr.X(1), fr.Y(F.a + F.b), fr.X(8), fr.Y(F.a + 8 * F.b), { color: "ink", width: 3 });
+          HOURS.forEach((h, i) => S.circle(fr.X(h), fr.Y(SCORES[i]), 7, { fill: "blue" }));
+          void ln;
+          const x0 = 6.5, y0 = F.a + F.b * x0, hc = half(x0, 0), hp = half(x0, 1);
+          await A.fadeIn(cb);
+          const cbar = [S.line(fr.X(x0) - 6, fr.Y(y0 - hc), fr.X(x0) - 6, fr.Y(y0 + hc), { color: "blue", width: 5, hide: true })];
+          await A.fadeIn(cbar);
+          const p1 = [S.pill(PX, 120, `${(y0 - hc).toFixed(1)} to ${(y0 + hc).toFixed(1)}`, { size: 22, color: "blue", hide: true }), S.text(PX, 158, "average of ALL students\nwho study 6.5 hours", { size: 17, color: "ink2", hide: true })];
+          await A.fadeIn(p1);
+          await A.fadeIn(pb);
+          S.root.insertBefore(pb, cb);
+          const pbar = [S.line(fr.X(x0) + 6, fr.Y(y0 - hp), fr.X(x0) + 6, fr.Y(y0 + hp), { color: "purple", width: 5, hide: true })];
+          await A.fadeIn(pbar);
+          const p2 = [S.pill(PX, 250, `${(y0 - hp).toFixed(1)} to ${(y0 + hp).toFixed(1)}`, { size: 22, color: "purple", hide: true }), S.text(PX, 288, "ONE new student\nwho studies 6.5 hours", { size: 17, color: "ink2", hide: true })];
+          await A.fadeIn(p2);
+          const n = S.text(PX, 370, "both are narrowest\nnear the average hours", { size: 17, color: "ink3", hide: true });
+          await A.fadeIn(n);
+        },
+      },
+      {
+        say: "**Always plot the residuals.** A shapeless band means the straight line fits, a U means the pattern is curved, and a fan means unequal spread. Check far-out points with big misses (influential points). And use a prediction interval when the question is about one person.",
+        run: async () => {
+          S.clear();
+          const rand = S.rng(83);
+          const mini = (cx, f, cap, c) => {
+            const els = [S.rect(cx - 95, 60, 190, 120, { fill: "card", stroke: "line", rx: 12, hide: true }), S.line(cx - 80, 120, cx + 80, 120, { color: "ink3", width: 2, hide: true })];
+            for (let i = 0; i < 14; i++) { const u = -1 + (2 * i) / 13; els.push(S.circle(cx + u * 78, 120 - f(u, S.randn(rand)), 5, { fill: c, hide: true })); }
+            els.push(S.text(cx, 215, cap, { size: 19, weight: 750, color: c, hide: true }));
+            return els;
+          };
+          const g1 = mini(160, (u, z) => 12 * Math.max(-2, Math.min(2, z)), "band: fine", "green");
+          const g2 = mini(400, (u, z) => 70 * u * u - 25 + 4 * z, "U: curved", "orange");
+          const g3 = mini(640, (u, z) => (8 + 22 * (u + 1)) * Math.max(-1.6, Math.min(1.6, z)) * 0.8, "fan: unequal spread", "purple");
+          for (const g of [g1, g2, g3]) await A.fadeIn(g, { dur: 350 });
+          const p1 = S.pill(400, 290, "influential point = far-out x (leverage) + big miss", { size: 21, color: "orange", hide: true });
+          const p2 = S.pill(400, 365, "prediction interval (one person) > confidence interval (average)", { size: 19, color: "purple", hide: true });
+          await A.fadeIn([p1, p2], { stagger: 300 });
         },
       },
     ];

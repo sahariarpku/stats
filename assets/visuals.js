@@ -202,10 +202,10 @@ const Viz = {
         d.textContent = "▶ " + (st.action.label || "Do it for me");
         d.addEventListener("click", () => { st.action.run(); d.textContent = "✓ Done. Watch what changed"; });
       }
-      place();
+      place(true);
       card.querySelector(".tour-next").focus({ preventScroll: true });
     }
-    function place() {
+    function place(reveal) {
       if (!card) return;
       const vw = document.documentElement.clientWidth;
       const w = Math.min(360, vw - 24);
@@ -218,8 +218,11 @@ const Viz = {
       if (r.height > window.innerHeight * 0.6) top = window.scrollY + Math.max(12, window.innerHeight - ch - 16);
       card.style.top = top + "px";
       card.style.left = Math.min(vw - w - 12, Math.max(12, r.left + r.width / 2 - w / 2)) + "px";
+      // On small screens the card can end up below the fold: bring it into view.
+      const cb = card.getBoundingClientRect();
+      if (reveal === true && (cb.bottom > window.innerHeight - 8 || cb.top < 0)) { clearTimeout(place.s); place.s = setTimeout(() => card && card.scrollIntoView({ block: "nearest", behavior: "smooth" }), 450); }
     }
-    window.addEventListener("resize", place);
+    window.addEventListener("resize", () => place());
     window.addEventListener("scroll", () => { if (card && ring) { clearTimeout(place.t); place.t = setTimeout(place, 120); } }, { passive: true });
     btn.addEventListener("click", () => { try { localStorage.setItem(key, "1"); } catch (e) { /* ignore */ } nudge.remove(); show(0); });
     // A gentle nudge the first time someone opens this animation.

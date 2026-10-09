@@ -92,8 +92,8 @@ function render() {
       : "A long way from the best line. Watch the orange squares: big misses are punished much more than small ones, because the area grows with the square of the miss.";
 }
 
-sa = Viz.slider($("sliders"), { label: "Intercept (score at 0 hours)", min: 30, max: 70, step: 0.5, value: S.a, format: (v) => v.toFixed(1), onInput: (v) => { S.a = v; render(); } });
-sb = Viz.slider($("sliders"), { label: "Slope (points per hour)", min: 0, max: 8, step: 0.05, value: S.b, format: (v) => v.toFixed(2), onInput: (v) => { S.b = v; render(); } });
+sa = Viz.slider($("sliders"), { label: "Intercept (score at 0 hours)", min: 30, max: 70, step: 0.1, value: S.a, format: (v) => v.toFixed(1), onInput: (v) => { S.a = v; render(); } });
+sb = Viz.slider($("sliders"), { label: "Slope (points per hour)", min: 0, max: 8, step: 0.01, value: S.b, format: (v) => v.toFixed(2), onInput: (v) => { S.b = v; render(); } });
 $("snap").addEventListener("click", () => { S.a = A; S.b = B; S.snapped = true; sa.set(A); sb.set(B); render(); });
 $("flat").addEventListener("click", () => { S.a = 65; S.b = 0; sa.set(65); sb.set(0); render(); });
 $("squares").addEventListener("click", () => { S.showSq = !S.showSq; $("squares").textContent = S.showSq ? "Hide the squares" : "Show the squares"; $("squares").setAttribute("aria-pressed", S.showSq); render(); });

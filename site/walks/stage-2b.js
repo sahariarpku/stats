@@ -416,9 +416,9 @@
           await keepOnly(() => true, (c) => c === 0);
           box = S.rect(colX[0] - 6, rowY[0] - 6, colW[0] + 7, rowY[2] + rowH[2] - rowY[0] + 7, { fill: "none", stroke: "purple", strokeWidth: 4, rx: 12, hide: true });
           await A.fadeIn(box);
-          pills = [S.pill(400, 350, "P(studied | pass) = 90/130 ≈ 0.69", { size: 22, color: "purple", hide: true })];
+          pills = [S.pill(400, 362, "P(studied | pass) = 90/130 ≈ 0.69, not 0.90", { size: 22, color: "purple", hide: true })];
           await A.fadeIn(pills);
-          const vs = S.pill(400, 407, "P(pass | studied) = 0.90   ≠   P(studied | pass) ≈ 0.69", { size: 19, color: "ink", hide: true });
+          const vs = S.text(400, 420, "0.90 was P(pass | studied): a different question", { size: 19, weight: 600, color: "ink2", hide: true });
           pills.push(vs);
           await A.fadeIn(vs);
         },

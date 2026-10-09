@@ -126,7 +126,7 @@ Walk.register("histogram", {"title": "Histograms: drop every value into a bin", 
       run: async () => {
         S.clear();
         const p1 = S.pill(400, 105, "count the values in each bin, then draw touching bars", { size: 24, color: "blue", hide: true });
-        const p2 = S.pill(400, 195, "20 scores, bins of 10  →  2, 4, 7, 5, 1, 1  (total 20)", { size: 22, hide: true });
+        const p2 = S.pill(400, 195, "20 scores, bins of 10 → 2, 4, 7, 5, 1, 1  (total 20)", { size: 22, hide: true });
         const p3 = S.pill(400, 285, "look for peaks, tails and gaps · two peaks = bimodal", { size: 23, color: "ink", hide: true });
         const tip = S.text(400, 375, "The bars touch because the number line has no gaps · try 2 or 3 bin widths", { size: 18, color: "ink3", hide: true });
         await A.fadeIn([p1, p2, p3, tip], { stagger: 300 });
@@ -408,7 +408,7 @@ Walk.register("z-score", {"title": "Z-scores: one ruler for every exam", "lesson
         await A.tween(1300, (t) => shade.setAttribute("d", areaPath(-3 + t * (st.z + 3))));
         const lbl = S.text(zx(0), 300, pct(st.z) + "%", { size: 30, weight: 800, color: "blue", hide: true });
         const sub = S.text(zx(0), 328, "scored below Maya", { size: 18, weight: 650, color: "blue", hide: true });
-        const p = S.pill(400, 80, "z = 0 → 50% below   ·   z = 1.5 → " + pct(st.z) + "% below", { size: 20, color: "ink", hide: true });
+        const p = S.pill(400, 80, "z = 0 → 50% below · z = 1.5 → " + pct(st.z) + "% below", { size: 20, color: "ink", hide: true });
         await A.fadeIn([lbl, sub, p], { stagger: 250 });
       },
     },
