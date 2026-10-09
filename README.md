@@ -69,11 +69,25 @@ stages/06-hypothesis-testing/05-one-sample-t-test/
 
 ## Running the animations
 
-Each animation is one HTML file with its CSS and JavaScript shared from [`assets/`](assets/). Open it in any browser: no install, no internet needed. They work on a phone, follow your light or dark theme, and have keyboard controls. To get clickable live links on GitHub, turn on **GitHub Pages** (Settings → Pages → deploy from this branch).
+Each animation is one HTML file with its CSS and JavaScript shared from [`assets/`](assets/). Open it in any browser: no install, no internet needed. They work on a phone, follow your light or dark theme, and have keyboard controls. The website shows them inside the lessons.
 
-## Put it online (Vercel, Netlify or GitHub Pages)
+## The website
 
-The repository is a static site. `index.html` at the root renders the lessons in the browser and links to the animations, so any static host works with no build step. On Vercel: **Add New → Project → import this repository**, set **Framework Preset** to *Other*, leave the build command and output directory empty, and deploy. Your link opens the course map, and every lesson and animation works from it.
+`index.html` is a complete website for the course: a friendly home page, the learning path, lessons with the animations built in, warm-up questions and quizzes you can click, cheat sheets, a searchable glossary, an animation gallery and the statistical tables. Progress is saved in each visitor's browser.
+
+It is fully static, so it runs anywhere with no build step:
+
+- **On your computer:** double-click `index.html`.
+- **On Vercel:** Add New → Project → import this repository → Framework Preset *Other* → leave the build command and output directory empty → Deploy.
+- **On GitHub Pages or Netlify:** publish the repository root.
+
+All lesson text is bundled into `site/` by a script. After editing a lesson, run:
+
+```bash
+python3 scripts/build_site.py      # refresh the website data
+python3 scripts/build_indexes.py   # refresh stage pages, glossary, animation list
+NODE_PATH=$(npm root -g) node scripts/make_thumbs.js   # optional: refresh gallery thumbnails (needs Playwright)
+```
 
 ## Running the code (optional)
 

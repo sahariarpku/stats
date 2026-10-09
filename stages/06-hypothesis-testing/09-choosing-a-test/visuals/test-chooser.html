@@ -33,18 +33,12 @@
 
 <script src="../../../../assets/visuals.js"></script>
 <script>
+// Lessons are opened in the course website (index.html), in the whole window, not inside the animation.
+const SITE = "../../../../index.html#/lesson/";
 const L = {
-  z: "../../04-z-tests/docs/en.md",
-  t1: "../../05-one-sample-t-test/docs/en.md",
-  t2: "../../06-two-sample-t-test/docs/en.md",
-  tp: "../../07-paired-t-test/docs/en.md",
-  chi: "../../../07-comparing-groups/01-chi-square-tests/docs/en.md",
-  anova: "../../../07-comparing-groups/02-anova/docs/en.md",
-  rank: "../../../07-comparing-groups/03-rank-based-tests/docs/en.md",
-  corr: "../../../08-relationships/01-correlation/docs/en.md",
-  reg: "../../../08-relationships/02-simple-linear-regression/docs/en.md",
-  mreg: "../../../08-relationships/04-multiple-regression/docs/en.md",
-  logit: "../../../08-relationships/05-logistic-regression/docs/en.md",
+  z: "6.4", t1: "6.5", t2: "6.6", tp: "6.7",
+  chi: "7.1", anova: "7.2", rank: "7.3",
+  corr: "8.1", reg: "8.2", mreg: "8.4", logit: "8.5",
 };
 const R = (name, why, link, lesson) => ({ result: { name, why, link, lesson } });
 
@@ -143,7 +137,7 @@ function render() {
     d.querySelector("h2").textContent = r.name;
     d.querySelector("p").textContent = r.why;
     const a = d.querySelector("a");
-    a.href = r.link; a.textContent = "Learn it: " + r.lesson + " →";
+    a.href = SITE + r.link; a.target = "_top"; a.textContent = "Learn it: " + r.lesson + " →";
     stage.appendChild(d);
     return;
   }

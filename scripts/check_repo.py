@@ -9,6 +9,7 @@ It verifies, for every lesson:
   * every relative link in the lesson, cheat sheet and animations points at a real file
   * every markdown table has the same number of cells in every row
   * every Python script runs and passes its own asserts
+  * the website data in site/ matches the lessons (scripts/build_site.py)
 Exit code 0 means everything is fine.
 """
 import json
@@ -111,6 +112,10 @@ def main():
         print(r.stdout.strip())
         if r.returncode != 0:
             err("statlib self-test failed")
+    r = subprocess.run([sys.executable, str(ROOT / "scripts" / "build_site.py"), "--check"], capture_output=True, text=True)
+    print(r.stdout.strip().splitlines()[0] if r.stdout.strip() else "")
+    if r.returncode != 0:
+        err("website data in site/ is out of date: run python3 scripts/build_site.py")
     print(f"Checked {len(lessons)} lessons" + ("" if fast else f" and ran {scripts} scripts") + f": {len(errors)} problem(s).")
     sys.exit(1 if errors else 0)
 
