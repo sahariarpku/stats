@@ -1,0 +1,308 @@
+{
+  "Probability": {
+    "explain": "Probability is a number that says how likely something is, on a scale from 0 (it cannot happen) to 1 (it is certain). When every outcome is equally likely, you find it by counting: the outcomes you want divided by all the possible outcomes. It can be written as a fraction, a decimal or a percentage, so 1/2, 0.5 and 50% all say the same thing. The most common slip is counting outcomes that are not equally likely, such as treating 'no heads', 'one head' and 'two heads' as three equal results of two coin flips.",
+    "example": "One fair die: an even number happens in 3 of the 6 equally likely outcomes {2, 4, 6}, so P(even) = 3/6 = 1/2 = 0.5. Rolling a 7 has probability 0/6 = 0 (impossible), and rolling a number from 1 to 6 has probability 6/6 = 1 (certain).",
+    "joke": [
+      "Why do probabilities never wander off?",
+      "They know their boundaries: never below 0, never above 1."
+    ],
+    "walk": "probability"
+  },
+  "Sample space": {
+    "explain": "The sample space is the complete list of everything that could happen in an experiment. For one die it is {1, 2, 3, 4, 5, 6}, and for two coin flips it is {HH, HT, TH, TT}. Writing it out carefully, as equally likely outcomes, is the first step of almost every probability question. The classic mistake is listing summaries such as '0, 1 or 2 heads', which are not equally likely, instead of the actual sequences.",
+    "example": "Flip two coins. The sample space is HH, HT, TH, TT: 4 equally likely outcomes. Exactly one head happens in 2 of them (HT and TH), so P(exactly one head) = 2/4 = 1/2, not 1/3.",
+    "joke": [
+      "Why did the astronaut love probability class?",
+      "It was all about the sample space."
+    ],
+    "walk": "probability"
+  },
+  "Event": {
+    "explain": "An event is any group of outcomes you care about, picked out of the sample space. 'Roll an even number' is the event {2, 4, 6}, and 'roll a 6' is the event {6}. An event happens if the actual outcome is one of its members. When all outcomes are equally likely, its probability is the number of outcomes in the event divided by the number in the sample space.",
+    "example": "Roll one die. The event 'greater than 4' is {5, 6}, which is 2 of the 6 outcomes, so P(greater than 4) = 2/6 = 1/3. The event 'odd' is {1, 3, 5}, so P(odd) = 3/6 = 1/2.",
+    "joke": [
+      "Why did 2, 4 and 6 all get invited to the same party?",
+      "It was an even-t."
+    ],
+    "walk": "probability"
+  },
+  "Complement": {
+    "explain": "The complement of an event is everything in the sample space that is not in it: 'not A', written A′. An event and its complement together cover every possibility, so their probabilities add to 1. That gives the complement rule, P(not A) = 1 − P(A). It is the great shortcut for 'at least one' questions: work out the chance of 'none' and take it away from 1.",
+    "example": "Flip a coin 3 times. The only way to get no heads is TTT, so P(no heads) = 1/8 and P(at least one head) = 1 − 1/8 = 7/8. A bag with 3 red and 7 blue marbles: P(not red) = 1 − 3/10 = 7/10.",
+    "joke": [
+      "What did the event say to everything outside it?",
+      "You complete me."
+    ],
+    "walk": "probability"
+  },
+  "Theoretical": {
+    "explain": "Theoretical probability is the chance you work out on paper, by counting equally likely outcomes, without doing any experiment. It tells you what should happen in the long run if the coin is fair or the die is balanced. It is not 'more real' than an experimental result: it is a prediction built on assumptions. Experiments are how you check whether those assumptions hold.",
+    "example": "Two dice have 6 × 6 = 36 equally likely pairs, and 6 of them sum to 7: (1,6), (2,5), (3,4), (4,3), (5,2) and (6,1). So the theoretical P(sum = 7) = 6/36 = 1/6 ≈ 0.1667, worked out without a single roll.",
+    "joke": [
+      "Why did the theoretical probability never get its hands dirty?",
+      "It did all of its rolling on paper."
+    ],
+    "walk": "experimental-probability"
+  },
+  "Experimental": {
+    "explain": "Experimental probability is the chance you measure by actually doing something many times: the number of times an event happened divided by the number of trials. In a small experiment it can land far from the theoretical value, because chance wobbles a lot over a few tries. As the number of trials grows it settles closer to the theoretical value, which is the Law of Large Numbers at work. It is not 'the wrong one': it is real data, and it is how you would discover that a die is loaded.",
+    "example": "Rolling two dice, a simulation got a sum of 7 in 21 of the first 100 rolls, an experimental probability of 0.21. Over 10,000 rolls it gave 0.1664, very close to the theoretical 1/6 ≈ 0.1667.",
+    "joke": [
+      "Why was the experimental probability so nervous?",
+      "It was on trial thousands of times."
+    ],
+    "walk": "experimental-probability"
+  },
+  "Factorial (n!)": {
+    "explain": "A factorial, written n!, means multiply n by every whole number below it, down to 1. For example 4! = 4 × 3 × 2 × 1 = 24. It counts the number of different ways to line up n different things in a row. Factorials grow astonishingly fast (10! is already 3,628,800), and by convention 0! = 1, since there is exactly one way to arrange nothing.",
+    "example": "Four friends can queue for a photo in 4! = 4 × 3 × 2 × 1 = 24 different orders. Add a fifth friend and there are 5! = 5 × 24 = 120 orders.",
+    "joke": [
+      "Why is 4! always so loud?",
+      "It has 24 different ways to make an entrance."
+    ],
+    "walk": "counting"
+  },
+  "Permutation": {
+    "explain": "A permutation is a selection where the order matters, so 'Ana then Ben' is different from 'Ben then Ana'. To count them, multiply the shrinking number of choices at each position. The formula is P(n, r) = n! ÷ (n − r)!, which is just the first r terms of the countdown n × (n − 1) × ... multiplied together. Use a permutation when positions, ranks or roles differ; if only the group matters, you want a combination.",
+    "example": "Eight runners race for gold, silver and bronze: 8 × 7 × 6 = 336 possible podiums. A club of 10 choosing a president, vice-president and treasurer has 10 × 9 × 8 = 720 ways, because the roles differ.",
+    "joke": [
+      "Why did the hairdresser love counting podiums?",
+      "Every new order was a new perm."
+    ],
+    "walk": "perm-comb"
+  },
+  "Combination": {
+    "explain": "A combination is a selection where order does not matter: only who or what ends up in the group counts. If order mattered, each group of r would be counted r! times (once for every ordering), so you divide that out. The formula is C(n, r) = n! ÷ [r! × (n − r)!]. Ask yourself: would swapping two of the picks give a different result? If not, it is a combination.",
+    "example": "A committee of 3 from 10 people: ordered picks give 10 × 9 × 8 = 720, but each committee appears 3! = 6 times, so there are 720 ÷ 6 = 120 committees. A lottery picking 6 numbers from 49 has C(49, 6) = 13,983,816 possible tickets.",
+    "joke": [
+      "Why is a fruit salad a combination?",
+      "Because nobody cares whether the banana went in first."
+    ],
+    "walk": "perm-comb"
+  },
+  "Multiplication principle": {
+    "explain": "The multiplication principle says that when you make choices in stages, you multiply the number of options at each stage to get the total number of ways. It works because every option at one stage can be paired with every option at the next. It is the engine behind permutations, combinations and most counting problems. A common slip is to add the options instead of multiplying them.",
+    "example": "Three pairs of trousers, 4 shirts and 2 pairs of shoes give 3 × 4 × 2 = 24 different outfits. A licence plate of 3 letters then 3 digits has 26 × 26 × 26 × 10 × 10 × 10 = 17,576,000 possibilities.",
+    "joke": [
+      "How did 3 trousers and 4 shirts turn into 12 outfits?",
+      "They used the multiplication principle and dressed for success."
+    ],
+    "walk": "counting"
+  },
+  "With replacement": {
+    "explain": "Choosing with replacement means each item goes back before the next pick, so the same item can be chosen again and every stage starts with the same set of options. Because nothing gets used up, the picks do not affect each other: they are independent. Without replacement, each pick removes an option, so the number of choices shrinks at every stage. Spot which one a problem describes before you start multiplying.",
+    "example": "A 4-digit PIN with repeats allowed has 10 × 10 × 10 × 10 = 10,000 possibilities. If no digit may repeat (without replacement), there are only 10 × 9 × 8 × 7 = 5,040.",
+    "joke": [
+      "Why did the marble keep going back into the bag?",
+      "It loved the bag's return policy."
+    ],
+    "walk": "counting"
+  },
+  "Union (A ∪ B)": {
+    "explain": "The union of two events, A ∪ B, means 'A or B (or both)': every outcome that is in at least one of them. In a Venn diagram it is everything inside either circle. Its probability comes from the addition rule: P(A or B) = P(A) + P(B) − P(A and B), where the last part removes the overlap so it is not counted twice. People often just add P(A) + P(B), which double counts anything that belongs to both.",
+    "example": "Draw one card. There are 13 hearts and 4 kings, and the king of hearts is both. P(heart or king) = 13/52 + 4/52 − 1/52 = 16/52 = 4/13.",
+    "joke": [
+      "Why did the hearts and the kings form a union?",
+      "So nobody, not even the king of hearts, got counted twice."
+    ],
+    "walk": "or-and"
+  },
+  "Intersection (A ∩ B)": {
+    "explain": "The intersection of two events, A ∩ B, means 'A and B': only the outcomes that are in both at once. In a Venn diagram it is the overlap where the two circles cross. It can never be bigger than either event on its own. Its probability comes from the multiplication rule, P(A and B) = P(A) × P(B | A), which becomes simply P(A) × P(B) when the events are independent.",
+    "example": "Draw one card: 'heart' and 'king' share just one card, the king of hearts, so P(heart and king) = 1/52. Flip a coin and roll a die: P(heads and a 6) = 1/2 × 1/6 = 1/12.",
+    "joke": [
+      "Why do Venn diagrams make good traffic engineers?",
+      "They always know exactly where the intersection is."
+    ],
+    "walk": "or-and"
+  },
+  "Mutually exclusive": {
+    "explain": "Two events are mutually exclusive when they cannot both happen at the same time, so their overlap is empty and P(A and B) = 0. Rolling a 3 and rolling a 5 on one die is an example. For these events the addition rule simplifies to P(A or B) = P(A) + P(B), with nothing to subtract. Do not confuse this with independent: if two possible events are mutually exclusive, knowing one happened tells you the other did not, so they are actually dependent.",
+    "example": "On one die, P(3 or 5) = 1/6 + 1/6 = 2/6 = 1/3, because a single roll can never show both. By contrast 'even' and 'greater than 3' share the outcomes 4 and 6, so they are not mutually exclusive.",
+    "joke": [
+      "Why did the 3 and the 5 never turn up on the same roll?",
+      "Their schedules were mutually exclusive."
+    ],
+    "walk": "or-and"
+  },
+  "Independent": {
+    "explain": "Two events are independent when knowing that one happened does not change the chance of the other: P(B | A) = P(B). Coins and dice have no memory, so separate flips and rolls are independent, and so are draws made with replacement. For independent events, AND is a plain multiplication: P(A and B) = P(A) × P(B). Looking unrelated is not enough, so always check whether the first result changes the second (drawing cards without replacement does).",
+    "example": "Flip a coin and roll a die: P(heads and a 6) = 1/2 × 1/6 = 1/12. In a class of 200 students, P(pass) = 130/200 = 0.65 but P(pass | studied) = 90/100 = 0.90, so studying and passing are not independent.",
+    "joke": [
+      "Why did the second coin flip ignore the first one's advice?",
+      "It wanted to be independent."
+    ],
+    "walk": "independence"
+  },
+  "Conditional probability P(B | A)": {
+    "explain": "P(B | A) is read 'the probability of B given A': the chance that B happens once you already know A has happened. The vertical bar means 'given that'. It is the second factor in the general AND rule, P(A and B) = P(A) × P(B | A). It is easy to misread as 'B and A', but it is different: it measures B inside the smaller world where A is already true.",
+    "example": "Draw two cards without replacement. Given the first is an ace, 3 aces remain among 51 cards, so P(second ace | first ace) = 3/51. Then P(two aces) = 4/52 × 3/51 = 12/2,652 = 1/221, about 0.45%.",
+    "joke": [
+      "Why did the probability start going to the gym?",
+      "It wanted to get into better condition."
+    ],
+    "walk": "conditional-probability"
+  },
+  "With / without replacement": {
+    "explain": "With replacement, you put each item back before the next draw, so the situation resets and the draws are independent. Without replacement, the item stays out, so each draw changes what is left and the draws are dependent. That changes the numbers: the second probability must be updated to match what remains. Using the 'with replacement' calculation when items are kept out is a classic mistake.",
+    "example": "A bag has 5 red and 3 blue marbles; draw two. With replacement, P(both red) = 5/8 × 5/8 = 25/64 ≈ 0.391. Without replacement, P(both red) = 5/8 × 4/7 = 20/56 = 5/14 ≈ 0.357, because only 4 reds remain among 7 marbles.",
+    "joke": [
+      "What did the bag say when the first marble never came back?",
+      "Things will never be the same without you."
+    ],
+    "walk": "independence"
+  },
+  "Conditional probability": {
+    "explain": "Conditional probability is the chance of something once you know that something else has already happened. 'Given that' shrinks the world: you set aside every case where the condition is false and measure the probability inside what is left. The formula is P(A | B) = P(A and B) ÷ P(B). It is not the chance that both happen (that is the joint probability), and P(A | B) is usually different from P(B | A).",
+    "example": "Of 200 students, 100 studied and 90 of those passed. Given that a student studied, P(pass | studied) = 90/100 = 0.90, compared with 130/200 = 0.65 for all students. The formula agrees: 0.45 ÷ 0.50 = 0.90.",
+    "joke": [
+      "Why do conditional probabilities make great gift wrappers?",
+      "They always start with what's given."
+    ],
+    "walk": "conditional-probability"
+  },
+  "Joint probability": {
+    "explain": "Joint probability is the chance that two things both happen together, written P(A and B). In a two-way table it is one inner cell divided by the grand total. It is different from a conditional probability, which divides by a smaller total (only the cases where the condition holds). A joint probability can never be bigger than either of the single probabilities, because both things must happen.",
+    "example": "Of 200 students, 90 both studied and passed, so P(studied and passed) = 90/200 = 0.45. Compare P(pass | studied) = 90/100 = 0.90, which divides by only the 100 who studied.",
+    "joke": [
+      "Why did studying and passing open a bank account together?",
+      "They wanted a joint account."
+    ],
+    "walk": "conditional-probability"
+  },
+  "Marginal probability": {
+    "explain": "A marginal probability is a plain, overall probability of one thing, ignoring everything else, such as P(pass). The name comes from two-way tables, where these totals are written in the margins (the edges) of the table. You find it by adding across a row or down a column and dividing by the grand total. It is the starting point before any 'given that' information arrives.",
+    "example": "In a table of 200 students, 90 who studied and 40 who did not study passed, so 130 passed in total. The marginal probability is P(pass) = 130/200 = 0.65, whatever their studying.",
+    "joke": [
+      "Where do marginal probabilities like to sit?",
+      "Right on the edge of the table."
+    ],
+    "walk": "conditional-probability"
+  },
+  "Probability tree": {
+    "explain": "A probability tree is a branching diagram for events that happen one after another. Each branch is labelled with its probability, and the branches leaving any point add up to 1. Multiply along a path to get the chance of that whole sequence, and add across paths that lead to the same result. Later branches are conditional probabilities, so they must reflect what happened earlier, such as a marble that was not put back.",
+    "example": "A bag has 4 red and 6 blue marbles; draw two without replacement. P(red then red) = 4/10 × 3/9 = 12/90 = 2/15. P(second is red) = 12/90 + 24/90 = 36/90 = 2/5, and all four paths add to 12/90 + 24/90 + 24/90 + 30/90 = 1.",
+    "joke": [
+      "Why did the probability tree pass every audit?",
+      "All of its branches added up."
+    ],
+    "walk": "probability-tree"
+  },
+  "Transposed conditional": {
+    "explain": "The transposed conditional is the mistake of treating P(A | B) as if it were P(B | A), flipping which event is the 'given'. 'Most people who studied passed' is a different statement from 'most people who passed studied'. The two numbers can be wildly different, especially when one group is much bigger than the other. It causes serious errors in medicine and law, and Bayes' theorem is the correct way to flip a conditional.",
+    "example": "In a table of 200 students, P(pass | studied) = 90/100 = 0.90, but P(studied | pass) = 90/130 ≈ 0.69. The same 90 students, divided by different totals, give different answers.",
+    "joke": [
+      "Why did the conditional probability visit the chiropractor?",
+      "Someone had transposed it and it was all back to front."
+    ],
+    "walk": "conditional-probability"
+  },
+  "Prior": {
+    "explain": "The prior is what you believe about the chance of something before you see the new evidence. In medical testing it is usually the base rate: how common the condition is in the group being tested. Bayes' theorem combines the prior with the evidence to give an updated belief, the posterior. It matters enormously, because the same positive test means very different things when the prior is 1% and when it is 30%.",
+    "example": "A disease affects 1% of people, so before any test the prior is P(sick) = 0.01, or 100 people in 10,000. With a test that is 99% sensitive and 95% specific, a positive result lifts this to 99 ÷ 594 ≈ 16.7%. With a 30% prior, the same positive result would mean 89.5%.",
+    "joke": [
+      "Why does the prior always arrive at the meeting first?",
+      "It has to show up before the evidence."
+    ],
+    "walk": "bayes"
+  },
+  "Likelihood": {
+    "explain": "The likelihood is how probable the evidence you saw would be if a particular hypothesis were true, written P(evidence | hypothesis). For a medical test, the likelihood of a positive result if you are sick is the test's sensitivity. It is not the probability that the hypothesis is true; that reversed quantity is the posterior. Bayes' theorem multiplies the likelihood by the prior as the first step towards the posterior.",
+    "example": "If you have the disease, a test is positive 99% of the time, so the likelihood of a positive result given sickness is 0.99. If you are healthy it is positive 5% of the time, a likelihood of 0.05. A positive result is 0.99 ÷ 0.05 = 19.8 times more likely from a sick person than from a healthy one.",
+    "joke": [
+      "Why did the hypothesis put on a hoodie before the test?",
+      "To raise its likeli-hood."
+    ],
+    "walk": "bayes"
+  },
+  "Posterior": {
+    "explain": "The posterior is your updated probability after taking the evidence into account, written P(hypothesis | evidence). Bayes' theorem produces it from the prior and the likelihoods: of all the ways to see this evidence, it is the share that goes through the hypothesis. It can be far lower than a test's accuracy when the prior is small. When more evidence arrives, today's posterior becomes tomorrow's prior.",
+    "example": "With a 1% prior, 99% sensitivity and 95% specificity, 10,000 people give 99 true positives and 495 false positives. The posterior is P(sick | positive) = 99 ÷ 594 ≈ 16.7%. A second, independent positive test raises it to about 79.8%.",
+    "joke": [
+      "Why is the posterior always at the back of the queue?",
+      "It only comes after the evidence."
+    ],
+    "walk": "bayes"
+  },
+  "Sensitivity": {
+    "explain": "Sensitivity is how good a test is at finding the people who really have the condition: P(positive | sick). A test with 99% sensitivity catches 99 of every 100 sick people and misses 1, who gets a false negative. High sensitivity makes a negative result reassuring. But it is not the chance that someone who tests positive is sick; that also depends on the prior and on the specificity.",
+    "example": "Of 100 sick people tested with a 99% sensitive test, 99 test positive and 1 is missed. In a town of 1,000 where 20 people are sick, a 90% sensitive test catches 18 of them and misses 2.",
+    "joke": [
+      "Why did the very sensitive test never miss a sick day?",
+      "It catches almost every one."
+    ],
+    "walk": "bayes"
+  },
+  "Specificity": {
+    "explain": "Specificity is how good a test is at clearing people who do not have the condition: P(negative | healthy). A test with 95% specificity correctly tells 95 of every 100 healthy people they are fine, and wrongly alarms the other 5 with false positives. When most of the people tested are healthy, even a small shortfall in specificity creates a lot of false alarms. Sensitivity and specificity are both called 'accuracy', but they measure different mistakes.",
+    "example": "Test 9,900 healthy people with a 95% specific test: 9,405 correctly test negative and 495 get a false positive. In a town of 1,000 with 980 healthy people, the same test clears 931 and falsely flags 49.",
+    "joke": [
+      "What did the healthy patient say to the test that flagged him?",
+      "Could you be a bit more specific?"
+    ],
+    "walk": "bayes"
+  },
+  "Base-rate neglect": {
+    "explain": "Base-rate neglect is ignoring how common something is to begin with (the prior) and judging only by how accurate the evidence seems. It leads people to think that a positive result from a '99% accurate' test means a 99% chance of disease. When the condition is rare, healthy people vastly outnumber sick ones, so false positives can outnumber true positives. Always ask: out of how many people, and how many of them had it to start with?",
+    "example": "With a 1% base rate, 99% sensitivity and 95% specificity, a positive test means only about a 16.7% chance of disease, yet most people guess 95% or 99%. With a 50% base rate, the very same test would give 95.2%.",
+    "joke": [
+      "Why did the baseball team lose every single game?",
+      "They kept neglecting their bases."
+    ],
+    "walk": "bayes"
+  },
+  "False positive": {
+    "explain": "A false positive is a result that says 'yes' when the true answer is 'no', such as a healthy person whose test comes back positive. Every real test makes some, and the false positive rate is 1 minus the specificity. When a condition is rare, false positives can easily outnumber true positives, which is why a positive screening result usually needs a follow-up test. The opposite mistake is a false negative: a sick person told they are fine.",
+    "example": "A 95% specific test gives a false positive to 5% of healthy people. In a town of 1,000 where 980 are healthy, that is 49 false alarms, compared with only 18 true positives among the 20 sick people.",
+    "joke": [
+      "Why was the healthy man's test result so cheerful?",
+      "It was being falsely positive."
+    ],
+    "walk": "bayes"
+  },
+  "Expected value E(X)": {
+    "explain": "Expected value is the long-run average result per try, if you could repeat something many, many times. You compute it by multiplying each possible outcome by its probability and adding them up: E(X) = Σ x × P(x). It does not have to be a possible result: one die has expected value 3.5, which you can never roll. In games and bets, a negative expected value means you lose money on average, even though any single play might win.",
+    "example": "Bet $1 on one number in American roulette (38 slots). You win $35 with probability 1/38 and lose $1 with probability 37/38. E = 35 × 1/38 + (−1) × 37/38 = −2/38 ≈ −$0.053, so you lose about 5.3 cents per dollar on average.",
+    "joke": [
+      "Why has a die never rolled a 3.5?",
+      "It refuses to live up to expectations."
+    ],
+    "walk": "expected-value"
+  },
+  "Linearity": {
+    "explain": "Linearity of expectation says that expected values simply add: E(X + Y) = E(X) + E(Y), always, even when X and Y are related. You can also scale and shift: E(aX + b) = a × E(X) + b. This saves a lot of work, because you never need the full table of combined outcomes. Doubling every prize doubles the expected value, and a $5 entry fee subtracts exactly $5 from it.",
+    "example": "One die averages 3.5, so the total of two dice averages 3.5 + 3.5 = 7, with no need to list all 36 pairs. A game that pays your die roll in dollars but costs $5 to play has E(net) = 3.5 − 5 = −$1.50 per play.",
+    "joke": [
+      "Why do expected values never argue over the bill?",
+      "They just add up, whatever their relationship."
+    ],
+    "walk": "expected-value"
+  },
+  "Law of Large Numbers": {
+    "explain": "The Law of Large Numbers says that as you repeat a random experiment more and more times, the average result (or the proportion of successes) gets closer and closer to the expected value. A fair coin may give 7 heads in 10 flips, but over 10,000 flips the proportion of heads will be very close to 0.5. It is about averages and proportions, not raw counts: the gap between heads and tails can actually grow while the proportion settles. It promises nothing about the next single trial.",
+    "example": "In one run of 10,000 simulated coin flips, the proportion of heads was 0.70 after 10 flips, 0.55 after 100, 0.517 after 1,000 and 0.504 after 10,000. Meanwhile heads minus tails grew from 4 to 86.",
+    "joke": [
+      "Why are large numbers always so calm?",
+      "They've had plenty of time to settle down."
+    ],
+    "walk": "law-of-large-numbers"
+  },
+  "Gambler's fallacy": {
+    "explain": "The gambler's fallacy is the belief that past results change the chances of an independent future event, as in 'it has been heads five times, so tails is due'. A fair coin has no memory, so the next flip is still exactly 1/2 heads. People confuse it with the Law of Large Numbers, but that law works by diluting early luck over many future trials, not by correcting the next one. A streak does not make any particular next result more likely.",
+    "example": "After five heads in a row, P(tails on the next flip) is still 1/2. The sequence HHHHHT has probability (1/2)⁶ = 1/64, exactly the same as HHHHHH.",
+    "joke": [
+      "Why do coins make terrible friends for gamblers?",
+      "They never remember what happened last time."
+    ],
+    "walk": "law-of-large-numbers"
+  },
+  "House edge": {
+    "explain": "The house edge is the casino's built-in average profit: the negative expected value of a bet from the player's side, usually given per dollar bet. It comes from paying out a little less than a fair game would. Any single bet can still win, but across thousands of bets the Law of Large Numbers makes the casino's profit very predictable. It is not bad luck: it is the maths of the game working exactly as designed.",
+    "example": "In American roulette a $1 bet on one number wins $35 with chance 1/38. A fair game would pay $37, so the casino keeps 2/38 ≈ 5.3 cents per dollar. Over 1,000 one-dollar bets, players lose about $53 on average.",
+    "joke": [
+      "Why is the casino never nervous about one big win?",
+      "In the long run, it always has the edge."
+    ],
+    "walk": "expected-value"
+  }
+}

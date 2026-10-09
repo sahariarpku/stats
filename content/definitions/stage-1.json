@@ -1,0 +1,164 @@
+{
+  "Average": {
+    "explain": "\"Average\" is the everyday word for a typical value: one number that stands in for a whole group. Most of the time people mean the mean (add everything up, divide by how many). But the median and the mode are averages too, and on the same data they can tell very different stories. When a headline quotes \"the average\", ask which one it is.",
+    "example": "Nine coffee shop staff earn 38, 42, 45, 47, 50, 52, 55, 58 and 60 thousand dollars. When the owner (200 thousand) joins the list, the mean salary jumps from 49.7k to 64.7k, while the median only moves from 50k to 51k. Both are \"the average\", but only the median still describes a typical worker.",
+    "joke": ["Why are averages so easy to negotiate with?", "They always meet you in the middle."],
+    "walk": "mean"
+  },
+  "Mean": {
+    "explain": "The mean is the 'fair share' value: add up all the values and divide by how many there are. Picture pouring every friend's coffee into one jug and sharing it out equally. It uses every value, which makes it precise for balanced data but easy to drag around: one extreme value pulls it towards itself. When people say 'average' they usually mean the mean.",
+    "example": "Five friends drink 3, 5, 6, 8 and 13 cups of coffee a week. Total = 35 cups, so the mean is 35 ÷ 5 = 7 cups each. If the last friend drank 38 instead, the mean would jump to 60 ÷ 5 = 12.",
+    "joke": ["Why is the mean so easy to talk into things?", "One extreme opinion and it shifts its whole position."],
+    "walk": "mean"
+  },
+  "Median": {
+    "explain": "The median is the middle value once the data are sorted from smallest to largest. Half the values sit at or below it and half at or above it. With an odd number of values it is the single middle one; with an even number, average the two middle values. Because it only cares about position, one extreme value barely moves it, which is why incomes and house prices are usually reported as medians. Always sort first.",
+    "example": "Seven midterm scores: 62, 78, 91, 55, 84, 70, 88. Sorted, they are 55, 62, 70, 78, 84, 88, 91, so the median is the 4th value, 78. For an even list like 3, 4, 5, 6 there is no single middle, so the median is (4 + 5) ÷ 2 = 4.5.",
+    "joke": ["Why does the median never get into trouble?", "It always sticks to the middle of the road."],
+    "walk": "median"
+  },
+  "Mode": {
+    "explain": "The mode is the value that appears most often: the most popular choice. It is the only kind of average that works for categories, such as the most common car colour, because you cannot add up colours. Data can have two or more modes, and if every value appears just once there is no useful mode. It completely ignores extreme values.",
+    "example": "A shop sells shoes in sizes 7, 8, 8, 9, 9, 9 and 10 in one day. Size 9 was sold three times, more than any other size, so the mode is 9. A single sale of a size 15 the next morning would not change it.",
+    "joke": ["What is a statistician's favourite dessert?", "Pie à la mode: whichever flavour most people ordered."],
+    "walk": "mode"
+  },
+  "Outlier": {
+    "explain": "An outlier is a value far away from the rest of the data. It might be a typo, or it might be real and important, like a founder's huge salary. Outliers drag the mean and the range a long way, while the median and the IQR barely move. The usual test (Tukey's rule) flags anything beyond Q1 − 1.5 × IQR or Q3 + 1.5 × IQR. Flagged means \"take a closer look\", not \"delete it\".",
+    "example": "Ten patients wait 8, 12, 15, 18, 22, 27, 31, 38, 45 and 90 minutes. Q1 = 15 and Q3 = 38, so IQR = 23 and the upper fence is 38 + 1.5 × 23 = 72.5. Only the 90-minute wait lies beyond it, so it is the one outlier.",
+    "joke": ["Why are outliers such creative thinkers?", "They live outside the box, way past the whiskers."],
+    "walk": "box-plot"
+  },
+  "Range": {
+    "explain": "The range is the simplest measure of spread: the largest value minus the smallest. It tells you how far the whole dataset stretches. Its weakness is that it uses only two numbers, so one wild value can stretch it enormously while every value in between is ignored. That is why the IQR is often a better choice.",
+    "example": "The high temperatures for five days were 18, 5, 27, 11 and 9 °C. The largest is 27 and the smallest is 5, so the range is 27 − 5 = 22 degrees. You do not even need to sort the list first.",
+    "joke": ["Why was the range so upset by one weird data point?", "It got stretched to its limits."],
+    "walk": "quartiles-iqr"
+  },
+  "Quartile": {
+    "explain": "Quartiles are the three cut points that split sorted data into four groups of equal size. A quarter of the values are at or below Q1, half are at or below Q2 (the median), and three quarters are at or below Q3. A handy recipe: find the median, then take the median of the lower half for Q1 and of the upper half for Q3. A quartile is a cut point, not one of the four groups, and different software can give slightly different answers.",
+    "example": "Twelve sorted exam scores: 45, 52, 55, 60, 63, 65, 70, 72, 75, 80, 85, 90. The median is (65 + 70) ÷ 2 = 67.5. The lower half gives Q1 = (55 + 60) ÷ 2 = 57.5, and the upper half gives Q3 = (75 + 80) ÷ 2 = 77.5.",
+    "joke": ["Why did the sorted data hire the quartiles?", "It needed someone to draw the line. Three times."],
+    "walk": "quartiles-iqr"
+  },
+  "IQR": {
+    "explain": "The interquartile range (IQR) is Q3 minus Q1: the width of the middle 50% of the data. Because it ignores the lowest quarter and the highest quarter, a single extreme value cannot wreck it. That makes it the spread measure to pair with the median, especially for skewed data or data with outliers. It is also the yardstick for the 1.5 × IQR outlier fences.",
+    "example": "Nine wait times in minutes: 8, 12, 15, 18, 22, 27, 31, 38, 45. Q1 = 13.5 and Q3 = 34.5, so the IQR is 34.5 − 13.5 = 21 minutes: the middle half of the patients waited within a 21-minute window.",
+    "joke": ["Why is the IQR so good at keeping secrets?", "It only lets the middle 50% in on them."],
+    "walk": "quartiles-iqr"
+  },
+  "Percentile": {
+    "explain": "A percentile tells you what share of the data lies below a value. The 90th percentile is the value with about 90% of the data below it. The percentile rank of a value is (number of values below it) ÷ n × 100. It is a position, not a mark: being at the 70th percentile means you beat about 70% of people, not that you scored 70%.",
+    "example": "Twelve sorted exam scores: 45, 52, 55, 60, 63, 65, 70, 72, 75, 80, 85, 90. Eight scores are below 75, so its percentile rank is 8 ÷ 12 × 100 = 66.7. A student with 75 beat about two thirds of the class.",
+    "joke": ["Why do percentiles make great tour guides?", "They always know how many people are behind you."],
+    "walk": "quartiles-iqr"
+  },
+  "Resistant": {
+    "explain": "A resistant statistic barely moves when a few extreme values appear. The median and the IQR are resistant because they depend on positions in the sorted list, not on how big the end values are. The mean and the range are not resistant: one wild value drags them a long way. When data have outliers or a long tail, prefer resistant summaries.",
+    "example": "Coffee shop salaries (in $1,000s): 38, 42, 45, 47, 50, 52, 55, 58, 60. When the owner's 200 joins, the mean jumps by 15 (from 49.7 to 64.7), but the median moves by just 1 (from 50 to 51). The median resists; the mean does not.",
+    "joke": ["Why couldn't the billionaire bribe the median?", "It's resistant to big money."],
+    "walk": "median"
+  },
+  "Deviation": {
+    "explain": "A deviation is how far one value sits from the mean: the value minus the mean. It is positive for values above the mean and negative for values below it. If you add up all the deviations you always get exactly zero, because the mean is the balance point. That is why the standard deviation squares them before averaging.",
+    "example": "Five quiz scores, 72, 85, 90, 68 and 95, have a mean of 82. Their deviations are −10, +3, +8, −14 and +13. Check: −10 + 3 + 8 − 14 + 13 = 0.",
+    "joke": ["Why did the deviations' group project score exactly zero?", "The positives and the negatives cancelled each other out."],
+    "walk": "standard-deviation"
+  },
+  "Variance": {
+    "explain": "Variance measures spread as the average squared deviation from the mean. Square each deviation (so negatives stop cancelling positives), add them up, then divide by n − 1 for a sample or by N for a whole population. Because of the squaring, its units are squared too (points², dollars²), which makes it hard to read directly. Take its square root to get the standard deviation, back in the original units.",
+    "example": "Quiz scores 72, 85, 90, 68 and 95 have mean 82 and deviations −10, 3, 8, −14 and 13. The squares are 100, 9, 64, 196 and 169, which add up to 538. As a sample, the variance is 538 ÷ 4 = 134.5 points².",
+    "joke": ["Why does variance always look so serious?", "It takes every little difference and squares up to it."],
+    "walk": "standard-deviation"
+  },
+  "Standard deviation": {
+    "explain": "The standard deviation (SD) is the typical distance between a value and the mean, in the same units as the data. To get it, square the deviations, average them (dividing by n − 1 for a sample), then take the square root. A small SD means the values huddle close to the mean; a large SD means they are spread out. It uses every value, so outliers inflate it, and for skewed data the IQR is often safer.",
+    "example": "Five quiz scores, 72, 85, 90, 68 and 95, have mean 82 and sample variance 134.5. The SD is √134.5 ≈ 11.6 points, so a typical student sits about 11.6 points from the class average: roughly between 70 and 94.",
+    "joke": ["What did the standard deviation say to the value that wandered miles from the mean?", "Sorry, that's just not up to standard."],
+    "walk": "standard-deviation"
+  },
+  "Bessel's correction": {
+    "explain": "Bessel's correction means dividing by n − 1 instead of n when you work out the variance or standard deviation of a sample. A sample's own mean sits closer to its values than the true population mean does, so dividing by n makes the spread look too small. Dividing by the slightly smaller n − 1 removes that bias. If you really have the whole population, divide by N instead.",
+    "example": "For quiz scores 72, 85, 90, 68 and 95 the squared deviations add up to 538. Dividing by n = 5 gives 107.6, while Bessel's correction divides by n − 1 = 4 and gives 134.5. In a simulation of many samples of 5 from a population with variance 100, dividing by n averages about 80, but dividing by n − 1 averages about 100.",
+    "joke": ["Why is Bessel's correction so modest?", "It always takes one less than it could."],
+    "walk": "standard-deviation"
+  },
+  "Degrees of freedom": {
+    "explain": "Degrees of freedom count how many values are free to vary once something has been fixed. The deviations from a sample's mean must add up to zero, so once you know all but one of them, the last one is forced. That leaves n − 1 free pieces of information, which is why a sample variance divides by n − 1. You will meet degrees of freedom again in t-tests and chi-square tests.",
+    "example": "Five deviations from the mean must add to 0. If four of them are −10, +3, +8 and −14, the last one has no choice: it must be +13. Only 4 of the 5 were free, so there are 5 − 1 = 4 degrees of freedom.",
+    "joke": ["Why is the last deviation so bad at choosing a restaurant?", "By the time it gets a say, it has zero degrees of freedom."],
+    "walk": "standard-deviation"
+  },
+  "Coefficient of variation": {
+    "explain": "The coefficient of variation (CV) is the standard deviation divided by the mean, written as a percentage. It measures spread relative to the size of the values, so you can compare variability across different units or scales, such as heights in centimetres and weights in kilograms. A small CV means a steady variable; a large CV means it swings a lot compared with its typical size. It works best for values that are always positive.",
+    "example": "Heights have mean 170 cm and SD 7 cm, so CV = 7 ÷ 170 = 4.1%. Weights have mean 70 kg and SD 10 kg, so CV = 10 ÷ 70 = 14.3%. Relative to their size, weights vary more than three times as much as heights.",
+    "joke": ["Why did the dataset send off its CV?", "To show how much spread it had for its size."],
+    "walk": "coefficient-of-variation"
+  },
+  "Histogram": {
+    "explain": "A histogram is a picture of one numerical variable. Cut the number line into equal ranges called bins, count how many values land in each bin, and draw a bar for each count. The bars touch because the numbers run along a continuous scale, which is the big difference from a bar chart of categories. It shows the shape at a glance: peaks, tails, gaps and outliers.",
+    "example": "Twenty exam scores tallied into bins of 10 (40 to 49, 50 to 59, and so on up to 90 to 99) give counts of 2, 4, 7, 5, 1 and 1. The counts add up to 20, the tallest bar is 60 to 69, and a thin tail trails off to the right towards the one score of 98.",
+    "joke": ["Why did the histogram break up with the bar chart?", "It wanted a relationship with no gaps."],
+    "walk": "histogram"
+  },
+  "Bin": {
+    "explain": "A bin is one range of values on a histogram's number line, such as 60 to 69, whose values are counted together. Bins usually all have the same width, and every value belongs to exactly one bin (a score of exactly 70 goes in 70 to 79, not 60 to 69). The bin width changes the picture: too wide hides the shape, too narrow makes it jagged and noisy. Try a few widths before trusting what you see.",
+    "example": "The same 20 exam scores give just 3 bars with bins 20 wide (6, 12 and 2), a clear single peak with bins 10 wide (2, 4, 7, 5, 1, 1), and a jagged picture of 12 thin bars with bins 5 wide. A rule of thumb (Sturges) suggests about 1 + log₂(20) ≈ 5 bins.",
+    "joke": ["What happens when you throw your data in the bin?", "You end up with a histogram."],
+    "walk": "histogram"
+  },
+  "Skewness": {
+    "explain": "Skewness measures how lopsided a distribution is. The sign gives the direction: positive means a longer tail on the right, negative means a longer tail on the left, and about 0 means roughly symmetric. The size gives the strength: between −0.5 and +0.5 is roughly symmetric, and beyond ±1 is strongly skewed. A tail pulls the mean towards it, so comparing the mean with the median is a quick way to spot skew.",
+    "example": "Ten friends read 1, 2, 2, 3, 3, 3, 4, 5, 9 and 20 books this year. The mean (5.2) sits above the median (3), and the skewness is +2.40: strongly right-skewed, thanks to the bookworm who read 20.",
+    "joke": ["What did the statistician say about the wonky picture frame?", "It's not crooked, it's just positively skewed."],
+    "walk": "skewness"
+  },
+  "Right-skewed": {
+    "explain": "Right-skewed (positively skewed) data have a long tail stretching out to the right, towards large values. Confusingly, most of the values sit on the left: the name follows the tail, not the crowd. The few large values pull the mean above the median. Incomes, house prices and waiting times are classic right-skewed variables, which is why they are usually summarised with the median.",
+    "example": "Books read this year by ten friends: 1, 2, 2, 3, 3, 3, 4, 5, 9 and 20. Most read 5 or fewer, but the tail reaches out to 20. The mean is 52 ÷ 10 = 5.2, well above the median of 3.",
+    "joke": ["Why did the right-skewed data get lost on the way home?", "It followed its tail instead of the crowd."],
+    "walk": "skewness"
+  },
+  "Bimodal": {
+    "explain": "A bimodal distribution has two distinct peaks: two humps with a valley between them. It often means two different groups have been mixed together, such as children and adults, or students who revised and students who did not. The mean can land in the valley where hardly any values are, so always look at the histogram before trusting a single summary. Check a couple of bin widths first, because a small dip can be just noise.",
+    "example": "A class of 20 scores tallied in bins of 10 gives counts of 2, 6, 2, 2, 6 and 2: one hump in the 50s and another in the 80s. The mean is 70, right in the valley, where only 4 of the 20 students actually scored.",
+    "joke": ["What is a statistician's favourite animal?", "The Bactrian camel: two humps, perfectly bimodal."],
+    "walk": "histogram"
+  },
+  "Kurtosis": {
+    "explain": "Kurtosis describes how heavy a distribution's tails are: how often values land far from the centre. A normal (bell-shaped) distribution has an excess kurtosis of 0. Positive excess kurtosis means heavier tails, so extreme values turn up more often than a bell curve would suggest; negative means lighter tails. Despite a common myth, it is about the tails, not about how pointed the peak looks.",
+    "example": "Ten daily price changes, −6, −1, −1, 0, 0, 0, 0, 1, 1 and 6, are mostly tiny with two big jumps: Excel's =KURT gives about +3.6, so the tails are heavy. Ten steadier changes, −2, −2, −1, −1, 0, 0, 1, 1, 2 and 2, have nothing far out and give about −1.3: light tails.",
+    "joke": ["Why would kurtosis make a brilliant dog groomer?", "It always pays close attention to the tails."],
+    "walk": "skewness"
+  },
+  "z-score": {
+    "explain": "A z-score tells you how many standard deviations a value sits above or below its mean: z = (value − mean) ÷ SD. Positive means above average, negative means below, and 0 means exactly average. Because it has no units, it lets you compare results from different scales fairly, such as two exams with different averages and spreads. For bell-shaped data, a z beyond ±2 is unusual and beyond ±3 is very unusual.",
+    "example": "Maya scored 85 in Statistics (mean 70, SD 10) and 78 in Biology (mean 65, SD 6). Her z-scores are (85 − 70) ÷ 10 = 1.5 and (78 − 65) ÷ 6 ≈ 2.17, so Biology was her stronger result compared with her classmates, even though the raw mark was lower.",
+    "joke": ["Why did the z-score get a job as a judge?", "It puts everyone on the same scale."],
+    "walk": "z-score"
+  },
+  "Standardising": {
+    "explain": "Standardising means converting every value in a dataset into its z-score: subtract the mean, then divide by the standard deviation. The result always has a mean of 0 and a standard deviation of 1. It changes the scale but never the shape of the data or the order of the values. People often call it normalising, but it does not make skewed data bell-shaped.",
+    "example": "Quiz scores 72, 85, 90, 68 and 95 have mean 82 and SD 11.6. Standardised, they become −0.86, +0.26, +0.69, −1.21 and +1.12. These z-scores have mean 0 and SD 1, and 95 is still the top score.",
+    "joke": ["Why did the dataset get standardised before its big date?", "It wanted to look average without changing who it really was."],
+    "walk": "z-score"
+  },
+  "Standard normal": {
+    "explain": "The standard normal is the normal (bell-shaped) distribution with mean 0 and standard deviation 1. Any bell-shaped data turn into it when you standardise them, so one table of areas (the z-table) works for everything. The area to the left of a z-score is the share of values below it. About 68% of values lie within ±1, about 95% within ±2 and about 99.7% within ±3.",
+    "example": "On the standard normal curve, 50% of the area lies below z = 0, 84.1% below z = 1 and 93.3% below z = 1.5. So if a class's scores are bell-shaped, a student with z = 1.5 beat about 93% of the class.",
+    "joke": ["Why is the standard normal curve so kind?", "There isn't a mean bone in its body: its mean is zero."],
+    "walk": "z-score"
+  },
+  "Percentile (from z)": {
+    "explain": "For roughly bell-shaped data you can turn a z-score into a percentile, the share of values below it, by reading the standard normal table. z = 0 is the 50th percentile, z = 1 is about the 84th and z = 2 is about the 98th. The catch is that this only works when the data really are bell-shaped. For skewed data the z-score itself is still fine, but the percentile from the table can be badly wrong, so check the histogram first.",
+    "example": "Adult heights have mean 170 cm and SD 8 cm. A person who is 158 cm tall has z = (158 − 170) ÷ 8 = −1.5. If heights are bell-shaped, the z-table gives 0.0668, so about 6.7% of people are shorter.",
+    "joke": ["Why won't a z-score give you a percentile for lopsided data?", "It only answers when it hears the bell."],
+    "walk": "z-score"
+  },
+  "Outlier rule |z| > 3": {
+    "explain": "This rule flags a value as a possible outlier when its z-score is above 3 or below −3, meaning it sits more than three standard deviations from the mean. In bell-shaped data only about 0.3% of values land that far out, so it deserves a closer look. But a flag is an invitation to investigate, not an order to delete: check whether it is a typo or a real, rare value. The rule works poorly in small or very skewed datasets, where the outlier itself inflates the SD.",
+    "example": "A factory's bolts average 10.0 mm with SD 0.5 mm. A bolt measuring 11.8 mm has z = (11.8 − 10.0) ÷ 0.5 = 3.6, beyond 3, so it is flagged. Before throwing the number away, check the measuring tool and the machine: either way, something unusual happened.",
+    "joke": ["What did the statistician say to the value with a z-score of 4?", "Relax, I'm not deleting you. I just want to talk."],
+    "walk": "z-score"
+  }
+}

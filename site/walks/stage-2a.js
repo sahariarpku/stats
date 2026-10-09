@@ -172,7 +172,7 @@ Walk.register("experimental-probability", {"title": "Experimental probability: f
       },
     },
     {
-      say: `After every flip, work out the share of heads so far. After 1 flip it is ${share(1)}, after 2 flips ${+share(2).toFixed(2)}, after 3 flips ${share(3).toFixed(2)}, and so on. With only a few flips the line jumps around, and after 10 it sits at **${exp(10)}**, well above the theoretical 0.5.`,
+      say: `After every flip, work out the share of heads so far. After the first flip (${first[0] ? "heads" : "tails"}) it is ${share(1)}, after 2 flips ${+share(2).toFixed(2)}, after 3 flips ${share(3).toFixed(2)}, and so on. With only a few flips the line jumps around, and after 10 it sits at **${exp(10)}**, well above the theoretical 0.5.`,
       run: async () => {
         fr = S.frame({ x1: 100, x2: 700, y1: 205, y2: 372, xmin: 0, xmax: 10, ymin: 0, ymax: 1, xstep: 1, ystep: 0.5, yfmt: String, xlabel: "flips so far", ylabel: "share of heads", hide: true });
         await A.fadeIn(fr.el);
@@ -391,7 +391,7 @@ Walk.register("perm-comb", {"title": "Permutations vs combinations: podium or co
           S.text(x, 395, lbl, { size: 20, weight: 800, color: "ink2", parent: g });
           return g;
         };
-        const pod = [block(290, 330, "soft", "grey", "2nd"), block(400, 300, "yellowSoft", "yellow", "1st"), block(510, 350, "orangeSoft", "orange", "3rd")];
+        const pod = [block(290, 315, "soft", "grey", "2nd"), block(400, 285, "yellowSoft", "yellow", "1st"), block(510, 340, "orangeSoft", "orange", "3rd")];
         await A.fadeIn(pod, { stagger: 150 });
         people.forEach((p) => S.root.appendChild(p));   // people stand in front of the podium
       },
@@ -399,7 +399,7 @@ Walk.register("perm-comb", {"title": "Permutations vs combinations: podium or co
     {
       say: `Gold can go to any of the **5**. Then **4** people are left for silver, then **3** for bronze: 5 × 4 × 3 = **${perm}** podiums. Cal, Ana, Eli is a different podium from Eli, Ana, Cal, because order matters. That makes it a **permutation**.`,
       run: async () => {
-        const steps = [{ who: 2, x: 400, y: 300, lbl: "5 choices", ly: 232 }, { who: 0, x: 290, y: 330, lbl: "4 left", ly: 262 }, { who: 4, x: 510, y: 350, lbl: "3 left", ly: 282 }];
+        const steps = [{ who: 2, x: 400, y: 285, lbl: "5 choices", ly: 218 }, { who: 0, x: 290, y: 315, lbl: "4 left", ly: 248 }, { who: 4, x: 510, y: 340, lbl: "3 left", ly: 273 }];
         for (const st of steps) {
           const t = S.text(st.x, st.ly, st.lbl, { size: 19, weight: 800, color: "blue", hide: true });
           await A.fadeIn(t, { dur: 300 });

@@ -111,10 +111,10 @@
           await A.fadeIn(coins, { stagger: 9, dur: 250 });
           const cap = S.text(218, 375, "**60 heads**  ·  40 tails", { size: 21, color: "ink2", hide: true });
           await A.fadeIn(cap);
-          const you = S.person(500, 330, { color: "orange", s: 1.3, label: "you", hide: true });
-          const fr = S.person(670, 330, { color: "blue", s: 1.3, label: "your friend", hide: true });
-          const b1 = S.bubble(500, 205, "It's rigged!", { w: 150, size: 20, hide: true });
-          const b2 = S.bubble(670, 195, "It's fair. Just luck!", { w: 170, size: 20, hide: true });
+          const you = S.person(495, 330, { color: "orange", s: 1.3, label: "you", hide: true });
+          const fr = S.person(685, 330, { color: "blue", s: 1.3, label: "your friend", hide: true });
+          const b1 = S.bubble(495, 200, "It's rigged!", { w: 180, size: 20, hide: true });
+          const b2 = S.bubble(685, 200, "It's fair. Just luck!", { w: 180, size: 20, hide: true });
           await A.fadeIn([you, b1]);
           await A.fadeIn([fr, b2]);
         },
@@ -169,23 +169,23 @@
         say: `Before flipping, we set the **significance level α = 0.05**: our “beyond reasonable doubt”. Our ${N(p60, 3)} is just above it, so we **fail to reject H₀**. Like a “not guilty” verdict, that does not prove the coin is fair.`,
         run: async () => {
           S.clear();
-          const m = K.line({ min: 0, max: 0.12, x1: 100, x2: 700, y: 170, ticks: [0, 0.02, 0.04, 0.06, 0.08, 0.1, 0.12], fmt: (v) => v.toFixed(2), hide: true });
-          const z1 = S.rect(m.x(0), 118, m.x(0.05) - m.x(0), 52, { fill: "orangeSoft", rx: 0, hide: true });
-          const z2 = S.rect(m.x(0.05), 118, m.x(0.12) - m.x(0.05), 52, { fill: "blueSoft", rx: 0, hide: true });
-          const t1 = S.text((m.x(0) + m.x(0.05)) / 2, 151, "reject H₀", { size: 19, weight: 750, color: "orange", hide: true });
-          const t2 = S.text((m.x(0.05) + m.x(0.12)) / 2 + 30, 151, "fail to reject H₀", { size: 19, weight: 750, color: "blue", hide: true });
-          const more = S.text(100, 228, "← more surprising", { size: 17, color: "ink3", anchor: "start", hide: true });
+          const m = K.line({ min: 0, max: 0.12, x1: 100, x2: 700, y: 195, ticks: [0, 0.02, 0.04, 0.06, 0.08, 0.1, 0.12], fmt: (v) => v.toFixed(2), hide: true });
+          const z1 = S.rect(m.x(0), 143, m.x(0.05) - m.x(0), 52, { fill: "orangeSoft", rx: 0, hide: true });
+          const z2 = S.rect(m.x(0.05), 143, m.x(0.12) - m.x(0.05), 52, { fill: "blueSoft", rx: 0, hide: true });
+          const t1 = S.text((m.x(0) + m.x(0.05)) / 2, 176, "reject H₀", { size: 19, weight: 750, color: "orange", hide: true });
+          const t2 = S.text((m.x(0.05) + m.x(0.12)) / 2 + 30, 176, "fail to reject H₀", { size: 19, weight: 750, color: "blue", hide: true });
+          const more = S.text(100, 253, "← more surprising", { size: 17, color: "ink3", anchor: "start", hide: true });
           await A.fadeIn([z1, z2, m.el, t1, t2, more]);
-          const al = S.line(m.x(0.05), 92, m.x(0.05), 170, { color: "ink", width: 3, hide: true });
-          const alT = S.text(m.x(0.05) - 8, 100, "α = 0.05", { size: 19, weight: 750, anchor: "end", hide: true });
+          const al = S.line(m.x(0.05), 117, m.x(0.05), 195, { color: "ink", width: 3, hide: true });
+          const alT = S.text(m.x(0.05) - 8, 125, "α = 0.05", { size: 19, weight: 750, anchor: "end", hide: true });
           await A.fadeIn([al, alT]);
-          const pl = S.line(m.x(p60), 92, m.x(p60), 170, { color: "orange", width: 3, hide: true });
-          const pd = S.circle(m.x(p60), 170, 8, { fill: "orange", hide: true });
-          const pT = S.text(m.x(p60) + 8, 100, `p = ${N(p60, 3)}`, { size: 19, weight: 750, color: "orange", anchor: "start", hide: true });
+          const pl = S.line(m.x(p60), 117, m.x(p60), 195, { color: "orange", width: 3, hide: true });
+          const pd = S.circle(m.x(p60), 195, 8, { fill: "orange", hide: true });
+          const pT = S.text(m.x(p60) + 8, 125, `p = ${N(p60, 3)}`, { size: 19, weight: 750, color: "orange", anchor: "start", hide: true });
           await A.fadeIn([pl, pd, pT]);
-          const g1 = S.pill(220, 298, "✓  “We fail to reject H₀”", { size: 21, color: "green", hide: true });
-          const g2 = S.pill(580, 298, "✗  “The coin is fair”", { size: 21, color: "red", hide: true });
-          const g3 = S.text(400, 375, "Not guilty is not the same as innocent.", { size: 20, color: "ink2", hide: true });
+          const g1 = S.pill(220, 318, "✓ “We fail to reject H₀”", { size: 21, color: "green", hide: true });
+          const g2 = S.pill(580, 318, "✗ “The coin is fair”", { size: 21, color: "red", hide: true });
+          const g3 = S.text(400, 392, "Not guilty is not the same as innocent.", { size: 20, color: "ink2", hide: true });
           await A.fadeIn([g1, g2], { stagger: 250 });
           await A.fadeIn(g3);
         },
@@ -206,12 +206,12 @@
         },
       },
       {
-        say: "**The logic of every test.** Assume H₀: nothing special. Measure how surprising the data would be. If the surprise beats α, reject H₀. If not, **fail to reject**, which never proves H₀ true.",
+        say: "**The logic of every test.** Assume H₀: nothing special. Measure how surprising the data would be (the p-value). If p ≤ α, reject H₀. If not, **fail to reject**, which never proves H₀ true.",
         run: async () => {
           S.clear();
-          const p1 = S.pill(400, 100, "H₀: nothing special (fair coin)   vs   H₁: something is going on", { size: 22, color: "blue", hide: true });
+          const p1 = S.pill(400, 100, "H₀: nothing special · H₁: something is going on", { size: 22, color: "blue", hide: true });
           const p2 = S.pill(400, 185, `60 heads → p = ${N(p60, 3)} > α = 0.05 → fail to reject H₀`, { size: 22, hide: true });
-          const p3 = S.pill(400, 270, "fail to reject H₀  ≠  H₀ is true", { size: 28, color: "ink", hide: true });
+          const p3 = S.pill(400, 270, "fail to reject H₀ ≠ H₀ is true", { size: 28, color: "ink", hide: true });
           const tip = S.text(400, 360, "Six steps: hypotheses · α · test statistic · p-value · decision · plain-words conclusion", { size: 18, color: "ink3", hide: true });
           await A.fadeIn([p1, p2, p3, tip], { stagger: 300 });
         },
@@ -261,7 +261,7 @@
           curve = S.curve(ax, f, { yScale: YS, base: BASE, color: "blue", width: 3.5, hide: true });
           await A.fadeIn(ax.el);
           await A.draw(curve);
-          h0lab = S.text(150, 200, "if H₀ is true\n(real mean 500)", { size: 18, weight: 700, color: "blue", hide: true });
+          h0lab = S.text(400, 207, "if H₀ is true\n(real mean 500)", { size: 18, weight: 700, color: "blue", hide: true });
           brace = S.brace(ax.x(0), ax.x(1), 290, { up: true, label: `1 SE = ${N(se, 1)} mL`, color: "blue", size: 18, hide: true });
           await A.fadeIn([h0lab, brace], { stagger: 200 });
         },
@@ -290,13 +290,14 @@
       {
         say: `We chose **α = 0.05** in advance. The **critical values** ±1.96 cut off 2.5% in each tail, and beyond them lies the **rejection region**. z = ${N(z, 2)} lands inside it, and p = ${N(p, 4)} ≤ 0.05: the result is **statistically significant**, so we reject H₀.`,
         run: async () => {
-          await A.fadeOut(h0lab, { dur: 250 });
+          const alpha = [S.area(ax, f, zc, 3.6, { color: "purpleSoft", yScale: YS, base: BASE, hide: true }), S.area(ax, f, -3.6, -zc, { color: "purpleSoft", yScale: YS, base: BASE, hide: true })];
+          alpha.forEach((a) => S.root.insertBefore(a, curve));
           const crit = [zc, -zc].map((c) => S.line(ax.x(c), 175, ax.x(c), BASE, { color: "purple", width: 2.5, dash: "6 5", hide: true }));
           const critLab = [S.text(ax.x(zc), 166, "1.96", { size: 18, weight: 750, color: "purple", hide: true }), S.text(ax.x(-zc), 166, "−1.96", { size: 18, weight: 750, color: "purple", hide: true })];
           const reg = [S.line(ax.x(zc), BASE, ax.x(3.6), BASE, { color: "purple", width: 7, hide: true }), S.line(ax.x(-3.6), BASE, ax.x(-zc), BASE, { color: "purple", width: 7, hide: true })];
           const regLab = [S.text((ax.x(zc) + ax.x(3.6)) / 2, 376, "rejection region", { size: 17, weight: 750, color: "purple", hide: true }), S.text((ax.x(-zc) + ax.x(-3.6)) / 2, 376, "rejection region", { size: 17, weight: 750, color: "purple", hide: true })];
-          const aLab = S.text(40, 98, "α = 0.05: 2.5% in each tail", { size: 18, weight: 700, color: "purple", anchor: "start", hide: true });
-          await A.fadeIn([...crit, ...critLab, aLab]);
+          const aLab = [S.text(ax.x(2.95), 268, "2.5%", { size: 18, weight: 750, color: "purple", hide: true }), S.text(ax.x(-2.95), 268, "2.5%", { size: 18, weight: 750, color: "purple", hide: true })];
+          await A.fadeIn([...alpha, ...crit, ...critLab, ...aLab]);
           await A.fadeIn([...reg, ...regLab]);
           pill = await K.repill(pill, 400, 50, `p = ${N(p, 4)} ≤ α = 0.05 → reject H₀`, { size: 21, color: "green" });
         },
@@ -325,9 +326,9 @@
         say: `**The rule.** The p-value measures surprise under H₀; α is how much surprise you demand, fixed in advance. If p ≤ α, reject H₀. Here p = ${N(p, 4)} ≤ 0.05, so the mean fill is significantly above 500 mL.`,
         run: async () => {
           S.clear();
-          const p1 = S.pill(400, 100, "p-value = P(a result at least this extreme | H₀ true)", { size: 24, color: "blue", hide: true });
+          const p1 = S.pill(400, 100, "p = P(a result this extreme or more, if H₀ is true)", { size: 21, color: "blue", hide: true });
           const p2 = S.pill(400, 185, `z = ${N(z, 2)} → p = ${N(p, 4)} ≤ α = 0.05 → reject H₀`, { size: 23, hide: true });
-          const p3 = S.pill(400, 270, "p ≤ α: reject H₀   ·   p > α: fail to reject", { size: 24, color: "ink", hide: true });
+          const p3 = S.pill(400, 270, "p ≤ α: reject H₀ · p > α: fail to reject", { size: 24, color: "ink", hide: true });
           const tip = S.text(400, 360, "Same verdict with critical values: |z| = 2.40 is beyond 1.96", { size: 18, color: "ink3", hide: true });
           await A.fadeIn([p1, p2, p3, tip], { stagger: 300 });
         },
@@ -443,9 +444,9 @@
           S.clear();
           const p1 = S.pill(400, 90, "Type I error: reject a true H₀ (false alarm), chance α", { size: 22, color: "orange", hide: true });
           const p2 = S.pill(400, 165, "Type II error: miss a real effect, chance β", { size: 22, color: "purple", hide: true });
-          const p3 = S.pill(400, 245, "power = 1 − β = P(reject H₀ | real effect)", { size: 26, color: "green", hide: true });
-          const p4 = S.pill(400, 325, `6-point effect: n = 16 → ${N(s16.pow, 2)} · n = 36 → ${N(s36.pow, 2)} · n = 64 → ${N(s64.pow, 2)}`, { size: 20, hide: true });
-          const tip = S.text(400, 395, "Power rises with sample size, effect size, α, and with less noise", { size: 18, color: "ink3", hide: true });
+          const p3 = S.pill(400, 245, "power = 1 − β = chance of catching a real effect", { size: 24, color: "green", hide: true });
+          const p4 = S.pill(400, 325, `power: n = 16 → ${N(s16.pow, 3)} · n = 36 → ${N(s36.pow, 3)} · n = 64 → ${N(s64.pow, 3)}`, { size: 19, hide: true });
+          const tip = S.text(400, 395, "Power rises with sample size, effect size and α, and with less noise", { size: 18, color: "ink3", hide: true });
           await A.fadeIn([p1, p2, p3, p4, tip], { stagger: 280 });
         },
       },
@@ -551,7 +552,7 @@
         },
       },
       {
-        say: `Same moves for a **proportion**. A firm claims 95% of customers are satisfied; 184 of 200 are (92%). First check the **success-failure condition**: 190 and 10, both at least 10. The SE uses the claimed p₀ = 0.95, so z = **${N(zP, 2)}**. The left tail gives p = **${N(pP, 3)}**: reject H₀.`,
+        say: `Same moves for a **proportion**. A firm claims 95% of customers are satisfied; 184 of 200 are (92%). First check the **success-failure condition**: 190 and 10, both at least 10. The SE uses the claimed p₀ = 0.95, so z = **${N(zP, 2)}**. The left tail gives a p-value of **${N(pP, 3)}**: reject H₀.`,
         run: async () => {
           S.clear();
           setStrip(5);
@@ -559,9 +560,9 @@
           await A.fadeIn(top);
           const rows = [
             ["check", "200 × 0.95 = 190 ≥ 10,  200 × 0.05 = 10 ≥ 10 ✓", "ink2"],
-            ["1", "H₀: p = 0.95     H₁: p < 0.95", "ink"],
+            ["1", "H₀: p = 0.95 · H₁: p < 0.95", "ink"],
             ["2", `z = (0.92 − 0.95) ÷ ${N(seP, 4)} = ${N(zP, 2)}`, "ink"],
-            ["3", `left tail: p = ${N(pP, 3)}`, "orange"],
+            ["3", `p-value = ${N(pP, 3)} (left tail)`, "orange"],
             ["4", `${N(pP, 3)} ≤ 0.05 → reject H₀`, "green"],
           ];
           const mini = K.line({ min: -3.5, max: 3.5, x1: 545, x2: 765, y: 330, ticks: [-2, 0, 2], hide: true });
@@ -583,9 +584,9 @@
         say: `**The z-test recipe:** z = (estimate − hypothesised value) ÷ SE, with the SE worked out as if H₀ were true. Comparing two groups' proportions? H₀ says they are equal, so pool them: 42 and 56 buyers out of 1,000 each give a **pooled proportion** of 98 ÷ 2,000 = ${N(pool, 3)}.`,
         run: async () => {
           S.clear();
-          const p1 = S.pill(400, 100, "z = (estimate − hypothesised value) ÷ SE under H₀", { size: 24, color: "blue", hide: true });
-          const p2 = S.pill(400, 185, `bolts: (10.14 − 10) ÷ ${N(se, 4)} = ${N(z, 2)} → p = ${N(p, 3)} → reject`, { size: 22, hide: true });
-          const p3 = S.pill(400, 265, `two groups: pooled proportion = (42 + 56) ÷ 2000 = ${N(pool, 3)}`, { size: 22, color: "purple", hide: true });
+          const p1 = S.pill(400, 100, "z = (estimate − hypothesised value) ÷ SE under H₀", { size: 22, color: "blue", hide: true });
+          const p2 = S.pill(400, 185, `bolts: 0.14 ÷ ${N(se, 4)} = ${N(z, 2)} → p = ${N(p, 3)} → reject`, { size: 21, hide: true });
+          const p3 = S.pill(400, 265, `pooled proportion = (42 + 56) ÷ 2000 = ${N(pool, 3)}`, { size: 21, color: "purple", hide: true });
           const tip = S.text(400, 350, "Use z for proportions, or for a mean when σ is truly known", { size: 18, color: "ink3", hide: true });
           await A.fadeIn([p1, p2, p3, tip], { stagger: 300 });
         },
@@ -605,7 +606,7 @@
     function dataPicture(hide) {
       ax = K.line({ min: 2.6, max: 4.8, x1: 80, x2: 720, y: 340, ticks: Array.from({ length: 12 }, (_, i) => 2.6 + i * 0.2), fmt: (v) => v.toFixed(1), label: "nitrate (mg/L)", hide });
       dots = xs.map((v) => S.circle(ax.x(v), 318, 12, { fill: "blue", hide }));
-      gm = S.marker(ax.x(mu0), 150, 340, "guideline 3.2", { color: "ink", dash: "7 5", hide });
+      gm = S.marker(ax.x(mu0), 172, 340, "guideline 3.2", { color: "ink", dash: "7 5", hide });
     }
     return [
       {
@@ -620,26 +621,26 @@
       {
         say: `**Signal:** the sample mean is x̄ = **${N(m, 3)}**, which is ${N(m - mu0, 3)} above the guideline. But nine samples are only a glimpse. Would a different nine land just as far away?`,
         run: async () => {
-          xm = S.marker(ax.x(m), 150, 340, `x̄ = ${N(m, 3)}`, { color: "orange", hide: true });
+          xm = S.marker(ax.x(m), 172, 340, `x̄ = ${N(m, 3)}`, { color: "orange", hide: true });
           await A.fadeIn(xm);
-          const br = S.brace(ax.x(mu0), ax.x(m), 262, { up: true, label: `signal: ${N(m - mu0, 3)}`, color: "orange", size: 18, hide: true });
+          const br = S.brace(ax.x(mu0), ax.x(m), 284, { up: true, label: `signal: ${N(m - mu0, 3)}`, color: "orange", size: 18, hide: true });
           await A.fadeIn(br);
         },
       },
       {
         say: `**Noise:** the values spread with s = ${N(s, 3)}, so the mean wobbles by about **SE = s ÷ √n = ${N(s, 3)} ÷ 3 = ${N(se, 3)}**. The signal is ${N(t, 2)} of these blocks: **t = ${N(m - mu0, 3)} ÷ ${N(se, 3)} = ${N(t, 2)}**. That is the **t statistic**.`,
         run: async () => {
-          pill = S.pill(400, 50, `SE = ${N(s, 3)} ÷ √9 = ${N(se, 3)}`, { size: 21, color: "purple", hide: true });
+          pill = S.pill(400, 44, `SE = ${N(s, 3)} ÷ √9 = ${N(se, 3)}`, { size: 21, color: "purple", hide: true });
           await A.fadeIn(pill);
           const w = ax.x(mu0 + se) - ax.x(mu0);
           const full = Math.floor(t);
           for (let k = 0; k <= full; k++) {
             const frac = Math.min(1, t - k);
-            const r = S.rect(ax.x(mu0) + k * w + 1, 178, 0, 34, { fill: "purple", rx: 5, opacity: frac < 1 ? 0.45 : 1 });
+            const r = S.rect(ax.x(mu0) + k * w + 1, 204, 0, 34, { fill: "purple", rx: 5, opacity: frac < 1 ? 0.45 : 1 });
             await A.to(r, { width: frac * w - 2 }, { dur: 420 });
-            if (frac === 1) { const tt = S.text(ax.x(mu0) + (k + 0.5) * w, 201, `${k + 1}`, { size: 18, weight: 800, color: "#fff", hide: true }); A.fadeIn(tt, { dur: 200 }); }
+            if (frac === 1) { const tt = S.text(ax.x(mu0) + (k + 0.5) * w, 227, `${k + 1}`, { size: 18, weight: 800, color: "#fff", hide: true }); A.fadeIn(tt, { dur: 200 }); }
           }
-          const p2 = S.pill(400, 102, `t = ${N(m - mu0, 3)} ÷ ${N(se, 3)} = ${N(t, 2)}`, { size: 21, color: "orange", hide: true });
+          const p2 = S.pill(400, 98, `t = ${N(m - mu0, 3)} ÷ ${N(se, 3)} = ${N(t, 2)}`, { size: 21, color: "orange", hide: true });
           await A.fadeIn(p2);
         },
       },
@@ -677,9 +678,7 @@
           S.line(ax.x(lo), 230, ax.x(lo), 260, { color: "green", width: 4, parent: ci });
           S.line(ax.x(hi), 230, ax.x(hi), 260, { color: "green", width: 4, parent: ci });
           S.circle(ax.x(m), 245, 9, { fill: "orange", parent: ci });
-          S.text(ax.x(lo), 285, N(lo, 2), { size: 18, weight: 750, color: "green", parent: ci });
-          S.text(ax.x(hi), 285, N(hi, 2), { size: 18, weight: 750, color: "green", parent: ci });
-          S.text(ax.x(m), 215, "95% confidence interval", { size: 19, weight: 750, color: "green", parent: ci });
+          S.text(ax.x(3.88), 222, `95% CI: ${N(lo, 2)} to ${N(hi, 2)}`, { size: 19, weight: 750, color: "green", parent: ci });
           await A.fadeIn(ci);
           pill = S.pill(400, 70, `3.2 is outside the CI  ↔  p = ${N(p, 3)} < 0.05: reject`, { size: 21, color: "orange", hide: true });
           await A.fadeIn(pill);
@@ -697,7 +696,7 @@
         say: `**The one-sample t-test:** t = (x̄ − μ₀) ÷ (s ÷ √n), read against the t curve with **df = n − 1**. River: t = ${N(t, 2)}, df = ${df}, p = ${N(p, 3)}. Use it to compare one mean with a stated value when σ is unknown.`,
         run: async () => {
           S.clear();
-          const p1 = S.pill(400, 100, "t = (x̄ − μ₀) ÷ (s ÷ √n)      df = n − 1", { size: 28, color: "blue", hide: true });
+          const p1 = S.pill(400, 100, "t = (x̄ − μ₀) ÷ (s ÷ √n) · df = n − 1", { size: 28, color: "blue", hide: true });
           const p2 = S.pill(400, 190, `(${N(m, 3)} − 3.2) ÷ ${N(se, 3)} = ${N(t, 2)} · df = ${df} · p = ${N(p, 3)}`, { size: 22, hide: true });
           const p3 = S.pill(400, 270, `95% CI ${N(lo, 2)} to ${N(hi, 2)} leaves out 3.2 → reject`, { size: 22, color: "green", hide: true });
           const tip = S.text(400, 355, "t = signal ÷ noise · the t curve has fatter tails than z for small samples", { size: 18, color: "ink3", hide: true });
@@ -766,8 +765,8 @@
         say: `Combine the two wobbles: SE of the difference = √(${N(v1, 2)} + ${N(v2, 2)}) = **${N(se, 2)}**, so t = −5 ÷ ${N(se, 2)} = **${N(t, 2)}**. Keeping each group's own variance like this is **Welch's test**. Its **Welch df** is ${N(df, 1)}, and the two tails give p = **${N(p, 3)}**.`,
         run: async () => {
           S.clear();
-          const p1 = S.pill(400, 45, `SE = √(8²/30 + 7²/30) = √(${N(v1, 2)} + ${N(v2, 2)}) = ${N(se, 2)}`, { size: 21, color: "purple", hide: true });
-          const p2 = S.pill(400, 95, `t = (74 − 79) ÷ ${N(se, 2)} = ${N(t, 2)} · Welch df = ${N(df, 1)}`, { size: 21, color: "orange", hide: true });
+          const p1 = S.pill(400, 45, `SE = √(8²/30 + 7²/30) = ${N(se, 2)}`, { size: 21, color: "purple", hide: true });
+          const p2 = S.pill(400, 97, `t = −5 ÷ ${N(se, 2)} = ${N(t, 2)} · Welch df = ${N(df, 1)} · p = ${N(p, 3)}`, { size: 21, color: "orange", hide: true });
           await A.fadeIn(p1);
           await A.fadeIn(p2);
           const tx = K.line({ min: -4, max: 4, x1: 60, x2: 740, y: 340, ticks: [-4, -3, -2, -1, 0, 1, 2, 3, 4], label: "t if H₀ is true (the means are equal)", labelY: 396, hide: true });
@@ -779,8 +778,8 @@
           const mk = S.marker(tx.x(t), 158, 340, `t = ${N(t, 2)}`, { color: "orange", hide: true });
           const mk2 = S.marker(tx.x(-t), 158, 340, N(-t, 2), { color: "orange", dash: "6 5", hide: true });
           await A.fadeIn([...tails, mk, mk2]);
-          const pl = S.pill(tx.x(0), 230, `p = ${N(p, 3)}`, { size: 22, color: "orange", hide: true });
-          await A.fadeIn(pl);
+          const tl = [S.text(tx.x(-3.35), 318, N(p / 2, 4), { size: 18, weight: 750, color: "orange", hide: true }), S.text(tx.x(3.35), 318, N(p / 2, 4), { size: 18, weight: 750, color: "orange", hide: true })];
+          await A.fadeIn(tl);
         },
       },
       {
@@ -804,7 +803,7 @@
         },
       },
       {
-        say: `Why Welch by default? A small noisy group (10 people, SD 12) meets a big tight one (40 people, SD 4). The **pooled variance** blends them into one SD of ${N(Math.sqrt(sp2), 1)}, trusting the noisy group too much: p = ${N(pPool, 3)}. Welch keeps them apart: p = ${N(pW, 2)}. When the true means are equal, pooled raises false alarms 26% of the time.`,
+        say: `Why Welch? A small noisy group (10 people, SD 12) meets a big tight one (40 people, SD 4). The **pooled variance** blends them into one SD of ${N(Math.sqrt(sp2), 1)} and trusts the noisy group too much: p = ${N(pPool, 3)}. Welch keeps them apart: p = ${N(pW, 2)}. With no real difference, pooled cries wolf 26% of the time.`,
         run: async () => {
           S.clear();
           const gx = K.line({ min: 20, max: 85, x1: 200, x2: 760, y: 232, ticks: [20, 30, 40, 50, 60, 70, 80], hide: true });
@@ -844,13 +843,13 @@
     const mb = mean(before), sb = sd(before), ma = mean(after), sa = sd(after);
     const seW = Math.sqrt((sb * sb) / n + (sa * sa) / n), tW = (mb - ma) / seW, dfW = welchDf(sb * sb, n, sa * sa, n), pW = 2 * (1 - tCdf(tW, dfW));
     const YB = 82, YA = 162;
-    let ax, bd, ad, links, top, dx, dd, stats;
+    let ax, bd, ad, links, top, lab, dx, dd, stats;
     return [
       {
         say: "A clinic measures **8 patients' blood pressure**, before and after a drug. Each patient gives two linked numbers, so this is **paired data**. Each grey line joins one patient's before (orange) to their own after (blue).",
         run: async () => {
           ax = K.line({ min: 120, max: 165, x1: 170, x2: 750, y: 212, ticks: [120, 125, 130, 135, 140, 145, 150, 155, 160, 165], hide: true });
-          const lab = [S.text(28, YB + 7, "before", { size: 21, weight: 800, color: "orange", anchor: "start", hide: true }), S.text(28, YA + 7, "after", { size: 21, weight: 800, color: "blue", anchor: "start", hide: true }), S.text(750, 266, "blood pressure (mmHg)", { size: 17, color: "ink3", weight: 600, anchor: "end", hide: true })];
+          lab = [S.text(28, YB + 7, "before", { size: 21, weight: 800, color: "orange", anchor: "start", hide: true }), S.text(28, YA + 7, "after", { size: 21, weight: 800, color: "blue", anchor: "start", hide: true }), S.text(750, 266, "blood pressure (mmHg)", { size: 17, color: "ink3", weight: 600, anchor: "end", hide: true })];
           links = before.map((b, i) => S.line(ax.x(b), YB, ax.x(after[i]), YA, { color: "ink3", width: 2, hide: true }));
           bd = before.map((v) => S.circle(ax.x(v), YB, 9, { fill: "orange", hide: true }));
           ad = after.map((v) => S.circle(ax.x(v), YA, 9, { fill: "blue", hide: true }));
@@ -898,7 +897,7 @@
       {
         say: `One column of ${n} differences: mean drop **d̄ = ${N(dbar, 3)}**, and their spread is tiny, **s_d = ${N(sdd, 2)}** (about 10 for either column). A one-sample t-test on them: t = ${N(dbar, 3)} ÷ (${N(sdd, 2)} ÷ √8) = **${N(t, 2)}**, df = ${df}, p = **${N(p, 4)}**.`,
         run: async () => {
-          await A.fadeOut([...bd, ...ad, ...links, ax.el], { dur: 400 });
+          await A.fadeOut([...bd, ...ad, ...links, ax.el, ...lab], { dur: 400 });
           const band = S.rect(dx.x(dbar - sdd), 335, dx.x(dbar + sdd) - dx.x(dbar - sdd), 56, { fill: "greenSoft", rx: 8, hide: true });
           S.root.insertBefore(band, S.root.firstChild);
           const zero = S.marker(dx.x(0), 300, 390, "0 = no change", { color: "ink", dash: "7 5", size: 18, hide: true });
@@ -935,10 +934,10 @@
         },
       },
       {
-        say: `**The paired t-test** is a one-sample t-test on the differences: t = d̄ ÷ (s_d ÷ √n), df = n − 1, where n counts **pairs**. Here t(${df}) = ${N(t, 2)}, p = ${N(p, 4)}, and the 95% CI for the mean drop is **${N(lo, 1)} to ${N(hi, 1)} mmHg**.`,
+        say: `**The paired t-test** is a one-sample t-test on the differences: t = d̄ ÷ (s_d ÷ √n), df = n − 1, where n counts **pairs**. Here t(${df}) = ${N(t, 2)}, p = ${N(p, 4)}, and the 95% CI for the mean drop is **${N(lo, 2)} to ${N(hi, 2)} mmHg**.`,
         run: async () => {
           S.clear();
-          const p1 = S.pill(400, 100, "t = d̄ ÷ (s_d ÷ √n)      df = n − 1  (n = pairs)", { size: 26, color: "blue", hide: true });
+          const p1 = S.pill(400, 100, "t = d̄ ÷ (s_d ÷ √n) · df = n − 1 (n = pairs)", { size: 26, color: "blue", hide: true });
           const p2 = S.pill(400, 185, `${N(dbar, 3)} ÷ (${N(sdd, 3)} ÷ √8) = ${N(t, 2)} · df = ${df} · p = ${N(p, 4)}`, { size: 22, hide: true });
           const p3 = S.pill(400, 265, `95% CI for the mean drop: ${N(lo, 2)} to ${N(hi, 2)} mmHg`, { size: 22, color: "green", hide: true });
           const tip = S.text(400, 350, "Paired? Ask: can each value be linked to exactly one in the other group?", { size: 18, color: "ink3", hide: true });
@@ -957,7 +956,7 @@
     const dB = 0.2 / 15, tB = 0.2 / (15 * Math.sqrt(2 / 50000)), pB = 2 * (1 - tCdf(tB, 99998));
     const ovl = (d) => 2 * Phi(-Math.abs(d) / 2), win = (d) => Phi(d / Math.SQRT2);
     const pct = (v) => `${(v * 100).toFixed(v > 0.99 ? 1 : 0)}%`;
-    const YS = 480, BASE = 330, LO = -3.5, HI = 4.5;
+    const YS = 440, BASE = 330, LO = -3.5, HI = 4.5;
     let ax, c0, c1, ov, l0, l1, ovT, pill, pill2, brace;
     function draw(d) {
       const f0 = (v) => S.normPdf(v), f1 = (v) => S.normPdf(v, d, 1);
@@ -994,7 +993,7 @@
           await A.fadeIn(ax.el);
           await A.all([A.draw(c0), A.fadeIn(l0)]);
           await A.all([A.draw(c1), A.fadeIn(l1)]);
-          brace = S.brace(ax.x(0), ax.x(dA), 126, { up: true, label: `8 points = ${N(dA, 2)} SD`, color: "orange", size: 18, hide: true });
+          brace = S.brace(ax.x(0), ax.x(dA), 142, { up: true, label: `8 points = ${N(dA, 2)} SD`, color: "orange", size: 18, hide: true });
           pill = S.pill(400, 48, `d = 8 ÷ ${N(sp, 2)} = ${N(dA, 2)}`, { size: 22, color: "orange", hide: true });
           await A.fadeIn([brace, pill]);
         },
@@ -1133,7 +1132,7 @@
         },
       },
       {
-        say: "Question 4 needs a **normality check**: plot the data first. Here are 12 incomes from one city: bunched up, with one huge value. A t-test would struggle, so use a **nonparametric** test such as Mann–Whitney U. It works with **ranks**, so 180 simply becomes 12th.",
+        say: "Question 4 needs a **normality check**: plot the data first. Here are 12 incomes from one of two cities: bunched up, with one huge value. A t-test would struggle, so compare the cities with a **nonparametric** test, Mann–Whitney U. It works with **ranks**, so 180 simply becomes 12th.",
         run: async () => {
           S.clear();
           const vx = K.line({ min: 0, max: 200, x1: 80, x2: 720, y: 190, ticks: [0, 40, 80, 120, 160, 200], label: "income (thousands)", labelY: 240, hide: true });
@@ -1184,9 +1183,9 @@
           const al = [S.line(170, 340 - 0.05 * 550, 630, 340 - 0.05 * 550, { color: "ink", width: 2, dash: "6 5", hide: true }), S.text(160, 340 - 0.05 * 550 + 6, "α = 5%", { size: 18, weight: 750, anchor: "end", hide: true })];
           await A.fadeIn([base, ...al]);
           await A.grow(bars, { stagger: 250 });
-          const labs = ks.flatMap((k, i) => [S.text(xs[i], 340 - pFalse(k) * 550 - 12, `${N(pFalse(k) * 100, 0)}%`, { size: 22, weight: 800, color: ["blue", "orange", "red"][i], hide: true }), S.text(xs[i], 368, k === 1 ? "1 test" : `${k} tries`, { size: 18, weight: 650, color: "ink2", hide: true })]);
+          const labs = ks.flatMap((k, i) => [S.text(xs[i], 340 - pFalse(k) * 550 - 12, `${N(pFalse(k) * 100, 0)}%`, { size: 22, weight: 800, color: ["blue", "orange", "red"][i], hide: true }), S.text(xs[i], 368, k === 1 ? "1 try" : `${k} tries`, { size: 18, weight: 650, color: "ink2", hide: true })]);
           await A.fadeIn(labs, { stagger: 60 });
-          const tip = S.text(400, 410, "(each try independent: 1 − 0.95 to the power of the number of tries)", { size: 17, color: "ink3", hide: true });
+          const tip = S.text(400, 410, "independent tries: 1 − 0.95³ = 14% and 1 − 0.95¹⁰ = 40%", { size: 17, color: "ink3", hide: true });
           await A.fadeIn(tip);
         },
       },
@@ -1194,8 +1193,8 @@
         say: "**Choosing a test:** what type of outcome, how many groups, paired or independent, then check the assumptions. Decide all of this **before** looking at the results, and report every analysis you ran.",
         run: async () => {
           S.clear();
-          const p1 = S.pill(400, 95, "1 outcome type · 2 how many groups · 3 paired? · 4 assumptions OK?", { size: 22, color: "blue", hide: true });
-          const p2 = S.pill(400, 175, "loaves A vs B → Welch t   ·   same patients twice → paired t", { size: 21, hide: true });
+          const p1 = S.pill(400, 95, "outcome → groups → paired? → assumptions OK?", { size: 22, color: "blue", hide: true });
+          const p2 = S.pill(400, 175, "two machines → Welch t · before and after → paired t", { size: 21, hide: true });
           const p3 = S.pill(400, 250, "small, skewed samples → nonparametric (ranks)", { size: 21, color: "purple", hide: true });
           const p4 = S.pill(400, 330, "choose from the design, never from the p-value", { size: 24, color: "green", hide: true });
           await A.fadeIn([p1, p2, p3, p4], { stagger: 300 });

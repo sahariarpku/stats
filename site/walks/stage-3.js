@@ -21,6 +21,17 @@
   const minus = (s) => String(s).replace(/-/g, "−");
   const sum = (arr) => arr.reduce((a, b) => a + b, 0);
   let clipSeq = 0;   // gives each clip path a unique id
+  const ease = (u) => (u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2);
+  // Grow bars up from their base (like A.grow, but never lets a height dip below 0 on the first frame).
+  const grow = (A, rects, o = {}) => {
+    const arr = [rects].flat(Infinity).filter(Boolean);
+    arr.forEach((r) => { r.__h = parseFloat(r.getAttribute("height")); r.__y = parseFloat(r.getAttribute("y")); r.setAttribute("height", 0); r.setAttribute("y", r.__y + r.__h); r.setAttribute("opacity", 1); });
+    const dur = o.dur || 700, st = o.stagger || 0, total = dur + st * Math.max(0, arr.length - 1);
+    return A.tween(total, (t) => {
+      const ms = Math.max(0, t) * total;
+      arr.forEach((r, i) => { const e = ease(Math.min(1, Math.max(0, (ms - i * st) / dur))); r.setAttribute("height", r.__h * e); r.setAttribute("y", r.__y + r.__h * (1 - e)); });
+    }, { ease: "linear" });
+  };
 
   /* ================================================================ 3.1 random variable */
   Walk.register("random-variable", {"title": "Random variables: turning chance into numbers", "lesson": "3.1", "terms": ["Random variable", "Distribution", "PMF", "Support"]}, (S, A) => {
@@ -146,7 +157,7 @@
           for (let k = 0; k < 5; k++) S.text(L.X(k), 384, k, { size: 17, color: "ink3", parent: L.el });
           await A.fadeIn(L.el);
           bars = P.map((p, k) => S.rect(L.X(k) - BW / 2, L.Y(p), BW, L.Y(0) - L.Y(p), { fill: cols[k], rx: 0, stroke: "card", strokeWidth: 1.5, hide: true }));
-          await A.grow(bars, { stagger: 90 });
+          await grow(A, bars, { stagger: 90 });
           blabels = P.map((p, k) => S.text(L.X(k), L.Y(p) - 9, p.toFixed(2), { size: 17, weight: 700, color: "ink2", hide: true }));
           await A.fadeIn(blabels, { stagger: 80 });
         },
@@ -160,16 +171,16 @@
           await A.fadeIn(R.el);
           thr = S.marker(L.X(-0.5), 140, 360, "", { color: "ink", dash: "6 5", width: 2 });
           for (let k = 0; k < 5; k++) {
-            await A.to(thr, { tx: L.X(k + 0.5) }, { dur: 320 });
+            await A.to(thr, { tx: L.X(k + 0.5) }, { dur: 260 });
             const col = [];
             if (k > 0) {
               const copies = stacks[k - 1].map((r) => { const [x, y, w, h] = rectOf(r); const c = S.rect(x, y, w, h, { fill: r.fillName, rx: 0, stroke: "card", strokeWidth: 1.5 }); c.fillName = r.fillName; return c; });
-              await A.to(copies, { x: R.X(k) - BW / 2 }, { dur: 420 });
+              await A.to(copies, { x: R.X(k) - BW / 2 }, { dur: 360 });
               col.push(...copies);
             }
             const piece = S.rect(L.X(k) - BW / 2, L.Y(P[k]), BW, L.Y(0) - L.Y(P[k]), { fill: cols[k], rx: 0, stroke: "card", strokeWidth: 1.5 });
             piece.fillName = cols[k];
-            await A.to(piece, { x: R.X(k) - BW / 2, y: R.Y(F[k]) }, { dur: 600 });
+            await A.to(piece, { x: R.X(k) - BW / 2, y: R.Y(F[k]) }, { dur: 520 });
             col.push(piece);
             stacks.push(col);
             const t = S.text(R.X(k), R.Y(F[k]) - 9, F[k].toFixed(2), { size: 17, weight: 750, hide: true });
@@ -204,7 +215,7 @@
           dens = S.rect(B.X(0), B.Y(0.05), B.X(20) - B.X(0), B.Y(0) - B.Y(0.05), { fill: "blueSoft", rx: 0, hide: true });
           const top = S.line(B.X(0), B.Y(0.05), B.X(20), B.Y(0.05), { color: "blue", width: 4, hide: true });
           const h = S.text(B.X(0) - 10, B.Y(0.05) + 6, "1/20", { size: 18, weight: 750, color: "blue", anchor: "end", hide: true });
-          await A.grow(dens);
+          await grow(A, dens);
           await A.draw(top);
           await A.fadeIn(h);
           topPill = S.pill(400, 258, "total area = 20 × 1/20 = 1", { size: 21, color: "blue", hide: true });
@@ -223,7 +234,7 @@
           await A.wait(900);
           const width = (t) => [5 + 2 * t, 12 - 5 * t];
           await A.tween(1800, (t) => {
-            const [lo, hi] = width(t);
+            const [lo, hi] = width(Math.max(0, t));
             shade.setAttribute("x", B.X(lo)); shade.setAttribute("width", Math.max(0, B.X(hi) - B.X(lo)));
             const area = (hi - lo) / 20;
             S.setText(shadeLbl, t >= 1 ? "area 0" : area.toFixed(2));
@@ -248,7 +259,7 @@
           const ramp = S.path("", { color: "green", width: 4 });
           const dot = S.circle(R2.X(0), R2.Y(0), 7, { fill: "green" });
           await A.tween(1700, (t) => {
-            const x = 12 * t;
+            const x = 12 * Math.max(0, t);
             sh.setAttribute("width", L2.X(x) - L2.X(0));
             mk.setAttribute("x1", L2.X(x)); mk.setAttribute("x2", L2.X(x));
             ramp.setAttribute("d", `M${R2.X(0)} ${R2.Y(0)} L${R2.X(x)} ${R2.Y(x / 20)}`);
@@ -363,7 +374,7 @@
           ax = S.axis({ min: 0, max: 10, step: 1, x1: 110, x2: 690, y: 350, label: "patients who respond (X)", hide: true });
           await A.fadeIn(ax.el);
           bars = S.bars([...Array(n + 1)].map((_, k) => ax.x(k)), P7, { base: 350, w: 40, unit: UNIT, colorOf: (k) => (k === 7 ? "orange" : "blue"), hide: true });
-          await A.grow(bars, { stagger: 60 });
+          await grow(A, bars, { stagger: 60 });
           vlabels = P7.map((v, k) => (v >= 0.02 ? S.text(ax.x(k), 350 - v * UNIT - 9, v.toFixed(3), { size: 17, weight: 700, color: k === 7 ? "orange" : "ink2", hide: true }) : null)).filter(Boolean);
           await A.fadeIn(vlabels, { stagger: 50 });
         },
@@ -456,7 +467,7 @@
           axLbl = S.text(400, 406, "patients arriving in one hour (X)", { size: 17, color: "ink3", weight: 600, hide: true });
           await A.fadeIn([ax.el, axLbl]);
           bars = S.bars(P4.map((_, k) => ax.x(k)), P4, { base: 350, w: 38, unit: UNIT, color: "blue", hide: true });
-          await A.grow(bars, { stagger: 50 });
+          await grow(A, bars, { stagger: 50 });
           pills = [S.pill(212, 70, "λ = 4 patients per hour", { size: 20, color: "blue", hide: true })];
           await A.fadeIn(pills[0]);
           bars[2].setAttribute("fill", S.col("orange"));
@@ -575,7 +586,7 @@
           const xs = [], hs = [];
           for (let a = 40; a < 160; a += 5) { xs.push(ax.x(a + 2.5)); hs.push(((Phi((a + 5 - MU) / SD) - Phi((a - MU) / SD)) / 5) * yS); }
           bars = S.bars(xs, hs, { base: BASE, w: 23, color: "blue", rx: 2, hide: true });
-          await A.grow(bars, { stagger: 25 });
+          await grow(A, bars, { stagger: 25 });
           curve = S.path(curveD(), { color: "ink", width: 4, hide: true });
           await A.draw(curve, { dur: 1100 });
           await A.to(bars, { opacity: 0.18 }, { dur: 500 });
@@ -588,15 +599,15 @@
           marker = S.marker(ax.x(MU), 112, BASE, "μ = 100", { color: "ink", dash: "6 5", width: 2.5, hide: true });
           arrow = S.arrow(ax.x(MU), 236, ax.x(MU + SD), 236, { color: "purple", label: "σ = 15", size: 19, hide: true });
           await A.fadeIn([marker, arrow]);
-          await A.wait(600);
+          await A.wait(400);
           await A.fadeOut(arrow, { dur: 250 });
           pill = S.pill(600, 70, "bigger μ: the bell slides", { size: 19, color: "blue", hide: true });
           await A.fadeIn(pill, { dur: 250 });
-          await A.all([A.tween(900, (t) => { mu = MU + 15 * t; curve.setAttribute("d", curveD()); }), A.to(marker, { tx: ax.x(MU + 15) }, { dur: 900 })]);
-          await A.all([A.tween(900, (t) => { mu = MU + 15 * (1 - t); curve.setAttribute("d", curveD()); }), A.to(marker, { tx: ax.x(MU) }, { dur: 900 })]);
+          await A.all([A.tween(750, (t) => { mu = MU + 15 * t; curve.setAttribute("d", curveD()); }), A.to(marker, { tx: ax.x(MU + 15) }, { dur: 750 })]);
+          await A.all([A.tween(750, (t) => { mu = MU + 15 * (1 - t); curve.setAttribute("d", curveD()); }), A.to(marker, { tx: ax.x(MU) }, { dur: 750 })]);
           await A.swap(pill.__text, "bigger σ: wider and flatter");
-          await A.tween(900, (t) => { sd = SD + 9 * t; curve.setAttribute("d", curveD()); });
-          await A.tween(900, (t) => { sd = SD + 9 * (1 - t); curve.setAttribute("d", curveD()); });
+          await A.tween(750, (t) => { sd = SD + 9 * t; curve.setAttribute("d", curveD()); });
+          await A.tween(750, (t) => { sd = SD + 9 * (1 - t); curve.setAttribute("d", curveD()); });
           await A.remove(pill, { dur: 250 });
           await A.fadeIn(arrow, { dur: 300 });
         },
@@ -703,7 +714,7 @@
         S.text(X(v), BASE + 28, v, { size: 17, color: "ink3", weight: 500, parent: ticks });
       }
     }
-    const zoom = (lo, hi, dur) => { const a = { ...view }; return A.tween(dur, (t) => { view.lo = a.lo + (lo - a.lo) * t; view.hi = a.hi + (hi - a.hi) * t; layout(); }); };
+    const zoom = (lo, hi, dur) => { const a = { ...view }; return A.tween(dur, (q) => { const t = Math.min(1, Math.max(0, q)); view.lo = a.lo + (lo - a.lo) * t; view.hi = a.hi + (hi - a.hi) * t; layout(); }); };
     return [
       {
         say: "An airline books **200** passengers, and each one has a **10%** chance of not showing up. The number of no-shows X is Binomial(200, 0.1). What is the chance of **fewer than 15** no-shows? Done exactly, that means adding up 15 bars: P(0) + P(1) + … + P(14).",
@@ -718,7 +729,7 @@
           bars = pmf.map((v, k) => S.rect(0, BASE - v * UNIT, 10, v * UNIT, { fill: k <= 14 ? "orange" : "blue", rx: 2, parent: plot, hide: true }));
           layout();
           await A.fadeIn([ticks, axLabel]);
-          await A.grow(bars, { stagger: 18 });
+          await grow(A, bars, { stagger: 18 });
           pills = [S.pill(235, 92, "P(0) + P(1) + … + P(14)", { size: 20, color: "orange", hide: true }), S.pill(590, 92, "X ~ Binomial(200, 0.1)", { size: 20, color: "blue", hide: true })];
           await A.fadeIn(pills, { stagger: 250 });
         },
@@ -784,7 +795,7 @@
           const ax2 = S.axis({ min: -3, max: 6, step: 1, x1: 100, x2: 700, y: B2, label: "count (X) for n = 10, p = 0.1", format: (v) => minus(v) });
           const pk = [0, 1, 2, 3, 4, 5].map((k) => binom(k, 10, 0.1));
           const b2 = S.bars(pk.map((_, k) => ax2.x(k)), pk, { base: B2, w: 60, unit: U2, colorOf: (k) => (k === 0 ? "orange" : "blue"), hide: true });
-          await A.grow(b2, { stagger: 80 });
+          await grow(A, b2, { stagger: 80 });
           const spill = S.area(ax2, (v) => npdf(v, m2, s2), -3, -0.5, { color: "red", yScale: U2, base: B2, hide: true });
           const c2 = S.curve(ax2, (v) => npdf(v, m2, s2), { yScale: U2, base: B2, color: "ink", width: 3.5, hide: true });
           await A.draw(c2, { dur: 1000 });

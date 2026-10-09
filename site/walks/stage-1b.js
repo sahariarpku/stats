@@ -107,7 +107,7 @@ Walk.register("histogram", {"title": "Histograms: drop every value into a bin", 
       },
     },
     {
-      say: `Another class of 20. This histogram rises **twice**, with a valley in between. Two separate peaks is called **bimodal**. It often means two groups are mixed together, such as students who revised and students who did not. The mean, **${meanTwo}**, lands in the valley, where only ${valley} students scored.`,
+      say: `Another class of 20. This histogram rises **twice**, with a valley in between. A shape with two separate peaks is called **bimodal**. It often means two groups are mixed together, such as students who revised and students who did not. The mean, **${meanTwo}**, lands in the valley, where only ${valley} students scored.`,
       run: async () => {
         S.clear();
         S.text(400, 48, "Another class of 20", { size: 22, weight: 750 });
@@ -169,7 +169,7 @@ Walk.register("skewness", {"title": "Skewness: the tail points the way", "lesson
       },
     },
     {
-      say: `The **median** (the middle friend) read **${fmt(mdB)}** books. The **mean** is 52 ÷ 10 = **${fmt(mB)}**: the 9 and the 20 drag it toward the tail. A long tail on the right makes data **right-skewed**. The name follows the tail, not the crowd.`,
+      say: `The **median** (the middle friend) read **${fmt(mdB)}** books. The **mean** is 52 ÷ 10 = **${fmt(mB)}**: the 9 and the 20 drag it toward the tail. A long tail on the right makes the data **right-skewed**. The name follows the tail, not the crowd.`,
       run: async () => {
         await A.fadeOut(brace, { dur: 250 });
         medM = S.marker(ax.x(mdB), 190, ax.y, "median = " + fmt(mdB), { color: "green", hide: true });

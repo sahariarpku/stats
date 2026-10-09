@@ -154,6 +154,47 @@ Walk.register("multiple-regression", {"title": "Multiple regression: from a line
   const soft = (el, o = 0.2) => { el.setAttribute("fill-opacity", o); return el; };
   const recolor = (els, c, S) => [].concat(els).forEach((e) => e.setAttribute("fill", S.col(c)));
 
+  // Least squares with any number of predictors: coefficients, standard errors and R².
+  function inv(M) {
+    const n = M.length, W = M.map((r, i) => [...r, ...r.map((_, j) => (i === j ? 1 : 0))]);
+    for (let c = 0; c < n; c++) {
+      let p = c;
+      for (let r = c + 1; r < n; r++) if (Math.abs(W[r][c]) > Math.abs(W[p][c])) p = r;
+      [W[c], W[p]] = [W[p], W[c]];
+      const d = W[c][c];
+      W[c] = W[c].map((v) => v / d);
+      for (let r = 0; r < n; r++) if (r !== c) { const f = W[r][c]; W[r] = W[r].map((v, j) => v - f * W[c][j]); }
+    }
+    return W.map((r) => r.slice(n));
+  }
+  function ols(cols, y) {
+    const n = y.length, X = y.map((_, i) => [1, ...cols.map((c) => c[i])]), k = X[0].length;
+    const XtX = X[0].map((_, p) => X[0].map((_, q) => sum(X.map((r) => r[p] * r[q]))));
+    const Xty = X[0].map((_, p) => sum(X.map((r, i) => r[p] * y[i])));
+    const Ai = inv(XtX), b = Ai.map((row) => sum(row.map((v, j) => v * Xty[j])));
+    const sse = sum(y.map((yi, i) => (yi - sum(X[i].map((v, j) => v * b[j]))) ** 2)), my = mean(y);
+    const s2 = sse / (n - k);
+    return { b, se: Ai.map((row, j) => Math.sqrt(s2 * row[j])), r2: 1 - sse / sum(y.map((v) => (v - my) ** 2)), sse };
+  }
+  // Lesson 8.5: twenty students, hours of study and passed (1) or failed (0). Fitted by Newton's method.
+  const LOG_H = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.25, 3.5, 4, 4.25, 4.5, 4.75, 5, 5.5, 6];
+  const LOG_P = [0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1];
+  const sigm = (z) => 1 / (1 + Math.exp(-z));
+  const logLik = (b0, b1) => sum(LOG_H.map((x, i) => { const p = sigm(b0 + b1 * x); return LOG_P[i] ? Math.log(p) : Math.log(1 - p); }));
+  function fitLogit() {
+    let b0 = 0, b1 = 0;
+    for (let it = 0; it < 30; it++) {
+      const p = LOG_H.map((x) => sigm(b0 + b1 * x)), w = p.map((q) => q * (1 - q));
+      const g0 = sum(LOG_P.map((y, i) => y - p[i])), g1 = sum(LOG_P.map((y, i) => (y - p[i]) * LOG_H[i]));
+      const h00 = sum(w), h01 = sum(w.map((v, i) => v * LOG_H[i])), h11 = sum(w.map((v, i) => v * LOG_H[i] ** 2)), det = h00 * h11 - h01 * h01;
+      b0 += (h11 * g0 - h01 * g1) / det; b1 += (h00 * g1 - h01 * g0) / det;
+    }
+    return { b0, b1, ll: logLik(b0, b1), ll0: LOG_H.length * Math.log(0.5) };
+  }
+  // erf (Abramowitz and Stegun 7.1.26, error below 2e-7), for the p-value of a chi-square with 1 df.
+  const erf = (x) => { const t = 1 / (1 + 0.3275911 * Math.abs(x)); const y = 1 - ((((1.061405429 * t - 1.453152027) * t + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x); return x >= 0 ? y : -y; };
+  const pct = (p, d = 1) => (p * 100).toFixed(d) + "%";
+
   /* ------------------------------------------------------------------ 8.1 correlation */
   Walk.register("correlation", {"title": "Correlation: do two numbers move together?", "lesson": "8.1", "terms": ["Scatter plot", "Pearson's r", "r²", "Spearman's ρ", "Outlier"]}, (S, A) => {
     const F = fitLine(HOURS, SCORES);
@@ -824,7 +865,7 @@ Walk.register("multiple-regression", {"title": "Multiple regression: from a line
           const f = S.pill(400, 290, "adjusted R² = 1 − (1 − R²) × (n − 1) ÷ (n − k − 1)", { size: 22, color: "ink", hide: true });
           const n = S.text(400, 340, "n = 8 students   ·   k = number of predictors", { size: 18, color: "ink3", hide: true });
           await A.fadeIn([f, n], { stagger: 250 });
-          const t = S.text(400, 400, "R² always rises; adjusted R² rises only if the new predictor really helps", { size: 18, weight: 650, color: "ink2", hide: true });
+          const t = S.text(400, 400, "R² never falls; adjusted R² rises only if the new predictor really helps", { size: 18, weight: 650, color: "ink2", hide: true });
           await A.fadeIn(t);
         },
       },
@@ -850,7 +891,7 @@ Walk.register("multiple-regression", {"title": "Multiple regression: from a line
     async function twoPanel(xs, ys, o) {
       const G = fitLine(xs, ys);
       const top = S.frame({ x1: 100, x2: 500, y1: 45, y2: 185, xmin: o.xmin, xmax: o.xmax, ymin: o.ymin, ymax: o.ymax, ystep: o.ystep, ylabel: o.ylabel, hide: true });
-      const bot = S.frame({ x1: 100, x2: 500, y1: 245, y2: 375, xmin: o.xmin, xmax: o.xmax, ymin: -o.rmax, ymax: o.rmax, xstep: o.xstep, ystep: o.rmax, xlabel: o.xlabel, ylabel: "residual", hide: true });
+      const bot = S.frame({ x1: 100, x2: 500, y1: 245, y2: 375, xmin: o.xmin, xmax: o.xmax, ymin: -o.rmax, ymax: o.rmax, xstep: o.xstep, ystep: o.rmax, yfmt: (v) => num(v, 0), xlabel: o.xlabel, ylabel: "residual", hide: true });
       await A.fadeIn(top.el);
       const pts = xs.map((x, i) => S.circle(top.X(x), top.Y(ys[i]), 7, { fill: "blue", hide: true }));
       await A.fadeIn(pts, { stagger: 50, dur: 300 });
@@ -903,17 +944,16 @@ Walk.register("multiple-regression", {"title": "Multiple regression: from a line
         },
       },
       {
-        say: "Add one student who scored just 30. If they sit in the **middle** (4.5 hours), the line only slides down a little: the slope stays 3.95. Put them **far out** at 9 hours and they drag the slope down to **0.43**. Far-out x means high **leverage**. Add a big miss and the point is **influential**.",
+        say: "Add one student who scored just 30. In the **middle** (4.5 hours) they only slide the line down: the slope stays 3.95. **Far out** at 9 hours they drag the slope down to **0.43**. A far-out x means high **leverage**; with a big miss too, the point is **influential**.",
         run: async () => {
           S.clear();
           const fr = S.frame({ x1: 80, x2: 500, y1: 50, y2: 340, xmin: 0, xmax: 10, ymin: 20, ymax: 90, xstep: 1, ystep: 10, xlabel: "hours of study", ylabel: "exam score" });
           HOURS.forEach((h, i) => S.circle(fr.X(h), fr.Y(SCORES[i]), 8, { fill: "blue" }));
-          const ghost = S.line(fr.X(0), fr.Y(F.a), fr.X(10), fr.Y(F.a + 10 * F.b), { color: "green", width: 2.5, dash: "7 6" });
+          S.line(fr.X(0), fr.Y(F.a), fr.X(10), fr.Y(F.a + 10 * F.b), { color: "green", width: 2.5, dash: "7 6" });   // the original line, for comparison
           const ln = S.line(fr.X(0), fr.Y(F.a), fr.X(10), fr.Y(F.a + 10 * F.b), { color: "ink", width: 3 });
           let cur = [F.a, F.b];
           const tilt = async (G) => { const [a0, b0] = cur; await A.tween(1300, (t) => { const a = a0 + (G.a - a0) * t, b = b0 + (G.b - b0) * t; setLine(ln, fr.X(0), fr.Y(a), fr.X(10), fr.Y(a + 10 * b)); }); cur = [G.a, G.b]; };
           S.text(PX, 70, `without them: slope ${F.b.toFixed(2)}`, { size: 18, weight: 700, color: "green" });
-          void ghost;
           // 1) the same miss in the middle of the x-range
           const Gm = fitLine([...HOURS, 4.5], [...SCORES, 30]);
           const mid = S.circle(fr.X(4.5), fr.Y(30), 9, { fill: "orange", hide: true });
@@ -943,9 +983,8 @@ Walk.register("multiple-regression", {"title": "Multiple regression: from a line
           const half = (x, one) => T6 * F.s * Math.sqrt(one + 1 / F.n + (x - F.mx) ** 2 / F.sxx);
           const band = (one, c) => { const up = S.curvePath(fr.X, (x) => fr.Y(F.a + F.b * x + half(x, one)), 1, 8, 60), dn = S.curvePath(fr.X, (x) => fr.Y(F.a + F.b * x - half(x, one)), 8, 1, 60); return S.path(up + " L" + dn.slice(1) + " Z", { fill: c, hide: true }); };
           const pb = band(1, "purpleSoft"), cb = band(0, "blueSoft");
-          const ln = S.line(fr.X(1), fr.Y(F.a + F.b), fr.X(8), fr.Y(F.a + 8 * F.b), { color: "ink", width: 3 });
+          S.line(fr.X(1), fr.Y(F.a + F.b), fr.X(8), fr.Y(F.a + 8 * F.b), { color: "ink", width: 3 });
           HOURS.forEach((h, i) => S.circle(fr.X(h), fr.Y(SCORES[i]), 7, { fill: "blue" }));
-          void ln;
           const x0 = 6.5, y0 = F.a + F.b * x0, hc = half(x0, 0), hp = half(x0, 1);
           await A.fadeIn(cb);
           const cbar = [S.line(fr.X(x0) - 6, fr.Y(y0 - hc), fr.X(x0) - 6, fr.Y(y0 + hc), { color: "blue", width: 5, hide: true })];
@@ -966,20 +1005,454 @@ Walk.register("multiple-regression", {"title": "Multiple regression: from a line
         say: "**Always plot the residuals.** A shapeless band means the straight line fits, a U means the pattern is curved, and a fan means unequal spread. Check far-out points with big misses (influential points). And use a prediction interval when the question is about one person.",
         run: async () => {
           S.clear();
-          const rand = S.rng(83);
+          const z = [0.6, -0.9, -0.4, 0.8, 1, -0.7, 0.5, -1, 0.9, -0.6, 0.85, -0.8, -0.5, 0.95];   // fixed "random" wiggles
           const mini = (cx, f, cap, c) => {
             const els = [S.rect(cx - 95, 60, 190, 120, { fill: "card", stroke: "line", rx: 12, hide: true }), S.line(cx - 80, 120, cx + 80, 120, { color: "ink3", width: 2, hide: true })];
-            for (let i = 0; i < 14; i++) { const u = -1 + (2 * i) / 13; els.push(S.circle(cx + u * 78, 120 - f(u, S.randn(rand)), 5, { fill: c, hide: true })); }
+            for (let i = 0; i < 14; i++) { const u = -1 + (2 * i) / 13; els.push(S.circle(cx + u * 78, 120 - f(u, z[i]), 5, { fill: c, hide: true })); }
             els.push(S.text(cx, 215, cap, { size: 19, weight: 750, color: c, hide: true }));
             return els;
           };
-          const g1 = mini(160, (u, z) => 12 * Math.max(-2, Math.min(2, z)), "band: fine", "green");
-          const g2 = mini(400, (u, z) => 70 * u * u - 25 + 4 * z, "U: curved", "orange");
-          const g3 = mini(640, (u, z) => (8 + 22 * (u + 1)) * Math.max(-1.6, Math.min(1.6, z)) * 0.8, "fan: unequal spread", "purple");
+          const g1 = mini(160, (u, w) => 16 * w, "band: fine", "green");
+          const g2 = mini(400, (u, w) => 62 * u * u - 22 + 5 * w, "U: curved", "orange");
+          const g3 = mini(640, (u, w) => (4 + 21 * (u + 1)) * w, "fan: unequal spread", "purple");
           for (const g of [g1, g2, g3]) await A.fadeIn(g, { dur: 350 });
           const p1 = S.pill(400, 290, "influential point = far-out x (leverage) + big miss", { size: 21, color: "orange", hide: true });
           const p2 = S.pill(400, 365, "prediction interval (one person) > confidence interval (average)", { size: 19, color: "purple", hide: true });
           await A.fadeIn([p1, p2], { stagger: 300 });
+        },
+      },
+    ];
+  });
+
+
+  /* ------------------------------------------------------------------ 8.4 multicollinearity */
+  Walk.register("multicollinearity", {"title": "Multicollinearity: two predictors telling the same story", "lesson": "8.4", "terms": ["Multicollinearity", "VIF", "Overfitting"]}, (S, A) => {
+    const SQFT = [1000, 1200, 1400, 1600, 1800, 2000, 2200, 2400, 2600, 2800];
+    const BEDS = [2, 2, 3, 3, 4, 4, 4, 5, 5, 6];
+    const PRICE = [250, 280, 310, 350, 390, 420, 450, 480, 520, 550];   // $ thousand
+    const rSB = fitLine(SQFT, BEDS).r, vif = 1 / (1 - rSB * rSB);
+    const mBeds = ols([BEDS], PRICE), mSize = ols([SQFT], PRICE), mBoth = ols([SQFT, BEDS], PRICE);
+    const PX = 655;
+    return [
+      {
+        say: `An estate agent has ten houses. Plot each house's **size** against its number of **bedrooms**: bigger houses have more bedrooms, almost in lockstep (**r = ${rSB.toFixed(2)}**). If both go into one model to predict price, they will tell nearly the same story.`,
+        run: async () => {
+          const fr = S.frame({ x1: 90, x2: 500, y1: 50, y2: 340, xmin: 800, xmax: 3000, ymin: 1, ymax: 7, xstep: 400, ystep: 1, xfmt: comma, xlabel: "size (square feet)", ylabel: "bedrooms", hide: true });
+          await A.fadeIn(fr.el);
+          const d = SQFT.map((v, i) => S.circle(fr.X(v), fr.Y(BEDS[i]), 9, { fill: "blue", hide: true }));
+          await A.fadeIn(d, { stagger: 80 });
+          const G = fitLine(SQFT, BEDS);
+          const ln = S.line(fr.X(900), fr.Y(G.a + G.b * 900), fr.X(2900), fr.Y(G.a + G.b * 2900), { color: "purple", width: 2.5, dash: "7 6", hide: true });
+          await A.fadeIn(ln);
+          const p = [S.text(PX, 150, "r = " + rSB.toFixed(2), { size: 40, weight: 800, color: "purple", hide: true }), S.text(PX, 200, "size and bedrooms\nrise together", { size: 19, color: "ink2", hide: true })];
+          await A.fadeIn(p, { stagger: 200 });
+        },
+      },
+      {
+        say: `Predict price from **bedrooms alone** and each extra bedroom seems worth about **$${mBeds.b[1].toFixed(1)}K**. But a house with more bedrooms is usually bigger too. Is the bedroom really doing the work, or just standing in for size?`,
+        run: async () => {
+          S.clear();
+          const fr = S.frame({ x1: 90, x2: 500, y1: 50, y2: 340, xmin: 1, xmax: 7, ymin: 200, ymax: 600, xstep: 1, ystep: 100, xlabel: "bedrooms", ylabel: "price ($ thousand)" });
+          const d = BEDS.map((v, i) => S.circle(fr.X(v), fr.Y(PRICE[i]), 8, { fill: "blue", hide: true }));
+          await A.fadeIn(d, { stagger: 60 });
+          const [a, b] = mBeds.b;
+          const ln = S.line(fr.X(1.5), fr.Y(a + 1.5 * b), fr.X(6.5), fr.Y(a + 6.5 * b), { color: "ink", width: 3, hide: true });
+          await A.draw(ln);
+          const tri = [S.line(fr.X(2), fr.Y(a + 2 * b), fr.X(3), fr.Y(a + 2 * b), { color: "orange", width: 3.5, hide: true }), S.line(fr.X(3), fr.Y(a + 2 * b), fr.X(3), fr.Y(a + 3 * b), { color: "orange", width: 3.5, hide: true }),
+            S.text(fr.X(2.5), fr.Y(a + 2 * b) + 24, "+1 bedroom", { size: 17, weight: 750, color: "orange", hide: true }), S.text(fr.X(3) + 8, fr.Y(a + 2.5 * b) + 6, "+" + b.toFixed(1), { size: 17, weight: 750, color: "orange", anchor: "start", hide: true })];
+          await A.fadeIn(tri, { stagger: 120 });
+          const p = [S.pill(PX, 150, "bedrooms alone:", { size: 19, color: "ink", hide: true }), S.text(PX, 205, `+$${b.toFixed(1)}K`, { size: 36, weight: 800, color: "orange", hide: true }), S.text(PX, 240, "per extra bedroom?", { size: 19, color: "ink2", hide: true })];
+          await A.fadeIn(p, { stagger: 200 });
+        },
+      },
+      {
+        say: `Now put **both** in one model. Compare two houses of the **same size**, one with an extra bedroom: it is worth only about **$${mBoth.b[2].toFixed(1)}K** more. Size does the real work (about $${(mBoth.b[1] * 100).toFixed(1)}K per extra 100 square feet). The bedrooms were borrowing size's credit.`,
+        run: async () => {
+          S.clear();
+          S.text(400, 70, "What is one extra bedroom worth?", { size: 24, weight: 750, color: "ink" });
+          const x0 = 300, u = 4.6;
+          const rows = [[150, "bedrooms alone", mBeds.b[1], "blue"], [240, "size + bedrooms", mBoth.b[2], "orange"]];
+          for (const [y, lab, val, c] of rows) {
+            const t = S.text(x0 - 14, y + 7, lab, { size: 19, weight: 700, color: "ink2", anchor: "end", hide: true });
+            const bar = S.rect(x0, y - 24, 0, 48, { fill: c, rx: 6 });
+            const vt = S.text(x0 + 10, y + 8, "", { size: 22, weight: 800, color: c, anchor: "start" });
+            await A.fadeIn(t);
+            if (c === "blue") { await A.to(bar, { width: val * u }, { dur: 800 }); S.setText(vt, `$${val.toFixed(1)}K`); vt.setAttribute("x", x0 + val * u + 12); vt.querySelectorAll("tspan").forEach((ts) => ts.setAttribute("x", x0 + val * u + 12)); }
+            else {
+              bar.setAttribute("width", rows[0][2] * u);
+              await A.wait(400);
+              await A.to(bar, { width: val * u }, { dur: 1300 });
+              S.setText(vt, `$${val.toFixed(1)}K`); vt.setAttribute("x", x0 + val * u + 12); vt.querySelectorAll("tspan").forEach((ts) => ts.setAttribute("x", x0 + val * u + 12));
+            }
+          }
+          const eq = S.pill(400, 330, `price = ${mBoth.b[0].toFixed(1)} + ${mBoth.b[1].toFixed(3)} × sq ft + ${mBoth.b[2].toFixed(1)} × bedrooms`, { size: 21, color: "ink", hide: true });
+          const note = S.text(400, 378, "prices in $ thousands · each slope holds the other predictor fixed", { size: 17, color: "ink3", hide: true });
+          await A.fadeIn([eq, note], { stagger: 250 });
+        },
+      },
+      {
+        say: `The overlap also makes the model **wobbly**. On its own, size's slope has a standard error of ${mSize.se[1].toFixed(4)}. With bedrooms beside it, the standard error is **${mBoth.se[1].toFixed(4)}**, about ${Math.round(mBoth.se[1] / mSize.se[1])} times bigger. The model can no longer pin down which predictor deserves the credit.`,
+        run: async () => {
+          S.clear();
+          S.text(400, 70, "How sure are we about size's slope?", { size: 24, weight: 750, color: "ink" });
+          const ax = S.axis({ min: 0.12, max: 0.22, step: 0.02, x1: 230, x2: 710, y: 330, format: (v) => v.toFixed(2), label: "size slope ($K per square foot), ± 1 standard error" });
+          const rows = [[160, "size alone", mSize.b[1], mSize.se[1], "blue"], [250, "size + bedrooms", mBoth.b[1], mBoth.se[1], "orange"]];
+          for (const [y, lab, b, se, c] of rows) {
+            const t = S.text(215, y + 7, lab, { size: 19, weight: 700, color: "ink2", anchor: "end", hide: true });
+            await A.fadeIn(t);
+            const bar = S.line(ax.x(b), y, ax.x(b), y, { color: c, width: 5 });
+            const caps = [S.line(ax.x(b - se), y - 12, ax.x(b - se), y + 12, { color: c, width: 3, hide: true }), S.line(ax.x(b + se), y - 12, ax.x(b + se), y + 12, { color: c, width: 3, hide: true })];
+            const dot = S.circle(ax.x(b), y, 9, { fill: c });
+            await A.to(bar, { x1: ax.x(b - se), x2: ax.x(b + se) }, { dur: 900 });
+            await A.fadeIn(caps, { dur: 200 });
+            const lt = S.text(ax.x(b + se) + 18, y + 7, "SE " + se.toFixed(4), { size: 19, weight: 750, color: c, anchor: "start", hide: true });
+            await A.fadeIn(lt);
+            void dot;
+          }
+        },
+      },
+      {
+        say: `The **variance inflation factor** measures the overlap: **VIF = 1 ÷ (1 − r²)**, where r is the correlation between the predictors. Unrelated predictors give VIF = 1. Above about 5 to 10 is a warning sign. Size and bedrooms, with r = ${rSB.toFixed(3)}, give **VIF = ${vif.toFixed(1)}**.`,
+        run: async () => {
+          S.clear();
+          const fr = S.frame({ x1: 90, x2: 500, y1: 50, y2: 340, xmin: 0, xmax: 1, ymin: 0, ymax: 25, xstep: 0.2, ystep: 5, xfmt: (v) => v.toFixed(1), xlabel: "correlation r between the two predictors", ylabel: "VIF" });
+          const z1 = soft(S.rect(90, fr.Y(10), 410, fr.Y(5) - fr.Y(10), { fill: "yellow", rx: 0 }), 0.15), z2 = soft(S.rect(90, fr.Y(25), 410, fr.Y(10) - fr.Y(25), { fill: "orange", rx: 0 }), 0.1);
+          S.root.insertBefore(z1, S.root.firstChild); S.root.insertBefore(z2, S.root.firstChild);
+          S.text(100, fr.Y(7.5) + 6, "5 to 10: warning", { size: 17, weight: 650, color: "ink2", anchor: "start" });
+          S.text(100, fr.Y(20) + 6, "above 10: serious", { size: 17, weight: 650, color: "ink2", anchor: "start" });
+          const rmax = Math.sqrt(1 - 1 / 25);
+          const cv = S.curve(fr, (r) => 1 / (1 - r * r), { from: 0, to: rmax, color: "purple", width: 3.5, hide: true });
+          await A.draw(cv);
+          const dot = S.circle(fr.X(0), fr.Y(1), 10, { fill: "orange" });
+          const f = S.pill(PX, 110, "VIF = 1 ÷ (1 − r²)", { size: 24, color: "purple" });
+          const rt = S.text(PX, 190, "r = 0.000", { size: 26, weight: 800, color: "ink" });
+          const vt = S.text(PX, 240, "VIF = 1.0", { size: 34, weight: 800, color: "orange" });
+          void f;
+          await A.tween(2200, (t) => {
+            const r = rSB * t, v = 1 / (1 - r * r);
+            dot.setAttribute("cx", fr.X(r)); dot.setAttribute("cy", fr.Y(v));
+            S.setText(rt, "r = " + r.toFixed(3)); S.setText(vt, "VIF = " + v.toFixed(1));
+          }, { ease: "linear" });
+          const lab = S.text(PX, 300, "size and bedrooms", { size: 19, color: "ink2", hide: true });
+          await A.fadeIn(lab);
+        },
+      },
+      {
+        say: "Too many predictors cause a different problem: **overfitting**. With 8 students, a model with 7 predictors (hours, hours², and so on up to hours⁷) can pass through every dot, so R² = 1. But it has learned the noise. A new student studies 7.5 hours and scores 79: the wiggly model predicted 54, the simple line 77.",
+        run: async () => {
+          S.clear();
+          const F = fitLine(HOURS, SCORES);
+          const lag = (x) => sum(HOURS.map((xi, i) => SCORES[i] * HOURS.reduce((t, xj, j) => (j === i ? t : t * (x - xj) / (xi - xj)), 1)));   // passes through all 8 dots
+          const fr = S.frame({ x1: 80, x2: 500, y1: 50, y2: 340, xmin: 0, xmax: 9, ymin: 40, ymax: 90, xstep: 1, ystep: 10, xlabel: "hours of study", ylabel: "exam score" });
+          HOURS.forEach((h, i) => S.circle(fr.X(h), fr.Y(SCORES[i]), 8, { fill: "blue" }));
+          const ln = S.line(fr.X(0.5), fr.Y(F.a + 0.5 * F.b), fr.X(8.6), fr.Y(F.a + 8.6 * F.b), { color: "green", width: 3, hide: true });
+          const wig = S.path(S.curvePath(fr.X, (x) => fr.Y(lag(x)), 1, 8, 280), { color: "orange", width: 3, hide: true });
+          await A.draw(ln);
+          const p1 = S.text(PX, 100, `straight line: R² = ${F.r2.toFixed(2)}`, { size: 20, weight: 750, color: "green", hide: true });
+          await A.fadeIn(p1);
+          await A.draw(wig, { dur: 1600 });
+          const p2 = S.text(PX, 140, "7 predictors: R² = 1.00", { size: 20, weight: 750, color: "orange", hide: true });
+          await A.fadeIn(p2);
+          const nx = 7.5, ny = 79, yl = F.a + F.b * nx, yw = lag(nx);
+          const nd = S.circle(fr.X(nx), fr.Y(ny), 9, { fill: "purple", hide: true });
+          const nl = S.text(fr.X(nx) - 12, fr.Y(ny) - 14, "new student", { size: 17, weight: 750, color: "purple", anchor: "end", hide: true });
+          await A.fadeIn([nd, nl]);
+          const mw = S.line(fr.X(nx) + 3, fr.Y(ny), fr.X(nx) + 3, fr.Y(yw), { color: "orange", width: 2.5, dash: "4 4", hide: true });
+          const pw = S.circle(fr.X(nx), fr.Y(yw), 6, { fill: "orange", hide: true });
+          await A.fadeIn([mw, pw]);
+          const q = [S.text(PX, 225, "new student: 7.5 h, scored 79", { size: 18, weight: 700, color: "purple", hide: true }),
+            S.pill(PX, 275, `wiggly model: ${yw.toFixed(0)} (miss ${(ny - yw).toFixed(0)})`, { size: 19, color: "orange", hide: true }),
+            S.pill(PX, 330, `straight line: ${yl.toFixed(0)} (miss ${(ny - yl).toFixed(0)})`, { size: 19, color: "green", hide: true })];
+          await A.fadeIn(q, { stagger: 250 });
+        },
+      },
+      {
+        say: `**Multicollinearity** means predictors that overlap: the model still predicts well, but single coefficients become unstable. Check the **VIF** (above 5 to 10 is a warning) and drop or combine overlapping predictors. And keep models small, roughly 10 to 20 cases per predictor, or you will **overfit**.`,
+        run: async () => {
+          S.clear();
+          const p1 = S.pill(400, 90, "multicollinearity: predictors telling the same story", { size: 23, color: "purple", hide: true });
+          const p2 = S.pill(400, 170, `VIF = 1 ÷ (1 − R²ⱼ)   ·   houses: ${vif.toFixed(1)}   ·   warning above 5 to 10`, { size: 21, hide: true });
+          const p3 = S.pill(400, 250, "fix: drop or combine the overlapping predictors", { size: 22, color: "green", hide: true });
+          const p4 = S.pill(400, 330, "overfitting: too many predictors learn the noise", { size: 22, color: "orange", hide: true });
+          const tip = S.text(400, 400, "R²ⱼ: how well the other predictors predict predictor j", { size: 18, color: "ink3", hide: true });
+          await A.fadeIn([p1, p2, p3, p4, tip], { stagger: 280 });
+        },
+      },
+    ];
+  });
+
+  /* ------------------------------------------------------------------ 8.5 logistic regression */
+  Walk.register("logistic-regression", {"title": "Logistic regression: from a line to an S-curve", "lesson": "8.5", "terms": ["Logistic regression", "Odds", "Logit", "Sigmoid", "Odds ratio", "Maximum likelihood", "Likelihood-ratio test"]}, (S, A) => {
+    const L = fitLogit(), LIN = fitLine(LOG_H, LOG_P);
+    const p = (x) => sigm(L.b0 + L.b1 * x), OR = Math.exp(L.b1), x50 = -L.b0 / L.b1;
+    const chi = 2 * (L.ll - L.ll0), pv = 1 - erf(Math.sqrt(chi / 2));
+    const PX = 655;
+    let fr, dots, grid, curve;
+    const yfmt = (v) => (v >= 0 && v <= 1 ? Math.round(v * 100) + "%" : "");
+    const mkFrame = () => {
+      fr = S.frame({ x1: 80, x2: 500, y1: 50, y2: 340, xmin: 0, xmax: 8, ymin: -0.25, ymax: 1.25, xstep: 1, xlabel: "hours of study", ylabel: "chance of passing" });
+      grid = S.group();
+      [0, 0.25, 0.5, 0.75, 1].forEach((v) => { S.line(80, fr.Y(v), 500, fr.Y(v), { color: "line", width: 1, parent: grid }); S.text(72, fr.Y(v) + 5, yfmt(v), { size: 15, color: "ink3", anchor: "end", parent: grid }); });
+      dots = LOG_H.map((h, i) => S.circle(fr.X(h), fr.Y(LOG_P[i]), 7, { fill: LOG_P[i] ? "green" : "purple", hide: true }));
+    };
+    const odds = (q) => q / (1 - q);
+    const fmtOdds = (v) => (v < 1 ? v.toFixed(3) : v < 10 ? v.toFixed(2) : v.toFixed(1));
+    return [
+      {
+        say: "Twenty students: hours of study and whether they **passed** (1) or **failed** (0). The outcome is a yes or a no, not a number on a scale. Studying helps, but not for sure: one student passed after 1.75 hours, another failed after 4. We want the **chance** of passing for any number of hours.",
+        run: async () => {
+          mkFrame();
+          await A.fadeIn(dots, { stagger: 50 });
+          const t = [S.pill(PX, fr.Y(1), "passed = 1", { size: 20, color: "green", hide: true }), S.pill(PX, fr.Y(0), "failed = 0", { size: 20, color: "purple", hide: true })];
+          await A.fadeIn(t, { stagger: 200 });
+        },
+      },
+      {
+        say: `An ordinary straight line, ŷ = ${num(LIN.a, 3)} + ${LIN.b.toFixed(3)} × hours, breaks the rules of probability. At 0.5 hours it predicts **${num(LIN.a + 0.5 * LIN.b, 2)}** (below 0%) and at 8 hours **${(LIN.a + 8 * LIN.b).toFixed(2)}** (159%). We need a curve that flattens out at 0 and 1.`,
+        run: async () => {
+          const zt = soft(S.rect(80, fr.Y(1.25), 420, fr.Y(1) - fr.Y(1.25), { fill: "red", rx: 0, hide: true }), 0.1), zb = soft(S.rect(80, fr.Y(0), 420, fr.Y(-0.25) - fr.Y(0), { fill: "red", rx: 0, hide: true }), 0.1);
+          S.root.insertBefore(zt, grid); S.root.insertBefore(zb, grid);
+          const xTop = (1.25 - LIN.a) / LIN.b;
+          curve = S.path(S.curvePath(fr.X, (x) => fr.Y(LIN.a + LIN.b * x), 0, xTop, 40), { color: "ink", width: 3, hide: true });
+          await A.draw(curve);
+          const zl = [S.text(400, fr.Y(1.125) + 6, "impossible: above 100%", { size: 17, weight: 650, color: "red", hide: true }), S.text(400, fr.Y(-0.125) + 6, "impossible: below 0%", { size: 17, weight: 650, color: "red", hide: true })];
+          await A.fadeIn([zt, zb, ...zl]);
+          const m1 = S.circle(fr.X(0.5), fr.Y(LIN.a + 0.5 * LIN.b), 7, { fill: "red", hide: true });
+          const ar = S.arrow(fr.X(xTop) - 6, fr.Y(1.25) + 14, fr.X(xTop) + 26, fr.Y(1.25) - 18, { color: "red", width: 3, hide: true });
+          await A.fadeIn([m1, ar]);
+          const t = [S.pill(PX, 150, `0.5 h → ${num(LIN.a + 0.5 * LIN.b, 2)}`, { size: 21, color: "red", hide: true }), S.pill(PX, 215, `8 h → ${(LIN.a + 8 * LIN.b).toFixed(2)}`, { size: 21, color: "red", hide: true }), S.text(PX, 268, "not possible\nfor a chance", { size: 18, color: "ink2", hide: true })];
+          S.root.querySelectorAll("g").forEach((g) => { if (/passed = 1|failed = 0/.test(g.textContent) && g.parentNode === S.root) g.setAttribute("opacity", 0); });
+          await A.fadeIn(t, { stagger: 200 });
+          curve.__zones = [zt, zb, ...zl, m1, ar, ...t];
+        },
+      },
+      {
+        say: `**Logistic regression** bends the line into an S-shaped curve, the **sigmoid**, which can never leave 0% to 100%. Here the chance of passing is ${pct(p(1))} at 1 hour, ${pct(p(3))} at 3 hours and ${pct(p(5))} at 5 hours. It crosses 50% at **${x50.toFixed(2)} hours**.`,
+        run: async () => {
+          await A.fadeOut(curve.__zones, { dur: 300 });
+          const lin = (x) => Math.max(-0.25, Math.min(1.25, LIN.a + LIN.b * x));
+          await A.tween(1600, (t) => curve.setAttribute("d", S.curvePath(fr.X, (x) => fr.Y((1 - t) * lin(x) + t * p(x)), 0, 8, 120)));
+          curve.setAttribute("stroke", S.col("blue"));
+          const h50 = [S.line(80, fr.Y(0.5), fr.X(x50), fr.Y(0.5), { color: "ink3", width: 2, dash: "5 5", hide: true }), S.line(fr.X(x50), fr.Y(0.5), fr.X(x50), fr.Y(-0.25), { color: "ink3", width: 2, dash: "5 5", hide: true })];
+          await A.fadeIn(h50);
+          const pts = [1, 3, 5].map((h) => S.circle(fr.X(h), fr.Y(p(h)), 7, { fill: "orange", hide: true }));
+          await A.fadeIn(pts, { stagger: 150 });
+          const t = [S.pill(PX, 90, "the sigmoid (S-curve)", { size: 20, color: "blue", hide: true }), ...[1, 3, 5].map((h, i) => S.text(PX, 150 + i * 42, `${h} h → ${pct(p(h))}`, { size: 21, weight: 750, color: "orange", hide: true })),
+            S.text(PX, 300, `50% at ${x50.toFixed(2)} hours`, { size: 19, weight: 650, color: "ink2", hide: true })];
+          await A.fadeIn(t, { stagger: 150 });
+          curve.__lab = [...h50, ...pts, ...t];
+        },
+      },
+      {
+        say: `**Odds** compare yes with no: odds = p ÷ (1 − p). At 4 hours the chance is ${p(4).toFixed(4)}, so the odds are ${p(4).toFixed(4)} ÷ ${(1 - p(4)).toFixed(4)} = **${odds(p(4)).toFixed(2)}**. Take the log of the odds and the S straightens into a line: **ln(odds) = ${num(L.b0, 2)} + ${L.b1.toFixed(2)} × hours**. That line is the **logit**.`,
+        run: async () => {
+          await A.fadeOut([...curve.__lab, ...dots], { dur: 300 });
+          const q = p(4);
+          const m = S.circle(fr.X(4), fr.Y(q), 8, { fill: "orange", hide: true });
+          await A.fadeIn(m);
+          const t = [S.text(PX, 80, "at 4 hours", { size: 19, weight: 700, color: "ink2", hide: true }), S.text(PX, 120, `chance = ${q.toFixed(4)}`, { size: 21, weight: 750, color: "blue", hide: true }),
+            S.text(PX, 162, `odds = ${q.toFixed(4)} ÷ ${(1 - q).toFixed(4)} = ${odds(q).toFixed(2)}`, { size: 18, weight: 750, color: "ink", hide: true }),
+            S.text(PX, 204, `log-odds = ln ${odds(q).toFixed(2)} = ${Math.log(odds(q)).toFixed(2)}`, { size: 19, weight: 750, color: "purple", hide: true })];
+          await A.fadeIn(t, { stagger: 350 });
+          // log-odds axis: -5 to 5 over the same height
+          const LY = S.scale(-5, 5, fr.Y(-0.25), fr.Y(1.25)), logit = (x) => L.b0 + L.b1 * x;
+          const lg = S.group({ hide: true });
+          [-4, -2, 0, 2, 4].forEach((v) => { S.line(80, LY(v), 500, LY(v), { color: "line", width: 1, parent: lg }); S.text(72, LY(v) + 5, num(v, 0), { size: 15, color: "ink3", anchor: "end", parent: lg }); });
+          S.root.insertBefore(lg, grid);
+          const yl = [...fr.el.querySelectorAll("text")].find((e) => e.textContent === "chance of passing");
+          await A.all([A.fadeOut(grid, { dur: 600 }), A.fadeIn(lg, { dur: 600 }), A.swap(yl, "log-odds of passing")]);
+          const clip = (v) => Math.max(fr.Y(1.25), Math.min(fr.Y(-0.25), v));
+          await A.tween(1800, (k) => {
+            curve.setAttribute("d", S.curvePath(fr.X, (x) => clip((1 - k) * fr.Y(p(x)) + k * LY(logit(x))), 0, 8, 120));
+            m.setAttribute("cy", (1 - k) * fr.Y(q) + k * LY(logit(4)));
+          });
+          curve.setAttribute("stroke", S.col("purple"));
+          const e = S.pill(PX, 290, `ln(odds) = ${num(L.b0, 2)} + ${L.b1.toFixed(2)} × hours`, { size: 19, color: "purple", hide: true });
+          const e2 = S.text(PX, 332, "a straight line: the logit", { size: 18, color: "ink2", hide: true });
+          await A.fadeIn([e, e2]);
+        },
+      },
+      {
+        say: `The slope ${L.b1.toFixed(3)} is easier to read through e: **e^${L.b1.toFixed(3)} = ${OR.toFixed(2)}** is the **odds ratio**. Every extra hour multiplies the odds of passing by ${OR.toFixed(2)}. The chance of passing does not grow evenly, though: it rises fastest in the middle of the S.`,
+        run: async () => {
+          S.clear();
+          const top = S.pill(400, 70, `odds ratio = e^${L.b1.toFixed(3)} = ${OR.toFixed(2)}`, { size: 26, color: "purple", hide: true });
+          await A.fadeIn(top);
+          S.text(40, 168, "odds", { size: 19, weight: 700, color: "ink2", anchor: "start" });
+          S.text(40, 258, "chance", { size: 19, weight: 700, color: "ink2", anchor: "start" });
+          const xs = [170, 300, 430, 560, 690];
+          for (let i = 0; i < 5; i++) {
+            const h = i + 1, q = p(h);
+            const els = [S.text(xs[i], 125, `${h} h`, { size: 19, weight: 700, color: "ink3", hide: true }), S.pill(xs[i], 162, fmtOdds(odds(q)), { size: 22, color: "purple", hide: true }), S.text(xs[i], 265, pct(q), { size: 20, weight: 700, color: "blue", hide: true })];
+            if (i > 0) els.push(S.arrow(xs[i - 1] + 44, 205, xs[i] - 44, 205, { color: "orange", width: 2.5, label: "× " + OR.toFixed(2), size: 17, hide: true }));
+            await A.fadeIn(els, { dur: 350 });
+          }
+          const b = S.text(400, 345, "same factor every hour for the odds,\nbut the chance levels off near 100%", { size: 19, color: "ink2", hide: true });
+          await A.fadeIn(b);
+        },
+      },
+      {
+        say: `How is the curve chosen? By **maximum likelihood**: pick the curve that makes what really happened as probable as possible, so the orange gaps shrink. A flat 50% curve scores a log-likelihood of ${L.ll0.toFixed(2)}; the best S-curve reaches **${L.ll.toFixed(2)}**. The **likelihood-ratio test**: χ² = 2 × (${(-L.ll0).toFixed(3)} − ${(-L.ll).toFixed(3)}) = **${chi.toFixed(2)}**, p = ${pv.toFixed(4)}.`,
+        run: async () => {
+          S.clear();
+          mkFrame();
+          dots.forEach((d) => d.setAttribute("opacity", 1));
+          const gaps = LOG_H.map(() => S.line(0, 0, 0, 0, { color: "orange", width: 3 }));
+          gaps.forEach((g) => S.root.insertBefore(g, dots[0]));
+          const cv = S.path("", { color: "blue", width: 3 });
+          const llT = S.text(PX, 140, "", { size: 30, weight: 800, color: "blue" });
+          S.text(PX, 95, "log-likelihood", { size: 19, weight: 700, color: "ink2" });
+          const draw = (b0, b1) => {
+            cv.setAttribute("d", S.curvePath(fr.X, (x) => fr.Y(sigm(b0 + b1 * x)), 0, 8, 120));
+            LOG_H.forEach((h, i) => setLine(gaps[i], fr.X(h), fr.Y(LOG_P[i]), fr.X(h), fr.Y(sigm(b0 + b1 * h))));
+            S.setText(llT, num(logLik(b0, b1), 2));
+          };
+          draw(0, 0);
+          await A.wait(700);
+          await A.tween(2200, (t) => draw(L.b0 * t, L.b1 * t));
+          const t2 = [S.text(PX, 185, `flat 50% curve: ${L.ll0.toFixed(2)}`, { size: 17, color: "ink3", hide: true }),
+            S.pill(PX, 250, `χ² = 2 × ${(L.ll - L.ll0).toFixed(3)} = ${chi.toFixed(2)}`, { size: 20, color: "green", hide: true }),
+            S.text(PX, 292, `p = ${pv.toFixed(4)}: hours really help`, { size: 18, weight: 650, color: "green", hide: true })];
+          await A.fadeIn(t2, { stagger: 250 });
+        },
+      },
+      {
+        say: `**Logistic regression** models a yes/no outcome. It fits a straight line to the **log-odds** (the logit), which becomes an S-curve of probabilities (the sigmoid). Read the slope as an **odds ratio**: here ${OR.toFixed(2)} per extra hour. The curve is found by maximum likelihood.`,
+        run: async () => {
+          S.clear();
+          const p1 = S.pill(400, 85, `ln(odds) = ${num(L.b0, 2)} + ${L.b1.toFixed(2)} × hours`, { size: 25, color: "purple", hide: true });
+          const p2 = S.pill(400, 165, "p = 1 ÷ (1 + e^−(b₀ + b₁x)): always between 0 and 1", { size: 22, color: "blue", hide: true });
+          const p3 = S.pill(400, 245, `odds ratio = e^${L.b1.toFixed(3)} = ${OR.toFixed(2)} per extra hour`, { size: 23, color: "ink", hide: true });
+          const p4 = S.pill(400, 325, `odds = p ÷ (1 − p)   ·   fitted by maximum likelihood`, { size: 21, hide: true });
+          const tip = S.text(400, 400, "b is a change in log-odds, not in probability", { size: 18, color: "ink3", hide: true });
+          await A.fadeIn([p1, p2, p3, p4, tip], { stagger: 280 });
+        },
+      },
+    ];
+  });
+
+  /* ------------------------------------------------------------------ 8.5 confusion matrix */
+  Walk.register("confusion-matrix", {"title": "The confusion matrix: turning chances into yes or no", "lesson": "8.5", "terms": ["Confusion matrix", "Sensitivity / specificity"]}, (S, A) => {
+    const L = fitLogit();
+    const prob = LOG_H.map((h) => sigm(L.b0 + L.b1 * h));
+    const hourAt = (c) => (Math.log(c / (1 - c)) - L.b0) / L.b1;      // where the S-curve reaches the cut-off
+    const count = (c) => { const k = { tp: 0, fp: 0, fn: 0, tn: 0 }; prob.forEach((q, i) => { const yes = q >= c; if (LOG_P[i]) k[yes ? "tp" : "fn"]++; else k[yes ? "fp" : "tn"]++; }); return k; };
+    const sens = (k) => k.tp / (k.tp + k.fn), spec = (k) => k.tn / (k.tn + k.fp);
+    const pc = (v) => Math.round(v * 100) + "%";
+    // matrix geometry: rows = predicted (pass, fail), columns = actually (passed, failed)
+    const MX = 545, MY = 112, CW = 112, CH = 92;
+    const cell = { tp: [0, 0], fp: [0, 1], fn: [1, 0], tn: [1, 1] };
+    let fr, dots, cutEls = [], mDots = [], counts = {}, stats = [];
+    const cutLines = (c) => { const x = hourAt(c); return [[80, fr.Y(c), fr.X(x), fr.Y(c)], [fr.X(x), fr.Y(c), fr.X(x), fr.Y(0)]]; };
+    function placeCut(c) {
+      const [l1, l2] = cutLines(c), x = fr.X(hourAt(c));
+      setLine(cutEls[0], ...l1); setLine(cutEls[1], ...l2);
+      cutEls[2].setAttribute("x", x); cutEls[2].setAttribute("width", Math.max(0, 470 - x));
+      S.setText(cutEls[3], "cut-off " + pc(c));
+    }
+    function cellPos(key, j) { const [r, c] = cell[key]; return [MX + c * CW + 22 + (j % 5) * 17, MY + r * CH + 52 + Math.floor(j / 5) * 17]; }
+    function layout(c, animate) {
+      const n = { tp: 0, fp: 0, fn: 0, tn: 0 }, moves = [];
+      prob.forEach((q, i) => {
+        const key = LOG_P[i] ? (q >= c ? "tp" : "fn") : (q >= c ? "fp" : "tn");
+        const [x, y] = cellPos(key, n[key]++);
+        if (animate) moves.push(A.move(mDots[i], x, y, { dur: 900 })); else { mDots[i].setAttribute("cx", x); mDots[i].setAttribute("cy", y); }
+      });
+      Object.keys(counts).forEach((k) => S.setText(counts[k], String(n[k])));
+      return Promise.all(moves);
+    }
+    return [
+      {
+        say: "Logistic regression gave each of the 20 students a **chance** of passing (the S-curve). Ten really passed (top row, green) and ten really failed (bottom row, purple). But a teacher wants a plain **yes or no** for each student.",
+        run: async () => {
+          fr = S.frame({ x1: 80, x2: 470, y1: 60, y2: 330, xmin: 0, xmax: 6.5, ymin: 0, ymax: 1, xstep: 1, ystep: 0.5, yfmt: (v) => Math.round(v * 100) + "%", xlabel: "hours of study", ylabel: "chance of passing", hide: true });
+          await A.fadeIn(fr.el);
+          const cv = S.curve(fr, (x) => sigm(L.b0 + L.b1 * x), { from: 0, to: 6.5, color: "blue", width: 3, hide: true });
+          await A.draw(cv);
+          dots = LOG_H.map((h, i) => S.circle(fr.X(h), fr.Y(LOG_P[i]), 6.5, { fill: LOG_P[i] ? "green" : "purple", hide: true }));
+          await A.fadeIn(dots, { stagger: 40 });
+          const q = [S.pill(640, 170, "chance → yes or no?", { size: 22, color: "ink", hide: true })];
+          await A.fadeIn(q);
+          stats = q;
+        },
+      },
+      {
+        say: `Choose a **cut-off**: predict "pass" when the chance is at least **50%**. The curve reaches 50% at ${hourAt(0.5).toFixed(2)} hours, so everyone to the right of the dashed line is predicted to pass, and everyone to the left to fail.`,
+        run: async () => {
+          await A.fadeOut(stats, { dur: 250 });
+          cutEls = [S.line(0, 0, 0, 0, { color: "orange", width: 2.5, dash: "6 5", hide: true }), S.line(0, 0, 0, 0, { color: "orange", width: 2.5, dash: "6 5", hide: true }),
+            soft(S.rect(0, 60, 0, 270, { fill: "green", rx: 0, hide: true }), 0.1), S.text(fr.X(0.15), 0, "", { size: 17, weight: 750, color: "orange", anchor: "start", hide: true })];
+          S.root.insertBefore(cutEls[2], fr.el);
+          placeCut(0.5);
+          cutEls[3].setAttribute("y", fr.Y(0.5) - 10); cutEls[3].querySelectorAll("tspan").forEach((t) => t.setAttribute("y", fr.Y(0.5) - 10));
+          await A.fadeIn(cutEls.slice(0, 2).concat(cutEls[3]));
+          await A.fadeIn(cutEls[2]);
+          stats = [S.pill(640, 150, "right of the line: predict pass", { size: 18, color: "green", hide: true }), S.pill(640, 210, "left of the line: predict fail", { size: 18, color: "ink3", hide: true })];
+          await A.fadeIn(stats, { stagger: 200 });
+        },
+      },
+      {
+        say: "Sort the students into a 2 × 2 table, the **confusion matrix**: 8 **true positives** (predicted pass, did pass), 8 **true negatives** (predicted fail, did fail), 2 **false positives** (predicted pass, but failed) and 2 **false negatives** (predicted fail, but passed).",
+        run: async () => {
+          await A.fadeOut(stats, { dur: 250 });
+          const g = S.group({ hide: true });
+          S.rect(MX, MY, 2 * CW, 2 * CH, { fill: "card", stroke: "line", rx: 10, parent: g });
+          S.line(MX + CW, MY, MX + CW, MY + 2 * CH, { color: "line", width: 2, parent: g });
+          S.line(MX, MY + CH, MX + 2 * CW, MY + CH, { color: "line", width: 2, parent: g });
+          S.text(MX + CW / 2, MY - 32, "really", { size: 17, color: "ink3", weight: 600, parent: g });
+          S.text(MX + CW / 2, MY - 12, "passed", { size: 18, color: "green", weight: 750, parent: g });
+          S.text(MX + 1.5 * CW, MY - 32, "really", { size: 17, color: "ink3", weight: 600, parent: g });
+          S.text(MX + 1.5 * CW, MY - 12, "failed", { size: 18, color: "purple", weight: 750, parent: g });
+          S.text(MX - 10, MY + CH / 2 - 3, "predict\npass", { size: 17, color: "ink2", weight: 700, anchor: "end", parent: g });
+          S.text(MX - 10, MY + 1.5 * CH - 3, "predict\nfail", { size: 17, color: "ink2", weight: 700, anchor: "end", parent: g });
+          const names = { tp: "TP", fp: "FP", fn: "FN", tn: "TN" };
+          Object.keys(cell).forEach((k) => { const [r, c] = cell[k]; S.text(MX + c * CW + 10, MY + r * CH + 34, names[k], { size: 17, weight: 750, color: k === "tp" || k === "tn" ? "green" : "red", anchor: "start", parent: g }); counts[k] = S.text(MX + c * CW + CW - 14, MY + r * CH + 36, "0", { size: 28, weight: 800, color: "ink", anchor: "end", parent: g }); });
+          await A.fadeIn(g);
+          mDots = LOG_H.map((h, i) => S.circle(fr.X(h), fr.Y(LOG_P[i]), 6.5, { fill: LOG_P[i] ? "green" : "purple" }));
+          await layout(0.5, true);
+        },
+      },
+      {
+        say: "**Sensitivity**: of the 10 students who really passed, how many did we predict to pass? 8 ÷ 10 = **80%**. **Specificity**: of the 10 who really failed, how many did we predict to fail? 8 ÷ 10 = **80%**. Overall **accuracy** is (8 + 8) ÷ 20 = 80%.",
+        run: async () => {
+          const k = count(0.5);
+          const c1 = S.rect(MX - 4, MY - 4, CW + 8, 2 * CH + 8, { fill: "none", stroke: "green", strokeWidth: 3.5, rx: 12, hide: true });
+          const c2 = S.rect(MX + CW - 4, MY - 4, CW + 8, 2 * CH + 8, { fill: "none", stroke: "purple", strokeWidth: 3.5, rx: 12, hide: true, dash: "7 5" });
+          await A.fadeIn(c1);
+          stats = [S.text(MX + CW, 345, `sensitivity = ${k.tp} ÷ ${k.tp + k.fn} = ${pc(sens(k))}`, { size: 19, weight: 750, color: "green", hide: true })];
+          await A.fadeIn(stats[0]);
+          await A.fadeIn(c2);
+          stats.push(S.text(MX + CW, 378, `specificity = ${k.tn} ÷ ${k.tn + k.fp} = ${pc(spec(k))}`, { size: 19, weight: 750, color: "purple", hide: true }));
+          await A.fadeIn(stats[1]);
+          stats.push(S.text(MX + CW, 411, `accuracy = ${k.tp + k.tn} ÷ 20 = ${pc((k.tp + k.tn) / 20)}`, { size: 19, weight: 650, color: "ink2", hide: true }));
+          await A.fadeIn(stats[2]);
+          stats.push(c1, c2);
+        },
+      },
+      {
+        say: `The cut-off is a choice. Lower it to **15%** and we catch all 10 passers (sensitivity ${pc(sens(count(0.15)))}) but wrongly flag ${count(0.15).fp} who failed (specificity ${pc(spec(count(0.15)))}). Raise it to **80%** and it flips: sensitivity ${pc(sens(count(0.8)))}, specificity ${pc(spec(count(0.8)))}.`,
+        run: async () => {
+          await A.fadeOut(stats, { dur: 250 });
+          let cur = 0.5;
+          const slide = async (to) => { const from = cur; await A.tween(1500, (t) => { cur = from + (to - from) * t; placeCut(cur); layout(cur, false); }); cur = to; };
+          await slide(0.15);
+          await A.wait(900);
+          await slide(0.8);
+          const rows = [["cut-off", "sensitivity", "specificity"], ...[0.15, 0.5, 0.8].map((c) => [pc(c), pc(sens(count(c))), pc(spec(count(c)))])];
+          const tb = S.table(MX - 70, 318, rows, { colW: [90, 110, 110], rowH: 29, size: 17, hide: true });
+          await A.fadeIn(tb.el);
+        },
+      },
+      {
+        say: "**The confusion matrix** counts right and wrong calls at one cut-off. **Sensitivity** is the share of real yeses we caught; **specificity** is the share of real noes we correctly cleared. Lowering the cut-off trades specificity for sensitivity. And beware accuracy alone when one outcome is rare.",
+        run: async () => {
+          S.clear();
+          const p1 = S.pill(400, 85, "confusion matrix: TP · FP · FN · TN at one cut-off", { size: 23, color: "ink", hide: true });
+          const p2 = S.pill(400, 165, "sensitivity = TP ÷ (TP + FN) = 8 ÷ 10 = 80%", { size: 22, color: "green", hide: true });
+          const p3 = S.pill(400, 245, "specificity = TN ÷ (TN + FP) = 8 ÷ 10 = 80%", { size: 22, color: "purple", hide: true });
+          const p4 = S.pill(400, 325, "lower cut-off: more caught, more false alarms", { size: 22, hide: true });
+          const tip = S.text(400, 400, "If only 1% say yes, always saying no is 99% accurate and useless.", { size: 18, color: "ink3", hide: true });
+          await A.fadeIn([p1, p2, p3, p4, tip], { stagger: 280 });
         },
       },
     ];
