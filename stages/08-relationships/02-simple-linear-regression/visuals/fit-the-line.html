@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fit the Line Yourself</title>
+<link rel="stylesheet" href="../../../../assets/visuals.css">
+</head>
+<body>
+<main class="viz">
+  <div class="viz-head">
+    <div>
+      <h1>Fit the line yourself</h1>
+      <p class="hint">Drag the sliders to place a line through the eight students. Each orange square has the area of one squared miss. The line with the smallest total area is the least-squares line.</p>
+    </div>
+    <button id="theme" type="button">Theme: auto</button>
+  </div>
+
+  <svg id="plot" viewBox="0 0 760 360" role="img" aria-label="Scatter of study hours and exam score with your line and squared residuals"></svg>
+
+  <div class="legend">
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="var(--dot)"/></svg>Student</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="6" width="14" height="3" fill="var(--series-1)"/></svg>Your line</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="6" width="14" height="3" fill="var(--text-primary)" opacity="0.5"/></svg>Best line (shown after you snap)</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="1" width="12" height="12" fill="var(--series-2)" opacity="0.4"/></svg>Squared miss</span>
+  </div>
+
+  <div class="readout" aria-live="polite">
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-2)"></span>Your total squared miss (SSE)</div><div class="value" id="sse"></div></div>
+    <div class="card"><div class="label">Best possible SSE</div><div class="value" id="best">141.9</div></div>
+    <div class="card"><div class="label">Your line</div><div class="value" id="eq" style="font-size:1.15rem"></div></div>
+    <div class="card"><div class="label">Extra squared miss</div><div class="value" id="gap"></div></div>
+  </div>
+  <p class="verdict" id="verdict" aria-live="polite"></p>
+
+  <div class="controls col" id="sliders"></div>
+  <div class="controls">
+    <button id="snap" type="button">Snap to the best line</button>
+    <button id="flat" type="button">Flat line at the mean</button>
+    <button id="squares" type="button" aria-pressed="true">Hide the squares</button>
+  </div>
+</main>
+
+<script src="../../../../assets/visuals.js"></script>
+<script>
+const H = [1, 2, 3, 4, 5, 6, 7, 8];
+const Y = [48, 62, 55, 66, 63, 74, 70, 82];
+const B = 166 / 42, A = 65 - B * 4.5;
+const BEST = 141.9;
+const S = { a: 50, b: 3, showSq: true, snapped: false };
+const svg = document.getElementById("plot");
+const $ = (id) => document.getElementById(id);
+const layer = Viz.el("g", {}, svg);
+let sa, sb;
+
+function render() {
+  const X = Viz.scale(0, 9, 60, 725);
+  const Yc = Viz.scale(30, 95, 320, 20);
+  const pxPerUnit = Math.abs(Yc(1) - Yc(0));
+  layer.replaceChildren();
+  [40, 50, 60, 70, 80, 90].forEach((v) => {
+    Viz.el("line", { x1: 60, x2: 725, y1: Yc(v), y2: Yc(v), stroke: "var(--grid)", "stroke-width": 1 }, layer);
+    Viz.el("text", { x: 52, y: Yc(v) + 5, "text-anchor": "end" }, layer).textContent = v;
+  });
+  Viz.axisBottom(layer, X, { y: 320, from: 0, to: 9, step: 1 });
+  Viz.el("text", { x: 725, y: 352, "text-anchor": "end", opacity: 0.85 }, layer).textContent = "hours studied";
+  Viz.el("text", { x: 60, y: 14, opacity: 0.85 }, layer).textContent = "exam score";
+
+  let sse = 0;
+  H.forEach((h, i) => {
+    const fit = S.a + S.b * h;
+    const miss = Y[i] - fit;
+    sse += miss * miss;
+    if (S.showSq) {
+      const side = Math.abs(miss) * pxPerUnit;
+      Viz.el("rect", { x: X(h), y: Math.min(Yc(Y[i]), Yc(fit)), width: side, height: side, fill: "var(--series-2)", opacity: 0.35, stroke: "var(--series-2)", "stroke-width": 1 }, layer);
+    }
+    Viz.el("line", { x1: X(h), x2: X(h), y1: Yc(Y[i]), y2: Yc(fit), stroke: "var(--series-2)", "stroke-width": 2 }, layer);
+  });
+  if (S.snapped) Viz.el("line", { x1: X(0), x2: X(9), y1: Yc(A), y2: Yc(A + 9 * B), stroke: "var(--text-primary)", "stroke-width": 2, "stroke-dasharray": "6 4", opacity: 0.5 }, layer);
+  Viz.el("line", { x1: X(0), x2: X(9), y1: Yc(S.a), y2: Yc(S.a + S.b * 9), stroke: "var(--series-1)", "stroke-width": 3.5, "stroke-linecap": "round" }, layer);
+  H.forEach((h, i) => Viz.el("circle", { cx: X(h), cy: Yc(Y[i]), r: 6, fill: "var(--dot)", stroke: "var(--surface-1)", "stroke-width": 2 }, layer));
+
+  $("sse").textContent = sse.toFixed(1);
+  $("eq").textContent = "ŷ = " + S.a.toFixed(1) + (S.b >= 0 ? " + " : " − ") + Math.abs(S.b).toFixed(2) + "x";
+  const gap = sse - BEST;
+  $("gap").textContent = gap < 0.05 ? "0.0" : "+" + gap.toFixed(1);
+  $("verdict").textContent = gap < 0.5
+    ? "That is the least-squares line: no other straight line has a smaller total squared miss (141.9). Slope ≈ 3.95 points per extra hour; intercept ≈ 47.2."
+    : gap < 15
+      ? "Close. Tilt or shift a little more and the total square area shrinks. The minimum is 141.9."
+      : "A long way from the best line. Watch the orange squares: big misses are punished much more than small ones, because the area grows with the square of the miss.";
+}
+
+sa = Viz.slider($("sliders"), { label: "Intercept (score at 0 hours)", min: 30, max: 70, step: 0.5, value: S.a, format: (v) => v.toFixed(1), onInput: (v) => { S.a = v; render(); } });
+sb = Viz.slider($("sliders"), { label: "Slope (points per hour)", min: 0, max: 8, step: 0.05, value: S.b, format: (v) => v.toFixed(2), onInput: (v) => { S.b = v; render(); } });
+$("snap").addEventListener("click", () => { S.a = A; S.b = B; S.snapped = true; sa.set(A); sb.set(B); render(); });
+$("flat").addEventListener("click", () => { S.a = 65; S.b = 0; sa.set(65); sb.set(0); render(); });
+$("squares").addEventListener("click", () => { S.showSq = !S.showSq; $("squares").textContent = S.showSq ? "Hide the squares" : "Show the squares"; $("squares").setAttribute("aria-pressed", S.showSq); render(); });
+Viz.themeToggle($("theme"));
+render();
+</script>
+</body>
+</html>

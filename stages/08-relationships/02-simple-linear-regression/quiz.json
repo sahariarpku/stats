@@ -1,0 +1,60 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "In the regression line ŷ = 47.2 + 3.95x, what does 3.95 mean?",
+      "options": ["The predicted score at 0 hours", "The average change in score for each extra hour", "The correlation", "The total number of hours"],
+      "correct": 1,
+      "explanation": "The slope is the average change in y for one more unit of x: about 3.95 more points per extra hour."
+    },
+    {
+      "stage": "pre",
+      "question": "A residual is...",
+      "options": ["Predicted y − actual y", "Actual y − predicted y", "The slope", "The intercept"],
+      "correct": 1,
+      "explanation": "Residual = actual − predicted: how far a point lands from the line. A positive residual means the point is above the line."
+    },
+    {
+      "stage": "post",
+      "question": "For the study data S_xy = 166 and S_xx = 42, x̄ = 4.5 and ȳ = 65. What is the intercept?",
+      "options": ["3.95", "47.2", "65", "17.8"],
+      "correct": 1,
+      "explanation": "b = 166 ÷ 42 = 3.952, so a = ȳ − b·x̄ = 65 − 3.952 × 4.5 = 47.2."
+    },
+    {
+      "stage": "post",
+      "question": "Using ŷ = 47.2 + 3.95x, what is the predicted score for 6.5 hours of study?",
+      "options": ["65.0", "72.9", "76.8", "126.3"],
+      "correct": 1,
+      "explanation": "ŷ = 47.2 + 3.95 × 6.5 = 47.2 + 25.7 = 72.9."
+    },
+    {
+      "stage": "post",
+      "question": "Why is predicting the score for 20 hours of study (when the data cover 1 to 8 hours) risky?",
+      "options": ["The slope would change sign", "It is extrapolation: the straight-line pattern may not hold outside the observed range", "20 is not a whole number of hours", "Regression only works for predictions below the mean"],
+      "correct": 1,
+      "explanation": "The line predicts 126, above a possible maximum of 100. Outside the measured range we have no evidence the pattern stays straight."
+    },
+    {
+      "stage": "post",
+      "question": "SSE = 141.9 with n = 8. What is s, the typical residual?",
+      "options": ["4.86", "5.95", "17.7", "23.65"],
+      "correct": 0,
+      "explanation": "s = √[SSE ÷ (n − 2)] = √(141.9 ÷ 6) = √23.65 = 4.86. Divide by n − 2 because a and b were estimated."
+    },
+    {
+      "stage": "post",
+      "question": "b = 3.952 and SE(b) = 0.750 with n = 8. What are t and its degrees of freedom?",
+      "options": ["t = 5.27, df = 6", "t = 5.27, df = 7", "t = 0.19, df = 6", "t = 2.45, df = 6"],
+      "correct": 0,
+      "explanation": "t = b ÷ SE(b) = 3.952 ÷ 0.750 = 5.27 with n − 2 = 6 degrees of freedom. It matches the t from the correlation test."
+    },
+    {
+      "stage": "post",
+      "question": "Which property is true of the residuals from a least-squares line?",
+      "options": ["They are all positive", "They add to zero", "They equal the slope", "They are all smaller than 1"],
+      "correct": 1,
+      "explanation": "The least-squares line passes through (x̄, ȳ), so positive and negative misses balance exactly and add to zero."
+    }
+  ]
+}
