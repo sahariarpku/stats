@@ -1,0 +1,53 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is the range of 18, 5, 27, 11, 9?",
+      "options": ["22", "27", "18", "5"],
+      "correct": 0,
+      "explanation": "Range = largest − smallest = 27 − 5 = 22. You do not need to sort the list to find it."
+    },
+    {
+      "stage": "pre",
+      "question": "Why can a single typo (say 1,000 instead of 100) badly distort the range?",
+      "options": ["The range averages all values", "The range uses only the max and min, so one extreme value changes it directly", "The range divides by n − 1", "It cannot"],
+      "correct": 1,
+      "explanation": "Range = max − min. An extreme value becomes the max (or min) and stretches the range by exactly its own size."
+    },
+    {
+      "stage": "post",
+      "question": "For the sorted data 2, 4, 6, 8, 10, 12, 14 (n = 7), what are Q1 and Q3 using the median-of-halves method?",
+      "options": ["Q1 = 4, Q3 = 12", "Q1 = 3, Q3 = 13", "Q1 = 2, Q3 = 14", "Q1 = 6, Q3 = 10"],
+      "correct": 0,
+      "explanation": "The median is 8, left out of both halves because n is odd. Lower half 2, 4, 6 has median 4. Upper half 10, 12, 14 has median 12."
+    },
+    {
+      "stage": "post",
+      "question": "In the five-number summary, which pair of values gives the IQR?",
+      "options": ["Max − Min", "Q3 − Q1", "Median − Min", "Max − Q3"],
+      "correct": 1,
+      "explanation": "IQR = Q3 − Q1, the width of the middle 50% of the data. Max − Min is the range."
+    },
+    {
+      "stage": "post",
+      "question": "Q1 = 15 and Q3 = 38. What is the upper outlier fence?",
+      "options": ["38", "72.5", "53", "61"],
+      "correct": 1,
+      "explanation": "IQR = 38 − 15 = 23. Upper fence = Q3 + 1.5 × IQR = 38 + 34.5 = 72.5. Values above 72.5 are flagged as outliers."
+    },
+    {
+      "stage": "post",
+      "question": "A value is flagged as an outlier by the 1.5 × IQR rule. What should you do first?",
+      "options": ["Delete it immediately", "Replace it with the mean", "Check where it came from: a typo should be fixed, a genuine rare value kept", "Ignore the IQR"],
+      "correct": 2,
+      "explanation": "The rule only says 'look here'. Outliers can be errors or real and important events. Deleting without checking can destroy the most interesting data."
+    },
+    {
+      "stage": "post",
+      "question": "Your quartiles from Excel differ slightly from your hand-calculated ones. What is the most likely reason?",
+      "options": ["You made an arithmetic mistake", "Software and textbooks use different (equally valid) quartile methods", "Excel is wrong", "The data changed"],
+      "correct": 1,
+      "explanation": "Several accepted quartile definitions exist (median-of-halves, inclusive, exclusive). They differ slightly for small datasets. In an exam, use the method your course teaches."
+    }
+  ]
+}

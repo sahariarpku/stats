@@ -4,7 +4,7 @@
 
 **Type:** Learn
 **Tools:** Pen and paper. Python or Excel is optional.
-**Prerequisites:** None
+**Prerequisites:** Stage 0
 **Time:** ~25 minutes
 
 ## What you will be able to do
@@ -64,7 +64,11 @@ Use the same five numbers: `4, 8, 6, 5, 3`.
 
 The median is **5**.
 
+**Where is the middle?** With *n* values, the median sits at position (n + 1) ÷ 2. For 5 values that is position 3. For 7 values, position 4.
+
 **What if there is an even number of values?** Take `3, 4, 5, 6`. There is no single middle, so average the *two* middle numbers: (4 + 5) ÷ 2 = **4.5**.
+
+A second example. Seven midterm scores: `62, 78, 91, 55, 84, 70, 88`. Sorted: `55, 62, 70, 78, 84, 88, 91`. The middle is the 4th value, **78**. The mean is 528 ÷ 7 = 75.4, a little lower because the single 55 pulls it down.
 
 > ⚠️ **The classic mistake:** forgetting to sort first. The middle of `4, 8, 6, 5, 3` as written is 6. That is wrong. Always sort.
 
@@ -80,6 +84,8 @@ Shoe sizes sold in a day: `7, 8, 8, 9, 9, 9, 10`.
 Two things to know:
 - Data can have **two or more modes** (`1, 2, 2, 3, 3` has modes 2 and 3).
 - If **every value appears once**, there is no useful mode. Ignore it.
+
+The mode ignores outliers completely. Add 10,000 to `2, 5, 5, 7` and the mode is still 5.
 
 The mode is the only one of the three that works for **categories**. "Most common car colour: white" is a mode. You cannot average colours.
 
@@ -100,6 +106,12 @@ The mean moved by **15**. The median moved by **1**.
 Now open the [animation](../visuals/mean-vs-median.html) and press **Add an outlier**. Then drag that far-away dot back and forth. Notice the blue mean marker chasing it, while the orange median marker barely moves.
 
 > ✅ **Check yourself.** In your own words: *why* does the median ignore the owner's $200k? *(Answer: it only looks at the **position** in the sorted list. The owner is "last in line" whether they earn $60k or $2 million.)*
+
+One more real-looking case. A small company pays its six people `$42,000, $45,000, $48,000, $51,000, $55,000` and `$800,000` (the founder). The mean is $1,041,000 ÷ 6 = **$173,500**, a number that describes *nobody* in the building. The median is ($48,000 + $51,000) ÷ 2 = **$49,500**, which describes the typical employee well.
+
+> 💡 **Why "balance point"?** If the numbers sat on a seesaw, the mean is where it balances. The distances to the left of the mean always exactly cancel the distances to the right: Σ(x − x̄) = 0. One far-away value tips the whole seesaw.
+
+> 💡 **Symmetric data.** When the data are perfectly symmetric (like a bell curve), the mean, median and mode land on the same value. The further they drift apart, the more skewed your data are. Lesson 1.4 picks this up.
 
 ### Step 5: Which one do I use?
 
@@ -136,14 +148,16 @@ Keep the one-page summary: [`outputs/cheat-sheet.md`](../outputs/cheat-sheet.md)
 
 1. **Easy.** Find the mean and the median of `4, 8, 6, 5, 3`.
 2. **Medium.** Find the median of `12, 15, 11, 20`. *(Careful: how many values are there?)*
-3. **Hard.** Add `100` to the list in exercise 1. Predict first: will the mean or the median change more? Then calculate both.
+3. **Medium.** Eight months of sales (in $1,000s): `12, 15, 9, 22, 18, 7, 25, 14`. Find the mean and the median.
+4. **Hard.** Add `100` to the list in exercise 1. Predict first: will the mean or the median change more? Then calculate both.
 
 <details>
 <summary>Answers (try first!)</summary>
 
 1. Mean = 26 ÷ 5 = **5.2**. Median: sorted `3, 4, 5, 6, 8` → **5**.
 2. Sorted: `11, 12, 15, 20`. Two middle values, so (12 + 15) ÷ 2 = **13.5**.
-3. New list `3, 4, 5, 6, 8, 100`. Mean = 126 ÷ 6 = **21** (it jumped from 5.2). Median = (5 + 6) ÷ 2 = **5.5** (it barely moved). The mean changes far more.
+3. Sum = 122, so mean = 122 ÷ 8 = **15.25**. Sorted: `7, 9, 12, 14, 15, 18, 22, 25`. The median is (14 + 15) ÷ 2 = **14.5**.
+4. New list `3, 4, 5, 6, 8, 100`. Mean = 126 ÷ 6 = **21** (it jumped from 5.2). Median = (5 + 6) ÷ 2 = **5.5** (it barely moved). The mean changes far more.
 
 </details>
 
@@ -163,4 +177,8 @@ Take the quiz in [`quiz.json`](../quiz.json). Answer the two "pre" questions bef
 
 ## Next
 
-→ **Lesson 2: Spread: range, variance and standard deviation.** Knowing the centre is half the story. How scattered are the values around it?
+→ **Lesson 2: Range, Quartiles and the Box Plot.** Knowing the centre is half the story. How scattered are the values around it?
+
+---
+
+*Based on the "Mean", "Median", "Mode" and related example pages of StatisticsFundamentals.com.*

@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Standard Deviation</title>
+<link rel="stylesheet" href="../../../../assets/visuals.css">
+</head>
+<body>
+<main class="viz">
+  <div class="viz-head">
+    <div>
+      <h1>From deviations to standard deviation</h1>
+      <p class="hint">Each row is one quiz score. Drag a dot (or use the arrow keys). The orange line is its deviation from the mean. The bar on the right is that deviation squared.</p>
+    </div>
+    <button id="theme" type="button">Theme: auto</button>
+  </div>
+
+  <svg id="plot" viewBox="0 0 760 215" role="group" aria-label="Five scores, their deviations from the mean, and the squared deviations"></svg>
+
+  <div class="legend">
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="6" y="0" width="3" height="14" fill="var(--series-1)"/></svg>Mean x̄</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="5.5" width="14" height="3" fill="var(--series-2)"/></svg>Deviation (x − x̄)</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="3" width="12" height="8" fill="var(--series-2)" opacity="0.55"/></svg>Squared deviation (x − x̄)²</span>
+  </div>
+
+  <div class="readout" aria-live="polite">
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>Mean</div><div class="value" id="mean"></div></div>
+    <div class="card"><div class="label">Sum of squares (Σd²)</div><div class="value" id="ss"></div></div>
+    <div class="card"><div class="label" id="varlabel">Variance</div><div class="value" id="var"></div></div>
+    <div class="card"><div class="label">Standard deviation</div><div class="value" id="sd"></div></div>
+  </div>
+
+  <p class="verdict" id="verdict" aria-live="polite"></p>
+
+  <div class="controls">
+    <button id="sample" type="button" aria-pressed="true">Sample (÷ n − 1)</button>
+    <button id="population" type="button" aria-pressed="false">Population (÷ N)</button>
+    <button id="reset" type="button">Reset to the lesson's scores</button>
+    <button id="same" type="button">Make all scores equal</button>
+  </div>
+</main>
+
+<script src="../../../../assets/visuals.js"></script>
+<script>
+const START = [72, 85, 90, 68, 95];
+const DOMAIN = { min: 55, max: 105 };
+const X = Viz.scale(DOMAIN.min, DOMAIN.max, 20, 450);
+const ROW = (i) => 24 + i * 30;
+const BARS = { left: 500, width: 170 };
+
+const svg = document.getElementById("plot");
+let values = [...START];
+let isSample = true;
+
+Viz.axisBottom(svg, X, { y: 168, from: 55, to: 105, step: 10 });
+Viz.el("text", { x: BARS.left, y: 190, class: "strong" }, svg).textContent = "Squared deviation (d²)";
+
+const meanLine = Viz.el("line", { y1: 16, y2: 168, stroke: "var(--series-1)", "stroke-width": 2 }, svg);
+const meanText = Viz.el("text", { y: 11, "text-anchor": "middle", class: "strong" }, svg);
+const rows = values.map((_, i) => {
+  Viz.el("line", { x1: 20, x2: 450, y1: ROW(i), y2: ROW(i), stroke: "var(--grid)", "stroke-width": 1, "stroke-dasharray": "2 4" }, svg);
+  const dev = Viz.el("line", { y1: ROW(i), y2: ROW(i), stroke: "var(--series-2)", "stroke-width": 3 }, svg);
+  const bar = Viz.el("rect", { x: BARS.left, y: ROW(i) - 9, height: 18, fill: "var(--series-2)", opacity: 0.55, rx: 2 }, svg);
+  const label = Viz.el("text", { y: ROW(i) + 4 }, svg);
+  const dot = Viz.el("circle", {
+    class: "dot", cy: ROW(i), r: 8, fill: "var(--dot)", stroke: "var(--surface-1)", "stroke-width": 2,
+    tabindex: 0, role: "slider", "aria-valuemin": DOMAIN.min, "aria-valuemax": DOMAIN.max, "aria-label": "Score " + (i + 1),
+  }, svg);
+  const toValue = (clientX) => {
+    const b = svg.getBoundingClientRect();
+    return Math.round(Math.min(DOMAIN.max, Math.max(DOMAIN.min, X.invert(((clientX - b.left) / b.width) * 760))));
+  };
+  dot.addEventListener("pointerdown", (e) => { dot.setPointerCapture(e.pointerId); dot.focus(); dot._drag = true; });
+  dot.addEventListener("pointermove", (e) => { if (dot._drag) { values[i] = toValue(e.clientX); render(); } });
+  const stop = () => { dot._drag = false; };
+  dot.addEventListener("pointerup", stop);
+  dot.addEventListener("pointercancel", stop);
+  dot.addEventListener("keydown", (e) => {
+    const step = e.shiftKey ? 5 : 1;
+    if (e.key === "ArrowRight" || e.key === "ArrowUp") values[i] = Math.min(DOMAIN.max, values[i] + step);
+    else if (e.key === "ArrowLeft" || e.key === "ArrowDown") values[i] = Math.max(DOMAIN.min, values[i] - step);
+    else return;
+    e.preventDefault();
+    render();
+  });
+  return { dev, bar, label, dot };
+});
+
+const $ = (id) => document.getElementById(id);
+const f = (v) => (Math.round(v * 100) / 100).toString();
+
+function render() {
+  const n = values.length;
+  const m = Viz.mean(values);
+  const d = values.map((v) => v - m);
+  const sq = d.map((x) => x * x);
+  const ss = Viz.sum(sq);
+  const variance = ss / (isSample ? n - 1 : n);
+  const sd = Math.sqrt(variance);
+  const barScale = BARS.width / Math.max(160, ...sq);
+
+  meanLine.setAttribute("x1", X(m)); meanLine.setAttribute("x2", X(m));
+  meanText.setAttribute("x", X(m)); meanText.textContent = "mean " + f(m);
+
+  rows.forEach((row, i) => {
+    row.dot.setAttribute("cx", X(values[i]));
+    row.dot.setAttribute("aria-valuenow", values[i]);
+    row.dev.setAttribute("x1", X(m)); row.dev.setAttribute("x2", X(values[i]));
+    row.bar.setAttribute("width", Math.max(1, sq[i] * barScale));
+    row.label.setAttribute("x", BARS.left + Math.max(1, sq[i] * barScale) + 6);
+    row.label.textContent = "(" + f(d[i]) + ")² = " + f(sq[i]);
+  });
+
+  $("mean").textContent = f(m);
+  $("ss").textContent = f(ss);
+  $("varlabel").textContent = isSample ? "Sample variance s²" : "Population variance σ²";
+  $("var").textContent = f(variance);
+  $("sd").textContent = f(sd);
+  $("verdict").textContent = ss < 1e-9
+    ? "All scores equal the mean, so every deviation is 0 and the standard deviation is 0. No spread at all."
+    : "Variance = " + f(ss) + " ÷ " + (isSample ? "(n − 1) = " + (n - 1) : "N = " + n) + " = " + f(variance) + ". The typical score sits about " + f(sd) + " points from the mean of " + f(m) + ". The sum of the plain deviations is always " + f(Viz.sum(d)) + ", which is why we square them. A dot twice as far away adds four times as much to the sum of squares.";
+}
+
+function setMode(sample) {
+  isSample = sample;
+  $("sample").setAttribute("aria-pressed", sample);
+  $("population").setAttribute("aria-pressed", !sample);
+  render();
+}
+
+$("sample").addEventListener("click", () => setMode(true));
+$("population").addEventListener("click", () => setMode(false));
+$("reset").addEventListener("click", () => { values = [...START]; render(); });
+$("same").addEventListener("click", () => { values = values.map(() => 80); render(); });
+Viz.themeToggle($("theme"));
+render();
+</script>
+<style>
+  button[aria-pressed="true"] { background: var(--surface-2); border-color: var(--series-1); }
+</style>
+</body>
+</html>

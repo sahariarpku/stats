@@ -42,3 +42,11 @@ for data in (salaries, salaries + [200], shoe_sizes):
     assert mode(data) == sorted(lib_multimode(data))
 
 print("Your from-scratch functions match Python's statistics module.")
+
+sales = [12, 15, 9, 22, 18, 7, 25, 14]
+company = [42000, 45000, 48000, 51000, 55000, 800000]
+assert mean(sales) == 15.25 and median(sales) == 14.5
+assert mean(company) == 173500 and median(company) == 49500
+assert median([62, 78, 91, 55, 84, 70, 88]) == 78
+print("Monthly sales  : mean", mean(sales), " median", median(sales))
+print("Company pay    : mean", mean(company), " median", median(company))

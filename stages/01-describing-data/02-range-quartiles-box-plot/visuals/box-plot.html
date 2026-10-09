@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Build a Box Plot</title>
+<link rel="stylesheet" href="../../../../assets/visuals.css">
+</head>
+<body>
+<main class="viz">
+  <div class="viz-head">
+    <div>
+      <h1>Build a box plot</h1>
+      <p class="hint">Each dot is one exam score. Drag a dot (or use the arrow keys) and watch the five numbers and the box plot update. Then press "Add an extreme value".</p>
+    </div>
+    <button id="theme" type="button">Theme: auto</button>
+  </div>
+
+  <svg id="plot" viewBox="0 0 760 270" role="group" aria-label="Exam scores as dots, with the matching box plot underneath"></svg>
+
+  <div class="legend">
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="3" width="12" height="8" fill="none" stroke="var(--series-1)" stroke-width="2"/></svg>Box: middle 50% (Q1 to Q3)</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="6" y="0" width="3" height="14" fill="var(--series-2)"/></svg>Median</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="4.5" fill="none" stroke="var(--text-primary)" stroke-width="2"/></svg>Outlier (outside the fences)</span>
+  </div>
+
+  <div class="readout" aria-live="polite">
+    <div class="card"><div class="label">Min</div><div class="value" id="min"></div></div>
+    <div class="card"><div class="label">Q1</div><div class="value" id="q1"></div></div>
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-2)"></span>Median</div><div class="value" id="q2"></div></div>
+    <div class="card"><div class="label">Q3</div><div class="value" id="q3"></div></div>
+    <div class="card"><div class="label">Max</div><div class="value" id="max"></div></div>
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>IQR (Q3 − Q1)</div><div class="value" id="iqr"></div></div>
+  </div>
+
+  <p class="verdict" id="verdict" aria-live="polite"></p>
+
+  <div class="controls">
+    <button id="add" type="button">Add an extreme value</button>
+    <button id="reset" type="button">Reset</button>
+  </div>
+</main>
+
+<script src="../../../../assets/visuals.js"></script>
+<script>
+const START = [45, 52, 55, 60, 63, 65, 70, 72, 75, 80, 85, 90];
+const EXTREME = 130;
+const DOMAIN = { min: 30, max: 140 };
+const X = Viz.scale(DOMAIN.min, DOMAIN.max, 30, 730);
+const DOT = { r: 8, base: 86, step: 17 };
+const BOX = { y: 190, h: 44 };
+
+const svg = document.getElementById("plot");
+let values = [...START];
+const dots = [];
+
+Viz.axisBottom(svg, X, { y: 104, from: 30, to: 140, step: 10 });
+Viz.el("text", { x: 30, y: 12, class: "strong" }, svg).textContent = "Scores";
+Viz.el("text", { x: 30, y: 150, class: "strong" }, svg).textContent = "Box plot";
+
+const fenceLow = Viz.el("line", { y1: 160, y2: 258, stroke: "var(--text-muted)", "stroke-width": 1, "stroke-dasharray": "3 4" }, svg);
+const fenceHigh = Viz.el("line", { y1: 160, y2: 258, stroke: "var(--text-muted)", "stroke-width": 1, "stroke-dasharray": "3 4" }, svg);
+const whiskerL = Viz.el("line", { stroke: "var(--series-1)", "stroke-width": 2 }, svg);
+const whiskerR = Viz.el("line", { stroke: "var(--series-1)", "stroke-width": 2 }, svg);
+const capL = Viz.el("line", { stroke: "var(--series-1)", "stroke-width": 2 }, svg);
+const capR = Viz.el("line", { stroke: "var(--series-1)", "stroke-width": 2 }, svg);
+const box = Viz.el("rect", { y: BOX.y - BOX.h / 2, height: BOX.h, fill: "var(--surface-2)", stroke: "var(--series-1)", "stroke-width": 2, rx: 3 }, svg);
+const med = Viz.el("line", { y1: BOX.y - BOX.h / 2, y2: BOX.y + BOX.h / 2, stroke: "var(--series-2)", "stroke-width": 3 }, svg);
+const outLayer = Viz.el("g", {}, svg);
+const fenceLabelL = Viz.el("text", { y: 268, "text-anchor": "middle" }, svg);
+const fenceLabelR = Viz.el("text", { y: 268, "text-anchor": "middle" }, svg);
+
+function quartiles(v) {
+  const s = [...v].sort((a, b) => a - b);
+  const half = s.length >> 1;
+  const lower = s.slice(0, half);
+  const upper = s.slice(s.length % 2 ? half + 1 : half);
+  return { q1: Viz.median(lower), q2: Viz.median(s), q3: Viz.median(upper), s };
+}
+
+function makeDot(index) {
+  const dot = Viz.el("circle", {
+    class: "dot", r: DOT.r, fill: "var(--dot)", stroke: "var(--surface-1)", "stroke-width": 2,
+    tabindex: 0, role: "slider", "aria-valuemin": DOMAIN.min, "aria-valuemax": DOMAIN.max,
+  }, svg);
+  dot._title = Viz.el("title", {}, dot);
+  const toValue = (clientX) => {
+    const b = svg.getBoundingClientRect();
+    return Math.round(Math.min(DOMAIN.max, Math.max(DOMAIN.min, X.invert(((clientX - b.left) / b.width) * 760))));
+  };
+  dot.addEventListener("pointerdown", (e) => { dot.setPointerCapture(e.pointerId); dot.focus(); dot._drag = true; });
+  dot.addEventListener("pointermove", (e) => { if (dot._drag) { values[index] = toValue(e.clientX); render(); } });
+  const stop = () => { dot._drag = false; };
+  dot.addEventListener("pointerup", stop);
+  dot.addEventListener("pointercancel", stop);
+  dot.addEventListener("keydown", (e) => {
+    const step = e.shiftKey ? 10 : 1;
+    if (e.key === "ArrowRight" || e.key === "ArrowUp") values[index] = Math.min(DOMAIN.max, values[index] + step);
+    else if (e.key === "ArrowLeft" || e.key === "ArrowDown") values[index] = Math.max(DOMAIN.min, values[index] - step);
+    else return;
+    e.preventDefault();
+    render();
+  });
+  return dot;
+}
+
+function stackLevels() {
+  const order = values.map((_, i) => i).sort((a, b) => values[a] - values[b]);
+  const placed = [];
+  const levels = new Array(values.length).fill(0);
+  for (const i of order) {
+    let level = 0;
+    while (placed.some((p) => p.level === level && Math.abs(X(values[p.i]) - X(values[i])) < DOT.r * 2 + 1)) level++;
+    levels[i] = level;
+    placed.push({ i, level });
+  }
+  return levels;
+}
+
+const $ = (id) => document.getElementById(id);
+const f = Viz.fmt;
+
+function render() {
+  while (dots.length < values.length) dots.push(makeDot(dots.length));
+  while (dots.length > values.length) dots.pop().remove();
+
+  const { q1, q2, q3, s } = quartiles(values);
+  const iqr = q3 - q1;
+  const lowFence = q1 - 1.5 * iqr;
+  const highFence = q3 + 1.5 * iqr;
+  const inside = s.filter((v) => v >= lowFence && v <= highFence);
+  const outliers = s.filter((v) => v < lowFence || v > highFence);
+  const lo = inside[0];
+  const hi = inside[inside.length - 1];
+
+  const levels = stackLevels();
+  values.forEach((v, i) => {
+    const out = v < lowFence || v > highFence;
+    dots[i].setAttribute("cx", X(v));
+    dots[i].setAttribute("cy", DOT.base - levels[i] * DOT.step);
+    dots[i].setAttribute("fill", out ? "var(--series-2)" : "var(--dot)");
+    dots[i].setAttribute("aria-valuenow", v);
+    dots[i].setAttribute("aria-label", "Score " + (i + 1));
+    dots[i]._title.textContent = "Score " + (i + 1) + ": " + v;
+  });
+
+  const clampX = (v) => X(Math.min(DOMAIN.max, Math.max(DOMAIN.min, v)));
+  fenceLow.setAttribute("x1", clampX(lowFence)); fenceLow.setAttribute("x2", clampX(lowFence));
+  fenceHigh.setAttribute("x1", clampX(highFence)); fenceHigh.setAttribute("x2", clampX(highFence));
+  fenceLabelL.setAttribute("x", Math.max(60, clampX(lowFence))); fenceLabelL.textContent = "lower fence " + f(lowFence);
+  fenceLabelR.setAttribute("x", Math.min(700, clampX(highFence))); fenceLabelR.textContent = "upper fence " + f(highFence);
+
+  whiskerL.setAttribute("x1", X(lo)); whiskerL.setAttribute("x2", X(q1)); whiskerL.setAttribute("y1", BOX.y); whiskerL.setAttribute("y2", BOX.y);
+  whiskerR.setAttribute("x1", X(q3)); whiskerR.setAttribute("x2", X(hi)); whiskerR.setAttribute("y1", BOX.y); whiskerR.setAttribute("y2", BOX.y);
+  [[capL, lo], [capR, hi]].forEach(([cap, v]) => {
+    cap.setAttribute("x1", X(v)); cap.setAttribute("x2", X(v));
+    cap.setAttribute("y1", BOX.y - 10); cap.setAttribute("y2", BOX.y + 10);
+  });
+  box.setAttribute("x", X(q1)); box.setAttribute("width", Math.max(1, X(q3) - X(q1)));
+  med.setAttribute("x1", X(q2)); med.setAttribute("x2", X(q2));
+
+  outLayer.replaceChildren();
+  outliers.forEach((v) => Viz.el("circle", { cx: X(v), cy: BOX.y, r: 6, fill: "none", stroke: "var(--text-primary)", "stroke-width": 2 }, outLayer));
+
+  $("min").textContent = f(s[0]); $("q1").textContent = f(q1); $("q2").textContent = f(q2);
+  $("q3").textContent = f(q3); $("max").textContent = f(s[s.length - 1]); $("iqr").textContent = f(iqr);
+  $("verdict").textContent = outliers.length
+    ? "Flagged: " + outliers.join(", ") + ". It lies beyond the fence, so it is drawn as a separate dot and the whisker stops at " + f(hi) + ". Notice the median and IQR shifted only a little, while the max (and so the range) jumped."
+    : "No outliers: every score sits inside the fences (Q1 − 1.5 × IQR to Q3 + 1.5 × IQR). The whiskers reach the smallest and largest scores.";
+  $("add").disabled = values.length > START.length;
+}
+
+$("add").addEventListener("click", () => { values.push(EXTREME); render(); });
+$("reset").addEventListener("click", () => { values = [...START]; render(); });
+Viz.themeToggle($("theme"));
+render();
+</script>
+</body>
+</html>

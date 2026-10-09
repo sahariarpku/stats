@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Z-Score Yardstick</title>
+<link rel="stylesheet" href="../../../../assets/visuals.css">
+</head>
+<body>
+<main class="viz">
+  <div class="viz-head">
+    <div>
+      <h1>One yardstick for two exams</h1>
+      <p class="hint">Maya's two exams use different scales. Move the sliders and see where each score lands once both are measured in standard deviations.</p>
+    </div>
+    <button id="theme" type="button">Theme: auto</button>
+  </div>
+
+  <svg id="plot" viewBox="0 0 760 300" role="img" aria-label="Two raw-score number lines aligned above a shared z-score axis"></svg>
+
+  <div class="legend">
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="var(--series-1)"/></svg>Statistics (mean 70, SD 10)</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="2" y="2" width="10" height="10" fill="var(--series-2)"/></svg>Biology (mean 65, SD 6)</span>
+  </div>
+
+  <div class="readout" aria-live="polite">
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>Statistics z</div><div class="value" id="za"></div></div>
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-2)"></span>Biology z</div><div class="value" id="zb"></div></div>
+  </div>
+  <p class="verdict" id="verdict" aria-live="polite"></p>
+
+  <div class="controls col" id="sliders"></div>
+</main>
+
+<script src="../../../../assets/visuals.js"></script>
+<script>
+const EXAMS = [
+  { name: "Statistics", mu: 70, sigma: 10, score: 85, y: 70, color: "var(--series-1)", shape: "circle" },
+  { name: "Biology", mu: 65, sigma: 6, score: 78, y: 150, color: "var(--series-2)", shape: "square" },
+];
+const Z = Viz.scale(-3, 3, 50, 710);
+const ZY = 235;
+const svg = document.getElementById("plot");
+const $ = (id) => document.getElementById(id);
+const f = (v) => (Math.round(v * 100) / 100).toString();
+
+Viz.el("rect", { x: Z(-1), y: 28, width: Z(1) - Z(-1), height: ZY - 28, fill: "var(--surface-2)", opacity: 0.8 }, svg);
+Viz.el("text", { x: Z(0), y: 22, "text-anchor": "middle" }, svg).textContent = "within ±1 SD (about 68% of a bell curve)";
+
+EXAMS.forEach((e) => {
+  Viz.el("line", { class: "axis-line", x1: Z(-3), x2: Z(3), y1: e.y, y2: e.y }, svg);
+  for (let z = -3; z <= 3; z++) {
+    Viz.el("line", { class: "axis-line", x1: Z(z), x2: Z(z), y1: e.y, y2: e.y + 5 }, svg);
+    Viz.el("text", { x: Z(z), y: e.y + 20, "text-anchor": "middle" }, svg).textContent = e.mu + z * e.sigma;
+  }
+  Viz.el("text", { x: 50, y: e.y - 18, class: "strong" }, svg).textContent = e.name + " (raw score)";
+  e.link = Viz.el("line", { stroke: e.color, "stroke-width": 1.5, "stroke-dasharray": "4 4" }, svg);
+  e.mark = e.shape === "circle"
+    ? Viz.el("circle", { r: 9, fill: e.color, stroke: "var(--surface-1)", "stroke-width": 2 }, svg)
+    : Viz.el("rect", { width: 17, height: 17, fill: e.color, stroke: "var(--surface-1)", "stroke-width": 2 }, svg);
+  e.zmark = e.shape === "circle"
+    ? Viz.el("circle", { r: 9, fill: e.color, stroke: "var(--surface-1)", "stroke-width": 2 }, svg)
+    : Viz.el("rect", { width: 17, height: 17, fill: e.color, stroke: "var(--surface-1)", "stroke-width": 2 }, svg);
+});
+
+Viz.el("line", { class: "axis-line", x1: Z(-3), x2: Z(3), y1: ZY, y2: ZY }, svg);
+for (let z = -3; z <= 3; z++) {
+  Viz.el("line", { class: "axis-line", x1: Z(z), x2: Z(z), y1: ZY, y2: ZY + 5 }, svg);
+  Viz.el("text", { x: Z(z), y: ZY + 34, "text-anchor": "middle", class: z === 0 ? "strong" : "" }, svg).textContent = z;
+}
+Viz.el("text", { x: 50, y: ZY - 18, class: "strong" }, svg).textContent = "Common scale: z-score (SDs from the mean)";
+
+function render() {
+  const zs = EXAMS.map((e) => (e.score - e.mu) / e.sigma);
+  EXAMS.forEach((e, i) => {
+    const x = Z(zs[i]);
+    const zy = ZY + (i === 0 ? -11 : 11);
+    if (e.shape === "circle") {
+      e.mark.setAttribute("cx", x); e.mark.setAttribute("cy", e.y);
+      e.zmark.setAttribute("cx", x); e.zmark.setAttribute("cy", zy);
+    } else {
+      e.mark.setAttribute("x", x - 8.5); e.mark.setAttribute("y", e.y - 8.5);
+      e.zmark.setAttribute("x", x - 8.5); e.zmark.setAttribute("y", zy - 8.5);
+    }
+    e.link.setAttribute("x1", x); e.link.setAttribute("x2", x);
+    e.link.setAttribute("y1", e.y + 10); e.link.setAttribute("y2", zy - 10 * (i === 0 ? 1 : -1) * 0 + (i === 0 ? -10 : -10));
+  });
+  $("za").textContent = (zs[0] >= 0 ? "+" : "−") + Math.abs(zs[0]).toFixed(2);
+  $("zb").textContent = (zs[1] >= 0 ? "+" : "−") + Math.abs(zs[1]).toFixed(2);
+  const diff = zs[0] - zs[1];
+  $("verdict").textContent = Math.abs(diff) < 0.05
+    ? "Equal standing: the raw scores differ (" + EXAMS[0].score + " vs " + EXAMS[1].score + "), but both are " + f(zs[0]) + " SDs from their class means."
+    : "Relative to their classes, Maya did better in " + (diff > 0 ? "Statistics" : "Biology") + ": z = " + f(Math.max(zs[0], zs[1])) + " against " + f(Math.min(zs[0], zs[1])) + ". The raw marks are " + EXAMS[0].score + " and " + EXAMS[1].score + ", which is why raw marks mislead.";
+}
+
+EXAMS.forEach((e) => {
+  Viz.slider($("sliders"), {
+    label: e.name + " score", min: e.mu - 3 * e.sigma, max: e.mu + 3 * e.sigma, step: 1, value: e.score,
+    format: (v) => v, onInput: (v) => { e.score = v; render(); },
+  });
+});
+Viz.themeToggle($("theme"));
+render();
+</script>
+</body>
+</html>

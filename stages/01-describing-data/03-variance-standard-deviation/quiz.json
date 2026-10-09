@@ -1,0 +1,46 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "If you add up all the deviations (value − mean) of a dataset, what do you always get?",
+      "options": ["The variance", "Zero", "The standard deviation", "The range"],
+      "correct": 1,
+      "explanation": "Values above the mean are balanced exactly by values below it, so the raw deviations always sum to 0. That is why we square them before summing."
+    },
+    {
+      "stage": "pre",
+      "question": "Standard deviation is measured in...",
+      "options": ["Squared units of the data", "The same units as the data", "Percent", "No units"],
+      "correct": 1,
+      "explanation": "Variance is in squared units, but taking the square root brings the standard deviation back to the original units (points, cm, dollars)."
+    },
+    {
+      "stage": "post",
+      "question": "Scores 72, 85, 90, 68, 95 have mean 82 and a sum of squared deviations of 538. What is the sample variance?",
+      "options": ["107.6", "134.5", "538", "11.6"],
+      "correct": 1,
+      "explanation": "A sample divides by n − 1 = 4: 538 ÷ 4 = 134.5. (538 ÷ 5 = 107.6 would be the population-style divisor. The square root of 134.5, about 11.6, is the standard deviation.)"
+    },
+    {
+      "stage": "post",
+      "question": "Why does a sample variance divide by n − 1 instead of n?",
+      "options": ["To make the number bigger for no reason", "Dividing by n tends to underestimate the population variance, and n − 1 corrects it", "Because samples are always small", "Because the mean is unknown"],
+      "correct": 1,
+      "explanation": "Sample values sit closer to their own mean than to the true population mean, so dividing by n gives a number that is too small on average. In the lesson's simulation, dividing by n averaged about 80 versus the true 100, while n − 1 averaged about 100."
+    },
+    {
+      "stage": "post",
+      "question": "You add 10 to every value in a dataset. What happens to the standard deviation?",
+      "options": ["It increases by 10", "It doubles", "It stays the same", "It becomes zero"],
+      "correct": 2,
+      "explanation": "Shifting all values moves the mean by the same amount, so every distance from the mean is unchanged. Spread ignores shifts. (Multiplying by 2 would double the SD.)"
+    },
+    {
+      "stage": "post",
+      "question": "A dataset is strongly skewed with a few extreme values. Which spread measure pairs best with the median?",
+      "options": ["Standard deviation", "Variance", "IQR", "Coefficient of variation"],
+      "correct": 2,
+      "explanation": "The IQR ignores the extremes, as the median does. The standard deviation squares every deviation, so extreme values inflate it."
+    }
+  ]
+}

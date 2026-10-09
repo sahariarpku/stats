@@ -1,0 +1,46 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "A z-score of 0 means the value is...",
+      "options": ["The lowest possible", "Exactly equal to the mean", "An outlier", "Equal to the standard deviation"],
+      "correct": 1,
+      "explanation": "z = (x − mean) ÷ SD. If x equals the mean, the numerator is 0, so z = 0."
+    },
+    {
+      "stage": "pre",
+      "question": "What does a negative z-score tell you?",
+      "options": ["The data contain an error", "The value is below the mean", "The SD is negative", "The value is an outlier"],
+      "correct": 1,
+      "explanation": "A negative z-score only means the value sits below the mean. SD itself can never be negative."
+    },
+    {
+      "stage": "post",
+      "question": "A score of 85 on a test with mean 70 and SD 10 has what z-score?",
+      "options": ["1.0", "1.5", "15", "8.5"],
+      "correct": 1,
+      "explanation": "z = (85 − 70) ÷ 10 = 15 ÷ 10 = 1.5. The score is 1.5 standard deviations above the mean."
+    },
+    {
+      "stage": "post",
+      "question": "Maya scores 85 in Statistics (mean 70, SD 10) and 78 in Biology (mean 65, SD 6). In which subject did she do better relative to her class?",
+      "options": ["Statistics, because 85 > 78", "Biology, because z ≈ 2.17 > 1.5", "They are equal", "Cannot be compared"],
+      "correct": 1,
+      "explanation": "Z-scores compare each score to its own class. Biology gives (78 − 65) ÷ 6 ≈ 2.17, beating Statistics' 1.5. The raw mark is not the right comparison."
+    },
+    {
+      "stage": "post",
+      "question": "IQ has mean 100 and SD 15. What IQ corresponds to z = 2?",
+      "options": ["115", "120", "130", "200"],
+      "correct": 2,
+      "explanation": "Reverse the formula: x = μ + zσ = 100 + 2 × 15 = 130."
+    },
+    {
+      "stage": "post",
+      "question": "When is it valid to say 'z = 1.5 means about the 93rd percentile'?",
+      "options": ["Always", "Only when the data are roughly bell-shaped (normal)", "Only for samples under 30", "Only for positive z"],
+      "correct": 1,
+      "explanation": "The 93.3% comes from the normal distribution. For a strongly skewed dataset the z-score is still correct, but it does not map to that percentile."
+    }
+  ]
+}
