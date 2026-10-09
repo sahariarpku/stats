@@ -397,7 +397,7 @@
   });
 
   /* ---------------------------------------------------------------- 0.3 */
-  Walk.register("bias-vs-error", {"title": "Bias vs sampling error: a wobbly scale or a crooked one", "lesson": "0.3", "terms": ["Bias", "Sampling error"]}, (S, A) => {
+  Walk.register("bias-vs-error", {"title": "Bias vs sampling error: a wobbly scale or a crooked one", "lesson": "0.3", "terms": ["Bias", "Sampling error"], "phoneText": 1.18}, (S, A) => {
     const truth = 20;
     const A10 = [18.6, 21.3, 19.4, 20.8, 19.9, 21.7, 18.9, 20.4, 19.2, 20.6];   // wobbly scale
     const B10 = [21.8, 22.1, 22.0, 21.9, 22.2, 22.1, 21.9, 22.0, 22.1, 21.9];   // steady scale, 2 kg heavy

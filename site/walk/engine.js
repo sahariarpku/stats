@@ -476,6 +476,8 @@
     if (!def) { host.innerHTML = `<p class="muted">This walkthrough is not available.</p>`; return null; }
     const meta = def.meta;
     host.classList.add("wk");
+    // Phones enlarge stage text; a crowded walkthrough sets a smaller boost in its meta (phoneText).
+    if (meta.phoneText) host.style.setProperty("--wk-phone", meta.phoneText); else host.style.removeProperty("--wk-phone");
     host.innerHTML = `
       <div class="wk-head">
         <div><div class="wk-eyebrow">🎬 Animated walkthrough${meta.lesson ? " · Lesson " + meta.lesson : ""}</div><h3 class="wk-title"></h3></div>

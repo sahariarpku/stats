@@ -138,7 +138,7 @@
   });
 
   /* ================================================================ 3.1 PDF and CDF */
-  Walk.register("pdf-cdf", {"title": "PDF and CDF: area and the running total", "lesson": "3.1", "terms": ["PDF", "CDF"]}, (S, A) => {
+  Walk.register("pdf-cdf", {"title": "PDF and CDF: area and the running total", "lesson": "3.1", "terms": ["PDF", "CDF"], "phoneText": 1.18}, (S, A) => {
     const P = [0.20, 0.35, 0.25, 0.15, 0.05];
     const cols = ["blue", "orange", "green", "purple", "yellow"];
     const F = P.map((_, i) => sum(P.slice(0, i + 1)));

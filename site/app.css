@@ -540,7 +540,7 @@ body.wk-lock { overflow: hidden; }
 .stage-banner + .lesson-list { margin-top: 18px; }
 .wk-btn { white-space: nowrap; }
 @media (max-width: 600px) {
-  .wk { --wk-text: 1.22; }
+  .wk { --wk-text: var(--wk-phone, 1.22); }
   .wk-title { font-size: 1.1rem; }
   .wk-controls { gap: 6px; }
   .wk-auto .wk-lbl, .wk-back .wk-lbl { display: none; }

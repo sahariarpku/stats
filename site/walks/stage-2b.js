@@ -651,7 +651,7 @@
   });
 
   /* ================================================================ 2.6 Expected value */
-  Walk.register("expected-value", {"title": "Expected value: the long-run average per play", "lesson": "2.6", "terms": ["Expected value E(X)", "House edge", "Linearity"]}, (S, A) => {
+  Walk.register("expected-value", {"title": "Expected value: the long-run average per play", "lesson": "2.6", "terms": ["Expected value E(X)", "House edge", "Linearity"], "phoneText": 1.1}, (S, A) => {
     const nSlots = 38, winAt = 23, unit = 4, base = 245;
     const sx = (i) => 58 + i * 18;
     let slots, slotLab, pills = [], baseLine, winLab, lossLab, fair, fairLab;

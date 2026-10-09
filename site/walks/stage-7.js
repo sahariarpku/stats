@@ -200,7 +200,7 @@
     return { ms, gm, ssb, ssw, msb, msw, F, p, dfb: k - 1, dfw: d2, sst: ssb + ssw, groupSS: groups.map((g, i) => sum(g.map((v) => (v - ms[i]) ** 2))) };
   }
 
-  Walk.register("anova", {"title": "ANOVA: is the gap between groups bigger than the noise?", "lesson": "7.2", "terms": ["ANOVA", "SSB / SSW / SST", "MSB / MSW", "F statistic", "Omnibus test", "η² (eta squared)"]}, (S, A) => {
+  Walk.register("anova", {"title": "ANOVA: is the gap between groups bigger than the noise?", "lesson": "7.2", "terms": ["ANOVA", "SSB / SSW / SST", "MSB / MSW", "F statistic", "Omnibus test", "η² (eta squared)"], "phoneText": 1.18}, (S, A) => {
     const R = anovaOf(TEACH);
     // Same three means, but students much less consistent (scores chosen to keep every group mean unchanged).
     const NOISY = [[62, 95, 100, 75, 68], [75, 99, 83, 100, 87], [87, 54, 83, 65, 66]];
@@ -336,7 +336,7 @@
   });
 
   /* ================================================================ post-hoc (7.2) */
-  Walk.register("post-hoc", {"title": "Post-hoc tests: which groups actually differ?", "lesson": "7.2", "terms": ["Post-hoc test", "Tukey's HSD", "Bonferroni"]}, (S, A) => {
+  Walk.register("post-hoc", {"title": "Post-hoc tests: which groups actually differ?", "lesson": "7.2", "terms": ["Post-hoc test", "Tukey's HSD", "Bonferroni"], "phoneText": 1.18}, (S, A) => {
     const R = anovaOf(TEACH);
     const n = 5, q = 3.773;                                // q from the studentized range table: k = 3 groups, df = 12
     const hsd = q * Math.sqrt(R.msw / n);
@@ -561,8 +561,8 @@
         say: `**Wilcoxon signed-rank** handles pairs. Eight patients rate their pain before and after treatment; each bar is how much it fell. Rank the sizes, ignoring signs, then add the ranks by direction: the falls give **W⁺ = ${Wp}**, the one rise gives **W⁻ = ${Wm}**. That is so lopsided that p = 0.016.`,
         run: async () => {
           S.clear();
-          const base = 250, u = 18, x = (i) => 120 + i * 62;
-          S.text(90, 60, "fall in pain score (before − after), 8 patients", { size: 18, weight: 700, color: "ink2", anchor: "start" });
+          const base = 250, u = 16, x = (i) => 120 + i * 62;
+          S.text(90, 52, "fall in pain score (before − after), 8 patients", { size: 18, weight: 700, color: "ink2", anchor: "start" });
           S.line(90, base, 590, base, { color: "ink3", width: 2 });
           S.text(80, base + 6, "0", { size: 17, color: "ink3", anchor: "end" });
           const bars = DIFF.map((d, i) => (d > 0 ? S.rect(x(i) - 20, base - d * u, 40, d * u, { fill: "blue", rx: 3, hide: true }) : S.rect(x(i) - 20, base, 40, -d * u, { fill: "orange", rx: 3, hide: true })));

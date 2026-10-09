@@ -49,7 +49,7 @@ Walk.register("mean", {"title": "The mean: share everything out equally", "lesso
         }
         await A.fadeIn(slots, { stagger: 120 });
         await A.fadeIn(fair, { stagger: 80 });
-        pills = [S.pill(400, by - 40, "35 ÷ 5 = 7 cups each", { size: 21, color: "blue", hide: true })];
+        pills = [S.pill(400, by + 84, "35 ÷ 5 = 7 cups each", { size: 21, color: "blue", hide: true })];
         await A.fadeIn(pills);
       },
     },
@@ -730,7 +730,7 @@ Walk.register("mean", {"title": "The mean: share everything out equally", "lesso
   });
 
   /* ---------------------------------------------------------------- 1.3 coefficient of variation */
-  Walk.register("coefficient-of-variation", {"title": "Coefficient of variation: spread relative to size", "lesson": "1.3", "terms": ["Coefficient of variation"]}, (S, A) => {
+  Walk.register("coefficient-of-variation", {"title": "Coefficient of variation: spread relative to size", "lesson": "1.3", "terms": ["Coefficient of variation"], "phoneText": 1.18}, (S, A) => {
     const mice = [15, 17, 18, 21, 24, 25];                               // grams
     const ele = [3400, 3700, 4000, 4100, 4300, 4500];                    // kilograms
     const mean = (a) => sum(a) / a.length;
