@@ -1,0 +1,60 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "You want to compare the mean exam scores of four different schools. Which test is the right starting point?",
+      "options": ["Six separate two-sample t-tests", "One-way ANOVA", "Chi-square test", "Paired t-test"],
+      "correct": 1,
+      "explanation": "One-way ANOVA tests all four means in a single test. Running six t-tests would inflate the chance of a false alarm."
+    },
+    {
+      "stage": "pre",
+      "question": "If you run three independent t-tests, each at α = 0.05, when no real differences exist, roughly how likely is at least one false alarm?",
+      "options": ["5%", "10%", "14%", "50%"],
+      "correct": 2,
+      "explanation": "1 − 0.95³ ≈ 0.143, so about 14%. The more comparisons, the worse it gets."
+    },
+    {
+      "stage": "post",
+      "question": "In ANOVA, F = MSB ÷ MSW. What does a value of F near 1 suggest?",
+      "options": ["The group means are very different", "The gaps between group means are about what the scatter inside the groups would produce", "The data are not normal", "One group is an outlier"],
+      "correct": 1,
+      "explanation": "MSW measures noise inside groups. If MSB is about the same size, the group means are no more spread out than noise alone would make them."
+    },
+    {
+      "stage": "post",
+      "question": "Three groups of 5 give SSB = 792.1 and SSW = 110.8. What are the degrees of freedom for the F test?",
+      "options": ["(3, 15)", "(2, 12)", "(2, 14)", "(12, 2)"],
+      "correct": 1,
+      "explanation": "df between = k − 1 = 2. df within = N − k = 15 − 3 = 12. The numerator df comes first."
+    },
+    {
+      "stage": "post",
+      "question": "With SSB = 792.1, SSW = 110.8, df = (2, 12), what is F?",
+      "options": ["7.15", "21.4", "42.9", "902.9"],
+      "correct": 2,
+      "explanation": "MSB = 792.1 ÷ 2 = 396.1. MSW = 110.8 ÷ 12 = 9.23. F = 396.1 ÷ 9.23 = 42.9."
+    },
+    {
+      "stage": "post",
+      "question": "A one-way ANOVA is significant (p = 0.001) for three treatments. What can you conclude?",
+      "options": ["All three treatments differ from each other", "At least one treatment mean differs from the others", "Treatment A is the best", "The treatments are all equal"],
+      "correct": 1,
+      "explanation": "ANOVA is an omnibus test. It says that some difference exists, not which pairs differ. A post-hoc test such as Tukey's HSD finds the specific pairs."
+    },
+    {
+      "stage": "post",
+      "question": "You will test all 6 pairs among 4 groups with a Bonferroni correction at an overall α of 0.05. What α do you use for each pair?",
+      "options": ["0.05", "0.0083", "0.30", "0.0125"],
+      "correct": 1,
+      "explanation": "Bonferroni divides α by the number of comparisons: 0.05 ÷ 6 ≈ 0.0083."
+    },
+    {
+      "stage": "post",
+      "question": "SSB = 450 and SST = 1,800. What is η² and what does it mean?",
+      "options": ["0.25: 25% of the variation is linked to group membership", "0.25: the p-value is 0.25", "4.0: the effect is large", "0.75: 75% of the variation is linked to group membership"],
+      "correct": 0,
+      "explanation": "η² = SSB ÷ SST = 450 ÷ 1,800 = 0.25. A quarter of the total variation lines up with the groups, which is a large effect by the usual guide (0.14 and up)."
+    }
+  ]
+}
