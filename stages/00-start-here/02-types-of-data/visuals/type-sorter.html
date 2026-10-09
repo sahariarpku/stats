@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sort the Data Types</title>
+<link rel="stylesheet" href="../../../../assets/visuals.css">
+<style>
+  .card-q { padding: 22px 16px; margin: 10px 0 14px; background: var(--surface-2); border-radius: 12px; border-left: 6px solid var(--series-1); text-align: center; transition: transform 0.35s ease, opacity 0.35s ease; }
+  .card-q.out { transform: translateX(40px); opacity: 0; }
+  .card-q .name { font-size: 1.5rem; font-weight: 700; }
+  .card-q .eg { color: var(--text-secondary); margin-top: 4px; }
+  .answers { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px; }
+  .answers button { padding: 14px 10px; font-size: 1.05rem; min-height: 56px; }
+  .answers button small { display: block; color: var(--text-secondary); font-weight: 400; }
+  .answers button.right { outline: 3px solid var(--series-1); }
+  .answers button.wrong { outline: 3px solid var(--series-2); }
+  .tree { margin: 4px 0 14px; color: var(--text-secondary); font-size: 0.95rem; }
+  @media (prefers-reduced-motion: reduce) { .card-q { transition: none; } }
+</style>
+</head>
+<body>
+<main class="viz">
+  <div class="viz-head">
+    <div>
+      <h1>Sort the data types</h1>
+      <p class="hint">Each card is a variable from a real dataset. Decide which of the four types it is. Wrong answers tell you why.</p>
+    </div>
+    <button id="theme" type="button">Theme: auto</button>
+  </div>
+
+  <div class="readout" aria-live="polite">
+    <div class="card"><div class="label">Card</div><div class="value" id="pos"></div></div>
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>Correct</div><div class="value" id="score"></div></div>
+  </div>
+
+  <div class="card-q" id="card" role="group" aria-label="Current variable">
+    <div class="name" id="name"></div>
+    <div class="eg" id="eg"></div>
+  </div>
+
+  <div class="answers" id="answers">
+    <button type="button" data-k="nominal">Nominal<small>names, no order</small></button>
+    <button type="button" data-k="ordinal">Ordinal<small>ranked categories</small></button>
+    <button type="button" data-k="discrete">Discrete<small>counted numbers</small></button>
+    <button type="button" data-k="continuous">Continuous<small>measured numbers</small></button>
+  </div>
+  <p class="verdict" id="verdict" aria-live="polite">Pick a type.</p>
+  <div class="controls"><button id="next" type="button" disabled>Next card →</button><button id="restart" type="button">Shuffle and restart</button></div>
+</main>
+
+<script src="../../../../assets/visuals.js"></script>
+<script>
+const CARDS = [
+  ["Blood type", "A, B, AB, O", "nominal", "Blood types are names with no natural order."],
+  ["Student ID number", "10482, 10483, ...", "nominal", "It contains digits but is only a label. Averaging IDs means nothing."],
+  ["ZIP code", "90210, 10001, ...", "nominal", "A ZIP code is an address label, not an amount."],
+  ["Jersey number", "7, 10, 23", "nominal", "Player 20 is not twice player 10: just a label."],
+  ["Grade level", "Freshman, Sophomore, Junior, Senior", "ordinal", "Clearly ordered, but the gaps between levels are not equal."],
+  ["Satisfaction rating", "Poor, OK, Good, Excellent", "ordinal", "Ranked categories. 'Poor to OK' need not equal 'Good to Excellent'."],
+  ["Shirt size", "S, M, L, XL", "ordinal", "The order matters, the gaps are not measured."],
+  ["Finishing place in a race", "1st, 2nd, 3rd", "ordinal", "Order only: 1st to 2nd might be 0.1 s, 2nd to 3rd 10 s."],
+  ["Children in a family", "0, 1, 2, 3, ...", "discrete", "Counted in whole numbers. There is no 2.5 children."],
+  ["Goals in a match", "0, 1, 2, 3, ...", "discrete", "A count: whole numbers only."],
+  ["Defects per batch", "0, 1, 2, ...", "discrete", "Counting events gives discrete numbers."],
+  ["Cars passing a gate each hour", "12, 15, 9, ...", "discrete", "A count per interval, so discrete."],
+  ["Height in cm", "172.4, 168.0, ...", "continuous", "Measured: between 172.4 and 172.5 there is always another value."],
+  ["Temperature in °C", "21.7, 19.2, ...", "continuous", "Measured on a scale, any value in a range."],
+  ["Time to run 100 m", "11.82 s, 12.07 s, ...", "continuous", "Time is measured, and finer instruments give finer values."],
+  ["Weight of a loaf", "412.6 g, 398.1 g, ...", "continuous", "A measurement, not a count."],
+];
+const LABEL = { nominal: "Nominal", ordinal: "Ordinal", discrete: "Discrete", continuous: "Continuous" };
+const $ = (id) => document.getElementById(id);
+const rand = Viz.rng(Date.now() % 100000);
+let deck, i, score, answered;
+
+function shuffle(a) { const b = a.slice(); for (let k = b.length - 1; k > 0; k--) { const j = Math.floor(rand() * (k + 1)); [b[k], b[j]] = [b[j], b[k]]; } return b; }
+function start() { deck = shuffle(CARDS); i = 0; score = 0; show(); }
+function show() {
+  if (i >= deck.length) {
+    $("card").classList.remove("out");
+    $("name").textContent = "Done!";
+    $("eg").textContent = "You got " + score + " of " + deck.length + ".";
+    $("pos").textContent = deck.length + " / " + deck.length;
+    $("verdict").textContent = score >= deck.length - 2 ? "Excellent. You can sort any variable." : "Re-read the Concept section and shuffle again.";
+    document.querySelectorAll("#answers button").forEach((b) => { b.disabled = true; b.className = ""; });
+    $("next").disabled = true;
+    return;
+  }
+  const [name, eg] = deck[i];
+  answered = false;
+  $("card").classList.remove("out");
+  $("name").textContent = name;
+  $("eg").textContent = eg;
+  $("pos").textContent = (i + 1) + " / " + deck.length;
+  $("score").textContent = score;
+  $("verdict").textContent = "Pick a type.";
+  document.querySelectorAll("#answers button").forEach((b) => { b.disabled = false; b.className = ""; });
+  $("next").disabled = true;
+}
+document.querySelectorAll("#answers button").forEach((b) => b.addEventListener("click", () => {
+  if (answered) return;
+  answered = true;
+  const [, , right, why] = deck[i];
+  const ok = b.dataset.k === right;
+  if (ok) score++;
+  b.classList.add(ok ? "right" : "wrong");
+  document.querySelector('#answers button[data-k="' + right + '"]').classList.add("right");
+  $("score").textContent = score;
+  $("verdict").textContent = (ok ? "Correct: " : "Not quite. It is " + LABEL[right].toLowerCase() + ". ") + why;
+  $("next").disabled = false;
+  $("next").focus();
+}));
+$("next").addEventListener("click", () => {
+  const card = $("card");
+  card.classList.add("out");
+  setTimeout(() => { i++; show(); }, window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 300);
+});
+$("restart").addEventListener("click", start);
+Viz.themeToggle($("theme"));
+start();
+</script>
+</body>
+</html>

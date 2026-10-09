@@ -177,7 +177,7 @@ Take the quiz in [`quiz.json`](../quiz.json). Answer the two "pre" questions bef
 
 ## Next
 
-→ **Lesson 2: Range, Quartiles and the Box Plot.** Knowing the centre is half the story. How scattered are the values around it?
+→ **Lesson 1.2: Range, Quartiles and the Box Plot.** Knowing the centre is half the story. How scattered are the values around it?
 
 ---
 

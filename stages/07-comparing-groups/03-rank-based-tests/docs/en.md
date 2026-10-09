@@ -190,7 +190,7 @@ Keep the card: [`outputs/cheat-sheet.md`](../outputs/cheat-sheet.md).
 | **Rank** | "Position in line" | A value's place after sorting from smallest to largest; ties share the average place |
 | **Nonparametric** | "Distribution-free" | A test that assumes no specific shape such as normality |
 | **Mann–Whitney U** | "Wilcoxon rank-sum" | Tests whether one of two independent groups tends to give higher values |
-| **Wilcoxon signed-rank** | "Rank paired t-test" | Tests paired differences (or one sample vs a value) using the ranks of |d| |
+| **Wilcoxon signed-rank** | "Rank paired t-test" | Tests paired differences (or one sample vs a value) using the ranks of the absolute differences |
 | **Kruskal–Wallis** | "Rank ANOVA" | Tests whether three or more independent groups differ, using combined ranks |
 | **Rank-biserial r** | "Rank effect size" | 1 − 2U ÷ (n₁n₂): how completely the groups separate |
 | **Power** | "Chance of spotting a real effect" | Rank tests lose a little on normal data and win on skewed or outlier-heavy data |

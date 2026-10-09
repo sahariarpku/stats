@@ -13,7 +13,7 @@ lesson: 1
 r = S_xy ÷ √(S_xx S_yy), where S_xy = Σ(x − x̄)(y − ȳ), S_xx = Σ(x − x̄)², S_yy = Σ(y − ȳ)².
 **r²** = share of y's variation that lines up with x.
 
-| |r| | 0–0.2 | 0.2–0.4 | 0.4–0.6 | 0.6–0.8 | 0.8–1 |
+| Size of r (ignore sign) | 0–0.2 | 0.2–0.4 | 0.4–0.6 | 0.6–0.8 | 0.8–1 |
 |---|---|---|---|---|---|
 | Reading | very weak | weak | moderate | strong | very strong |
 

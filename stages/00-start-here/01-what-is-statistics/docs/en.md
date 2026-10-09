@@ -41,6 +41,10 @@ It splits into two branches.
 
 The rest of this course follows the same order: first describe (Stages 1 to 3), then infer (Stages 4 to 9).
 
+The inferential branch rests on one idea: a sample can differ from the population it came from, by an amount we can measure. You will study that carefully in Lesson 0.3, but you can preview it now.
+
+▶ **[Open the animation: "Sampling error"](../../03-population-vs-sample/visuals/sampling-error.html)** (from Lesson 0.3)
+
 ## Step by step
 
 ### Step 1: Describe what you have
@@ -142,7 +146,7 @@ Take the quiz in [`quiz.json`](../quiz.json).
 
 ## Next
 
-→ **Lesson 2: Types of Data.** Before you can summarise anything, you need to know what kind of information you are holding.
+→ **Lesson 0.2: Types of Data.** Before you can summarise anything, you need to know what kind of information you are holding.
 
 ---
 

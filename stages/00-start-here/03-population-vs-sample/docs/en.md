@@ -4,7 +4,7 @@
 
 **Type:** Learn
 **Tools:** Pen and paper. Python is optional.
-**Prerequisites:** Lessons 1 and 2
+**Prerequisites:** Lessons 0.1 and 0.2
 **Time:** ~25 minutes
 
 ## What you will be able to do
@@ -140,7 +140,7 @@ Take the quiz in [`quiz.json`](../quiz.json).
 
 ## Next
 
-→ **Stage 1, Lesson 1: Mean, Median and Mode.** Time to learn the first tools for describing data.
+→ **Lesson 1.1: Mean, Median and Mode.** Time to learn the first tools for describing data.
 
 ---
 

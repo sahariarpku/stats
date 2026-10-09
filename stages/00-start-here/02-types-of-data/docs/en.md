@@ -4,7 +4,7 @@
 
 **Type:** Learn
 **Tools:** None
-**Prerequisites:** Lesson 1
+**Prerequisites:** Lesson 0.1
 **Time:** ~25 minutes
 
 ## What you will be able to do
@@ -49,6 +49,10 @@ Every column in a dataset is a **variable**, and every variable has a **type**. 
 | **Ordinal** | Ranked, but gaps are not equal. | Satisfaction (poor → excellent), education level |
 | **Discrete** | Counted. Whole numbers only. | Children in a family, defects per batch |
 | **Continuous** | Measured. Any value in a range. | Height, weight, temperature, time |
+
+Test yourself on real variables. Each card asks for a type and explains any mistake.
+
+▶ **[Open the animation: "Sort the data types"](../visuals/type-sorter.html)**
 
 ## Step by step
 
@@ -152,7 +156,7 @@ Take the quiz in [`quiz.json`](../quiz.json).
 
 ## Next
 
-→ **Lesson 3: Population vs Sample.** Who is the data about, and who did you actually measure?
+→ **Lesson 0.3: Population vs Sample.** Who is the data about, and who did you actually measure?
 
 ---
 

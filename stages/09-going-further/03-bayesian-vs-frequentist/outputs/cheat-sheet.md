@@ -13,7 +13,7 @@ lesson: 3
 | Parameter θ | fixed, unknown | has a distribution |
 | Uses | data only | **prior** + data |
 | Result | p-value, confidence interval | posterior, credible interval |
-| Answers | P(data | θ = null) | P(θ ∈ region | data) |
+| Answers | P(data \| θ = null) | P(θ ∈ region \| data) |
 
 **Posterior ∝ Prior × Likelihood.**
 

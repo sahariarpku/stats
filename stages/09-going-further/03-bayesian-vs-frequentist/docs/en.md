@@ -96,8 +96,8 @@ They still **mean different things**:
 
 | | Statement |
 |---|---|
-| p = 0.072 | P(data this extreme | θ = 25%) |
-| 93.3% | P(θ > 25% | data) |
+| p = 0.072 | P(data this extreme \| θ = 25%) |
+| 93.3% | P(θ > 25% \| data) |
 
 These are *not* the same probability, just as P(positive test | disease) differs from P(disease | positive test) in Lesson 2.5. The numbers agree here only because the prior was flat.
 

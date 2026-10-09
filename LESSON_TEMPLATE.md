@@ -1,6 +1,6 @@
 # Lesson Template
 
-Copy this structure for every lesson. Lesson 1 (`stages/01-describing-data/01-mean-median-mode/`) is the worked example.
+Copy this structure for every lesson. Lesson 1.1 (`stages/01-describing-data/01-mean-median-mode/`) is the worked example.
 
 ## Folder
 
@@ -9,7 +9,7 @@ NN-lesson-name/
 ├── docs/en.md              the lesson
 ├── visuals/*.html          animations, only where motion teaches something
 ├── code/*.py               short, runnable, no dependencies
-├── quiz.json               2 pre + 4 post questions, each with an explanation
+├── quiz.json               2 pre + 4 to 6 post questions, each with an explanation
 └── outputs/cheat-sheet.md  one page, with front matter
 ```
 
