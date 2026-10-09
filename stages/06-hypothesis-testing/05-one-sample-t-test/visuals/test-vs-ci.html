@@ -11,7 +11,7 @@
   <div class="viz-head">
     <div>
       <h1>The test and the interval always agree</h1>
-      <p class="hint">Nine river nitrate readings give a 95% confidence interval. Slide the claimed mean μ₀. The test rejects exactly when μ₀ leaves the interval.</p>
+      <p class="hint">Nine water samples from a river give a 95% range (confidence interval) for its true average nitrate level. Slide the claimed value μ₀. The test rejects that claim exactly when μ₀ falls outside the range.</p>
     </div>
     <button id="theme" type="button">Theme: auto</button>
   </div>
@@ -20,8 +20,8 @@
 
   <div class="readout" aria-live="polite">
     <div class="card"><div class="label">t statistic (df = 8)</div><div class="value" id="tv"></div></div>
-    <div class="card"><div class="label">Two-tailed p-value</div><div class="value" id="pv"></div></div>
-    <div class="card"><div class="label">Inside the 95% CI?</div><div class="value" id="in"></div></div>
+    <div class="card"><div class="label">p-value (both sides)</div><div class="value" id="pv"></div></div>
+    <div class="card"><div class="label">Inside the 95% interval?</div><div class="value" id="in"></div></div>
     <div class="card"><div class="label">Decision (α = 0.05)</div><div class="value" id="dec" style="font-size:1.2rem"></div></div>
   </div>
   <p class="verdict" id="verdict" aria-live="polite"></p>
@@ -66,8 +66,16 @@ function render() {
     : "μ₀ = " + mu0.toFixed(2) + " lies outside (" + lo.toFixed(2) + ", " + hi.toFixed(2) + "), so the test rejects it (p = " + p.toFixed(3) + "). Slide μ₀ across the edge of the interval and watch the p-value cross 0.05 at exactly the same moment.";
 }
 
-Viz.slider($("sliders"), { label: "Claimed mean μ₀", min: 2.5, max: 4.9, step: 0.01, value: mu0, format: (v) => v.toFixed(2), onInput: (v) => { mu0 = v; render(); } });
+Viz.slider($("sliders"), { label: "Claimed average μ₀ (the value we test)", min: 2.5, max: 4.9, step: 0.01, value: mu0, format: (v) => v.toFixed(2), onInput: (v) => { mu0 = v; render(); } });
 Viz.themeToggle($("theme"));
+const setMu = (v) => { const r = document.querySelector("#sliders input[type=range]"); r.value = v; r.dispatchEvent(new Event("input")); };
+Viz.tour([
+  { target: "#plot", title: "One river, two tools", text: "Nine water samples were taken from a river. The **blue bar** is the 95% confidence interval for the river's true average nitrate level: **3.25 to 4.10** mg/L. The **solid blue line** is the sample average, **3.68**. The **dashed line with a triangle** is **μ₀**, a claimed value we want to test. It starts at a guideline of **3.20**." },
+  { target: ".readout", title: "Both tools give the same answer", text: "Testing 3.20, the t-test gives **p = 0.0323**, below 0.05, so the decision is **Reject H₀**. And 3.20 sits **outside** the blue bar, so the interval card says **No**. The triangle turns **orange** whenever the claim is rejected." },
+  { target: "#sliders", title: "A believable claim", text: "Now test **3.50**. It sits inside the interval, the triangle turns dark, and p rises to **0.3639**: **Fail to reject**. Any value inside the bar is a believable true average.", action: { label: "Test 3.50", run: () => setMu(3.5) } },
+  { target: "#plot", title: "Right on the edge", text: "Now test **3.25**, a hair below the interval's left end (3.252). The p-value is **0.0492**, just under 0.05, so we reject. Move the slider one step right to 3.26 and both answers flip together: inside, and p = 0.0535.", action: { label: "Test 3.25", run: () => setMu(3.25) } },
+  { target: "#sliders", title: "Your turn", text: "Drag μ₀ towards the **right edge**, near 4.10. Look for the **Decision** card and the **Inside** card changing at the very same step. That is why reporting the interval tells people even more than the p-value alone." },
+]);
 render();
 </script>
 </body>

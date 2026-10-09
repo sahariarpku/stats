@@ -22,7 +22,7 @@
   <div class="viz-head">
     <div>
       <h1>The Monty Hall puzzle</h1>
-      <p class="hint">One door hides a car, two hide goats. Pick a door. The host, who knows where the car is, opens a goat door. Then decide: stay or switch?</p>
+      <p class="hint">One door hides a car (the prize), two hide goats. Pick a door. The host, who knows where the car is, then opens another door with a goat. Do you stay or switch?</p>
     </div>
     <button id="theme" type="button">Theme: auto</button>
   </div>
@@ -47,7 +47,7 @@
     <button id="auto-switch" type="button">Auto-play 200 games: always switch</button>
     <button id="reset" type="button">Reset scores</button>
   </div>
-  <p class="hint" style="margin-top:12px">Theory: staying wins 1/3 ≈ 33.3%, switching wins 2/3 ≈ 66.7%. Play enough games to see it.</p>
+  <p class="hint" style="margin-top:12px">The maths says: staying wins 1 time in 3 (about 33.3%), switching wins 2 times in 3 (about 66.7%). Play enough games to see it.</p>
 </main>
 
 <script src="../../../../assets/visuals.js"></script>
@@ -129,6 +129,14 @@ $("auto-stay").addEventListener("click", () => auto("stay"));
 $("auto-switch").addEventListener("click", () => auto("switch"));
 $("reset").addEventListener("click", () => { score.stay = [0, 0]; score.switch = [0, 0]; tally(); newGame(); });
 Viz.themeToggle($("theme"));
+Viz.tour([
+  { target: "#doors", title: "Three closed doors", text: "Behind one door is a **car** (the prize). Behind the other two are **goats**. You cannot see which is which. You win whatever is behind your door at the end.", action: { label: "Pick door 1 for me", run: () => { newGame(); document.querySelector("#doors .door").click(); } } },
+  { target: "#msg", title: "The host opens a door", text: "The host **knows** where the car is. He always opens one of the doors you did **not** pick, and it always shows a **goat**. Now two doors are still closed: yours and one other." },
+  { target: "#doors", title: "Stay or switch?", text: "Most people feel it is now 50/50, so it does not matter. Let us switch and see what happens. But one game proves very little: you could be lucky or unlucky.", action: { label: "Switch for me", run: () => { if (document.getElementById("choice").hidden) { newGame(); document.querySelector("#doors .door").click(); } document.getElementById("switch").click(); } } },
+  { target: "#auto-stay", title: "Play 200 games at once", text: "Let us play **200 games** where we **always stay**. Look at the table: staying wins only about **1 game in 3** (close to 33%).", action: { label: "Play 200, always stay", run: () => document.getElementById("auto-stay").click() } },
+  { target: "#auto-switch", title: "Now always switch", text: "Now **200 games** where we **always switch**. Switching wins about **2 games in 3** (close to 67%). Twice as often!", action: { label: "Play 200, always switch", run: () => document.getElementById("auto-switch").click() } },
+  { target: ".tally", title: "Why switching wins", text: "Your first pick is right only **1 time in 3**. The other 2 times, the car is behind one of the other doors, and the host has just shown you which one it is **not**. So switching wins every time your first pick was wrong. **Your turn:** play a few more and watch the win rates settle." },
+]);
 newGame();
 tally();
 </script>

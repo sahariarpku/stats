@@ -11,7 +11,7 @@
   <div class="viz-head">
     <div>
       <h1>The parameter stands still. The statistic wanders.</h1>
-      <p class="hint">Each grey dot is one person in a population of 200 (heights in cm). Draw a random sample and compare its average to the true average.</p>
+      <p class="hint">Each grey dot is one young child, placed by height in cm. All 200 children are the population. Pick a few at random and see how close their average gets to the true average.</p>
     </div>
     <button id="theme" type="button">Theme: auto</button>
   </div>
@@ -19,15 +19,15 @@
   <svg id="plot" viewBox="0 0 760 350" role="img" aria-label="A population of 200 dots, with sampled dots highlighted and a history of sample means below"></svg>
 
   <div class="legend">
-    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="6" y="0" width="2.5" height="14" fill="var(--series-1)"/></svg>Population mean μ (parameter)</span>
-    <span><svg viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="var(--series-2)"/></svg>People in the sample</span>
-    <span><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 1 L13 7 L7 13 L1 7 Z" fill="var(--series-2)"/></svg>Sample mean x̄ (statistic)</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="6" y="0" width="2.5" height="14" fill="var(--series-1)"/></svg>True average of all 200, μ (the parameter)</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="var(--series-2)"/></svg>Children picked for the sample</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 1 L13 7 L7 13 L1 7 Z" fill="var(--series-2)"/></svg>Average of one sample, x̄ (a statistic)</span>
   </div>
 
   <div class="readout" aria-live="polite">
-    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>μ (fixed)</div><div class="value" id="mu"></div></div>
-    <div class="card"><div class="label"><span class="mark" style="background:var(--series-2)"></span>Latest x̄</div><div class="value" id="xbar">—</div></div>
-    <div class="card"><div class="label">Sampling error (x̄ − μ)</div><div class="value" id="err">—</div></div>
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>True average μ (never changes)</div><div class="value" id="mu"></div></div>
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-2)"></span>This sample's average x̄</div><div class="value" id="xbar">—</div></div>
+    <div class="card"><div class="label">Sampling error: how far off (x̄ − μ)</div><div class="value" id="err">—</div></div>
     <div class="card"><div class="label">Samples drawn</div><div class="value" id="count">0</div></div>
   </div>
 
@@ -67,13 +67,13 @@ population.forEach((v, i) => {
 });
 
 Viz.axisBottom(svg, X, { y: POP.base + 8, from: 60, to: 140, step: 10 });
-Viz.el("text", { x: 30, y: 24, class: "strong" }, svg).textContent = "Population (200 people)";
+Viz.el("text", { x: 30, y: 24, class: "strong" }, svg).textContent = "Population: all 200 children";
 
 const muLine = Viz.el("line", { x1: X(mu), x2: X(mu), y1: 28, y2: 322, stroke: "var(--series-1)", "stroke-width": 2 }, svg);
 const muText = Viz.el("text", { x: X(mu), y: 16, "text-anchor": "middle", class: "strong" }, svg);
 muText.textContent = "μ = " + mu.toFixed(1);
 
-Viz.el("text", { x: 30, y: 236, class: "strong" }, svg).textContent = "Sample means so far";
+Viz.el("text", { x: 30, y: 236, class: "strong" }, svg).textContent = "Averages of the samples drawn so far";
 Viz.axisBottom(svg, X, { y: HIST.base + 10, from: 60, to: 140, step: 10 });
 const histLayer = Viz.el("g", {}, svg);
 const latestMark = Viz.el("path", { fill: "var(--series-2)", stroke: "var(--surface-1)", "stroke-width": 1.5, display: "none" }, svg);
@@ -130,7 +130,7 @@ function render(xbar) {
 }
 
 Viz.slider(document.getElementById("sliders"), {
-  label: "Sample size (n)", min: 3, max: 60, step: 1, value: n,
+  label: "Children in each sample (n)", min: 3, max: 60, step: 1, value: n,
   format: (v) => "n = " + v,
   onInput: (v) => { n = v; },
 });
@@ -140,6 +140,14 @@ document.getElementById("many").addEventListener("click", () => { let last; for 
 document.getElementById("reset").addEventListener("click", () => { means = []; sampled = new Set(); render(); });
 document.getElementById("mu").textContent = mu.toFixed(1);
 Viz.themeToggle(document.getElementById("theme"));
+Viz.tour([
+  { target: "#plot", title: "A whole group of children", text: "Each grey dot in the top part is **one child**, placed by height. Further right means taller. All 200 together are the **population**. The **blue line** is their true average height, **99.8 cm**. In real life we almost never get to measure everyone, so we rarely know this number." },
+  { target: "#one", title: "Measure just a few", text: "Let us pick **10 children at random**, like a survey would. They turn **orange** in the top part, and an **orange diamond** just below shows the average height of those 10.", action: { label: "Pick 10 children for me", run: () => document.getElementById("one").click() } },
+  { target: ".readout", title: "How far off was it?", text: "Compare **This sample's average** with the true 99.8. The gap is called the **sampling error**. Nobody made a mistake: it is just the luck of who got picked. A different 10 children would give a different gap." },
+  { target: "#many", title: "Again and again", text: "Now we draw **20 more samples** in one go. Each sample's average drops into the bottom part as a diamond. Notice they land on **both sides** of the blue line, scattered around the truth.", action: { label: "Draw 20 samples for me", run: () => document.getElementById("many").click() } },
+  { target: "#sliders", title: "Make the samples bigger", text: "This slider sets how many children go in each sample. Let us start fresh with **50 children per sample** and draw 20 samples. Then press Next to see what changed.", action: { label: "Use 50 per sample", run: () => { const r = document.querySelectorAll("#sliders input[type=range]")[0]; r.value = 50; r.dispatchEvent(new Event("input")); document.getElementById("reset").click(); document.getElementById("many").click(); } } },
+  { target: "#plot", title: "Bigger samples miss by less", text: "With 50 children per sample, the diamonds in the bottom part **huddle close** to the blue line. **Your turn:** slide the size down to **3**, press **Reset**, and draw 20 samples. See how much **wider** the diamonds spread. Small samples can land far from the truth." },
+]);
 render();
 </script>
 </body>

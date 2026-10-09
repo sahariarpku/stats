@@ -11,7 +11,7 @@
   <div class="viz-head">
     <div>
       <h1>Break the pairs</h1>
-      <p class="hint">Eight patients, blood pressure before (blue) and after (orange). Each line joins one patient's two readings. Scramble the pairing and see what the tests do.</p>
+      <p class="hint">Eight patients' blood pressure before (blue) and after (orange) a drug. Each line joins one patient's two readings. Scramble who is matched with whom and see what the two tests do.</p>
     </div>
     <button id="theme" type="button">Theme: auto</button>
   </div>
@@ -25,10 +25,10 @@
   </div>
 
   <div class="readout" aria-live="polite">
-    <div class="card"><div class="label">Mean drop</div><div class="value" id="md"></div></div>
-    <div class="card"><div class="label">SD of the differences</div><div class="value" id="sd"></div></div>
-    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>Paired t (p)</div><div class="value" id="pt" style="font-size:1.25rem"></div></div>
-    <div class="card"><div class="label">Independent Welch t (p)</div><div class="value" id="wt" style="font-size:1.25rem"></div></div>
+    <div class="card"><div class="label">Average drop</div><div class="value" id="md"></div></div>
+    <div class="card"><div class="label">How much the drops vary (SD)</div><div class="value" id="sd"></div></div>
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>Paired test: t (p)</div><div class="value" id="pt" style="font-size:1.25rem"></div></div>
+    <div class="card"><div class="label">Unpaired Welch test: t (p)</div><div class="value" id="wt" style="font-size:1.25rem"></div></div>
   </div>
   <p class="verdict" id="verdict" aria-live="polite"></p>
 
@@ -76,7 +76,7 @@ function render() {
   });
   BEFORE.forEach((b) => Viz.el("circle", { cx: x1, cy: Y(b), r: 6.5, fill: "var(--series-1)", stroke: "var(--surface-1)", "stroke-width": 2 }, layer));
   after.forEach((a) => Viz.el("rect", { x: x2 - 6, y: Y(a) - 6, width: 12, height: 12, fill: "var(--series-2)", stroke: "var(--surface-1)", "stroke-width": 2 }, layer));
-  Viz.el("text", { x: 600, y: 22, class: "strong" }, layer).textContent = "differences:";
+  Viz.el("text", { x: 600, y: 22, class: "strong" }, layer).textContent = "each drop:";
   diffs.forEach((d, i) => Viz.el("text", { x: 600 + (i % 4) * 36, y: 42 + Math.floor(i / 4) * 18 }, layer).textContent = d);
 
   $("md").textContent = f2(dbar);
@@ -96,6 +96,13 @@ $("scramble").addEventListener("click", () => {
 });
 $("restore").addEventListener("click", () => { order = AFTER.map((_, i) => i); render(); });
 Viz.themeToggle($("theme"));
+Viz.tour([
+  { target: "#plot", title: "Eight patients, two readings each", text: "**Blue dots** on the left are each patient's blood pressure **before** a drug. **Orange squares** on the right are the readings **after**. Each **grey line** joins one patient's two readings. The numbers at the top right are each patient's own drop." },
+  { target: "#plot", title: "Look at the lines", text: "Every line slopes **down** by a similar amount: all eight patients improved, by 3 to 9 points. But the patients themselves are very different, from about 129 up to 161 before the drug." },
+  { target: ".readout", title: "Two tests, two stories", text: "The **paired** test looks at each patient's own drop: on average **6.13**, and very consistent (SD **2.42**). So t = **7.17**, p = **0.0002**: very strong evidence. The **unpaired Welch** test ignores the lines and just compares two clouds of dots. The big differences between patients hide the drop, so p = **0.2311**." },
+  { target: "#scramble", title: "Break the pairs", text: "Now each \"after\" reading is matched with the **wrong** patient, so the lines cross. The average drop is still 6.13 and the Welch card has not changed. But the drops now jump around, so the paired test's p-value shoots up, usually far above 0.05.", action: { label: "Scramble for me", run: () => $("scramble").click() } },
+  { target: "#restore", title: "Your turn", text: "Scramble a few more times, then press **Restore the true pairs**. Look for this: the **Welch** card never moves, while the **paired** card changes every time. Knowing who is who was the valuable information." },
+]);
 render();
 </script>
 </body>

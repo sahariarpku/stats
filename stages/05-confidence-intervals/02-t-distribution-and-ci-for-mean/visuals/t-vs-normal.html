@@ -11,7 +11,7 @@
   <div class="viz-head">
     <div>
       <h1>t versus normal</h1>
-      <p class="hint">The t curve (orange) has fatter tails than the normal curve (dashed). Slide the degrees of freedom. The shaded tails each hold 2.5%, and the t critical value is where they begin.</p>
+      <p class="hint">The orange t curve looks like the normal curve (dashed) but with fatter tails, because small samples are less reliable. Move the slider to change the sample size. The blue tails hold the outer 5%, and t* marks where they begin.</p>
     </div>
     <button id="theme" type="button">Theme: auto</button>
   </div>
@@ -19,8 +19,8 @@
   <svg id="plot" viewBox="0 0 760 260" role="img" aria-label="A t curve and the standard normal curve with shaded 95% critical regions"></svg>
 
   <div class="legend">
-    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="6" width="14" height="3" fill="var(--series-2)"/></svg>t-distribution</span>
-    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="6" width="5" height="2" fill="var(--text-primary)"/><rect x="8" y="6" width="5" height="2" fill="var(--text-primary)"/></svg>Standard normal</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="6" width="14" height="3" fill="var(--series-2)"/></svg>t curve</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="6" width="5" height="2" fill="var(--text-primary)"/><rect x="8" y="6" width="5" height="2" fill="var(--text-primary)"/></svg>Normal curve</span>
     <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="3" width="12" height="9" fill="var(--series-1)" opacity="0.5"/></svg>Outer 5% under the t curve</span>
   </div>
 
@@ -70,8 +70,17 @@ function render() {
       : "With df = " + df + " the two curves are almost indistinguishable and t* ≈ z* = 1.960. Large samples can use either one.";
 }
 
-Viz.slider($("sliders"), { label: "Degrees of freedom (n − 1)", min: 1, max: 100, step: 1, value: df, format: (v) => "df = " + v, onInput: (v) => { df = v; render(); } });
+Viz.slider($("sliders"), { label: "Degrees of freedom (sample size − 1)", min: 1, max: 100, step: 1, value: df, format: (v) => "df = " + v, onInput: (v) => { df = v; render(); } });
 Viz.themeToggle($("theme"));
+const setDf = (v) => { const r = document.querySelector("#sliders input[type=range]"); r.value = v; r.dispatchEvent(new Event("input")); };
+Viz.tour([
+  { target: "#plot", title: "Two bell curves", text: "Both curves show how far a sample average tends to land from the true value: usually close (near **0**, in the middle), rarely far out. The **dashed** line is the normal curve you already know. The **orange** line is the **t curve**, which we use when the spread also has to be guessed from the sample." },
+  { target: "#sliders", title: "The slider is sample size", text: "**Degrees of freedom** sounds scary, but here it is just **sample size minus 1**. It starts at 5, which means a sample of 6 people. With so few people, our guess of the spread is shaky, so the t curve gives extreme values more room: its tails are **fatter**." },
+  { target: ".readout", title: "How far out to reach", text: "The blue tails hold the most extreme 5%. **t*** is where they begin: **2.571** at df = 5, compared with **1.960** for the normal curve. That makes your interval **31.2% wider**. It is the honest price for not knowing the true spread." },
+  { target: "#sliders", title: "A tiny sample", text: "Now df = 3, a sample of just 4. The tails fatten, t* jumps to **3.183**, and the interval is **62.4% wider** than a normal-curve interval would be.", action: { label: "Set df = 3", run: () => setDf(3) } },
+  { target: "#plot", title: "A decent sample", text: "Now df = 30, a sample of 31. The orange curve almost sits on the dashed one. t* is **2.042**, so the interval is only **4.2% wider**.", action: { label: "Set df = 30", run: () => setDf(30) } },
+  { target: "#sliders", title: "Your turn", text: "Drag the slider all the way to 100. Look for this: **t*** creeps down towards **1.960** but never drops below it. The bigger the sample, the less the t curve matters." },
+]);
 render();
 </script>
 </body>

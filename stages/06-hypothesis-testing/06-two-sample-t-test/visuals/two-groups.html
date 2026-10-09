@@ -11,7 +11,7 @@
   <div class="viz-head">
     <div>
       <h1>Two groups, two tests</h1>
-      <p class="hint">Each curve shows how one group's scores spread. The small boxes show how precisely each group's mean is known (± 1 SE). Change the groups and compare the pooled and Welch tests.</p>
+      <p class="hint">Each curve shows how one group's scores spread out. The small bars underneath show how precisely each group's average is pinned down (± 1 standard error). Change the groups and compare the two versions of the test: pooled and Welch.</p>
     </div>
     <button id="theme" type="button">Theme: auto</button>
   </div>
@@ -87,6 +87,14 @@ const setAll = (o) => { Object.assign(G, o); Object.keys(o).forEach((k) => slide
 $("p1").addEventListener("click", () => setAll({ m1: 74, s1: 8, n1: 30, m2: 79, s2: 7, n2: 30 }));
 $("p2").addEventListener("click", () => setAll({ m1: 50, s1: 12, n1: 10, m2: 55, s2: 4, n2: 40 }));
 Viz.themeToggle($("theme"));
+Viz.tour([
+  { target: "#plot", title: "Two groups of students", text: "Thirty students studied **with music** (blue curve, average **74**) and thirty **in silence** (orange curve, average **79**). Each curve shows how the scores in that group spread out. They overlap a lot: plenty of music students beat plenty of silent ones." },
+  { target: "#plot", title: "How sure are we of each average?", text: "The two small bars under the axis show how precisely each group's **average** is pinned down: **74 ± 1.46** and **79 ± 1.28**. Even though single scores vary a lot, averages of 30 people are much steadier, and these two bars do not overlap." },
+  { target: "div:has(> table)", title: "The verdict, two ways", text: "Both versions of the t-test give **p = 0.0126**, so both say **Reject H₀**: a 5-point gap this big would rarely happen by luck. **Pooled** assumes both groups are equally spread out. **Welch** does not. With equal sizes and similar spreads, they agree." },
+  { target: "#sliders .ctrl:nth-child(2)", title: "Shrink the gap", text: "Now silence averages **76**, only 2 points ahead. The orange curve slides left, and p rises to about **0.307**. Both tests now say **Fail to reject**: a 2-point gap could easily be luck with 30 per group.", action: { label: "Set group 2 mean to 76", run: () => { const r = document.querySelectorAll("#sliders input[type=range]")[1]; r.value = 76; r.dispatchEvent(new Event("input")); } } },
+  { target: "#p2", title: "When the two tests disagree", text: "Group 1 is now **10 people with a wide spread** (SD 12). Group 2 is **40 people, tightly packed** (SD 4). Pooled says p = **0.0300** (reject), Welch says p = **0.2243** (fail to reject). Pooled wrongly treats the small noisy group as precise. Look how wide its blue bar is. Trust Welch.", action: { label: "Load the noisy example", run: () => $("p2").click() } },
+  { target: "#sliders", title: "Your turn", text: "Press **Music vs silence** to start again, then drag the sizes and SDs. Look for the moment the two table rows give **different decisions**. It happens when one group is both small and spread out." },
+]);
 render();
 </script>
 </body>

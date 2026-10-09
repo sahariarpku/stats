@@ -24,7 +24,7 @@
   <div class="viz-head">
     <div>
       <h1>Sort the data types</h1>
-      <p class="hint">Each card is a variable from a real dataset. Decide which of the four types it is. Wrong answers tell you why.</p>
+      <p class="hint">Each card names one thing people record, like blood type or height. Pick which of the four kinds of data it is. If you get it wrong, it tells you why.</p>
     </div>
     <button id="theme" type="button">Theme: auto</button>
   </div>
@@ -118,6 +118,11 @@ $("next").addEventListener("click", () => {
 });
 $("restart").addEventListener("click", start);
 Viz.themeToggle($("theme"));
+Viz.tour([
+  { target: "#card", title: "One card at a time", text: "The big card names **one thing you could write down** about people or objects, like blood type or height. The grey line under it shows a few example values. Your job: say what kind of data it is." },
+  { target: "#answers", title: "Ask one question first", text: "**Is it a label or an amount?** Labels are **Nominal** (just names, like blood type) or **Ordinal** (names with an order, like S, M, L). Amounts are **Discrete** (you count them: 0, 1, 2) or **Continuous** (you measure them: 172.4 cm). Tap your guess." },
+  { target: ".controls", title: "Mistakes are welcome", text: "After each guess the right answer gets a **blue outline**, a wrong guess gets an **orange** one, and the sentence above explains why. Press **Next card** to go on. There are 16 cards. Watch out for numbers that are really labels, like ZIP codes." },
+]);
 start();
 </script>
 </body>

@@ -20,7 +20,7 @@
   <div class="viz-head">
     <div>
       <h1>Orderings collapse into groups</h1>
-      <p class="hint">Choose r items from n. With "order matters", every arrangement counts. Without it, all the arrangements of the same items count once.</p>
+      <p class="hint">Pick r letters from n. When order matters (like 1st, 2nd and 3rd prize), ABC and CBA are different. When it does not (like picking a team), they are the same group and count once.</p>
     </div>
     <button id="theme" type="button">Theme: auto</button>
   </div>
@@ -32,9 +32,9 @@
   <div class="controls col" id="sliders"></div>
 
   <div class="readout" aria-live="polite" style="margin-top:12px">
-    <div class="card"><div class="label">Permutations P(n, r)</div><div class="value" id="perm"></div></div>
-    <div class="card"><div class="label">Orderings per group, r!</div><div class="value" id="fact"></div></div>
-    <div class="card"><div class="label">Combinations C(n, r)</div><div class="value" id="comb"></div></div>
+    <div class="card"><div class="label">Permutations P(n, r): ordered lists</div><div class="value" id="perm"></div></div>
+    <div class="card"><div class="label">Ways to order each group, r!</div><div class="value" id="fact"></div></div>
+    <div class="card"><div class="label">Combinations C(n, r): groups</div><div class="value" id="comb"></div></div>
   </div>
   <p class="eq" id="eq"></p>
   <div id="items" role="list" aria-label="All the ways to choose"></div>
@@ -96,12 +96,20 @@ function setOrdered(v) {
 $("ordered").addEventListener("click", () => setOrdered(true));
 $("unordered").addEventListener("click", () => setOrdered(false));
 
-const rSlider = Viz.slider($("sliders"), { label: "Items chosen (r)", min: 2, max: 3, step: 1, value: r, format: (v) => "r = " + v, onInput: (v) => { r = v; render(); } });
+const rSlider = Viz.slider($("sliders"), { label: "Letters you pick (r)", min: 2, max: 3, step: 1, value: r, format: (v) => "r = " + v, onInput: (v) => { r = v; render(); } });
 Viz.slider($("sliders"), {
-  label: "Items available (n)", min: 4, max: 6, step: 1, value: n, format: (v) => "n = " + v,
+  label: "Letters to pick from (n)", min: 4, max: 6, step: 1, value: n, format: (v) => "n = " + v,
   onInput: (v) => { n = v; render(); },
 });
 Viz.themeToggle($("theme"));
+Viz.tour([
+  { target: "#items", title: "Every way to pick", text: "We have 5 letters, **A to E**, and pick **3**. Each small chip, like **ABC**, is one way to line up 3 letters in order. Think of handing out 1st, 2nd and 3rd prize. There are **60** chips in total." },
+  { target: "#items", title: "Look inside one box", text: "The first grey box holds ABC, ACB, BAC, BCA, CAB and CBA. Same three letters, just shuffled. Any 3 letters can be lined up in **6** orders (3 × 2 × 1, written **3!**). Every box holds 6 chips." },
+  { target: "#unordered", title: "When order does not matter", text: "Now imagine picking a **team** of 3 instead of prizes. ABC and CBA are the same team. Press this and each box collapses into one group, like {A,B,C}. 60 ÷ 6 = **10** teams.", action: { label: "Collapse the boxes", run: () => document.getElementById("unordered").click() } },
+  { target: "#eq", title: "The shortcut", text: "That is the whole trick: count the ordered lists (60), then divide by the number of orders per group (6). So **C(5, 3) = 60 ÷ 6 = 10**. No need to write every list out." },
+  { target: "#sliders", title: "Add a letter", text: "Let us add a sixth letter, **F**. Now there are **20** possible teams of 3, and 20 × 6 = **120** ordered lists.", action: { label: "Use 6 letters", run: () => { const r = document.querySelectorAll("#sliders input[type=range]")[1]; r.value = 6; r.dispatchEvent(new Event("input")); } } },
+  { target: "#ordered", title: "Your turn", text: "Press **Order matters** to see all 120 orderings in their boxes. Then set **r = 2**: each box shrinks to just 2 chips, like AB and BA. Look for: every box always holds r! chips." },
+]);
 render();
 </script>
 </body>

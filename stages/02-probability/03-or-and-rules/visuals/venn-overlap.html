@@ -11,7 +11,7 @@
   <div class="viz-head">
     <div>
       <h1>The overlap you must not count twice</h1>
-      <p class="hint">The box is every possible outcome (probability 1). Each circle's area is its probability. Slide P(A), P(B) and the overlap, or use the presets.</p>
+      <p class="hint">The box is everything that could happen (100%). Each circle is one event, and the bigger the circle, the more likely it is. Move the sliders, or try the two buttons.</p>
     </div>
     <button id="theme" type="button">Theme: auto</button>
   </div>
@@ -24,10 +24,10 @@
   </div>
 
   <div class="readout" aria-live="polite">
-    <div class="card"><div class="label">P(A) + P(B)</div><div class="value" id="sum"></div></div>
-    <div class="card"><div class="label">− P(A and B)</div><div class="value" id="both"></div></div>
-    <div class="card"><div class="label">= P(A or B)</div><div class="value" id="union"></div></div>
-    <div class="card"><div class="label">P(A) × P(B)</div><div class="value" id="prod"></div></div>
+    <div class="card"><div class="label">Add the chances: P(A) + P(B)</div><div class="value" id="sum"></div></div>
+    <div class="card"><div class="label">− the overlap, P(A and B)</div><div class="value" id="both"></div></div>
+    <div class="card"><div class="label">= chance of A or B, P(A or B)</div><div class="value" id="union"></div></div>
+    <div class="card"><div class="label">P(A) × P(B), to test independence</div><div class="value" id="prod"></div></div>
   </div>
   <p class="verdict" id="verdict" aria-live="polite"></p>
 
@@ -117,13 +117,21 @@ function render() {
       : "The two circles overlap, so adding P(A) + P(B) = " + pct(pa + pb) + " counts the overlap twice. Subtract it: P(A or B) = " + pct(pa + pb - pab) + ". Because P(A and B) ≠ P(A) × P(B), the events are dependent.";
 }
 
-const aS = Viz.slider($("sliders"), { label: "P(A)", min: 0.05, max: 0.5, step: 0.01, value: pa, format: (v) => pct(v), onInput: (v) => { pa = v; render(); } });
-const bS = Viz.slider($("sliders"), { label: "P(B)", min: 0.05, max: 0.5, step: 0.01, value: pb, format: (v) => pct(v), onInput: (v) => { pb = v; render(); } });
-const overlapSlider = Viz.slider($("sliders"), { label: "P(A and B)", min: 0, max: 0.3, step: 0.005, value: pab, format: (v) => pct(v), onInput: (v) => { pab = v; render(); } });
+const aS = Viz.slider($("sliders"), { label: "Chance of A, P(A)", min: 0.05, max: 0.5, step: 0.01, value: pa, format: (v) => pct(v), onInput: (v) => { pa = v; render(); } });
+const bS = Viz.slider($("sliders"), { label: "Chance of B, P(B)", min: 0.05, max: 0.5, step: 0.01, value: pb, format: (v) => pct(v), onInput: (v) => { pb = v; render(); } });
+const overlapSlider = Viz.slider($("sliders"), { label: "Overlap (both), P(A and B)", min: 0, max: 0.3, step: 0.005, value: pab, format: (v) => pct(v), onInput: (v) => { pab = v; render(); } });
 
 $("exclusive").addEventListener("click", () => { pab = 0; render(); });
 $("independent").addEventListener("click", () => { pab = Math.round(pa * pb * 1000) / 1000; render(); });
 Viz.themeToggle($("theme"));
+Viz.tour([
+  { target: "#plot", title: "Everything that could happen", text: "The big box is **everything that could happen**: 100%. The **blue circle** is event A and the **orange circle** is event B: two things that might happen, like \"it rains\" and \"the bus is late\". A bigger circle means a more likely event. A is 30%, B is 40%." },
+  { target: "#plot", title: "The overlap", text: "Where the circles overlap, **both** happen. Here that is 12% of the box. So \"A only\" is 18% and \"B only\" is 28%." },
+  { target: ".readout", title: "Do not count it twice", text: "To get the chance of **A or B**, you might add 30% + 40% = **70%**. But the overlap sits inside both circles, so it got counted twice. Take it off once: 70% − 12% = **58%**." },
+  { target: "#exclusive", title: "When they cannot both happen", text: "Let us pull the circles apart so they never overlap, like rolling a 1 or a 6 with one die: you cannot get both at once. These are called **mutually exclusive**. Now the chance of A or B is simply 30% + 40% = **70%**.", action: { label: "Pull them apart", run: () => document.getElementById("exclusive").click() } },
+  { target: "#independent", title: "When one does not affect the other", text: "Now set the overlap to **12%**, which is exactly 30% × 40%. When the overlap equals the two chances multiplied, the events are **independent**: knowing A happened does not change the chance of B.", action: { label: "Make them independent", run: () => document.getElementById("independent").click() } },
+  { target: "#sliders", title: "Your turn", text: "Drag the **Overlap** slider and watch the circles slide together or apart. Look for: the sentence above calls the events **dependent** whenever the overlap is not equal to P(A) × P(B)." },
+]);
 render();
 </script>
 </body>

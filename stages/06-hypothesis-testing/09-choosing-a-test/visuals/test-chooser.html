@@ -21,7 +21,7 @@
   <div class="viz-head">
     <div>
       <h1>Which test should I use?</h1>
-      <p class="hint">Answer a few questions about your data and design. The chooser follows the same rules as the lesson.</p>
+      <p class="hint">Answer a few plain questions about what you measured and how. The chooser follows the same rules as the lesson, and points you to the lesson for your test.</p>
     </div>
     <button id="theme" type="button">Theme: auto</button>
   </div>
@@ -43,16 +43,16 @@ const L = {
 const R = (name, why, link, lesson) => ({ result: { name, why, link, lesson } });
 
 const TREE = {
-  q: "What type is the outcome you measured?", opts: [
+  q: "What did you measure for each person or thing?", opts: [
     ["A number (height, score, time, price)", {
       q: "What do you want to do?", opts: [
         ["Compare one group's mean with a known value", {
-          q: "Do you know the population standard deviation σ?", opts: [
+          q: "Do you already know the true spread (σ) of the whole population?", opts: [
             ["Yes, σ is known", R("One-sample z-test", "One group, numerical outcome, σ known.", L.z, "Lesson 6.4")],
-            ["No, I only have the sample SD (the usual case)", {
-              q: "Is the data roughly normal, or is n about 30 or more?", opts: [
+            ["No, I only have the spread of my sample (the usual case)", {
+              q: "Is the data roughly bell-shaped (normal), or do you have about 30 or more values?", opts: [
                 ["Yes", R("One-sample t-test", "One group, numerical outcome, σ unknown, assumptions fine.", L.t1, "Lesson 6.5")],
-                ["No: small and clearly skewed or full of outliers", R("Wilcoxon signed-rank test", "The rank-based back-up for a one-sample t-test.", L.rank, "Lesson 7.3")],
+                ["No: small and clearly lopsided, or full of extreme values", R("Wilcoxon signed-rank test", "The rank-based back-up for a one-sample t-test.", L.rank, "Lesson 7.3")],
               ],
             }],
           ],
@@ -60,13 +60,13 @@ const TREE = {
         ["Compare two groups", {
           q: "Are the two groups paired (same people twice, or matched pairs)?", opts: [
             ["Independent: different people in each group", {
-              q: "Is the data roughly normal in each group, or n about 30 or more?", opts: [
+              q: "Is each group roughly bell-shaped (normal), or does each have about 30 or more people?", opts: [
                 ["Yes", R("Welch two-sample t-test", "Two independent groups, numerical outcome. Welch's version is the safe default.", L.t2, "Lesson 6.6")],
-                ["No: small and clearly skewed or ordinal", R("Mann–Whitney U test", "The rank-based back-up for the independent t-test.", L.rank, "Lesson 7.3")],
+                ["No: small and clearly lopsided, or ranked (like 1 to 5 ratings)", R("Mann–Whitney U test", "The rank-based back-up for the independent t-test.", L.rank, "Lesson 7.3")],
               ],
             }],
             ["Paired: same people before and after, or matched", {
-              q: "Are the differences roughly normal, or is n about 30 or more?", opts: [
+              q: "Are the before-minus-after differences roughly bell-shaped, or do you have about 30 or more pairs?", opts: [
                 ["Yes", R("Paired t-test", "Two linked groups, numerical outcome: test the differences.", L.tp, "Lesson 6.7")],
                 ["No", R("Wilcoxon signed-rank test", "The rank-based back-up for the paired t-test.", L.rank, "Lesson 7.3")],
               ],
@@ -76,7 +76,7 @@ const TREE = {
         ["Compare three or more groups", {
           q: "Are the groups independent?", opts: [
             ["Yes, different people in each group", {
-              q: "Is the data roughly normal in each group, with similar spreads?", opts: [
+              q: "Is each group roughly bell-shaped (normal), with similar spreads?", opts: [
                 ["Yes", R("One-way ANOVA", "Three or more independent groups, numerical outcome. Do not run many t-tests.", L.anova, "Lesson 7.2")],
                 ["No", R("Kruskal–Wallis test", "The rank-based back-up for one-way ANOVA.", L.rank, "Lesson 7.3")],
               ],
@@ -85,9 +85,9 @@ const TREE = {
           ],
         }],
         ["See whether two numerical variables are related", {
-          q: "Is the relationship roughly linear, with no wild outliers and roughly normal data?", opts: [
+          q: "Do the points follow a rough straight line, with no wild extreme values and roughly bell-shaped data?", opts: [
             ["Yes", R("Pearson correlation (and simple linear regression)", "Two numerical variables, linear relationship.", L.corr, "Lesson 8.1")],
-            ["No: curved, ranked or outlier-heavy", R("Spearman rank correlation", "The rank-based back-up for Pearson.", L.corr, "Lesson 8.1")],
+            ["No: curved, ranked, or full of extreme values", R("Spearman rank correlation", "The rank-based back-up for Pearson.", L.corr, "Lesson 8.1")],
           ],
         }],
         ["Predict the number from one or more other variables", R("Linear regression (simple or multiple)", "A numerical outcome predicted from predictors.", L.mreg, "Lessons 8.2 to 8.4")],
@@ -104,7 +104,7 @@ const TREE = {
         ["Compare two groups' proportions", {
           q: "Are the two groups paired (same people twice)?", opts: [
             ["Independent groups", {
-              q: "Is any expected cell count below 5?", opts: [
+              q: "In your table of counts, is any expected count below 5?", opts: [
                 ["No, the counts are comfortable", R("Chi-square test (or two-proportion z-test)", "Two independent groups, categorical outcome.", L.chi, "Lesson 7.1")],
                 ["Yes, tiny counts", R("Fisher's exact test", "Chi-square needs expected counts of about 5 or more. Fisher's test is exact.", L.chi, "Lesson 7.1")],
               ],
@@ -159,6 +159,12 @@ function render() {
 $("back").addEventListener("click", () => { stack.pop(); render(); });
 $("restart").addEventListener("click", () => { stack.length = 0; render(); });
 Viz.themeToggle($("theme"));
+const pick = (start) => [...document.querySelectorAll("#stage .opts button")].find((b) => b.textContent.startsWith(start)).click();
+Viz.tour([
+  { target: "#stage", title: "One question at a time", text: "Every question is about **your data**, not about statistics. The first one asks what you measured: a **number** (like a height or a score) or a **category** (like yes/no, or a brand). Click the answer that fits, and the next question appears." },
+  { target: "#stage", title: "Watch an example", text: "Say you compared exam **scores** of students who studied with music and students who studied in silence: a number, two groups, different people, 30 in each. The chooser lands on the **Welch two-sample t-test**, with a link to its lesson. The grey trail above the box lists the answers you gave.", action: { label: "Answer for me", run: () => { $("restart").click(); pick("A number"); pick("Compare two groups"); pick("Independent"); pick("Yes"); } } },
+  { target: ".controls", title: "Your turn", text: "Press **Start over** and describe a study of your own. Use **← Back** if you change your mind. Look for the \"back-up\" tests such as Mann–Whitney or Wilcoxon: they appear when your data are small and lopsided." },
+]);
 render();
 </script>
 </body>

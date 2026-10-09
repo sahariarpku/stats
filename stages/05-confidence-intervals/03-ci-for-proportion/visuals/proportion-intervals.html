@@ -11,7 +11,7 @@
   <div class="viz-head">
     <div>
       <h1>Three intervals, one data set</h1>
-      <p class="hint">The same data, three ways to build a 95% interval. Try 0 successes, or a small sample, and watch the Wald interval fall apart.</p>
+      <p class="hint">One set of data, three recipes for a 95% range around a percentage. Try 0 successes, or a small sample, and watch the textbook (Wald) range go wrong.</p>
     </div>
     <button id="theme" type="button">Theme: auto</button>
   </div>
@@ -19,8 +19,8 @@
   <svg id="plot" viewBox="0 0 760 230" role="img" aria-label="Wald, Wilson and exact confidence intervals for a proportion on a 0 to 1 scale"></svg>
 
   <div class="readout" aria-live="polite">
-    <div class="card"><div class="label">p̂ = x / n</div><div class="value" id="phat"></div></div>
-    <div class="card"><div class="label">Success-failure check</div><div class="value" id="cond" style="font-size:1.1rem"></div></div>
+    <div class="card"><div class="label">Sample percentage p̂ = x / n</div><div class="value" id="phat"></div></div>
+    <div class="card"><div class="label">Success-failure check (need 10+ of each)</div><div class="value" id="cond" style="font-size:1.1rem"></div></div>
   </div>
   <table class="tally" id="tbl" style="width:100%;border-collapse:collapse;margin:6px 0 10px;font-variant-numeric:tabular-nums">
     <thead><tr><th style="text-align:left">Method</th><th style="text-align:left">95% interval</th><th style="text-align:left">Width</th></tr></thead>
@@ -48,7 +48,7 @@ for (let i = 1; i <= 1000; i++) logFact[i] = logFact[i - 1] + Math.log(i);
 const bpmf = (k, N, p) => (p <= 0 ? (k === 0 ? 1 : 0) : p >= 1 ? (k === N ? 1 : 0) : Math.exp(logFact[N] - logFact[k] - logFact[N - k] + k * Math.log(p) + (N - k) * Math.log(1 - p)));
 const bcdf = (k, N, p) => { let s = 0; for (let i = 0; i <= k; i++) s += bpmf(i, N, p); return s; };
 const layer = Viz.el("g", {}, svg);
-const pct = (v) => (v * 100).toFixed(1) + "%";
+const pct = (v) => (Math.abs(v) < 0.0005 ? 0 : v * 100).toFixed(1) + "%";
 
 function wald() { const p = x / n, me = Z * Math.sqrt(p * (1 - p) / n); return [p - me, p + me]; }
 function wilson() { const p = x / n, d = 1 + Z * Z / n, c = (p + Z * Z / (2 * n)) / d, h = Z / d * Math.sqrt(p * (1 - p) / n + Z * Z / (4 * n * n)); return [c - h, c + h]; }
@@ -102,6 +102,14 @@ document.querySelectorAll("button[data-x]").forEach((b) => b.addEventListener("c
   render();
 }));
 Viz.themeToggle($("theme"));
+Viz.tour([
+  { target: "#plot", title: "Three ranges, one data set", text: "A clinic saw **3 complications in 20 patients**. The dashed line is that sample's rate, **15%**. Each coloured bar is a range of believable values for the true rate, built by a different recipe. The shaded strips at both ends are below 0% or above 100%: **impossible** for a percentage." },
+  { target: "#tbl", title: "Read the ranges", text: "The textbook **Wald** range runs from **−0.6% to 30.6%**, so it gets a ⚠. A negative rate makes no sense. **Wilson** (5.2% to 36.0%) and **Exact** (3.2% to 37.9%) stay inside 0 to 100%." },
+  { target: ".readout", title: "Why Wald struggles here", text: "The textbook recipe only behaves when you have **at least 10 successes and 10 failures**. Here there are only 3 complications, so the check fails ✗. Small counts are where you should reach for Wilson." },
+  { target: "button[data-x='476']", title: "A big, healthy sample", text: "A poll where **476 of 850** voters back a candidate (56%). The check passes ✓, and all three bars nearly overlap, at roughly **53% to 59%**. With plenty of data, every recipe agrees.", action: { label: "Load the poll", run: () => document.querySelector("button[data-x='476']").click() } },
+  { target: "button[data-x='0']", title: "Zero out of 20", text: "No complications at all. Wald shrinks to a single point at **0%**, as if 20 patients could prove the risk is exactly zero. Wilson gives **0% to 16.1%**, a much more honest answer.", action: { label: "Load 0 of 20", run: () => document.querySelector("button[data-x='0']").click() } },
+  { target: "#sliders", title: "Your turn", text: "Drag the two sliders. Look for the moment Wald's blue bar pokes into an **impossible** strip, or collapses to a dot. When counts are small, Wilson is the safe choice." },
+]);
 render();
 </script>
 </body>

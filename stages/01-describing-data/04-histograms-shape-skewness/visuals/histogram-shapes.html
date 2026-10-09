@@ -12,7 +12,7 @@
   <div class="viz-head">
     <div>
       <h1>One dataset, many histograms</h1>
-      <p class="hint">200 values. Pick a shape, then drag the bin-width slider. Watch where the mean and the median land.</p>
+      <p class="hint">200 values, each between 0 and 100. Each bar counts how many values fall in its range. Pick a shape, then drag the bin-width slider. Watch where the mean and the median land.</p>
     </div>
     <button id="theme" type="button">Theme: auto</button>
   </div>
@@ -34,8 +34,8 @@
   <div class="readout" aria-live="polite">
     <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>Mean</div><div class="value" id="mean"></div></div>
     <div class="card"><div class="label"><span class="mark" style="background:var(--series-2)"></span>Median</div><div class="value" id="median"></div></div>
-    <div class="card"><div class="label">Skewness g₁</div><div class="value" id="skew"></div></div>
-    <div class="card"><div class="label">Bins</div><div class="value" id="bins"></div></div>
+    <div class="card"><div class="label">Skewness g₁ (how lopsided)</div><div class="value" id="skew"></div></div>
+    <div class="card"><div class="label">Bins (number of bars)</div><div class="value" id="bins"></div></div>
   </div>
 
   <p class="verdict" id="verdict" aria-live="polite"></p>
@@ -81,7 +81,7 @@ const VERDICT = {
   symmetric: (m, md) => "Symmetric: the mean (" + f1(m) + ") and the median (" + f1(md) + ") almost coincide. Report the mean and standard deviation.",
   right: (m, md) => "Right-skewed: the long tail is on the right, so it pulls the mean (" + f1(m) + ") above the median (" + f1(md) + "). Report the median and IQR.",
   left: (m, md) => "Left-skewed: the long tail is on the left, so it pulls the mean (" + f1(m) + ") below the median (" + f1(md) + "). Report the median and IQR.",
-  bimodal: (m, md) => "Two humps: the mean (" + f1(m) + ") and median (" + f1(md) + ") fall in the valley between the groups, where almost nobody is. A single summary hides the story. Try a very wide bin and watch the two humps merge.",
+  bimodal: (m, md) => "Two humps: the mean (" + f1(m) + ") and median (" + f1(md) + ") fall in the valley between the groups, where almost nobody is. A single summary hides the story. Set the bin width to 25 and watch the two humps blur into one.",
 };
 
 function render() {
@@ -122,10 +122,18 @@ document.querySelectorAll("#shapes button").forEach((b) => b.addEventListener("c
 }));
 
 Viz.slider($("sliders"), {
-  label: "Bin width", min: 2, max: 40, step: 1, value: width,
+  label: "Bin width (how wide each bar is)", min: 2, max: 40, step: 1, value: width,
   format: (v) => v, onInput: (v) => { width = v; render(); },
 });
 Viz.themeToggle($("theme"));
+Viz.tour([
+  { target: "#plot", title: "What the bars mean", text: "There are **200 values**, each between 0 and 100. They are sorted into ranges 10 wide: 0 to 10, 10 to 20, and so on. Each **grey bar** shows **how many values** landed in its range. A taller bar means more values. The small number on the left is the count in the tallest bar (74)." },
+  { target: "#plot", title: "Two kinds of middle", text: "The **blue triangle** marks the **mean** (the average). The **orange diamond** marks the **median** (the middle value). This shape is balanced, like a hill, so they sit almost together: **50.3** and **50.6**." },
+  { target: "#shapes", title: "Give it a long tail", text: "Let us switch to **Right-skewed**. Most values are now low, with a long thin tail stretching to the right. The few big values in the tail drag the **mean up to 25.8**, while the **median stays at 22.5**.", action: { label: "Show Right-skewed", run: () => document.querySelector('#shapes button[data-shape="right"]').click() } },
+  { target: ".readout", title: "One number for lopsidedness", text: "**Skewness** measures how lopsided the shape is. Near 0 means balanced. Here it is **2.12**: positive, because the tail points right. **Left-skewed** gives **−2.12**, because its tail points left." },
+  { target: "#sliders", title: "How wide is each bar?", text: "This slider sets the width of each bar. Wide bars hide detail; very thin bars look jumpy. Let us try a width of **2**, which gives **50** thin bars. The same data now looks spikier.", action: { label: "Set the width to 2", run: () => { const r = document.querySelectorAll("#sliders input[type=range]")[0]; r.value = 2; r.dispatchEvent(new Event("input")); } } },
+  { target: "#shapes", title: "Your turn", text: "Pick **Bimodal** (two humps, two groups), then set the bar width to **25**. The two humps blur into what looks like one lump in the middle. Lesson: always try a few widths before you trust a histogram." },
+]);
 render();
 </script>
 </body>

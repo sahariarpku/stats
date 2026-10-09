@@ -11,7 +11,7 @@
   <div class="viz-head">
     <div>
       <h1>One yardstick for two exams</h1>
-      <p class="hint">Maya's two exams use different scales. Move the sliders and see where each score lands once both are measured in standard deviations.</p>
+      <p class="hint">Maya took two exams, and the classes scored very differently. Move the sliders to see where each mark lands on one shared ruler: standard deviations (typical distances) from the class average.</p>
     </div>
     <button id="theme" type="button">Theme: auto</button>
   </div>
@@ -19,13 +19,13 @@
   <svg id="plot" viewBox="0 0 760 300" role="img" aria-label="Two raw-score number lines aligned above a shared z-score axis"></svg>
 
   <div class="legend">
-    <span><svg viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="var(--series-1)"/></svg>Statistics (mean 70, SD 10)</span>
-    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="2" y="2" width="10" height="10" fill="var(--series-2)"/></svg>Biology (mean 65, SD 6)</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="var(--series-1)"/></svg>Statistics: class average 70, SD 10</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="2" y="2" width="10" height="10" fill="var(--series-2)"/></svg>Biology: class average 65, SD 6</span>
   </div>
 
   <div class="readout" aria-live="polite">
-    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>Statistics z</div><div class="value" id="za"></div></div>
-    <div class="card"><div class="label"><span class="mark" style="background:var(--series-2)"></span>Biology z</div><div class="value" id="zb"></div></div>
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>Statistics z-score</div><div class="value" id="za"></div></div>
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-2)"></span>Biology z-score</div><div class="value" id="zb"></div></div>
   </div>
   <p class="verdict" id="verdict" aria-live="polite"></p>
 
@@ -45,7 +45,7 @@ const $ = (id) => document.getElementById(id);
 const f = (v) => (Math.round(v * 100) / 100).toString();
 
 Viz.el("rect", { x: Z(-1), y: 28, width: Z(1) - Z(-1), height: ZY - 28, fill: "var(--surface-2)", opacity: 0.8 }, svg);
-Viz.el("text", { x: Z(0), y: 22, "text-anchor": "middle" }, svg).textContent = "within ±1 SD (about 68% of a bell curve)";
+Viz.el("text", { x: Z(0), y: 22, "text-anchor": "middle" }, svg).textContent = "within 1 SD of the average (about 68% of a bell curve)";
 
 EXAMS.forEach((e) => {
   Viz.el("line", { class: "axis-line", x1: Z(-3), x2: Z(3), y1: e.y, y2: e.y }, svg);
@@ -53,7 +53,7 @@ EXAMS.forEach((e) => {
     Viz.el("line", { class: "axis-line", x1: Z(z), x2: Z(z), y1: e.y, y2: e.y + 5 }, svg);
     Viz.el("text", { x: Z(z), y: e.y + 20, "text-anchor": "middle" }, svg).textContent = e.mu + z * e.sigma;
   }
-  Viz.el("text", { x: 50, y: e.y - 18, class: "strong" }, svg).textContent = e.name + " (raw score)";
+  Viz.el("text", { x: 50, y: e.y - 18, class: "strong" }, svg).textContent = e.name + " (Maya's actual mark)";
   e.link = Viz.el("line", { stroke: e.color, "stroke-width": 1.5, "stroke-dasharray": "4 4" }, svg);
   e.mark = e.shape === "circle"
     ? Viz.el("circle", { r: 9, fill: e.color, stroke: "var(--surface-1)", "stroke-width": 2 }, svg)
@@ -68,7 +68,7 @@ for (let z = -3; z <= 3; z++) {
   Viz.el("line", { class: "axis-line", x1: Z(z), x2: Z(z), y1: ZY, y2: ZY + 5 }, svg);
   Viz.el("text", { x: Z(z), y: ZY + 34, "text-anchor": "middle", class: z === 0 ? "strong" : "" }, svg).textContent = z;
 }
-Viz.el("text", { x: 50, y: ZY - 18, class: "strong" }, svg).textContent = "Common scale: z-score (SDs from the mean)";
+Viz.el("text", { x: 50, y: ZY - 18, class: "strong" }, svg).textContent = "Shared ruler: z-score (SDs above or below the average)";
 
 function render() {
   const zs = EXAMS.map((e) => (e.score - e.mu) / e.sigma);
@@ -95,11 +95,18 @@ function render() {
 
 EXAMS.forEach((e) => {
   Viz.slider($("sliders"), {
-    label: e.name + " score", min: e.mu - 3 * e.sigma, max: e.mu + 3 * e.sigma, step: 1, value: e.score,
+    label: "Maya's " + e.name + " mark", min: e.mu - 3 * e.sigma, max: e.mu + 3 * e.sigma, step: 1, value: e.score,
     format: (v) => v, onInput: (v) => { e.score = v; render(); },
   });
 });
 Viz.themeToggle($("theme"));
+Viz.tour([
+  { target: "#plot", title: "Two exams, two rulers", text: "The top line is the **Statistics** exam and the middle line is **Biology**. The numbers under each line are exam marks. Maya got **85** in Statistics (blue circle) and **78** in Biology (orange square). 85 looks like her better result. Is it?" },
+  { target: ".legend", title: "The classes were different", text: "The Statistics class averaged **70**, and a typical student was about **10** marks away from that. That typical distance is the **SD** (standard deviation). Biology averaged **65**, with a tighter spread of **6**. So each Biology mark counts for more." },
+  { target: "#plot", title: "One shared ruler", text: "The bottom line counts **SDs above or below the class average**. That count is the **z-score**. 85 is 15 above 70, which is 1.5 SDs: **z = +1.5**. 78 is 13 above 65, about 2.17 SDs: **z = +2.17**. Compared with her classmates, Biology was the stronger result." },
+  { target: "#plot", title: "Different marks, same standing", text: "Let us use the Biology slider to drop her mark to **74**. That is 9 above 65, exactly 1.5 SDs. Now both markers line up at **z = +1.5** on the bottom line, even though the marks are 85 and 74.", action: { label: "Set Biology to 74", run: () => { const r = document.querySelectorAll("#sliders input[type=range]")[1]; r.value = 74; r.dispatchEvent(new Event("input")); } } },
+  { target: "#sliders", title: "Your turn", text: "Drag the Statistics mark and watch the blue circle move on the bottom ruler. Notice it takes **10** Statistics marks to move one step, but only **6** Biology marks. A z-score beyond 2 is unusual; beyond 3 is very rare." },
+]);
 render();
 </script>
 </body>

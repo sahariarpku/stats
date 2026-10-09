@@ -11,7 +11,7 @@
   <div class="viz-head">
     <div>
       <h1>How big is the difference?</h1>
-      <p class="hint">Two groups with the same spread. Slide the effect size d and the number of people per group. The curves show the effect. The p-value shows how convincing it looks.</p>
+      <p class="hint">Two groups with the same spread. Slide the effect size d (how far apart the groups sit) and the number of people per group. The curves show how big the difference is. The p-value shows how convincing the evidence is.</p>
     </div>
     <button id="theme" type="button">Theme: auto</button>
   </div>
@@ -26,9 +26,9 @@
 
   <div class="readout" aria-live="polite">
     <div class="card"><div class="label">Overlap of the curves</div><div class="value" id="ovl"></div></div>
-    <div class="card"><div class="label">Random pick from group 1 beats group 2</div><div class="value" id="cl"></div></div>
-    <div class="card"><div class="label">Two-sample t (df = 2n − 2)</div><div class="value" id="tv"></div></div>
-    <div class="card"><div class="label">Two-tailed p-value</div><div class="value" id="pv"></div></div>
+    <div class="card"><div class="label">A random person from group 1 beats one from group 2</div><div class="value" id="cl"></div></div>
+    <div class="card"><div class="label">t statistic (two-sample test)</div><div class="value" id="tv"></div></div>
+    <div class="card"><div class="label">p-value (both sides)</div><div class="value" id="pv"></div></div>
   </div>
   <p class="verdict" id="verdict" aria-live="polite"></p>
 
@@ -78,13 +78,20 @@ function render() {
           : "Not significant, and the effect is small: little evidence of anything important.");
 }
 
-sd = Viz.slider($("sliders"), { label: "Effect size d", min: 0, max: 2, step: 0.01, value: d, format: (v) => v.toFixed(2), onInput: (v) => { d = v; render(); } });
+sd = Viz.slider($("sliders"), { label: "Effect size d (gap in SDs)", min: 0, max: 2, step: 0.01, value: d, format: (v) => v.toFixed(2), onInput: (v) => { d = v; render(); } });
 sn = Viz.slider($("sliders"), { label: "People per group (n)", min: 0.48, max: 4.7, step: 0.01, value: Math.log10(n), format: (v) => Math.round(Math.pow(10, v)).toLocaleString(), onInput: (v) => { n = Math.round(Math.pow(10, v)); render(); } });
 const set = (dd, nn) => { d = dd; n = nn; sd.set(d); sn.set(Math.log10(n)); n = Math.round(Math.pow(10, Number(sn.input.value))); render(); };
 $("p1").addEventListener("click", () => set(0.02, 40000));
 $("p2").addEventListener("click", () => set(1.0, 4));
 $("p3").addEventListener("click", () => set(0.5, 64));
 Viz.themeToggle($("theme"));
+Viz.tour([
+  { target: "#plot", title: "Two groups, one gap", text: "The **blue** curve is group 2 and the **orange** curve is group 1. Both have the same spread. The gap between their centres (the dashed lines) is the **effect size d**, counted in standard deviations. Here d = **0.50**: the groups sit half a typical spread apart. The **grey** shading is where they overlap." },
+  { target: ".readout", title: "Size and evidence are different things", text: "The first two cards feel the size: the curves overlap by **80%**, and a random person from group 1 beats one from group 2 **64%** of the time (a coin flip would be 50%). The last two cards depend on **how many people** you measured too. With 50 per group, p = **0.0141**." },
+  { target: "#p1", title: "Tiny effect, huge sample", text: "Now d = **0.02** with about **40,000** people per group. The curves sit almost on top of each other: **99%** overlap, and group 1 wins only **51%** of the time. Yet p = **0.0048**, \"significant\". A huge sample can make a difference too small to matter look convincing.", action: { label: "Load this example", run: () => $("p1").click() } },
+  { target: "#p2", title: "Large effect, tiny sample", text: "Now d = **1.00** with just **4** people per group. The curves are clearly apart (**62%** overlap, group 1 wins **76%** of the time). But p = **0.2070**, not significant. The effect may be big, but 4 people cannot confirm it. That means \"we do not know yet\", not \"no effect\".", action: { label: "Load this example", run: () => $("p2").click() } },
+  { target: "#sliders", title: "Your turn", text: "Drag **People per group** and leave d alone. Look for this: the curves and the first two cards **never move**. Only t and p change. That is why good reports give the effect size next to the p-value." },
+]);
 render();
 </script>
 </body>

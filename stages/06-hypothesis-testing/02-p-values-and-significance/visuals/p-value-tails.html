@@ -12,7 +12,7 @@
   <div class="viz-head">
     <div>
       <h1>p-value as a tail area</h1>
-      <p class="hint">If H₀ is true, test statistics follow the bell curve. Move your z-score along it. The shaded area beyond it is the p-value. Compare it with α.</p>
+      <p class="hint">If nothing special is going on (H₀ is true), z-scores land on this bell curve. Drag your z-score along it. The shaded area beyond it is the p-value. If it is no bigger than α, reject H₀.</p>
     </div>
     <button id="theme" type="button">Theme: auto</button>
   </div>
@@ -28,13 +28,13 @@
   <div class="legend">
     <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="3" width="12" height="9" fill="var(--series-2)" opacity="0.6"/></svg>p-value area</span>
     <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="6" y="0" width="3" height="14" fill="var(--series-1)"/></svg>Your test statistic</span>
-    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="6" width="5" height="2" fill="var(--text-muted)"/><rect x="8" y="6" width="5" height="2" fill="var(--text-muted)"/></svg>Critical value(s) for α</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="6" width="5" height="2" fill="var(--text-muted)"/><rect x="8" y="6" width="5" height="2" fill="var(--text-muted)"/></svg>Cut-off line(s) set by α</span>
   </div>
 
   <div class="readout" aria-live="polite">
-    <div class="card"><div class="label">z</div><div class="value" id="zv"></div></div>
+    <div class="card"><div class="label">Your z-score</div><div class="value" id="zv"></div></div>
     <div class="card"><div class="label"><span class="mark" style="background:var(--series-2)"></span>p-value</div><div class="value" id="pv"></div></div>
-    <div class="card"><div class="label">α</div><div class="value" id="av"></div></div>
+    <div class="card"><div class="label">α (the cut-off)</div><div class="value" id="av"></div></div>
     <div class="card"><div class="label">Decision</div><div class="value" id="dec" style="font-size:1.2rem"></div></div>
   </div>
   <p class="verdict" id="verdict" aria-live="polite"></p>
@@ -84,7 +84,7 @@ function render() {
   });
   Viz.el("line", { x1: X(z), x2: X(z), y1: 38, y2: 195, stroke: "var(--series-1)", "stroke-width": 3 }, layer);
   Viz.el("text", { x: X(z), y: 54, "text-anchor": z > 0 ? "start" : "end", class: "strong", dx: z > 0 ? 6 : -6 }, layer).textContent = "z = " + z.toFixed(2);
-  Viz.el("text", { x: 380, y: 236, "text-anchor": "middle" }, layer).textContent = "Test statistic under H₀ (standard normal)";
+  Viz.el("text", { x: 380, y: 236, "text-anchor": "middle" }, layer).textContent = "z-score, if nothing special is going on (H₀ true)";
 
   const reject = p <= alpha;
   $("zv").textContent = z.toFixed(2);
@@ -96,10 +96,19 @@ function render() {
     (tail !== "two" ? " Try the two-tailed button: the p-value doubles." : "");
 }
 
-Viz.slider($("sliders"), { label: "Test statistic z", min: -4, max: 4, step: 0.01, value: z, format: (v) => v.toFixed(2), onInput: (v) => { z = v; render(); } });
+Viz.slider($("sliders"), { label: "Your test statistic (z-score)", min: -4, max: 4, step: 0.01, value: z, format: (v) => v.toFixed(2), onInput: (v) => { z = v; render(); } });
 document.querySelectorAll("#tails button").forEach((b) => b.addEventListener("click", () => { tail = b.dataset.t; document.querySelectorAll("#tails button").forEach((x) => x.setAttribute("aria-pressed", x === b)); render(); }));
 document.querySelectorAll("#alphas button").forEach((b) => b.addEventListener("click", () => { alpha = +b.dataset.a; document.querySelectorAll("#alphas button").forEach((x) => x.setAttribute("aria-pressed", x === b)); render(); }));
 Viz.themeToggle($("theme"));
+const setZ = (v) => { const r = document.querySelector("#sliders input[type=range]"); r.value = v; r.dispatchEvent(new Event("input")); };
+Viz.tour([
+  { target: "#plot", title: "The curve of \"no effect\"", text: "Imagine nothing special is going on (that is **H₀**). Then a test's **z-score** lands somewhere on this bell curve: usually near 0, rarely beyond ±2. The **blue line** is your z = **2.40**, from a bottle plant that overfilled by 3.6 mL on average. The **orange area** beyond it is the **p-value**." },
+  { target: ".readout", title: "Read the verdict", text: "The p-value is **0.0164**. If the plant really filled 500 mL on average, a result this far off would turn up only about **1.6%** of the time. That is below **α = 0.05**, our surprise threshold, so the decision is **Reject H₀**." },
+  { target: "#alphas", title: "Raise the bar", text: "Now we demand stronger evidence: α = 0.01. The dashed cut-off lines move out to **±2.58**. Your p-value is still 0.0164, but that is now above 0.01, so the decision flips to **Fail to reject**. Same data, stricter judge.", action: { label: "Set α = 0.01", run: () => document.querySelector("#alphas button[data-a='0.01']").click() } },
+  { target: "#tails", title: "Only one direction", text: "If you only ever cared about **overfilling**, you look at the right tail alone. The p-value halves to **0.0082**, below 0.01, so it is **Reject H₀** again. Pick the direction before you see the data, never to rescue a result.", action: { label: "Switch to right-tailed", run: () => document.querySelector("#tails button[data-t='right']").click() } },
+  { target: "#sliders", title: "A smaller surprise", text: "Back to two tails and α = 0.05, with a weaker result: z = **1.33**. The orange area grows to **0.1835**. A fair process would do this about 18% of the time, so the decision is **Fail to reject**.", action: { label: "Show z = 1.33", run: () => { document.querySelector("#tails button[data-t='two']").click(); document.querySelector("#alphas button[data-a='0.05']").click(); setZ(1.33); } } },
+  { target: "#sliders", title: "Your turn", text: "Drag the slider and switch the buttons. Look for this: the decision flips to **Reject H₀** at exactly the moment the blue line crosses a **dashed** cut-off line." },
+]);
 render();
 </script>
 </body>

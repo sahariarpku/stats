@@ -11,7 +11,7 @@
   <div class="viz-head">
     <div>
       <h1>Build a box plot</h1>
-      <p class="hint">Each dot is one exam score. Drag a dot (or use the arrow keys) and watch the five numbers and the box plot update. Then press "Add an extreme value".</p>
+      <p class="hint">Each dot is one student's exam score. Drag a dot (or click it and use the arrow keys) and watch the box below follow. Then press "Add an extreme value".</p>
     </div>
     <button id="theme" type="button">Theme: auto</button>
   </div>
@@ -19,18 +19,18 @@
   <svg id="plot" viewBox="0 0 760 270" role="group" aria-label="Exam scores as dots, with the matching box plot underneath"></svg>
 
   <div class="legend">
-    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="3" width="12" height="8" fill="none" stroke="var(--series-1)" stroke-width="2"/></svg>Box: middle 50% (Q1 to Q3)</span>
-    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="6" y="0" width="3" height="14" fill="var(--series-2)"/></svg>Median</span>
-    <span><svg viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="4.5" fill="none" stroke="var(--text-primary)" stroke-width="2"/></svg>Outlier (outside the fences)</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="3" width="12" height="8" fill="none" stroke="var(--series-1)" stroke-width="2"/></svg>Box: the middle half of the scores (Q1 to Q3)</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="6" y="0" width="3" height="14" fill="var(--series-2)"/></svg>Median: the middle score</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="4.5" fill="none" stroke="var(--text-primary)" stroke-width="2"/></svg>Outlier: far from the rest, past a dashed fence</span>
   </div>
 
   <div class="readout" aria-live="polite">
-    <div class="card"><div class="label">Min</div><div class="value" id="min"></div></div>
-    <div class="card"><div class="label">Q1</div><div class="value" id="q1"></div></div>
+    <div class="card"><div class="label">Min (lowest)</div><div class="value" id="min"></div></div>
+    <div class="card"><div class="label">Q1 (a quarter of the way up)</div><div class="value" id="q1"></div></div>
     <div class="card"><div class="label"><span class="mark" style="background:var(--series-2)"></span>Median</div><div class="value" id="q2"></div></div>
-    <div class="card"><div class="label">Q3</div><div class="value" id="q3"></div></div>
-    <div class="card"><div class="label">Max</div><div class="value" id="max"></div></div>
-    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>IQR (Q3 − Q1)</div><div class="value" id="iqr"></div></div>
+    <div class="card"><div class="label">Q3 (three quarters up)</div><div class="value" id="q3"></div></div>
+    <div class="card"><div class="label">Max (highest)</div><div class="value" id="max"></div></div>
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>IQR: box width (Q3 − Q1)</div><div class="value" id="iqr"></div></div>
   </div>
 
   <p class="verdict" id="verdict" aria-live="polite"></p>
@@ -165,14 +165,22 @@ function render() {
   $("min").textContent = f(s[0]); $("q1").textContent = f(q1); $("q2").textContent = f(q2);
   $("q3").textContent = f(q3); $("max").textContent = f(s[s.length - 1]); $("iqr").textContent = f(iqr);
   $("verdict").textContent = outliers.length
-    ? "Flagged: " + outliers.join(", ") + ". It lies beyond the fence, so it is drawn as a separate dot and the whisker stops at " + f(hi) + ". Notice the median and IQR shifted only a little, while the max (and so the range) jumped."
-    : "No outliers: every score sits inside the fences (Q1 − 1.5 × IQR to Q3 + 1.5 × IQR). The whiskers reach the smallest and largest scores.";
+    ? "Flagged as an outlier: " + outliers.join(", ") + ". It sits past a dashed fence, so it gets its own circle and the whisker stops at " + f(hi) + ". The median and the box barely moved, but the max (and so the range) jumped."
+    : "No outliers: every score sits between the two dashed fences. The whiskers (the lines sticking out of the box) reach all the way to the lowest and highest scores.";
   $("add").disabled = values.length > START.length;
 }
 
 $("add").addEventListener("click", () => { values.push(EXTREME); render(); });
 $("reset").addEventListener("click", () => { values = [...START]; render(); });
 Viz.themeToggle($("theme"));
+Viz.tour([
+  { target: "#plot", title: "Twelve exam scores", text: "Each grey dot at the top is **one student's exam score**. Further right means a higher score. There are 12 students, scoring from 45 to 90." },
+  { target: "#plot", title: "The box plot underneath", text: "The shape below squeezes all 12 dots into one picture. The **blue box** holds the middle half of the students, from **57.5 to 77.5**. The **orange line** inside is the **median**, 67.5. The **whiskers** stretch out to the lowest and highest scores." },
+  { target: ".readout", title: "Five numbers sum it up", text: "**Min, Q1, Median, Q3 and Max** cut the scores into four groups with the same number of students in each. The **IQR** is just the width of the box: 77.5 minus 57.5 = **20**." },
+  { target: "#add", title: "A score that does not fit", text: "Let us add one student who scored **130**, far above everyone else. Guess first: which numbers will change a lot?", action: { label: "Add the 130 for me", run: () => document.getElementById("add").click() } },
+  { target: "#plot", title: "What happened?", text: "130 is past the **dashed fence** on the right, so it is flagged as an **outlier**: orange at the top and its own circle below. The median only moved from 67.5 to **70** and the IQR from 20 to **25**. The max jumped from 90 to **130**. The box shrugs off one odd value; the max and the range do not." },
+  { target: "#plot", title: "Your turn", text: "Press **Reset**, then **drag the top score (90)** slowly to the right. Watch it turn orange once it passes the dashed fence at **107.5**. You can also click a dot and use the arrow keys." },
+]);
 render();
 </script>
 </body>

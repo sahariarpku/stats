@@ -11,7 +11,7 @@
   <div class="viz-head">
     <div>
       <h1>Two dice: theory vs experiment</h1>
-      <p class="hint">Each roll adds one to the total of two dice. The black ticks mark what the maths predicts. The blue bars are what actually happened.</p>
+      <p class="hint">Roll two dice and add them up. The blue bars show how often each total has come up so far. The black ticks show how often maths says it should, in the long run.</p>
     </div>
     <button id="theme" type="button">Theme: auto</button>
   </div>
@@ -19,15 +19,15 @@
   <svg id="plot" viewBox="0 0 760 290" role="img" aria-label="Bar chart of the share of rolls for each total from 2 to 12, compared with the theoretical share"></svg>
 
   <div class="legend">
-    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="2" y="3" width="10" height="9" fill="var(--series-1)"/></svg>Experiment: share of rolls</span>
-    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="6" width="14" height="3" fill="var(--text-primary)"/></svg>Theory: ways ÷ 36</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="2" y="3" width="10" height="9" fill="var(--series-1)"/></svg>What happened: share of rolls</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="6" width="14" height="3" fill="var(--text-primary)"/></svg>What maths predicts: ways to make it ÷ 36</span>
   </div>
 
   <div class="readout" aria-live="polite">
     <div class="card"><div class="label">Last roll</div><div class="value" id="last">—</div></div>
     <div class="card"><div class="label">Rolls so far</div><div class="value" id="count">0</div></div>
-    <div class="card"><div class="label">Share of 7s (experiment)</div><div class="value" id="p7">—</div></div>
-    <div class="card"><div class="label">P(7) by counting</div><div class="value">1/6 = 16.7%</div></div>
+    <div class="card"><div class="label">How often 7 came up</div><div class="value" id="p7">—</div></div>
+    <div class="card"><div class="label">Chance of 7, by counting</div><div class="value">1/6 = 16.7%</div></div>
   </div>
 
   <p class="verdict" id="verdict" aria-live="polite">Press "Roll once" or "Roll 100".</p>
@@ -106,6 +106,14 @@ function roll(n) {
 document.querySelectorAll("button[data-n]").forEach((b) => b.addEventListener("click", () => roll(+b.dataset.n)));
 $("reset").addEventListener("click", () => { counts = new Array(11).fill(0); rolls = 0; last = null; $("verdict").textContent = 'Press "Roll once" or "Roll 100".'; render(); });
 Viz.themeToggle($("theme"));
+Viz.tour([
+  { target: "#plot", title: "Totals from 2 to 12", text: "Two dice are thrown and added up, so the total is anything from **2 to 12**. Each total gets a column. The **black tick** shows how often maths says it should come up. **7** is the most likely: 6 of the 36 ways two dice can land make 7. **2** and **12** have just 1 way each." },
+  { target: 'button[data-n="10"]', title: "Start small", text: "Let us roll the dice **10 times**. The **blue bars** show what share of those rolls landed on each total. With so few rolls the bars are lumpy and often far from the ticks. That is normal.", action: { label: "Roll 10 for me", run: () => document.querySelector('button[data-n="10"]').click() } },
+  { target: ".readout", title: "Keep score", text: "**Last roll** shows the two dice, like 3 + 4 = 7. Compare **How often 7 came up** with the **1/6 = 16.7%** that counting predicts. After only 10 rolls they can be far apart." },
+  { target: 'button[data-n="1000"]', title: "Now roll a lot", text: "Let us add **1,000 more** rolls. Watch the blue bars settle into a neat triangle that hugs the black ticks.", action: { label: "Roll 1,000 for me", run: () => document.querySelector('button[data-n="1000"]').click() } },
+  { target: "#verdict", title: "The long run wins", text: "This sentence gives the **biggest gap** between any bar and its tick. With 1,010 rolls it is small. More rolls shrink it further. That is the **Law of Large Numbers**: over many tries, what happens settles close to what the maths predicts." },
+  { target: ".controls", title: "Your turn", text: "Press **Reset**, then **Roll once** a few times and see how jumpy the bars are. Then press **Roll 1,000** and compare. Look for: how close the bar for 7 gets to its tick." },
+]);
 render();
 </script>
 </body>

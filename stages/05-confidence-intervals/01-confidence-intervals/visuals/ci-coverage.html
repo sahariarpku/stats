@@ -11,7 +11,7 @@
   <div class="viz-head">
     <div>
       <h1>One hundred intervals, one true mean</h1>
-      <p class="hint">The true mean is fixed at 50. Each line is a confidence interval from a fresh random sample. Blue lines catch the truth. Orange lines miss it.</p>
+      <p class="hint">Here we know the true average: 50 (the black line). Each short line is a range worked out from a new random sample. Blue ranges contain 50. Orange ones miss it.</p>
     </div>
     <button id="theme" type="button">Theme: auto</button>
   </div>
@@ -19,16 +19,16 @@
   <svg id="plot" viewBox="0 0 760 440" role="img" aria-label="One hundred horizontal confidence intervals around the true mean"></svg>
 
   <div class="legend">
-    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="5.5" width="14" height="3" fill="var(--series-1)"/></svg>Captures the true mean</span>
-    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="5.5" width="14" height="3" fill="var(--series-2)"/><circle cx="7" cy="7" r="3" fill="var(--series-2)"/></svg>Misses the true mean</span>
-    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="6" y="0" width="2.5" height="14" fill="var(--text-primary)"/></svg>True mean μ = 50</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="5.5" width="14" height="3" fill="var(--series-1)"/></svg>Contains the true average</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="5.5" width="14" height="3" fill="var(--series-2)"/><circle cx="7" cy="7" r="3" fill="var(--series-2)"/></svg>Misses the true average</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="6" y="0" width="2.5" height="14" fill="var(--text-primary)"/></svg>True average μ = 50</span>
   </div>
 
   <div class="readout" aria-live="polite">
     <div class="card"><div class="label">Intervals drawn</div><div class="value" id="total">0</div></div>
-    <div class="card"><div class="label">Captured the mean</div><div class="value" id="hit">—</div></div>
+    <div class="card"><div class="label">Contained 50</div><div class="value" id="hit">—</div></div>
     <div class="card"><div class="label">Missed</div><div class="value" id="miss">—</div></div>
-    <div class="card"><div class="label">Capture rate</div><div class="value" id="rate">—</div></div>
+    <div class="card"><div class="label">Success rate</div><div class="value" id="rate">—</div></div>
   </div>
   <p class="verdict" id="verdict" aria-live="polite">Press "Draw 100 intervals".</p>
 
@@ -75,7 +75,7 @@ function render() {
     $("hit").textContent = hits.toLocaleString();
     $("miss").textContent = (total - hits).toLocaleString();
     $("rate").textContent = (100 * hits / total).toFixed(1) + "%";
-    $("verdict").textContent = "On screen: " + hitShown + " of " + shown.length + " intervals capture μ. Over all " + total.toLocaleString() + " drawn so far the capture rate is " + (100 * hits / total).toFixed(1) + "%, close to the " + Math.round(conf * 100) + "% promised. Every blue or orange line is built the same way. Only the luck of the sample differs.";
+    $("verdict").textContent = "On screen: " + hitShown + " of " + shown.length + " intervals contain the true average, 50. Over all " + total.toLocaleString() + " drawn so far the success rate is " + (100 * hits / total).toFixed(1) + "%, close to the " + Math.round(conf * 100) + "% promised. Every blue or orange line is built the same way. Only the luck of the sample differs.";
   }
 }
 
@@ -95,6 +95,16 @@ $("draw").addEventListener("click", () => draw(100, true));
 $("more").addEventListener("click", () => draw(1000, false));
 $("reset").addEventListener("click", () => { shown = []; total = 0; hits = 0; $("hit").textContent = "—"; $("miss").textContent = "—"; $("rate").textContent = "—"; $("verdict").textContent = 'Press "Draw 100 intervals".'; render(); });
 Viz.themeToggle($("theme"));
+const setSlider = (k, v) => { const r = document.querySelectorAll("#sliders input[type=range]")[k]; r.value = v; r.dispatchEvent(new Event("input")); };
+Viz.tour([
+  { target: "#plot", title: "A game where we know the answer", text: "The **black vertical line** is the true average, **50**. In real life nobody knows it, but here we do, so we can check our work. Each time the computer takes a random sample of 25 values and draws a **range** around that sample's average. That range is called a **confidence interval**." },
+  { target: "#draw", title: "Draw 100 ranges", text: "Each row will be one new sample. **Blue** rows contain 50. **Orange** rows (with a dot in the middle) missed it.", action: { label: "Draw 100 for me", run: () => $("draw").click() } },
+  { target: ".readout", title: "Count the misses", text: "At 95% confidence you should see **about 5 orange rows** out of 100. The exact count changes every time, because each sample is random. Every row was built the same way. Only luck decides which ones miss." },
+  { target: "#more", title: "Keep score over many tries", text: "Let us draw 1,000 more behind the scenes. Watch the **Success rate** card: it settles very close to **95%**. That is what \"95% confident\" means: the method works about 95 times in 100.", action: { label: "Add 1,000 more", run: () => $("more").click() } },
+  { target: "#sliders .ctrl:nth-child(1)", title: "Ask for less confidence", text: "Drop the confidence level to **80%** and draw again. The ranges get **shorter**, and now about **20 in 100** miss. A narrower net catches the truth less often.", action: { label: "Set 80% and draw", run: () => { setSlider(0, 0.8); $("draw").click(); } } },
+  { target: "#sliders .ctrl:nth-child(2)", title: "Collect more data", text: "Back to 95%, but now each sample has **100 values** instead of 25. The ranges become **half as long**, yet about 95 in 100 still contain 50. More data buys you a tighter range, not a higher success rate.", action: { label: "Set 95%, n = 100 and draw", run: () => { setSlider(0, 0.95); setSlider(1, 100); $("draw").click(); } } },
+  { target: "#plot", title: "Your turn", text: "Move both sliders and press **Draw 100 intervals** again. Look for this: the share of orange rows always matches **100% minus the confidence level**, whatever the sample size." },
+]);
 render();
 </script>
 </body>

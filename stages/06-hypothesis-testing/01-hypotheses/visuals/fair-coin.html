@@ -11,7 +11,7 @@
   <div class="viz-head">
     <div>
       <h1>Would a fair coin do this?</h1>
-      <p class="hint">Each experiment flips a fair coin 100 times and records the heads. Set the result you saw, then run many experiments. How often does a fair coin land as far from 50 as you did?</p>
+      <p class="hint">Each experiment flips a perfectly fair coin 100 times and counts the heads. Set the number of heads you got, then run lots of experiments. How often does a fair coin end up as far from 50 as you did?</p>
     </div>
     <button id="theme" type="button">Theme: auto</button>
   </div>
@@ -19,17 +19,17 @@
   <svg id="plot" viewBox="0 0 760 270" role="img" aria-label="Histogram of heads counts for fair coins with the extreme tails shaded"></svg>
 
   <div class="legend">
-    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="2" width="12" height="11" fill="var(--series-1)"/></svg>Fair-coin experiments (not extreme)</span>
-    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="2" width="12" height="11" fill="var(--series-2)"/></svg>At least as extreme as your result</span>
-    <span><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 1 L13 7 L7 13 L1 7 Z" fill="var(--text-primary)"/></svg>Exact binomial chance</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="2" width="12" height="11" fill="var(--series-1)"/></svg>Fair-coin results closer to 50 than yours</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="2" width="12" height="11" fill="var(--series-2)"/></svg>As far from 50 as yours, or further</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 1 L13 7 L7 13 L1 7 Z" fill="var(--text-primary)"/></svg>Exact chance, worked out by maths</span>
   </div>
 
   <div class="readout" aria-live="polite">
     <div class="card"><div class="label">Experiments run</div><div class="value" id="count">0</div></div>
     <div class="card"><div class="label"><span class="mark" style="background:var(--series-2)"></span>As extreme as yours</div><div class="value" id="frac">—</div></div>
-    <div class="card"><div class="label">Exact p-value (two-sided)</div><div class="value" id="exact"></div></div>
+    <div class="card"><div class="label">Exact p-value (both sides)</div><div class="value" id="exact"></div></div>
   </div>
-  <p class="verdict" id="verdict" aria-live="polite">Press "Run 1,000 experiments".</p>
+  <p class="verdict" id="verdict" aria-live="polite">Press "Run 1,000".</p>
 
   <div class="controls col" id="sliders"></div>
   <div class="controls">
@@ -87,7 +87,7 @@ function render() {
   if (total) {
     const extreme = counts.reduce((a, c, k) => a + (isExtreme(k) ? c : 0), 0);
     $("frac").textContent = (100 * extreme / total).toFixed(1) + "%";
-    $("verdict").textContent = "Out of " + total.toLocaleString() + " fair-coin experiments, " + (100 * extreme / total).toFixed(1) + "% gave a result at least as lopsided as " + observed + " heads (or " + (100 - observed) + " or fewer). That share estimates the p-value (exact: " + (exact < 0.0001 ? "< 0.0001" : exact.toFixed(4)) + "). " + (exact <= 0.05 ? "Below 0.05: a fair coin rarely does this, so we reject H₀." : "Above 0.05: a fair coin does this often enough that we cannot call it unfair.");
+    $("verdict").textContent = "Out of " + total.toLocaleString() + " fair-coin experiments, " + (100 * extreme / total).toFixed(1) + "% gave a result at least as lopsided as " + observed + " heads (or " + (100 - observed) + " or fewer). That share estimates the p-value (exact: " + (exact < 0.0001 ? "< 0.0001" : exact.toFixed(4)) + "). " + (exact <= 0.05 ? "Below 0.05: a fair coin rarely does this, so we reject H₀, the idea that the coin is fair." : "Above 0.05: a fair coin does this often enough that we cannot call it unfair.");
   }
 }
 
@@ -95,8 +95,17 @@ Viz.slider($("sliders"), { label: "Heads you observed", min: 30, max: 70, step: 
 $("r1").addEventListener("click", () => runExperiments(1));
 $("r100").addEventListener("click", () => runExperiments(100));
 $("r1000").addEventListener("click", () => runExperiments(1000));
-$("reset").addEventListener("click", () => { counts = new Array(N + 1).fill(0); total = 0; $("frac").textContent = "—"; $("verdict").textContent = 'Press "Run 1,000 experiments".'; render(); });
+$("reset").addEventListener("click", () => { counts = new Array(N + 1).fill(0); total = 0; $("frac").textContent = "—"; $("verdict").textContent = 'Press "Run 1,000".'; render(); });
 Viz.themeToggle($("theme"));
+const setHeads = (v) => { const r = document.querySelector("#sliders input[type=range]"); r.value = v; r.dispatchEvent(new Event("input")); };
+Viz.tour([
+  { target: "#plot", title: "Imagine a perfectly fair coin", text: "Each **bar** will count how many experiments ended with that many heads out of 100 flips. The **black diamonds** show the exact chance of each count, worked out by maths. A fair coin usually lands **near 50**, and only rarely near 30 or 70." },
+  { target: "#sliders", title: "Your result", text: "You flipped a friend's coin and got **60 heads**. The dashed lines mark 60 and its mirror image, 40. Anything at or beyond those lines is **at least as lopsided** as your result, in either direction." },
+  { target: "#r1000", title: "Let a fair coin have a go", text: "This runs 1,000 experiments with a coin we know is fair. **Blue** bars are ordinary results. **Orange** bars are results as lopsided as yours: 60 or more heads, or 40 or fewer.", action: { label: "Run 1,000 for me", run: () => $("r1000").click() } },
+  { target: ".readout", title: "That share is the p-value", text: "The orange share should be **about 5.7%** (it wobbles a little, because the flips are random). The exact answer is **0.0569**. That is the **p-value**: how often a fair coin surprises you this much. It is just above 0.05, so 60 heads is not strong enough evidence to call the coin unfair." },
+  { target: "#sliders", title: "What about 65 heads?", text: "Same 1,000 fair-coin experiments, but now your result is 65. Almost no bars are orange. The exact p-value falls to **0.0035**, far below 0.05. A fair coin hardly ever does this, so we would **reject** the idea that the coin is fair.", action: { label: "Set 65 heads", run: () => setHeads(65) } },
+  { target: "#sliders", title: "Your turn", text: "Drag the slider between 55 and 65 heads and watch the **exact p-value**. Look for the exact number of heads where it first drops below **0.05**. That is the line between \"could be luck\" and \"suspicious\"." },
+]);
 render();
 </script>
 </body>

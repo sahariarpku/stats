@@ -11,7 +11,7 @@
   <div class="viz-head">
     <div>
       <h1>From deviations to standard deviation</h1>
-      <p class="hint">Each row is one quiz score. Drag a dot (or use the arrow keys). The orange line is its deviation from the mean. The bar on the right is that deviation squared.</p>
+      <p class="hint">Each row is one student's quiz score. Drag a dot (or click it and use the arrow keys). The orange line shows how far it is from the average. The bar on the right is that distance squared (multiplied by itself).</p>
     </div>
     <button id="theme" type="button">Theme: auto</button>
   </div>
@@ -19,16 +19,16 @@
   <svg id="plot" viewBox="0 0 760 215" role="group" aria-label="Five scores, their deviations from the mean, and the squared deviations"></svg>
 
   <div class="legend">
-    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="6" y="0" width="3" height="14" fill="var(--series-1)"/></svg>Mean x̄</span>
-    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="5.5" width="14" height="3" fill="var(--series-2)"/></svg>Deviation (x − x̄)</span>
-    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="3" width="12" height="8" fill="var(--series-2)" opacity="0.55"/></svg>Squared deviation (x − x̄)²</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="6" y="0" width="3" height="14" fill="var(--series-1)"/></svg>Mean (the average) x̄</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="5.5" width="14" height="3" fill="var(--series-2)"/></svg>Deviation: distance from the mean (x − x̄)</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="3" width="12" height="8" fill="var(--series-2)" opacity="0.55"/></svg>That distance squared (x − x̄)²</span>
   </div>
 
   <div class="readout" aria-live="polite">
     <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>Mean</div><div class="value" id="mean"></div></div>
-    <div class="card"><div class="label">Sum of squares (Σd²)</div><div class="value" id="ss"></div></div>
+    <div class="card"><div class="label">Sum of the squares (Σd²)</div><div class="value" id="ss"></div></div>
     <div class="card"><div class="label" id="varlabel">Variance</div><div class="value" id="var"></div></div>
-    <div class="card"><div class="label">Standard deviation</div><div class="value" id="sd"></div></div>
+    <div class="card"><div class="label">Standard deviation (typical distance)</div><div class="value" id="sd"></div></div>
   </div>
 
   <p class="verdict" id="verdict" aria-live="polite"></p>
@@ -54,7 +54,7 @@ let values = [...START];
 let isSample = true;
 
 Viz.axisBottom(svg, X, { y: 168, from: 55, to: 105, step: 10 });
-Viz.el("text", { x: BARS.left, y: 190, class: "strong" }, svg).textContent = "Squared deviation (d²)";
+Viz.el("text", { x: BARS.left, y: 190, class: "strong" }, svg).textContent = "Distance squared (d²)";
 
 const meanLine = Viz.el("line", { y1: 16, y2: 168, stroke: "var(--series-1)", "stroke-width": 2 }, svg);
 const meanText = Viz.el("text", { y: 11, "text-anchor": "middle", class: "strong" }, svg);
@@ -119,7 +119,7 @@ function render() {
   $("sd").textContent = f(sd);
   $("verdict").textContent = ss < 1e-9
     ? "All scores equal the mean, so every deviation is 0 and the standard deviation is 0. No spread at all."
-    : "Variance = " + f(ss) + " ÷ " + (isSample ? "(n − 1) = " + (n - 1) : "N = " + n) + " = " + f(variance) + ". The typical score sits about " + f(sd) + " points from the mean of " + f(m) + ". The sum of the plain deviations is always " + f(Viz.sum(d)) + ", which is why we square them. A dot twice as far away adds four times as much to the sum of squares.";
+    : "Variance = " + f(ss) + " ÷ " + (isSample ? "(n − 1) = " + (n - 1) : "N = " + n) + " = " + f(variance) + ". The typical score sits about " + f(sd) + " points from the mean of " + f(m) + ". The plain deviations (with their + and − signs) always add up to " + f(Viz.sum(d)) + ", which is why we square them. A dot twice as far away adds four times as much to the sum of squares.";
 }
 
 function setMode(sample) {
@@ -134,6 +134,14 @@ $("population").addEventListener("click", () => setMode(false));
 $("reset").addEventListener("click", () => { values = [...START]; render(); });
 $("same").addEventListener("click", () => { values = values.map(() => 80); render(); });
 Viz.themeToggle($("theme"));
+Viz.tour([
+  { target: "#plot", title: "Five quiz scores", text: "Each row is **one student's quiz score**. Further right means a higher score. The scores are 72, 85, 90, 68 and 95. The **blue line** is their mean (the average): **82**." },
+  { target: "#plot", title: "How far from the average?", text: "Each **orange line** joins a score to the mean. 95 is 13 above it; 68 is 14 below. If you simply added these gaps, the pluses and minuses would cancel out to 0. So we **square** each gap (multiply it by itself). The bars on the right show the squares, like 13 × 13 = 169." },
+  { target: ".readout", title: "From squares to one number", text: "Add up the squares: **538**. Divide by 4 (one less than the 5 scores) to get the **variance**, 134.5. Take the square root to get back to quiz points: the **standard deviation is 11.6**. In words: a typical score sits about 11.6 points from the average." },
+  { target: "#population", title: "A sample or everyone?", text: "If these 5 students were the **whole group** you care about, you divide by 5 instead of 4. The standard deviation drops to **10.37**. With a sample, dividing by one less makes up for small samples looking a bit less spread out than reality.", action: { label: "Switch to everyone (÷ N)", run: () => document.getElementById("population").click() } },
+  { target: "#same", title: "No spread at all", text: "Now let us give every student **80**. Every orange line and every bar vanishes, and the standard deviation becomes **0**. Zero spread means everyone got the same score.", action: { label: "Make all scores 80", run: () => document.getElementById("same").click() } },
+  { target: "#plot", title: "Your turn", text: "Press **Reset to the lesson's scores**, then drag one dot far from the blue line. Watch its bar grow much faster than its line: a dot **twice** as far away makes a bar **four times** as long." },
+]);
 render();
 </script>
 <style>

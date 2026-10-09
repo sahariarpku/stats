@@ -12,7 +12,7 @@
   <div class="viz-head">
     <div>
       <h1>Who really tests positive?</h1>
-      <p class="hint">1,000 people, one dot each. The top block is everyone who tested positive. How many of them are actually sick?</p>
+      <p class="hint">1,000 people take a medical test, one mark each. The top block is everyone who tested positive. How many of them are actually sick?</p>
     </div>
     <button id="theme" type="button">Theme: auto</button>
   </div>
@@ -29,7 +29,7 @@
   <div class="readout" aria-live="polite">
     <div class="card"><div class="label">Tested positive</div><div class="value" id="pos"></div></div>
     <div class="card"><div class="label"><span class="mark" style="background:var(--series-2)"></span>…of whom really sick</div><div class="value" id="tp"></div></div>
-    <div class="card"><div class="label">P(sick | positive)</div><div class="value" id="post"></div></div>
+    <div class="card"><div class="label">Chance sick if positive, P(sick | positive)</div><div class="value" id="post"></div></div>
   </div>
   <p class="verdict" id="verdict" aria-live="polite"></p>
 
@@ -87,14 +87,22 @@ function render() {
     (post < 0.5 ? ". The disease is so rare that false alarms outnumber real cases." : ". Here the disease is common enough that a positive result is mostly right.");
 }
 
-Viz.slider($("sliders"), { label: "Disease rate (prior)", min: 0.001, max: 0.5, step: 0.001, value: prior, format: pct, onInput: (v) => { prior = v; render(); } }).input.id = "prior";
-Viz.slider($("sliders"), { label: "Sensitivity (catches the sick)", min: 0.5, max: 1, step: 0.01, value: sens, format: pct, onInput: (v) => { sens = v; render(); } });
-Viz.slider($("sliders"), { label: "Specificity (clears the healthy)", min: 0.5, max: 1, step: 0.01, value: spec, format: pct, onInput: (v) => { spec = v; render(); } });
+Viz.slider($("sliders"), { label: "Disease rate: share who are sick (prior)", min: 0.001, max: 0.5, step: 0.001, value: prior, format: pct, onInput: (v) => { prior = v; render(); } }).input.id = "prior";
+Viz.slider($("sliders"), { label: "Sensitivity: share of sick people it catches", min: 0.5, max: 1, step: 0.01, value: sens, format: pct, onInput: (v) => { sens = v; render(); } });
+Viz.slider($("sliders"), { label: "Specificity: share of healthy people it clears", min: 0.5, max: 1, step: 0.01, value: spec, format: pct, onInput: (v) => { spec = v; render(); } });
 
 const sync = (name, v) => { const s = [...document.querySelectorAll(".ctrl")].find((r) => r.firstChild.textContent.startsWith(name)); s.querySelector("input").value = v; s.querySelector("output").textContent = pct(v); };
 $("rare").addEventListener("click", () => { prior = 0.01; sync("Disease rate", prior); render(); });
 $("common").addEventListener("click", () => { prior = 0.3; sync("Disease rate", prior); render(); });
 Viz.themeToggle($("theme"));
+Viz.tour([
+  { target: "#plot", title: "1,000 people take a test", text: "Each mark is **one person**. The top block is everyone whose test came back **positive**. The bottom block is everyone whose test was **negative**. Only 1% of people (10 in 1,000) really have the disease." },
+  { target: ".legend", title: "Four kinds of people", text: "**Orange dots**: sick, and the test caught it. **Blue squares**: healthy, but the test wrongly said positive (a false alarm). **Orange rings**: sick, but the test missed it. **Small grey dots**: healthy, and the test agreed." },
+  { target: ".readout", title: "The surprise", text: "About **60** people test positive, but only about **10** of them are sick. So a positive result means just a **16.7%** chance of being sick, even though the test catches 99% of sick people. Why? There are 990 healthy people, and the test wrongly flags 5% of them. Those 50 or so false alarms outnumber the real cases." },
+  { target: "#common", title: "When it is common", text: "Now suppose **30%** of people have the condition. The top block fills with orange dots, and a positive result now means an **89.5%** chance of being sick. Same test, very different meaning.", action: { label: "Show a common condition", run: () => document.getElementById("common").click() } },
+  { target: "#sliders", title: "A better test", text: "Back to the rare disease, but now the test wrongly flags only 1% of healthy people (specificity **99%**). False alarms drop from about 50 to about **10**, and a positive result now means a **50%** chance of being sick.", action: { label: "Rare disease, better test", run: () => { document.getElementById("rare").click(); const r = document.querySelectorAll("#sliders input[type=range]")[2]; r.value = 0.99; r.dispatchEvent(new Event("input")); } } },
+  { target: "#sliders", title: "Your turn", text: "Drag the **Disease rate** slider slowly from low to high. Look for the moment the orange dots outnumber the blue squares in the top block. How rare the disease is matters more than most people expect." },
+]);
 render();
 </script>
 </body>

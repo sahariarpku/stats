@@ -11,7 +11,7 @@
   <div class="viz-head">
     <div>
       <h1>Averages settle down</h1>
-      <p class="hint">Six fair coins are flipped again and again. Each line is the share of heads so far. The orange line is "your" coin. The horizontal axis is stretched so the early flips are easy to see.</p>
+      <p class="hint">Six fair coins are flipped again and again. Each line shows what share of that coin's flips so far came up heads. The orange line is "your" coin. The first few flips get extra room on the left so you can see them.</p>
     </div>
     <button id="theme" type="button">Theme: auto</button>
   </div>
@@ -21,12 +21,12 @@
   <div class="legend">
     <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="5.5" width="14" height="3" fill="var(--series-2)"/></svg>Your coin</span>
     <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="5.5" width="14" height="3" fill="var(--series-1)" opacity="0.45"/></svg>Five other coins</span>
-    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="5.5" width="14" height="1.5" fill="var(--text-muted)"/><rect x="0" y="9" width="14" height="1.5" fill="var(--text-muted)"/></svg>Typical wobble (95% band, ± 1/√n)</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="5.5" width="14" height="1.5" fill="var(--text-muted)"/><rect x="0" y="9" width="14" height="1.5" fill="var(--text-muted)"/></svg>Typical wobble: most lines stay inside (± 1/√n)</span>
   </div>
 
   <div class="readout" aria-live="polite">
     <div class="card"><div class="label">Flips so far</div><div class="value" id="n">0</div></div>
-    <div class="card"><div class="label">Heads − tails (your coin)</div><div class="value" id="diff">—</div></div>
+    <div class="card"><div class="label">Heads minus tails (your coin)</div><div class="value" id="diff">—</div></div>
     <div class="card"><div class="label">Share of heads (your coin)</div><div class="value" id="share">—</div></div>
   </div>
   <p class="verdict" id="verdict" aria-live="polite">Press "Flip 10 more".</p>
@@ -60,7 +60,7 @@ for (let p = 0; p <= 4; p++) {
   Viz.el("line", { x1: L, x2: R, y1: Y(v), y2: Y(v), stroke: "var(--grid)", "stroke-width": v === 0.5 ? 0 : 1, opacity: 0.6 }, svg);
   Viz.el("text", { x: L - 8, y: Y(v) + 4, "text-anchor": "end" }, svg).textContent = Math.round(v * 100) + "%";
 });
-Viz.el("text", { x: (L + R) / 2, y: 308, "text-anchor": "middle" }, svg).textContent = "Number of flips (log scale)";
+Viz.el("text", { x: (L + R) / 2, y: 308, "text-anchor": "middle" }, svg).textContent = "Number of flips (each grid line is 10 times more)";
 Viz.el("line", { x1: L, x2: R, y1: Y(0.5), y2: Y(0.5), stroke: "var(--text-primary)", "stroke-width": 1.5, "stroke-dasharray": "6 4" }, svg);
 Viz.el("text", { x: R, y: Y(0.5) - 6, "text-anchor": "end", class: "strong" }, svg).textContent = "true probability 50%";
 
@@ -121,6 +121,14 @@ document.querySelectorAll("button[data-add]").forEach((b) => b.addEventListener(
 }));
 $("reset").addEventListener("click", () => { simulate(); $("diff").textContent = "—"; $("share").textContent = "—"; $("verdict").textContent = 'Press "Flip 10 more".'; render(); });
 Viz.themeToggle($("theme"));
+Viz.tour([
+  { target: "#plot", title: "Six coins, one race", text: "Each line will follow **one coin**. Its height shows **what share of that coin's flips so far were heads**. The dashed line is **50%**, the true chance of heads. The **orange line** is your coin; the **pale blue** lines are five other coins. Nothing is drawn yet." },
+  { target: 'button[data-add="10"]', title: "The first few flips", text: "Let us flip each coin **10 times**. The lines jump all over the place: 3 heads out of the first 4 flips is already 75%. Wild swings early on are completely normal.", action: { label: "Flip 10 for me", run: () => document.querySelector('button[data-add="10"]').click() } },
+  { target: 'button[data-add="1000"]', title: "Keep flipping", text: "Now add **1,000 more** flips. Each grid line along the bottom means 10 times more flips than the one before. Watch every line squeeze in toward 50%.", action: { label: "Flip 1,000 more", run: () => document.querySelector('button[data-add="1000"]').click() } },
+  { target: ".legend", title: "The wobble shrinks", text: "The two grey curves show the **typical wobble**: most lines stay between them. The gap starts wide and narrows as the flips pile up. That narrowing is the **Law of Large Numbers**: the more you flip, the closer the share of heads gets to 50%." },
+  { target: ".readout", title: "Shares settle, counts do not", text: "Look at **Heads minus tails**. Your coin is probably still dozens of flips away from an even split of heads and tails, yet its **share** of heads is close to 50%. The share settles; the raw gap does not have to close. A coin never \"makes up\" for a lucky run." },
+  { target: ".controls", title: "Your turn", text: "Press **Flip 1,000 more** a few times (it stops at 10,000), or **New coins** to start over. Look for: how tightly the lines hug 50% by the end, even though few land exactly on it." },
+]);
 simulate();
 render();
 </script>
