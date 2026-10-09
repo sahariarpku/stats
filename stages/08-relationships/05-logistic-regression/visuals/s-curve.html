@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fit the S-Curve</title>
+<link rel="stylesheet" href="../../../../assets/visuals.css">
+</head>
+<body>
+<main class="viz">
+  <div class="viz-head">
+    <div>
+      <h1>Fit the S-curve</h1>
+      <p class="hint">Twenty students: hours studied, and whether each passed (1) or failed (0). Shape the S-curve with the two sliders. Each dashed stem shows how much probability the curve gave to what really happened. The best curve gives the highest log-likelihood.</p>
+    </div>
+    <button id="theme" type="button">Theme: auto</button>
+  </div>
+
+  <svg id="plot" viewBox="0 0 760 330" role="img" aria-label="Passed or failed against hours studied with a logistic curve and a straight line for comparison"></svg>
+
+  <div class="legend">
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="var(--series-1)"/></svg>Passed</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="var(--series-2)"/></svg>Failed</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="6" width="14" height="3" fill="var(--text-primary)"/></svg>S-curve (logistic)</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><line x1="0" y1="7" x2="14" y2="7" stroke="var(--text-muted)" stroke-width="2" stroke-dasharray="3 2"/></svg>Straight line (linear)</span>
+  </div>
+
+  <div class="readout" aria-live="polite">
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>Log-likelihood</div><div class="value" id="ll"></div></div>
+    <div class="card"><div class="label">Best possible</div><div class="value">−7.75</div></div>
+    <div class="card"><div class="label">Odds multiply by (per extra hour)</div><div class="value" id="or"></div></div>
+    <div class="card"><div class="label">50% point</div><div class="value" id="mid"></div></div>
+  </div>
+  <div class="readout" aria-live="polite">
+    <div class="card"><div class="label">Correct at the cut-off</div><div class="value" id="acc"></div></div>
+    <div class="card"><div class="label">Pass predicted, failed (FP)</div><div class="value" id="fp"></div></div>
+    <div class="card"><div class="label">Fail predicted, passed (FN)</div><div class="value" id="fn"></div></div>
+  </div>
+  <p class="verdict" id="verdict" aria-live="polite"></p>
+
+  <div class="controls col" id="sliders"></div>
+  <div class="controls">
+    <button id="fit" type="button">Fit by maximum likelihood</button>
+    <button id="line" type="button" aria-pressed="false">Show the straight-line fit</button>
+  </div>
+</main>
+
+<script src="../../../../assets/visuals.js"></script>
+<script>
+const H = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.25, 3.5, 4, 4.25, 4.5, 4.75, 5, 5.5, 6];
+const Y = [0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1];
+const BEST = { b0: -4.2542, b1: 1.4487 };
+const S = { b0: -2, b1: 0.5, cut: 0.5, showLine: false };
+const svg = document.getElementById("plot");
+const $ = (id) => document.getElementById(id);
+const layer = Viz.el("g", {}, svg);
+let s0, s1, sc;
+const sig = (z) => 1 / (1 + Math.exp(-z));
+
+// ordinary least-squares line on the 0/1 outcome, for comparison
+const mx = Viz.mean(H), my = Viz.mean(Y);
+let sxx = 0, sxy = 0; H.forEach((h, i) => { sxx += (h - mx) ** 2; sxy += (h - mx) * (Y[i] - my); });
+const LB = sxy / sxx, LA = my - LB * mx;
+
+function render() {
+  const X = Viz.scale(0, 8, 60, 725);
+  const Yc = Viz.scale(-0.25, 1.25, 290, 15);
+  layer.replaceChildren();
+  [0, 0.5, 1].forEach((v) => {
+    Viz.el("line", { x1: 60, x2: 725, y1: Yc(v), y2: Yc(v), stroke: "var(--grid)" }, layer);
+    Viz.el("text", { x: 52, y: Yc(v) + 5, "text-anchor": "end" }, layer).textContent = v;
+  });
+  Viz.axisBottom(layer, X, { y: 290, from: 0, to: 8, step: 1 });
+  Viz.el("text", { x: 725, y: 322, "text-anchor": "end", opacity: 0.85 }, layer).textContent = "hours studied";
+  Viz.el("text", { x: 60, y: 10, opacity: 0.85 }, layer).textContent = "probability of passing";
+
+  if (S.showLine) {
+    Viz.el("line", { x1: X(0), x2: X(8), y1: Yc(LA), y2: Yc(LA + LB * 8), stroke: "var(--text-muted)", "stroke-width": 2.5, "stroke-dasharray": "6 4" }, layer);
+    Viz.el("text", { x: 66, y: Yc(-0.17) }, layer).textContent = "below 0: impossible";
+    Viz.el("text", { x: 725, y: 32, "text-anchor": "end" }, layer).textContent = "above 1: impossible";
+  }
+  // cut-off
+  Viz.el("line", { x1: 60, x2: 725, y1: Yc(S.cut), y2: Yc(S.cut), stroke: "var(--series-1)", "stroke-width": 1.5, "stroke-dasharray": "2 4", opacity: 0.9 }, layer);
+
+  const pts = []; for (let x = 0; x <= 8.001; x += 0.05) pts.push([X(x), Yc(sig(S.b0 + S.b1 * x))]);
+  Viz.el("polyline", { points: pts.map((p) => p.join(",")).join(" "), fill: "none", stroke: "var(--text-primary)", "stroke-width": 3.5 }, layer);
+
+  let ll = 0, tp = 0, fp = 0, fn = 0, tn = 0;
+  H.forEach((h, i) => {
+    const p = sig(S.b0 + S.b1 * h);
+    ll += Y[i] ? Math.log(p) : Math.log(1 - p);
+    const pred = p >= S.cut;
+    if (pred && Y[i]) tp++; else if (pred && !Y[i]) fp++; else if (!pred && Y[i]) fn++; else tn++;
+    Viz.el("line", { x1: X(h), x2: X(h), y1: Yc(Y[i]), y2: Yc(p), stroke: Y[i] ? "var(--series-1)" : "var(--series-2)", "stroke-width": 1.5, "stroke-dasharray": "3 3", opacity: 0.85 }, layer);
+  });
+  H.forEach((h, i) => Viz.el("circle", { cx: X(h), cy: Yc(Y[i]), r: 6, fill: Y[i] ? "var(--series-1)" : "var(--series-2)", stroke: "var(--surface-1)", "stroke-width": 2 }, layer));
+
+  $("ll").textContent = ll.toFixed(2);
+  $("or").textContent = "×" + Math.exp(S.b1).toFixed(2);
+  $("mid").textContent = S.b1 > 0.001 ? (-S.b0 / S.b1).toFixed(2) + " h" : "—";
+  $("acc").textContent = (tp + tn) + " of 20";
+  $("fp").textContent = fp; $("fn").textContent = fn;
+  const gap = -7.7461 - ll;
+  $("verdict").textContent = gap < 0.05
+    ? "That is the maximum-likelihood S-curve. Each extra hour multiplies the odds of passing by e^1.449 = 4.26, and the curve crosses 50% at about 2.9 hours."
+    : "Likelihood is the product of the probabilities the curve gave to what actually happened (here shown as a sum of logs). Stems that are short mean the curve 'expected' that outcome. Long stems are surprises. Keep adjusting until the total stops improving (the best is −7.75; yours is " + gap.toFixed(2) + " lower).";
+}
+s0 = Viz.slider($("sliders"), { label: "Intercept b₀", min: -10, max: 2, step: 0.05, value: S.b0, format: (v) => v.toFixed(2), onInput: (v) => { S.b0 = v; render(); } });
+s1 = Viz.slider($("sliders"), { label: "Slope b₁ (steepness)", min: 0, max: 3, step: 0.02, value: S.b1, format: (v) => v.toFixed(2), onInput: (v) => { S.b1 = v; render(); } });
+sc = Viz.slider($("sliders"), { label: "Cut-off for predicting 'pass'", min: 0.1, max: 0.9, step: 0.05, value: S.cut, format: (v) => v.toFixed(2), onInput: (v) => { S.cut = v; render(); } });
+$("fit").addEventListener("click", () => { S.b0 = BEST.b0; S.b1 = BEST.b1; s0.set(BEST.b0); s1.set(BEST.b1); render(); });
+$("line").addEventListener("click", () => { S.showLine = !S.showLine; $("line").textContent = S.showLine ? "Hide the straight-line fit" : "Show the straight-line fit"; $("line").setAttribute("aria-pressed", S.showLine); render(); });
+Viz.themeToggle($("theme"));
+render();
+</script>
+</body>
+</html>

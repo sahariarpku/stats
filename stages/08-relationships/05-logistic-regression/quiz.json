@@ -1,0 +1,60 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Which situation calls for logistic regression?",
+      "options": ["Predicting a person's height from their weight", "Predicting whether a customer will buy (yes/no) from their age and income", "Comparing three group means", "Testing if two variables are correlated"],
+      "correct": 1,
+      "explanation": "Logistic regression models a binary (yes/no) outcome. Predicting a number is linear regression."
+    },
+    {
+      "stage": "pre",
+      "question": "Why is ordinary linear regression a poor choice for a 0/1 outcome?",
+      "options": ["It cannot compute a slope", "Its predictions can fall below 0 or above 1, which are not valid probabilities", "It needs a normal x", "It always gives R² = 0"],
+      "correct": 1,
+      "explanation": "A straight line keeps going. In the example it predicts −0.05 at 0.5 hours and 1.59 at 8 hours. Probabilities must stay between 0 and 1."
+    },
+    {
+      "stage": "post",
+      "question": "If the probability of passing is 0.75, what are the odds of passing?",
+      "options": ["0.75", "1.33", "3", "25"],
+      "correct": 2,
+      "explanation": "Odds = p ÷ (1 − p) = 0.75 ÷ 0.25 = 3, or 3 to 1."
+    },
+    {
+      "stage": "post",
+      "question": "The fitted model is ln(odds) = −4.254 + 1.449 × hours. What is the odds ratio per extra hour?",
+      "options": ["1.449", "4.26", "0.015", "−4.254"],
+      "correct": 1,
+      "explanation": "OR = e^1.449 = 4.26. Each extra hour multiplies the odds of passing by about 4.3."
+    },
+    {
+      "stage": "post",
+      "question": "Using that model, a student studies 3 hours. The log-odds are 0.09. What is the approximate probability of passing?",
+      "options": ["9%", "52%", "82%", "100%"],
+      "correct": 1,
+      "explanation": "Odds = e^0.09 = 1.09, so p = 1.09 ÷ 2.09 = 0.52. Log-odds of 0 mean 50%, so a tiny positive value is just above."
+    },
+    {
+      "stage": "post",
+      "question": "A logistic coefficient is b = −0.4. What does that tell you?",
+      "options": ["Each unit of x lowers the odds (OR = e^−0.4 ≈ 0.67)", "The probability falls by 0.4 per unit", "The model is wrong", "x has no effect"],
+      "correct": 0,
+      "explanation": "A negative coefficient means odds ratio below 1: each extra unit multiplies the odds by about 0.67, cutting them by a third."
+    },
+    {
+      "stage": "post",
+      "question": "At a 0.5 cut-off the model gets TP = 8, FP = 2, FN = 2, TN = 8. What is its accuracy?",
+      "options": ["50%", "60%", "80%", "100%"],
+      "correct": 2,
+      "explanation": "Accuracy = (TP + TN) ÷ total = (8 + 8) ÷ 20 = 80%."
+    },
+    {
+      "stage": "post",
+      "question": "How is a logistic regression fitted?",
+      "options": ["Minimising the sum of squared residuals", "Maximising the likelihood of the observed outcomes", "Setting the slope to the correlation", "Averaging the 0s and 1s"],
+      "correct": 1,
+      "explanation": "Logistic regression uses maximum likelihood: it chooses the coefficients under which the observed yes/no results are most probable."
+    }
+  ]
+}
