@@ -1,0 +1,60 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "R² = 0.82 means...",
+      "options": ["82% of the points lie on the line", "The line accounts for 82% of the variation in y", "The slope is 0.82", "The prediction is wrong 18% of the time"],
+      "correct": 1,
+      "explanation": "R² is the share of the total variation in y that the regression line explains. The rest is left in the residuals."
+    },
+    {
+      "stage": "pre",
+      "question": "A scatter plot shows a clear curve, yet R² for a straight line is 0.95. What should you conclude?",
+      "options": ["The line is a great model", "R² can be high even when a straight line is the wrong shape, so check the residuals", "R² must have been computed wrongly", "The data are not suitable for any model"],
+      "correct": 1,
+      "explanation": "R² only measures tightness around the line. A curved pattern can still give a high R², and shows up as a U shape in the residual plot."
+    },
+    {
+      "stage": "post",
+      "question": "SST = 798 and SSE = 141.9. What is R²?",
+      "options": ["0.178", "0.822", "0.907", "5.62"],
+      "correct": 1,
+      "explanation": "SSR = 798 − 141.9 = 656.1 and R² = 656.1 ÷ 798 = 0.822. (0.907 is r, and 0.178 is the share left unexplained.)"
+    },
+    {
+      "stage": "post",
+      "question": "In simple linear regression, how are R² and the correlation r related?",
+      "options": ["R² = r", "R² = r²", "R² = 1 − r", "They are unrelated"],
+      "correct": 1,
+      "explanation": "In simple regression R² is the square of the correlation coefficient. With r = 0.907, R² = 0.822."
+    },
+    {
+      "stage": "post",
+      "question": "A residual plot shows points spreading out wider and wider as x increases. What is violated?",
+      "options": ["Linearity", "Independence", "Equal variance (homoscedasticity)", "The mean of the residuals is zero"],
+      "correct": 2,
+      "explanation": "A fan shape means the spread of the residuals changes with x: unequal variance, or heteroscedasticity."
+    },
+    {
+      "stage": "post",
+      "question": "Adding one student (9 hours, score 30) changes the slope from 3.95 to 0.43. This point is...",
+      "options": ["An influential point: high leverage and a huge residual", "A point with low leverage", "Irrelevant to the fit", "Proof that studying does not work"],
+      "correct": 0,
+      "explanation": "The point is far out in x (high leverage) and far from the line in y (big residual), so it pulls the whole line toward itself."
+    },
+    {
+      "stage": "post",
+      "question": "For a given x, how do a 95% confidence interval for the mean response and a 95% prediction interval for one new case compare?",
+      "options": ["They are identical", "The confidence interval is wider", "The prediction interval is wider", "It depends on R² only"],
+      "correct": 2,
+      "explanation": "The prediction interval adds the individual's own scatter (the '1 +' term), so it is always wider than the confidence interval for the mean."
+    },
+    {
+      "stage": "post",
+      "question": "Which action is appropriate when you find an influential point?",
+      "options": ["Delete it silently to improve R²", "Investigate it and report the analysis with and without it", "Ignore it", "Change the dependent variable"],
+      "correct": 1,
+      "explanation": "Check whether it is an error or a real case, and be transparent about its effect. Quietly deleting data is not acceptable."
+    }
+  ]
+}

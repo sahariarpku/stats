@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Residual Detective</title>
+<link rel="stylesheet" href="../../../../assets/visuals.css">
+</head>
+<body>
+<main class="viz">
+  <div class="viz-head">
+    <div>
+      <h1>Residual detective</h1>
+      <p class="hint">Four datasets, each fitted with a straight line. The top plot shows the data. The bottom plot shows the leftovers (residuals). A healthy fit leaves a shapeless band around zero.</p>
+    </div>
+    <button id="theme" type="button">Theme: auto</button>
+  </div>
+
+  <div class="controls" id="tabs" role="group" aria-label="Choose a dataset">
+    <button type="button" data-k="good" aria-pressed="true">Healthy</button>
+    <button type="button" data-k="curve" aria-pressed="false">Curved</button>
+    <button type="button" data-k="fan" aria-pressed="false">Fan-shaped</button>
+    <button type="button" data-k="out" aria-pressed="false">One odd point</button>
+  </div>
+
+  <svg id="plot" viewBox="0 0 760 430" role="img" aria-label="A scatter plot with a fitted line above and a residual plot below"></svg>
+
+  <div class="legend">
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="var(--dot)"/></svg>Data point</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="5.5" fill="var(--series-2)"/></svg>Odd point</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="6" width="14" height="3" fill="var(--series-1)"/></svg>Fitted line</span>
+  </div>
+
+  <div class="readout" aria-live="polite">
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>R²</div><div class="value" id="r2"></div></div>
+    <div class="card"><div class="label">Slope</div><div class="value" id="slope"></div></div>
+    <div class="card"><div class="label">s (typical miss)</div><div class="value" id="s"></div></div>
+    <div class="card"><div class="label">Residual plot says</div><div class="value" id="say" style="font-size:1.1rem"></div></div>
+  </div>
+  <p class="verdict" id="verdict" aria-live="polite"></p>
+</main>
+
+<script src="../../../../assets/visuals.js"></script>
+<script>
+const svg = document.getElementById("plot");
+const $ = (id) => document.getElementById(id);
+const layer = Viz.el("g", {}, svg);
+const N = 30;
+const xs0 = Array.from({ length: N }, (_, i) => 1 + (9 * i) / (N - 1));
+const rand = Viz.rng(77);
+const noise = Array.from({ length: N }, () => Viz.randn(rand));
+
+const SETS = {
+  good: { ys: xs0.map((x, i) => 5 + 2 * x + 1.5 * noise[i]), say: "Shapeless band", ok: true,
+    text: "The residuals scatter evenly above and below zero with no pattern. A straight line is a fair model, and R² is a trustworthy summary." },
+  curve: { ys: xs0.map((x, i) => 0.45 * x * x + 1.2 * noise[i]), say: "A U shape", ok: false,
+    text: "R² is high, yet the residuals form a clear U: the line is too low at both ends and too high in the middle. The relationship is curved, so a straight line is the wrong model. A high R² does not rescue it." },
+  fan: { ys: xs0.map((x, i) => 5 + 2 * x + 0.45 * x * noise[i]), say: "A fan that widens", ok: false,
+    text: "The spread of the residuals grows with x (unequal variance, or heteroscedasticity). Predictions are much less reliable for large x, and the usual standard errors and p-values cannot be trusted." },
+  out: { ys: xs0.map((x, i) => 5 + 2 * x + 1.5 * noise[i] - (i === N - 1 ? 24 : 0)), say: "One huge miss", ok: false,
+    text: "A single point at the far right (high leverage) pulls the whole line towards itself, lowering the slope and R². Check whether it is a mistake or a real case. Do not delete it just because it is inconvenient." },
+};
+let key = "good";
+
+function fit(x, y) {
+  const n = x.length, mx = Viz.mean(x), my = Viz.mean(y);
+  let sxx = 0, sxy = 0, syy = 0;
+  for (let i = 0; i < n; i++) { sxx += (x[i] - mx) ** 2; sxy += (x[i] - mx) * (y[i] - my); syy += (y[i] - my) ** 2; }
+  const b = sxy / sxx, a = my - b * mx;
+  const res = y.map((v, i) => v - (a + b * x[i]));
+  const sse = res.reduce((t, e) => t + e * e, 0);
+  return { a, b, res, r2: 1 - sse / syy, s: Math.sqrt(sse / (n - 2)) };
+}
+
+function render() {
+  const set = SETS[key];
+  const xs = xs0, ys = set.ys;
+  const f = fit(xs, ys);
+  layer.replaceChildren();
+  const X = Viz.scale(0, 11, 60, 725);
+  const ymin = Math.min(0, ...ys) - 2, ymax = Math.max(...ys) + 3;
+  const Y1 = Viz.scale(ymin, ymax, 205, 18);
+  Viz.el("line", { class: "axis-line", x1: 60, x2: 725, y1: 205, y2: 205 }, layer);
+  Viz.el("text", { x: 60, y: 12, opacity: 0.85 }, layer).textContent = "y and the fitted line";
+  Viz.el("line", { x1: X(0.5), x2: X(10.5), y1: Y1(f.a + f.b * 0.5), y2: Y1(f.a + f.b * 10.5), stroke: "var(--series-1)", "stroke-width": 3.5, "stroke-linecap": "round" }, layer);
+  xs.forEach((x, i) => {
+    const odd = key === "out" && i === N - 1;
+    Viz.el("circle", { cx: X(x), cy: Y1(ys[i]), r: odd ? 8 : 5, fill: odd ? "var(--series-2)" : "var(--dot)", stroke: "var(--surface-1)", "stroke-width": 2 }, layer);
+  });
+
+  const rmax = Math.max(8, ...f.res.map(Math.abs)) * 1.1;
+  const Y2 = Viz.scale(-rmax, rmax, 405, 245);
+  Viz.el("text", { x: 60, y: 238, opacity: 0.85 }, layer).textContent = "residuals (actual − predicted)";
+  Viz.el("rect", { x: 60, y: Y2(rmax), width: 665, height: Y2(-rmax) - Y2(rmax), fill: "none", stroke: "var(--grid)" }, layer);
+  Viz.el("line", { x1: 60, x2: 725, y1: Y2(0), y2: Y2(0), stroke: "var(--text-primary)", "stroke-width": 1.5, "stroke-dasharray": "5 4" }, layer);
+  Viz.axisBottom(layer, X, { y: 405, from: 0, to: 11, step: 1 });
+  xs.forEach((x, i) => {
+    const odd = key === "out" && i === N - 1;
+    Viz.el("circle", { cx: X(x), cy: Y2(f.res[i]), r: odd ? 8 : 5, fill: odd ? "var(--series-2)" : "var(--dot)", stroke: "var(--surface-1)", "stroke-width": 2 }, layer);
+  });
+
+  $("r2").textContent = (100 * f.r2).toFixed(0) + "%";
+  $("slope").textContent = f.b.toFixed(2);
+  $("s").textContent = f.s.toFixed(1);
+  $("say").textContent = (set.ok ? "✓ " : "⚠ ") + set.say;
+  $("verdict").textContent = set.text;
+}
+
+document.querySelectorAll("#tabs button").forEach((b) => b.addEventListener("click", () => {
+  key = b.dataset.k;
+  document.querySelectorAll("#tabs button").forEach((o) => o.setAttribute("aria-pressed", o === b));
+  render();
+}));
+Viz.themeToggle($("theme"));
+render();
+</script>
+</body>
+</html>
