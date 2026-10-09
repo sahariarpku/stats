@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Two Dice</title>
+<link rel="stylesheet" href="../../../../assets/visuals.css">
+</head>
+<body>
+<main class="viz">
+  <div class="viz-head">
+    <div>
+      <h1>Two dice: theory vs experiment</h1>
+      <p class="hint">Each roll adds one to the total of two dice. The black ticks mark what the maths predicts. The blue bars are what actually happened.</p>
+    </div>
+    <button id="theme" type="button">Theme: auto</button>
+  </div>
+
+  <svg id="plot" viewBox="0 0 760 290" role="img" aria-label="Bar chart of the share of rolls for each total from 2 to 12, compared with the theoretical share"></svg>
+
+  <div class="legend">
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="2" y="3" width="10" height="9" fill="var(--series-1)"/></svg>Experiment: share of rolls</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="6" width="14" height="3" fill="var(--text-primary)"/></svg>Theory: ways ÷ 36</span>
+  </div>
+
+  <div class="readout" aria-live="polite">
+    <div class="card"><div class="label">Last roll</div><div class="value" id="last">—</div></div>
+    <div class="card"><div class="label">Rolls so far</div><div class="value" id="count">0</div></div>
+    <div class="card"><div class="label">Share of 7s (experiment)</div><div class="value" id="p7">—</div></div>
+    <div class="card"><div class="label">P(7) by counting</div><div class="value">1/6 = 16.7%</div></div>
+  </div>
+
+  <p class="verdict" id="verdict" aria-live="polite">Press "Roll once" or "Roll 100".</p>
+
+  <div class="controls">
+    <button data-n="1" type="button">Roll once</button>
+    <button data-n="10" type="button">Roll 10</button>
+    <button data-n="100" type="button">Roll 100</button>
+    <button data-n="1000" type="button">Roll 1,000</button>
+    <button id="reset" type="button">Reset</button>
+  </div>
+</main>
+
+<script src="../../../../assets/visuals.js"></script>
+<script>
+const SUMS = Array.from({ length: 11 }, (_, i) => i + 2);
+const WAYS = SUMS.map((s) => 6 - Math.abs(s - 7));
+const THEORY = WAYS.map((w) => w / 36);
+const LEFT = 56, RIGHT = 740, BASE = 232;
+const BAND = (RIGHT - LEFT) / 11;
+const svg = document.getElementById("plot");
+const $ = (id) => document.getElementById(id);
+
+let counts = new Array(11).fill(0);
+let rolls = 0;
+let last = null;
+
+const grid = Viz.el("g", {}, svg);
+const bars = Viz.el("g", {}, svg);
+const ticks = Viz.el("g", {}, svg);
+SUMS.forEach((s, i) => {
+  Viz.el("text", { x: LEFT + BAND * (i + 0.5), y: BASE + 20, "text-anchor": "middle", class: s === 7 ? "strong" : "" }, svg).textContent = s;
+});
+Viz.el("text", { x: (LEFT + RIGHT) / 2, y: 266, "text-anchor": "middle" }, svg).textContent = "Total of the two dice";
+Viz.el("line", { class: "axis-line", x1: LEFT, x2: RIGHT, y1: BASE, y2: BASE }, svg);
+
+function render() {
+  const shares = counts.map((c) => (rolls ? c / rolls : 0));
+  const top = Math.max(0.2, Math.max(...shares) * 1.12);
+  const Y = Viz.scale(0, top, BASE, 20);
+
+  grid.replaceChildren(); bars.replaceChildren(); ticks.replaceChildren();
+  for (let t = 0; t <= top + 1e-9; t += 0.05) {
+    Viz.el("line", { x1: LEFT, x2: RIGHT, y1: Y(t), y2: Y(t), stroke: "var(--grid)", "stroke-width": 1, opacity: t === 0 ? 0 : 0.7 }, grid);
+    Viz.el("text", { x: LEFT - 8, y: Y(t) + 4, "text-anchor": "end" }, grid).textContent = Math.round(t * 100) + "%";
+  }
+  SUMS.forEach((s, i) => {
+    const cx = LEFT + BAND * (i + 0.5);
+    const rect = Viz.el("rect", { x: cx - 19, y: Y(shares[i]), width: 38, height: Math.max(0, BASE - Y(shares[i])), fill: "var(--series-1)", rx: 2 }, bars);
+    Viz.el("title", {}, rect).textContent = "Total " + s + ": " + counts[i] + " of " + rolls + " rolls (" + (shares[i] * 100).toFixed(1) + "%). Theory: " + WAYS[i] + "/36 = " + (THEORY[i] * 100).toFixed(1) + "%";
+    Viz.el("line", { x1: cx - 24, x2: cx + 24, y1: Y(THEORY[i]), y2: Y(THEORY[i]), stroke: "var(--text-primary)", "stroke-width": 3 }, ticks);
+  });
+
+  $("count").textContent = rolls.toLocaleString();
+  $("last").textContent = last ? last[0] + " + " + last[1] + " = " + (last[0] + last[1]) : "—";
+  $("p7").textContent = rolls ? (shares[5] * 100).toFixed(1) + "%" : "—";
+  if (rolls) {
+    const gap = Math.max(...shares.map((s, i) => Math.abs(s - THEORY[i])));
+    $("verdict").textContent = rolls < 30
+      ? "Only " + rolls + " rolls: the bars are lumpy and can be far from the ticks. That is normal for small samples."
+      : "After " + rolls.toLocaleString() + " rolls, the biggest gap between any bar and its tick is " + (gap * 100).toFixed(1) + " percentage points. More rolls shrink it. That is the Law of Large Numbers at work.";
+  }
+}
+
+function roll(n) {
+  for (let k = 0; k < n; k++) {
+    const a = 1 + Math.floor(Math.random() * 6);
+    const b = 1 + Math.floor(Math.random() * 6);
+    counts[a + b - 2]++;
+    rolls++;
+    last = [a, b];
+  }
+  render();
+}
+
+document.querySelectorAll("button[data-n]").forEach((b) => b.addEventListener("click", () => roll(+b.dataset.n)));
+$("reset").addEventListener("click", () => { counts = new Array(11).fill(0); rolls = 0; last = null; $("verdict").textContent = 'Press "Roll once" or "Roll 100".'; render(); });
+Viz.themeToggle($("theme"));
+render();
+</script>
+</body>
+</html>

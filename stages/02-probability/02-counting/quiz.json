@@ -1,0 +1,46 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "You have 3 pairs of trousers and 4 shirts. How many outfits (trousers + shirt)?",
+      "options": ["7", "12", "24", "3"],
+      "correct": 1,
+      "explanation": "Staged independent choices multiply: 3 × 4 = 12. (Adding, 3 + 4 = 7, is the common mistake.)"
+    },
+    {
+      "stage": "pre",
+      "question": "What is 5! (5 factorial)?",
+      "options": ["25", "55", "120", "15"],
+      "correct": 2,
+      "explanation": "5! = 5 × 4 × 3 × 2 × 1 = 120."
+    },
+    {
+      "stage": "post",
+      "question": "How many ways can gold, silver and bronze be awarded among 8 runners?",
+      "options": ["56", "336", "512", "24"],
+      "correct": 1,
+      "explanation": "Order matters: 8 × 7 × 6 = 336, which is P(8, 3)."
+    },
+    {
+      "stage": "post",
+      "question": "How many different 3-person committees can be formed from 10 people?",
+      "options": ["30", "720", "120", "1,000"],
+      "correct": 2,
+      "explanation": "Order doesn't matter, so use C(10, 3) = 10! ÷ (3! × 7!) = 120. (720 would count each committee 6 times, once for every ordering of its three members.)"
+    },
+    {
+      "stage": "post",
+      "question": "Which situation calls for a COMBINATION rather than a permutation?",
+      "options": ["Choosing a president and vice-president", "Setting a 4-digit PIN", "Picking 6 lottery numbers", "Ranking the top 3 finishers"],
+      "correct": 2,
+      "explanation": "In the lottery only *which* numbers you pick matters, not the order, so it is a combination. The other three all distinguish order or roles."
+    },
+    {
+      "stage": "post",
+      "question": "There are C(49, 6) = 13,983,816 lottery tickets and exactly one wins. What is the chance that a single ticket wins?",
+      "options": ["About 1 in 14 thousand", "About 1 in 14 million", "About 1 in 49", "About 1 in 6"],
+      "correct": 1,
+      "explanation": "P = 1 ÷ 13,983,816, about 1 in 14 million. Counting the total number of outcomes is what makes the probability computable."
+    }
+  ]
+}

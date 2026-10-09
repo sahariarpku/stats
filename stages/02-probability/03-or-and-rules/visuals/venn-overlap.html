@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Venn Overlap</title>
+<link rel="stylesheet" href="../../../../assets/visuals.css">
+</head>
+<body>
+<main class="viz">
+  <div class="viz-head">
+    <div>
+      <h1>The overlap you must not count twice</h1>
+      <p class="hint">The box is every possible outcome (probability 1). Each circle's area is its probability. Slide P(A), P(B) and the overlap, or use the presets.</p>
+    </div>
+    <button id="theme" type="button">Theme: auto</button>
+  </div>
+
+  <svg id="plot" viewBox="0 0 760 290" role="img" aria-label="Venn diagram of two events inside the sample space"></svg>
+
+  <div class="legend">
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="6" fill="var(--series-1)" opacity="0.5"/></svg>Event A</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="6" fill="var(--series-2)" opacity="0.5"/></svg>Event B</span>
+  </div>
+
+  <div class="readout" aria-live="polite">
+    <div class="card"><div class="label">P(A) + P(B)</div><div class="value" id="sum"></div></div>
+    <div class="card"><div class="label">− P(A and B)</div><div class="value" id="both"></div></div>
+    <div class="card"><div class="label">= P(A or B)</div><div class="value" id="union"></div></div>
+    <div class="card"><div class="label">P(A) × P(B)</div><div class="value" id="prod"></div></div>
+  </div>
+  <p class="verdict" id="verdict" aria-live="polite"></p>
+
+  <div class="controls col" id="sliders"></div>
+  <div class="controls">
+    <button id="exclusive" type="button">Make them mutually exclusive</button>
+    <button id="independent" type="button">Make them independent</button>
+  </div>
+</main>
+
+<script src="../../../../assets/visuals.js"></script>
+<script>
+const BOX = { x: 130, y: 15, w: 500, h: 260 };
+const AREA = BOX.w * BOX.h;
+let pa = 0.3, pb = 0.4, pab = 0.12;
+const svg = document.getElementById("plot");
+const $ = (id) => document.getElementById(id);
+const pct = (v) => (Math.round(v * 1000) / 10) + "%";
+
+Viz.el("rect", { x: BOX.x, y: BOX.y, width: BOX.w, height: BOX.h, fill: "none", stroke: "var(--grid)", "stroke-width": 2, rx: 6 }, svg);
+Viz.el("text", { x: BOX.x + 8, y: BOX.y + 16 }, svg).textContent = "All outcomes";
+const circA = Viz.el("circle", { fill: "var(--series-1)", opacity: 0.5, stroke: "var(--series-1)", "stroke-width": 2 }, svg);
+const circB = Viz.el("circle", { fill: "var(--series-2)", opacity: 0.5, stroke: "var(--series-2)", "stroke-width": 2 }, svg);
+const labA = Viz.el("text", { class: "strong", "text-anchor": "middle" }, svg);
+const labB = Viz.el("text", { class: "strong", "text-anchor": "middle" }, svg);
+const labAB = Viz.el("text", { class: "strong", "text-anchor": "middle" }, svg);
+
+function lens(r1, r2, d) {
+  if (d >= r1 + r2) return 0;
+  if (d <= Math.abs(r1 - r2)) return Math.PI * Math.min(r1, r2) ** 2;
+  const a = r1 * r1 * Math.acos((d * d + r1 * r1 - r2 * r2) / (2 * d * r1));
+  const b = r2 * r2 * Math.acos((d * d + r2 * r2 - r1 * r1) / (2 * d * r2));
+  const c = 0.5 * Math.sqrt((-d + r1 + r2) * (d + r1 - r2) * (d - r1 + r2) * (d + r1 + r2));
+  return a + b - c;
+}
+
+function distanceFor(r1, r2, target) {
+  let lo = Math.abs(r1 - r2), hi = r1 + r2;
+  for (let i = 0; i < 60; i++) {
+    const mid = (lo + hi) / 2;
+    if (lens(r1, r2, mid) > target) lo = mid; else hi = mid;
+  }
+  return (lo + hi) / 2;
+}
+
+function limits() {
+  return { lo: Math.max(0, pa + pb - 1), hi: Math.min(pa, pb) };
+}
+
+function render() {
+  const { lo, hi } = limits();
+  pab = Math.min(hi, Math.max(lo, pab));
+  overlapSlider.input.min = lo; overlapSlider.input.max = hi; overlapSlider.set(pab);
+
+  const rA = Math.sqrt((pa * AREA) / Math.PI);
+  const rB = Math.sqrt((pb * AREA) / Math.PI);
+  const d = distanceFor(rA, rB, pab * AREA);
+  const total = rA + d + rB;
+  const left = BOX.x + (BOX.w - Math.max(total, 1)) / 2 + rA;
+  const cy = BOX.y + BOX.h / 2;
+  circA.setAttribute("cx", left); circA.setAttribute("cy", cy); circA.setAttribute("r", rA);
+  circB.setAttribute("cx", left + d); circB.setAttribute("cy", cy); circB.setAttribute("r", rB);
+
+  const aOnly = pa - pab, bOnly = pb - pab;
+  const overlapW = Math.max(0, rA + rB - d);
+  const aMid = overlapW > 0 ? ((left - rA) + (left + d - rB)) / 2 : left;
+  const bMid = overlapW > 0 ? ((left + rA) + (left + d + rB)) / 2 : left + d;
+  labA.setAttribute("x", aMid); labA.setAttribute("y", cy + 5);
+  labA.textContent = "A only " + pct(aOnly);
+  labB.setAttribute("x", bMid); labB.setAttribute("y", cy + 5);
+  labB.textContent = "B only " + pct(bOnly);
+  labAB.setAttribute("x", ((left + d - rB) + (left + rA)) / 2); labAB.setAttribute("y", cy + 5);
+  labAB.textContent = overlapW > 70 ? "both " + pct(pab) : "";
+  labA.setAttribute("display", aOnly > 0.02 ? "block" : "none");
+  labB.setAttribute("display", bOnly > 0.02 ? "block" : "none");
+
+  $("sum").textContent = pct(pa + pb);
+  $("both").textContent = pct(pab);
+  $("union").textContent = pct(pa + pb - pab);
+  $("prod").textContent = pct(pa * pb);
+
+  const indep = Math.abs(pab - pa * pb) < 0.0005;
+  $("verdict").textContent = pab === 0
+    ? "Mutually exclusive: the circles do not touch, so P(A and B) = 0 and P(A or B) is just P(A) + P(B). Yet knowing A happened tells you B did not, so they are NOT independent."
+    : indep
+      ? "Independent: P(A and B) = P(A) × P(B) = " + pct(pa * pb) + ". The share of A that lies inside B equals the share of the whole box that lies inside B."
+      : "The two circles overlap, so adding P(A) + P(B) = " + pct(pa + pb) + " counts the overlap twice. Subtract it: P(A or B) = " + pct(pa + pb - pab) + ". Because P(A and B) ≠ P(A) × P(B), the events are dependent.";
+}
+
+const aS = Viz.slider($("sliders"), { label: "P(A)", min: 0.05, max: 0.5, step: 0.01, value: pa, format: (v) => pct(v), onInput: (v) => { pa = v; render(); } });
+const bS = Viz.slider($("sliders"), { label: "P(B)", min: 0.05, max: 0.5, step: 0.01, value: pb, format: (v) => pct(v), onInput: (v) => { pb = v; render(); } });
+const overlapSlider = Viz.slider($("sliders"), { label: "P(A and B)", min: 0, max: 0.3, step: 0.005, value: pab, format: (v) => pct(v), onInput: (v) => { pab = v; render(); } });
+
+$("exclusive").addEventListener("click", () => { pab = 0; render(); });
+$("independent").addEventListener("click", () => { pab = Math.round(pa * pb * 1000) / 1000; render(); });
+Viz.themeToggle($("theme"));
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Averages Settle Down</title>
+<link rel="stylesheet" href="../../../../assets/visuals.css">
+</head>
+<body>
+<main class="viz">
+  <div class="viz-head">
+    <div>
+      <h1>Averages settle down</h1>
+      <p class="hint">Six fair coins are flipped again and again. Each line is the share of heads so far. The orange line is "your" coin. The horizontal axis is stretched so the early flips are easy to see.</p>
+    </div>
+    <button id="theme" type="button">Theme: auto</button>
+  </div>
+
+  <svg id="plot" viewBox="0 0 760 320" role="img" aria-label="Running share of heads for six coins, converging to one half as flips increase"></svg>
+
+  <div class="legend">
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="5.5" width="14" height="3" fill="var(--series-2)"/></svg>Your coin</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="5.5" width="14" height="3" fill="var(--series-1)" opacity="0.45"/></svg>Five other coins</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="5.5" width="14" height="1.5" fill="var(--text-muted)"/><rect x="0" y="9" width="14" height="1.5" fill="var(--text-muted)"/></svg>Typical wobble (95% band, ± 1/√n)</span>
+  </div>
+
+  <div class="readout" aria-live="polite">
+    <div class="card"><div class="label">Flips so far</div><div class="value" id="n">0</div></div>
+    <div class="card"><div class="label">Heads − tails (your coin)</div><div class="value" id="diff">—</div></div>
+    <div class="card"><div class="label">Share of heads (your coin)</div><div class="value" id="share">—</div></div>
+  </div>
+  <p class="verdict" id="verdict" aria-live="polite">Press "Flip 10 more".</p>
+
+  <div class="controls">
+    <button data-add="10" type="button">Flip 10 more</button>
+    <button data-add="100" type="button">Flip 100 more</button>
+    <button data-add="1000" type="button">Flip 1,000 more</button>
+    <button id="reset" type="button">New coins</button>
+  </div>
+</main>
+
+<script src="../../../../assets/visuals.js"></script>
+<script>
+const COINS = 6, MAX = 10000;
+const L = 56, R = 740, T = 16, B = 270;
+const X = Viz.scale(0, Math.log10(MAX), L, R);
+const Y = Viz.scale(0, 1, B, T);
+const svg = document.getElementById("plot");
+const $ = (id) => document.getElementById(id);
+
+let flips, n;
+const lines = Viz.el("g", {}, svg);
+
+for (let p = 0; p <= 4; p++) {
+  const x = X(p);
+  Viz.el("line", { x1: x, x2: x, y1: T, y2: B, stroke: "var(--grid)", "stroke-width": 1, opacity: 0.6 }, svg);
+  Viz.el("text", { x, y: B + 20, "text-anchor": "middle" }, svg).textContent = Math.pow(10, p).toLocaleString();
+}
+[0, 0.25, 0.5, 0.75, 1].forEach((v) => {
+  Viz.el("line", { x1: L, x2: R, y1: Y(v), y2: Y(v), stroke: "var(--grid)", "stroke-width": v === 0.5 ? 0 : 1, opacity: 0.6 }, svg);
+  Viz.el("text", { x: L - 8, y: Y(v) + 4, "text-anchor": "end" }, svg).textContent = Math.round(v * 100) + "%";
+});
+Viz.el("text", { x: (L + R) / 2, y: 308, "text-anchor": "middle" }, svg).textContent = "Number of flips (log scale)";
+Viz.el("line", { x1: L, x2: R, y1: Y(0.5), y2: Y(0.5), stroke: "var(--text-primary)", "stroke-width": 1.5, "stroke-dasharray": "6 4" }, svg);
+Viz.el("text", { x: R, y: Y(0.5) - 6, "text-anchor": "end", class: "strong" }, svg).textContent = "true probability 50%";
+
+const bandUp = Viz.el("polyline", { fill: "none", stroke: "var(--text-muted)", "stroke-width": 1.5 }, svg);
+const bandDown = Viz.el("polyline", { fill: "none", stroke: "var(--text-muted)", "stroke-width": 1.5 }, svg);
+const bandPts = (sign) => {
+  const pts = [];
+  for (let k = 0; k <= 160; k++) {
+    const m = Math.pow(10, (k / 160) * 4);
+    const w = Math.min(0.5, 1 / Math.sqrt(m));
+    pts.push(X(Math.log10(m)) + "," + Y(0.5 + sign * w));
+  }
+  return pts.join(" ");
+};
+bandUp.setAttribute("points", bandPts(1));
+bandDown.setAttribute("points", bandPts(-1));
+const runLayer = lines;
+
+function simulate() {
+  const rand = Viz.rng((Math.random() * 2 ** 31) | 0);
+  flips = Array.from({ length: COINS }, () => {
+    const cum = new Uint16Array(MAX + 1);
+    for (let i = 1; i <= MAX; i++) cum[i] = cum[i - 1] + (rand() < 0.5 ? 1 : 0);
+    return cum;
+  });
+  n = 0;
+}
+
+function render() {
+  runLayer.replaceChildren();
+  const order = [...Array(COINS).keys()].sort((a, b) => (a === 0) - (b === 0));
+  order.forEach((c) => {
+    const pts = [];
+    const step = Math.max(1, Math.floor(n / 400));
+    for (let i = 1; i <= n; i += (i < 60 ? 1 : step)) pts.push(X(Math.log10(i)) + "," + Y(flips[c][i] / i));
+    if (n > 0) pts.push(X(Math.log10(n)) + "," + Y(flips[c][n] / n));
+    if (pts.length < 2) return;
+    Viz.el("polyline", {
+      points: pts.join(" "), fill: "none", "stroke-linejoin": "round",
+      stroke: c === 0 ? "var(--series-2)" : "var(--series-1)",
+      "stroke-width": c === 0 ? 2.5 : 1.5, opacity: c === 0 ? 1 : 0.45,
+    }, runLayer);
+  });
+  $("n").textContent = n.toLocaleString();
+  if (n > 0) {
+    const h = flips[0][n], t = n - h;
+    $("diff").textContent = (h - t >= 0 ? "+" : "−") + Math.abs(h - t);
+    $("share").textContent = (100 * h / n).toFixed(1) + "%";
+    $("verdict").textContent = n < 100
+      ? "After " + n + " flips the lines are all over the place. Small samples wobble. A coin showing 70% heads here is completely normal."
+      : "After " + n.toLocaleString() + " flips the share of heads is squeezed toward 50%, yet your coin is still " + Math.abs(h - t) + " heads away from an even split. The proportion converges, even though the raw count gap does not close.";
+  }
+}
+
+document.querySelectorAll("button[data-add]").forEach((b) => b.addEventListener("click", () => {
+  n = Math.min(MAX, n + (+b.dataset.add));
+  render();
+}));
+$("reset").addEventListener("click", () => { simulate(); $("diff").textContent = "—"; $("share").textContent = "—"; $("verdict").textContent = 'Press "Flip 10 more".'; render(); });
+Viz.themeToggle($("theme"));
+simulate();
+render();
+</script>
+</body>
+</html>

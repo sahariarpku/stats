@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Monty Hall</title>
+<link rel="stylesheet" href="../../../../assets/visuals.css">
+<style>
+  .doors { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 8px 0 14px; }
+  .door { height: 150px; font-size: 3rem; border-radius: 12px; border: 2px solid var(--grid); background: var(--surface-2); }
+  .door small { display: block; margin-top: 6px; font-size: 0.85rem; color: var(--text-secondary); }
+  .door.picked { border-color: var(--series-1); }
+  .door.open { background: var(--surface-1); }
+  .door:disabled { cursor: default; opacity: 1; }
+  table.tally { border-collapse: collapse; width: 100%; margin: 6px 0 14px; font-variant-numeric: tabular-nums; }
+  .tally th, .tally td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--grid); }
+  .tally .pct { font-weight: 650; }
+</style>
+</head>
+<body>
+<main class="viz">
+  <div class="viz-head">
+    <div>
+      <h1>The Monty Hall puzzle</h1>
+      <p class="hint">One door hides a car, two hide goats. Pick a door. The host, who knows where the car is, opens a goat door. Then decide: stay or switch?</p>
+    </div>
+    <button id="theme" type="button">Theme: auto</button>
+  </div>
+
+  <div class="doors" id="doors" role="group" aria-label="Three doors"></div>
+  <p class="verdict" id="msg" aria-live="polite">Pick a door.</p>
+  <div class="controls" id="choice" hidden>
+    <button id="stay" type="button">Stay with my door</button>
+    <button id="switch" type="button">Switch to the other door</button>
+  </div>
+
+  <table class="tally" aria-live="polite">
+    <thead><tr><th>Strategy</th><th>Games</th><th>Wins</th><th>Win rate</th></tr></thead>
+    <tbody>
+      <tr><td>Always stay</td><td id="sg">0</td><td id="sw">0</td><td class="pct" id="sp">—</td></tr>
+      <tr><td>Always switch</td><td id="wg">0</td><td id="ww">0</td><td class="pct" id="wp">—</td></tr>
+    </tbody>
+  </table>
+
+  <div class="controls">
+    <button id="auto-stay" type="button">Auto-play 200 games: always stay</button>
+    <button id="auto-switch" type="button">Auto-play 200 games: always switch</button>
+    <button id="reset" type="button">Reset scores</button>
+  </div>
+  <p class="hint" style="margin-top:12px">Theory: staying wins 1/3 ≈ 33.3%, switching wins 2/3 ≈ 66.7%. Play enough games to see it.</p>
+</main>
+
+<script src="../../../../assets/visuals.js"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+let car, pick, opened, phase;
+const score = { stay: [0, 0], switch: [0, 0] };
+
+const doorEls = [0, 1, 2].map((i) => {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "door";
+  b.addEventListener("click", () => { if (phase === "pick") choose(i); else if (phase === "done") newGame(); });
+  $("doors").appendChild(b);
+  return b;
+});
+
+function paint(reveal) {
+  doorEls.forEach((b, i) => {
+    const isOpen = i === opened || reveal;
+    b.className = "door" + (i === pick ? " picked" : "") + (isOpen ? " open" : "");
+    b.innerHTML = (isOpen ? (i === car ? "🚗" : "🐐") : "🚪") + "<small>Door " + (i + 1) + (i === pick ? " (your pick)" : "") + "</small>";
+    b.disabled = phase === "decide";
+  });
+}
+
+function newGame() {
+  car = Math.floor(Math.random() * 3);
+  pick = null; opened = null; phase = "pick";
+  $("choice").hidden = true;
+  $("msg").textContent = "Pick a door.";
+  paint(false);
+}
+
+function hostOpens() {
+  const options = [0, 1, 2].filter((d) => d !== pick && d !== car);
+  opened = options[Math.floor(Math.random() * options.length)];
+}
+
+function choose(i) {
+  pick = i; hostOpens(); phase = "decide";
+  $("choice").hidden = false;
+  $("msg").textContent = "The host opens door " + (opened + 1) + ": a goat. Do you stay with door " + (pick + 1) + " or switch?";
+  paint(false);
+}
+
+function finish(strategy) {
+  const final = strategy === "stay" ? pick : [0, 1, 2].find((d) => d !== pick && d !== opened);
+  const won = final === car;
+  score[strategy][0]++; if (won) score[strategy][1]++;
+  return { final, won };
+}
+
+function decide(strategy) {
+  const { final, won } = finish(strategy);
+  pick = final; phase = "done";
+  $("choice").hidden = true;
+  $("msg").textContent = (won ? "You win the car! " : "A goat. ") + "You chose to " + strategy + ". Press any door to play again.";
+  paint(true);
+  tally();
+}
+
+function auto(strategy) {
+  for (let g = 0; g < 200; g++) {
+    car = Math.floor(Math.random() * 3); pick = Math.floor(Math.random() * 3); hostOpens(); finish(strategy);
+  }
+  tally();
+  newGame();
+  $("msg").textContent = "Played 200 games with the \"always " + strategy + "\" strategy. Compare the win rates below.";
+}
+
+function tally() {
+  const row = (k, g, w, p) => { $(g).textContent = score[k][0]; $(w).textContent = score[k][1]; $(p).textContent = score[k][0] ? (100 * score[k][1] / score[k][0]).toFixed(1) + "%" : "—"; };
+  row("stay", "sg", "sw", "sp"); row("switch", "wg", "ww", "wp");
+}
+
+$("stay").addEventListener("click", () => decide("stay"));
+$("switch").addEventListener("click", () => decide("switch"));
+$("auto-stay").addEventListener("click", () => auto("stay"));
+$("auto-switch").addEventListener("click", () => auto("switch"));
+$("reset").addEventListener("click", () => { score.stay = [0, 0]; score.switch = [0, 0]; tally(); newGame(); });
+Viz.themeToggle($("theme"));
+newGame();
+tally();
+</script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "The expected value of one roll of a fair die is...",
+      "options": ["3", "3.5", "4", "6"],
+      "correct": 1,
+      "explanation": "(1 + 2 + 3 + 4 + 5 + 6) ÷ 6 = 3.5. You can never roll 3.5, but it is the long-run average."
+    },
+    {
+      "stage": "pre",
+      "question": "A fair coin lands heads 5 times in a row. What is P(heads on the next flip)?",
+      "options": ["Less than 1/2, since tails is due", "More than 1/2, since it is on a streak", "Exactly 1/2", "It depends on the coin's memory"],
+      "correct": 2,
+      "explanation": "Flips are independent and the coin has no memory. The probability stays 1/2. Believing otherwise is the gambler's fallacy."
+    },
+    {
+      "stage": "post",
+      "question": "A $1 roulette bet on one number pays +$35 with probability 1/38 and loses $1 otherwise. What is the expected value per bet?",
+      "options": ["+$0.0526", "−$0.0526", "$0", "−$1"],
+      "correct": 1,
+      "explanation": "35 × (1/38) + (−1) × (37/38) = −2/38 ≈ −$0.0526. The player loses about 5.3 cents per dollar on average."
+    },
+    {
+      "stage": "post",
+      "question": "You pay $3 to roll a die and win $6 if you roll a 5 or 6. What is your expected profit per game?",
+      "options": ["+$2", "−$1", "$0", "−$3"],
+      "correct": 1,
+      "explanation": "P(win) = 2/6 = 1/3, so the expected winnings are 6 × 1/3 = $2. Subtract the $3 entry fee: −$1 per game."
+    },
+    {
+      "stage": "post",
+      "question": "Which statement correctly describes the Law of Large Numbers?",
+      "options": ["After many flips the number of heads exactly equals the number of tails", "As trials increase, the sample average gets closer to the expected value", "A streak must be followed by its opposite", "Small samples are always accurate"],
+      "correct": 1,
+      "explanation": "LLN is about averages (and proportions) converging. The raw difference between heads and tails actually grows, but it becomes tiny relative to the total."
+    },
+    {
+      "stage": "post",
+      "question": "Why can an insurer predict total claims well even though each individual claim is unpredictable?",
+      "options": ["Claims are always small", "With a large pool, the average claim sits very close to the expected value", "Insurers choose only safe customers", "Probability does not apply to insurance"],
+      "correct": 1,
+      "explanation": "The typical error in the average shrinks like 1/√n. With thousands of policies the average claim is very close to the expected value, so pricing is reliable."
+    }
+  ]
+}

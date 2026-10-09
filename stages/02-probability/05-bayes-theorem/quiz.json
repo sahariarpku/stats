@@ -1,0 +1,46 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "A test is 99% sensitive and 95% specific. The disease affects 1% of people. You test positive. Which is closest to your chance of being sick?",
+      "options": ["99%", "95%", "About 17%", "1%"],
+      "correct": 2,
+      "explanation": "Out of 10,000 people: 99 true positives and 495 false positives. Only 99 of the 594 positives are really sick, about 16.7%. The low base rate dominates."
+    },
+    {
+      "stage": "pre",
+      "question": "Which quantity do you usually want from a medical test?",
+      "options": ["P(positive | sick)", "P(sick | positive)", "P(sick and positive)", "P(negative | healthy)"],
+      "correct": 1,
+      "explanation": "A patient who has tested positive wants to know the probability they are sick, P(sick | positive). The test's published accuracy is the reverse, P(positive | sick)."
+    },
+    {
+      "stage": "post",
+      "question": "In the 10,000-person table, how many people test positive in total?",
+      "options": ["99", "495", "594", "9,900"],
+      "correct": 2,
+      "explanation": "99 true positives + 495 false positives = 594. This total is the denominator of the posterior."
+    },
+    {
+      "stage": "post",
+      "question": "Keeping the same test, the disease rate rises from 1% to 30%. What happens to P(sick | positive)?",
+      "options": ["It falls", "It stays at 16.7%", "It rises to about 89.5%", "It reaches 100%"],
+      "correct": 2,
+      "explanation": "A higher prior means far more true positives relative to false positives. With a 30% prior the posterior is about 89.5%. The same test means different things in different populations."
+    },
+    {
+      "stage": "post",
+      "question": "40% of emails are spam. 'FREE' appears in 80% of spam and 10% of real mail. What is P(spam | 'FREE')?",
+      "options": ["80%", "40%", "About 84%", "About 50%"],
+      "correct": 2,
+      "explanation": "(0.80 × 0.40) ÷ (0.80 × 0.40 + 0.10 × 0.60) = 0.32 ÷ 0.38 ≈ 0.842."
+    },
+    {
+      "stage": "post",
+      "question": "What is 'base-rate neglect'?",
+      "options": ["Using too large a sample", "Ignoring how common something is and trusting the test's accuracy alone", "Rounding probabilities", "Using Bayes' theorem twice"],
+      "correct": 1,
+      "explanation": "Base-rate neglect is treating P(positive | sick) as if it were P(sick | positive), forgetting the prior. It leads to wildly overconfident conclusions from a single positive result."
+    }
+  ]
+}

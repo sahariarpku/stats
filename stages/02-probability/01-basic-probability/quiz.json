@@ -1,0 +1,46 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "A probability can never be...",
+      "options": ["Equal to 0", "Equal to 1", "Greater than 1", "A fraction"],
+      "correct": 2,
+      "explanation": "Probabilities run from 0 (impossible) to 1 (certain). A result above 1 or below 0 signals a mistake in your counting."
+    },
+    {
+      "stage": "pre",
+      "question": "A fair die is rolled once. What is P(even number)?",
+      "options": ["1/6", "1/3", "1/2", "2/3"],
+      "correct": 2,
+      "explanation": "The even outcomes are {2, 4, 6}: 3 of 6 equally likely outcomes, so 3/6 = 1/2."
+    },
+    {
+      "stage": "post",
+      "question": "Two fair coins are flipped. What is P(exactly one head)?",
+      "options": ["1/3", "1/4", "1/2", "2/3"],
+      "correct": 2,
+      "explanation": "List the sequences HH, HT, TH, TT. Exactly one head occurs in HT and TH, so 2/4 = 1/2. Listing 'zero, one, two heads' would give the wrong 1/3, because those are not equally likely."
+    },
+    {
+      "stage": "post",
+      "question": "Two fair dice are rolled. What is P(sum = 7)?",
+      "options": ["1/12", "1/6", "7/36", "1/7"],
+      "correct": 1,
+      "explanation": "There are 36 equally likely pairs, and 6 of them sum to 7 (1+6, 2+5, 3+4, 4+3, 5+2, 6+1). 6/36 = 1/6."
+    },
+    {
+      "stage": "post",
+      "question": "A fair coin is flipped 3 times. What is P(at least one head)?",
+      "options": ["1/8", "3/8", "1/2", "7/8"],
+      "correct": 3,
+      "explanation": "Use the complement. The only way to get no heads is TTT, probability 1/8. So P(at least one head) = 1 − 1/8 = 7/8."
+    },
+    {
+      "stage": "post",
+      "question": "After 10 coin flips you have 7 heads. What does the Law of Large Numbers say?",
+      "options": ["Tails are now due", "The experimental proportion tends toward 0.5 as flips accumulate, but it makes no promise about the next flip", "The coin is biased", "The next flips must even it out"],
+      "correct": 1,
+      "explanation": "Over many trials the experimental proportion settles near the true probability. The coin has no memory, so there is no 'catching up'. Early imbalance simply gets diluted by later flips."
+    }
+  ]
+}

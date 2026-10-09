@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Who Tests Positive</title>
+<link rel="stylesheet" href="../../../../assets/visuals.css">
+<style>button[aria-pressed="true"] { background: var(--surface-2); border-color: var(--series-1); }</style>
+</head>
+<body>
+<main class="viz">
+  <div class="viz-head">
+    <div>
+      <h1>Who really tests positive?</h1>
+      <p class="hint">1,000 people, one dot each. The top block is everyone who tested positive. How many of them are actually sick?</p>
+    </div>
+    <button id="theme" type="button">Theme: auto</button>
+  </div>
+
+  <svg id="plot" viewBox="0 0 760 330" role="img" aria-label="A grid of 1,000 dots grouped by test result and true health"></svg>
+
+  <div class="legend">
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="5.5" fill="var(--series-2)"/></svg>Sick, tests positive</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M2 2 L12 2 L12 12 L2 12 Z" fill="var(--series-1)"/></svg>Healthy, tests positive (false alarm)</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="4.5" fill="none" stroke="var(--series-2)" stroke-width="2"/></svg>Sick, tests negative</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="2.5" fill="var(--dot)"/></svg>Healthy, tests negative</span>
+  </div>
+
+  <div class="readout" aria-live="polite">
+    <div class="card"><div class="label">Tested positive</div><div class="value" id="pos"></div></div>
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-2)"></span>…of whom really sick</div><div class="value" id="tp"></div></div>
+    <div class="card"><div class="label">P(sick | positive)</div><div class="value" id="post"></div></div>
+  </div>
+  <p class="verdict" id="verdict" aria-live="polite"></p>
+
+  <div class="controls col" id="sliders"></div>
+  <div class="controls">
+    <button id="rare" type="button">Rare disease (1%)</button>
+    <button id="common" type="button">Common condition (30%)</button>
+  </div>
+</main>
+
+<script src="../../../../assets/visuals.js"></script>
+<script>
+const N = 1000, COLS = 50;
+let prior = 0.01, sens = 0.99, spec = 0.95;
+const svg = document.getElementById("plot");
+const $ = (id) => document.getElementById(id);
+const pct = (v) => (Math.round(v * 1000) / 10) + "%";
+
+const SP = 13.6, R = 5, X0 = 18, Y0 = 36, GAP = 34;
+const layer = Viz.el("g", {}, svg);
+
+function render() {
+  const sick = prior * N;
+  const tp = sick * sens, fn = sick - tp;
+  const fp = (N - sick) * (1 - spec), tn = N - sick - fp;
+  const counts = [Math.round(tp), Math.round(fp), Math.round(fn), N - Math.round(tp) - Math.round(fp) - Math.round(fn)];
+  const kinds = ["tp", "fp", "fn", "tn"];
+
+  layer.replaceChildren();
+  const positives = counts[0] + counts[1];
+  const rowsPos = Math.max(1, Math.ceil(positives / COLS));
+  const place = (i) => {
+    if (i < positives) return { cx: X0 + (i % COLS) * SP, cy: Y0 + Math.floor(i / COLS) * SP };
+    const j = i - positives;
+    return { cx: X0 + (j % COLS) * SP, cy: Y0 + rowsPos * SP + GAP + Math.floor(j / COLS) * SP };
+  };
+  let idx = 0;
+  kinds.forEach((kind, k) => {
+    for (let c = 0; c < counts[k]; c++, idx++) {
+      const m = place(idx);
+      if (kind === "tp") Viz.el("circle", { cx: m.cx, cy: m.cy, r: R, fill: "var(--series-2)" }, layer);
+      else if (kind === "fp") Viz.el("rect", { x: m.cx - R + 0.5, y: m.cy - R + 0.5, width: 2 * R - 1, height: 2 * R - 1, fill: "var(--series-1)" }, layer);
+      else if (kind === "fn") Viz.el("circle", { cx: m.cx, cy: m.cy, r: R - 1, fill: "none", stroke: "var(--series-2)", "stroke-width": 2 }, layer);
+      else Viz.el("circle", { cx: m.cx, cy: m.cy, r: 2.2, fill: "var(--dot)" }, layer);
+    }
+  });
+  Viz.el("text", { x: X0 - 8, y: 20, class: "strong" }, layer).textContent = "Tested POSITIVE (" + positives + ")";
+  Viz.el("text", { x: X0 - 8, y: Y0 + rowsPos * SP + GAP - 8, class: "strong" }, layer).textContent = "Tested negative (" + (N - positives) + ")";
+
+  const post = tp / (tp + fp);
+  $("pos").textContent = Math.round(tp + fp) + " of 1,000";
+  $("tp").textContent = "about " + Math.round(tp);
+  $("post").textContent = isFinite(post) ? pct(post) : "—";
+  $("verdict").textContent = "Out of about " + Math.round(tp + fp) + " people who test positive, about " + Math.round(tp) + " are sick and about " + Math.round(fp) + " are false alarms. So a positive result means a " + pct(post) + " chance of being sick" +
+    (post < 0.5 ? ". The disease is so rare that false alarms outnumber real cases." : ". Here the disease is common enough that a positive result is mostly right.");
+}
+
+Viz.slider($("sliders"), { label: "Disease rate (prior)", min: 0.001, max: 0.5, step: 0.001, value: prior, format: pct, onInput: (v) => { prior = v; render(); } }).input.id = "prior";
+Viz.slider($("sliders"), { label: "Sensitivity (catches the sick)", min: 0.5, max: 1, step: 0.01, value: sens, format: pct, onInput: (v) => { sens = v; render(); } });
+Viz.slider($("sliders"), { label: "Specificity (clears the healthy)", min: 0.5, max: 1, step: 0.01, value: spec, format: pct, onInput: (v) => { spec = v; render(); } });
+
+const sync = (name, v) => { const s = [...document.querySelectorAll(".ctrl")].find((r) => r.firstChild.textContent.startsWith(name)); s.querySelector("input").value = v; s.querySelector("output").textContent = pct(v); };
+$("rare").addEventListener("click", () => { prior = 0.01; sync("Disease rate", prior); render(); });
+$("common").addEventListener("click", () => { prior = 0.3; sync("Disease rate", prior); render(); });
+Viz.themeToggle($("theme"));
+render();
+</script>
+</body>
+</html>

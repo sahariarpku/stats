@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Orderings Collapse</title>
+<link rel="stylesheet" href="../../../../assets/visuals.css">
+<style>
+  .group { display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 6px; margin: 0 8px 8px 0; border-radius: 8px; background: var(--surface-2); vertical-align: top; }
+  .group.solo { background: transparent; padding: 0; }
+  .chip { padding: 2px 8px; border-radius: 6px; border: 1px solid var(--grid); background: var(--surface-1); font: 600 0.85rem ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--text-primary); }
+  .chip.set { border-color: var(--series-1); border-width: 2px; padding: 4px 10px; }
+  #items { margin: 6px 0 14px; max-height: 420px; overflow: auto; padding: 4px; }
+  button[aria-pressed="true"] { background: var(--surface-2); border-color: var(--series-1); }
+  .eq { font-size: 1.05rem; margin: 4px 0 12px; font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+<main class="viz">
+  <div class="viz-head">
+    <div>
+      <h1>Orderings collapse into groups</h1>
+      <p class="hint">Choose r items from n. With "order matters", every arrangement counts. Without it, all the arrangements of the same items count once.</p>
+    </div>
+    <button id="theme" type="button">Theme: auto</button>
+  </div>
+
+  <div class="controls" role="group" aria-label="Does order matter?">
+    <button id="ordered" type="button" aria-pressed="true">Order matters (permutations)</button>
+    <button id="unordered" type="button" aria-pressed="false">Order doesn't matter (combinations)</button>
+  </div>
+  <div class="controls col" id="sliders"></div>
+
+  <div class="readout" aria-live="polite" style="margin-top:12px">
+    <div class="card"><div class="label">Permutations P(n, r)</div><div class="value" id="perm"></div></div>
+    <div class="card"><div class="label">Orderings per group, r!</div><div class="value" id="fact"></div></div>
+    <div class="card"><div class="label">Combinations C(n, r)</div><div class="value" id="comb"></div></div>
+  </div>
+  <p class="eq" id="eq"></p>
+  <div id="items" role="list" aria-label="All the ways to choose"></div>
+  <p class="verdict" id="verdict" aria-live="polite"></p>
+</main>
+
+<script src="../../../../assets/visuals.js"></script>
+<script>
+const LETTERS = "ABCDEF";
+let n = 5, r = 3, ordered = true;
+const $ = (id) => document.getElementById(id);
+const fact = (k) => (k <= 1 ? 1 : k * fact(k - 1));
+
+function combos(arr, k) {
+  if (k === 0) return [[]];
+  if (arr.length < k) return [];
+  const [head, ...rest] = arr;
+  return [...combos(rest, k - 1).map((c) => [head, ...c]), ...combos(rest, k)];
+}
+function perms(arr) {
+  if (arr.length <= 1) return [arr];
+  return arr.flatMap((x, i) => perms([...arr.slice(0, i), ...arr.slice(i + 1)]).map((p) => [x, ...p]));
+}
+
+function render() {
+  const items = LETTERS.slice(0, n).split("");
+  const sets = combos(items, r);
+  const P = fact(n) / fact(n - r);
+  const C = P / fact(r);
+  const box = $("items");
+  box.replaceChildren();
+  sets.forEach((set) => {
+    const group = document.createElement("span");
+    group.setAttribute("role", "listitem");
+    if (ordered) {
+      group.className = "group";
+      perms(set).forEach((p) => { const c = document.createElement("span"); c.className = "chip"; c.textContent = p.join(""); group.appendChild(c); });
+    } else {
+      group.className = "group solo";
+      const c = document.createElement("span"); c.className = "chip set"; c.textContent = "{" + set.join(",") + "}"; group.appendChild(c);
+    }
+    box.appendChild(group);
+  });
+  $("perm").textContent = P;
+  $("fact").textContent = fact(r);
+  $("comb").textContent = C;
+  $("eq").textContent = "C(" + n + ", " + r + ") = P(" + n + ", " + r + ") ÷ " + r + "! = " + P + " ÷ " + fact(r) + " = " + C;
+  $("verdict").textContent = ordered
+    ? "Showing all " + P + " ordered arrangements, boxed by the " + C + " sets they come from. Every box holds " + fact(r) + " orderings of the same " + r + " items."
+    : "Showing the " + C + " distinct sets. Each one stands for " + fact(r) + " orderings that you no longer count separately.";
+}
+
+function setOrdered(v) {
+  ordered = v;
+  $("ordered").setAttribute("aria-pressed", v);
+  $("unordered").setAttribute("aria-pressed", !v);
+  render();
+}
+$("ordered").addEventListener("click", () => setOrdered(true));
+$("unordered").addEventListener("click", () => setOrdered(false));
+
+const rSlider = Viz.slider($("sliders"), { label: "Items chosen (r)", min: 2, max: 3, step: 1, value: r, format: (v) => "r = " + v, onInput: (v) => { r = v; render(); } });
+Viz.slider($("sliders"), {
+  label: "Items available (n)", min: 4, max: 6, step: 1, value: n, format: (v) => "n = " + v,
+  onInput: (v) => { n = v; render(); },
+});
+Viz.themeToggle($("theme"));
+render();
+</script>
+</body>
+</html>

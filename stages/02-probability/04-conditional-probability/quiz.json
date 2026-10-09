@@ -1,0 +1,46 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "P(A | B) is read as...",
+      "options": ["The probability of A and B", "The probability of A given that B has occurred", "A divided by B", "The probability of B given A"],
+      "correct": 1,
+      "explanation": "The vertical bar means 'given'. P(A | B) is the probability of A inside the smaller world where B is known to have happened."
+    },
+    {
+      "stage": "pre",
+      "question": "In a probability tree, how do you find the probability of a whole path?",
+      "options": ["Add the branch probabilities", "Multiply the branch probabilities along the path", "Take the largest branch", "Average them"],
+      "correct": 1,
+      "explanation": "Multiply along a path to get the joint probability of that sequence. Add across paths when several paths lead to the same event."
+    },
+    {
+      "stage": "post",
+      "question": "Of 100 students who studied, 90 passed. Of 100 who didn't study, 40 passed. What is P(pass | studied)?",
+      "options": ["0.45", "0.65", "0.90", "0.692"],
+      "correct": 2,
+      "explanation": "Restrict to the 100 who studied: 90/100 = 0.90. (0.65 is the overall pass rate, and 0.692 is P(studied | pass).)"
+    },
+    {
+      "stage": "post",
+      "question": "In the same data, 90 of the 130 who passed had studied. What is P(studied | pass)?",
+      "options": ["0.90", "0.692", "0.45", "0.40"],
+      "correct": 1,
+      "explanation": "Restrict to the 130 who passed: 90/130 ≈ 0.692. It differs from P(pass | studied) = 0.90. P(A|B) and P(B|A) answer different questions."
+    },
+    {
+      "stage": "post",
+      "question": "A bag has 4 red and 6 blue marbles. Two are drawn without replacement. What is P(both red)?",
+      "options": ["16/100", "12/90 = 2/15", "4/10", "1/2"],
+      "correct": 1,
+      "explanation": "P(first red) = 4/10, then P(second red | first red) = 3/9. Multiply: 12/90 = 2/15 ≈ 0.133."
+    },
+    {
+      "stage": "post",
+      "question": "In the Monty Hall puzzle (you picked door 1, the host opened a goat door 3), what is the chance of winning if you switch?",
+      "options": ["1/3", "1/2", "2/3", "1"],
+      "correct": 2,
+      "explanation": "Your original pick keeps its 1/3 chance. The remaining 2/3 collapses onto the one other unopened door because the host must reveal a goat. Switching wins 2 times out of 3."
+    }
+  ]
+}
