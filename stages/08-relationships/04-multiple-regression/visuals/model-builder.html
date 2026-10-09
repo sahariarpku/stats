@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Build the Model</title>
+<link rel="stylesheet" href="../../../../assets/visuals.css">
+<style>
+  table.coef { width: 100%; border-collapse: collapse; margin: 6px 0 10px; font-variant-numeric: tabular-nums; font-size: 0.95rem; }
+  table.coef th, table.coef td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--grid); }
+  table.coef td.sig { font-weight: 650; }
+  .toggles { display: flex; flex-wrap: wrap; gap: 16px; margin: 8px 0 12px; }
+  .toggles label { display: inline-flex; align-items: center; gap: 8px; font-size: 1rem; cursor: pointer; min-height: 44px; }
+  .toggles input { width: 22px; height: 22px; accent-color: var(--series-1); }
+  .scroll { overflow-x: auto; }
+</style>
+</head>
+<body>
+<main class="viz">
+  <div class="viz-head">
+    <div>
+      <h1>Build the model</h1>
+      <p class="hint">Ten houses. Choose which predictors go into the model and see how every coefficient, its standard error and R² change. Watch what happens to bedrooms when square feet joins.</p>
+    </div>
+    <button id="theme" type="button">Theme: auto</button>
+  </div>
+
+  <div class="toggles" role="group" aria-label="Predictors in the model">
+    <label><input type="checkbox" id="use-sqft" checked> Square feet</label>
+    <label><input type="checkbox" id="use-beds" checked> Bedrooms</label>
+  </div>
+
+  <svg id="plot" viewBox="0 0 760 270" role="img" aria-label="Two scatter plots of price: against square feet and against bedrooms"></svg>
+
+  <div class="readout" aria-live="polite">
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>R²</div><div class="value" id="r2"></div></div>
+    <div class="card"><div class="label">Adjusted R²</div><div class="value" id="adj"></div></div>
+    <div class="card"><div class="label">s (typical miss, $K)</div><div class="value" id="s"></div></div>
+    <div class="card"><div class="label">Correlation of the two predictors</div><div class="value" id="corr"></div></div>
+  </div>
+
+  <div class="scroll">
+  <table class="coef" aria-live="polite">
+    <thead><tr><th>Term</th><th>Estimate</th><th>Std. error</th><th>t</th><th>p</th></tr></thead>
+    <tbody id="tbody"></tbody>
+  </table>
+  </div>
+  <p class="verdict" id="verdict" aria-live="polite"></p>
+</main>
+
+<script src="../../../../assets/visuals.js"></script>
+<script>
+const SQFT = [1000, 1200, 1400, 1600, 1800, 2000, 2200, 2400, 2600, 2800];
+const BEDS = [2, 2, 3, 3, 4, 4, 4, 5, 5, 6];
+const PRICE = [250, 280, 310, 350, 390, 420, 450, 480, 520, 550];
+const $ = (id) => document.getElementById(id);
+const svg = $("plot");
+const layer = Viz.el("g", {}, svg);
+
+function inverse(m) {
+  const n = m.length;
+  const a = m.map((row, i) => row.concat(Array.from({ length: n }, (_, j) => (i === j ? 1 : 0))));
+  for (let c = 0; c < n; c++) {
+    let piv = c;
+    for (let r = c + 1; r < n; r++) if (Math.abs(a[r][c]) > Math.abs(a[piv][c])) piv = r;
+    [a[c], a[piv]] = [a[piv], a[c]];
+    const d = a[c][c];
+    a[c] = a[c].map((v) => v / d);
+    for (let r = 0; r < n; r++) if (r !== c) { const f = a[r][c]; a[r] = a[r].map((v, j) => v - f * a[c][j]); }
+  }
+  return a.map((row) => row.slice(n));
+}
+function ols(cols, y) {
+  const n = y.length, k = cols.length;
+  const X = y.map((_, i) => [1].concat(cols.map((c) => c[i])));
+  const XtX = Array.from({ length: k + 1 }, (_, p) => Array.from({ length: k + 1 }, (_, q) => X.reduce((s, row) => s + row[p] * row[q], 0)));
+  const Xty = Array.from({ length: k + 1 }, (_, p) => X.reduce((s, row, i) => s + row[p] * y[i], 0));
+  const inv = inverse(XtX);
+  const beta = inv.map((row) => row.reduce((s, v, q) => s + v * Xty[q], 0));
+  const res = y.map((v, i) => v - X[i].reduce((s, x, p) => s + x * beta[p], 0));
+  const sse = res.reduce((s, e) => s + e * e, 0);
+  const my = Viz.mean(y), sst = y.reduce((s, v) => s + (v - my) ** 2, 0);
+  const dfe = n - k - 1, mse = sse / dfe;
+  const se = beta.map((_, p) => Math.sqrt(mse * inv[p][p]));
+  const t = beta.map((b, p) => b / se[p]);
+  const pv = t.map((v) => Math.min(1, 2 * (1 - Viz.tCdf(Math.abs(v), dfe))));
+  const r2 = 1 - sse / sst;
+  return { beta, se, t, pv, r2, adj: 1 - (1 - r2) * (n - 1) / dfe, s: Math.sqrt(mse) };
+}
+const corr = (a, b) => { const ma = Viz.mean(a), mb = Viz.mean(b); let s = 0, x = 0, y = 0; a.forEach((v, i) => { s += (v - ma) * (b[i] - mb); x += (v - ma) ** 2; y += (b[i] - mb) ** 2; }); return s / Math.sqrt(x * y); };
+const fmtP = (p) => (p < 0.0001 ? "< 0.0001" : p.toFixed(3));
+const sig = (v, d) => Math.abs(v) >= 100 ? v.toFixed(1) : Math.abs(v) >= 1 ? v.toFixed(d) : v.toFixed(d + 2);
+
+function panel(x0, w, vals, label, lo, hi, step, fit, active) {
+  const X = Viz.scale(lo, hi, x0 + 40, x0 + w - 10);
+  const Y = Viz.scale(200, 600, 215, 25);
+  const g = Viz.el("g", { opacity: active ? 1 : 0.45 }, layer);
+  Viz.el("line", { class: "axis-line", x1: x0 + 40, x2: x0 + w - 10, y1: 215, y2: 215 }, g);
+  [250, 400, 550].forEach((v) => { Viz.el("line", { x1: x0 + 40, x2: x0 + w - 10, y1: Y(v), y2: Y(v), stroke: "var(--grid)" }, g); Viz.el("text", { x: x0 + 34, y: Y(v) + 5, "text-anchor": "end" }, g).textContent = v; });
+  Viz.axisBottom(g, X, { y: 215, from: lo, to: hi, step });
+  Viz.el("text", { x: x0 + w - 10, y: 258, "text-anchor": "end", class: "strong" }, g).textContent = label;
+  Viz.el("line", { x1: X(lo), x2: X(hi), y1: Y(fit.a + fit.b * lo), y2: Y(fit.a + fit.b * hi), stroke: "var(--series-1)", "stroke-width": 3 }, g);
+  vals.forEach((v, i) => Viz.el("circle", { cx: X(v), cy: Y(PRICE[i]), r: 5.5, fill: "var(--dot)", stroke: "var(--surface-1)", "stroke-width": 2 }, g));
+  Viz.el("text", { x: x0 + 40, y: 14, opacity: 0.85 }, g).textContent = "price ($K)";
+}
+
+function render() {
+  const useS = $("use-sqft").checked, useB = $("use-beds").checked;
+  const sFit = ols([SQFT], PRICE), bFit = ols([BEDS], PRICE);
+  layer.replaceChildren();
+  panel(0, 370, SQFT, "square feet", 800, 3000, 400, { a: sFit.beta[0], b: sFit.beta[1] }, useS);
+  panel(385, 370, BEDS, "bedrooms", 1, 7, 1, { a: bFit.beta[0], b: bFit.beta[1] }, useB);
+
+  const tb = $("tbody"); tb.replaceChildren();
+  if (!useS && !useB) {
+    $("r2").textContent = "0%"; $("adj").textContent = "0%"; $("s").textContent = Viz.sd(PRICE).toFixed(1);
+    $("verdict").textContent = "With no predictors the model guesses the average price ($400K) for every house. Tick a box to add a predictor.";
+    $("corr").textContent = corr(SQFT, BEDS).toFixed(2);
+    return;
+  }
+  const names = ["Intercept"], cols = [];
+  if (useS) { names.push("Square feet (per sq ft)"); cols.push(SQFT); }
+  if (useB) { names.push("Bedrooms (per bedroom)"); cols.push(BEDS); }
+  const m = ols(cols, PRICE);
+  names.forEach((nm, i) => {
+    const tr = document.createElement("tr");
+    const cells = [nm, sig(m.beta[i], 2), sig(m.se[i], 2), m.t[i].toFixed(2), fmtP(m.pv[i])];
+    cells.forEach((c, j) => { const td = document.createElement("td"); td.textContent = c; if (j === 4 && m.pv[i] <= 0.05) td.className = "sig"; tr.appendChild(td); });
+    tb.appendChild(tr);
+  });
+  $("r2").textContent = (100 * m.r2).toFixed(2) + "%";
+  $("adj").textContent = (100 * m.adj).toFixed(2) + "%";
+  $("s").textContent = m.s.toFixed(1);
+  const r12 = corr(SQFT, BEDS);
+  $("corr").textContent = r12.toFixed(2);
+  let v;
+  if (useS && useB) v = "Both in: size carries the model. Bedrooms is no longer significant (p = " + fmtP(m.pv[2]) + ") and its coefficient has collapsed from " + bFit.beta[1].toFixed(1) + " to " + m.beta[2].toFixed(2) + ". Bigger houses simply have more bedrooms, so bedrooms was only borrowing size's credit. Notice too how the standard error of the square-feet slope grows: the two predictors are almost the same information (multicollinearity).";
+  else if (useS) v = "Square feet alone already explains about 99.9% of the variation in price. Each extra square foot goes with about $" + (1000 * m.beta[1]).toFixed(0) + " more.";
+  else v = "Bedrooms alone looks impressive (p < 0.0001): each extra bedroom goes with about $" + m.beta[1].toFixed(1) + "K. But it is partly a stand-in for size. Add square feet and see.";
+  $("verdict").textContent = v;
+}
+$("use-sqft").addEventListener("change", render);
+$("use-beds").addEventListener("change", render);
+Viz.themeToggle($("theme"));
+render();
+</script>
+</body>
+</html>

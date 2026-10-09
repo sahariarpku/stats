@@ -1,0 +1,60 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "In ŷ = 80 + 0.167·SqFt + 0.8·Beds, what does 0.167 describe?",
+      "options": ["The change in price per extra sq ft, holding bedrooms constant", "The correlation between price and size", "The change in price per extra sq ft, ignoring bedrooms", "R²"],
+      "correct": 0,
+      "explanation": "In multiple regression each coefficient is a partial slope: the average change in y per unit of that predictor with the other predictors held fixed."
+    },
+    {
+      "stage": "pre",
+      "question": "Why use multiple regression instead of several simple regressions?",
+      "options": ["It is faster", "It separates the effect of each predictor from the others that overlap with it", "It always gives a higher R²", "It removes the need for assumptions"],
+      "correct": 1,
+      "explanation": "Predictors often move together. Multiple regression estimates each one's contribution after accounting for the rest."
+    },
+    {
+      "stage": "post",
+      "question": "Using ŷ = 80.06 + 0.1668·SqFt + 0.806·Beds, what is the predicted price (in $K) of a 1,500 sq ft, 3-bedroom house?",
+      "options": ["303.7", "332.6", "250.2", "412.0"],
+      "correct": 1,
+      "explanation": "80.06 + 0.1668 × 1,500 + 0.806 × 3 = 80.06 + 250.16 + 2.42 = 332.6."
+    },
+    {
+      "stage": "post",
+      "question": "With both predictors in the model, bedrooms has p = 0.87, while alone it was highly significant. What is the most likely reason?",
+      "options": ["Bedrooms do not affect price", "Bedrooms and square feet are highly correlated, and size already carries the information", "A calculation error", "The sample is too large"],
+      "correct": 1,
+      "explanation": "The correlation between the predictors is 0.98. Once size is in the model, bedrooms add almost nothing. This is multicollinearity."
+    },
+    {
+      "stage": "post",
+      "question": "Two predictors are correlated at r = 0.9. What is the VIF?",
+      "options": ["0.81", "1.9", "5.26", "9.0"],
+      "correct": 2,
+      "explanation": "VIF = 1 ÷ (1 − r²) = 1 ÷ (1 − 0.81) = 5.26. Standard errors are inflated by about √5.26 = 2.3."
+    },
+    {
+      "stage": "post",
+      "question": "Why use adjusted R² rather than plain R² when comparing models with different numbers of predictors?",
+      "options": ["R² can fall when you add a predictor", "R² never decreases when a predictor is added, even a useless one, so it flatters bigger models", "Adjusted R² is always larger", "They are the same"],
+      "correct": 1,
+      "explanation": "Adding any predictor cannot raise SSE, so R² can only rise. Adjusted R² penalises extra predictors and rises only if they earn their place."
+    },
+    {
+      "stage": "post",
+      "question": "A model for exam score is ŷ = 50 + 3·Hours + 8·Tutor (Tutor = 1 with a tutor, 0 without). What does the 8 mean?",
+      "options": ["Tutored students study 8 more hours", "At any given number of hours, tutored students score 8 points higher on average", "The tutor adds 8 points per hour", "8% of students had a tutor"],
+      "correct": 1,
+      "explanation": "A dummy-variable coefficient is the average difference between the two categories, holding the other predictors fixed."
+    },
+    {
+      "stage": "post",
+      "question": "A model has k = 3 predictors, n = 30 and R² = 0.60. What is the overall F?",
+      "options": ["5.0", "9.0", "13.0", "26.0"],
+      "correct": 2,
+      "explanation": "F = (R² ÷ k) ÷ ((1 − R²) ÷ (n − k − 1)) = (0.60 ÷ 3) ÷ (0.40 ÷ 26) = 13.0."
+    }
+  ]
+}
