@@ -1,0 +1,46 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "A teacher computes the average score of all 30 students in her own class. What kind of statistics is this?",
+      "options": ["Descriptive", "Inferential", "Predictive", "Experimental"],
+      "correct": 0,
+      "explanation": "She holds the scores of every student she is describing, so nothing is being guessed. Summarising data you already have is descriptive statistics."
+    },
+    {
+      "stage": "pre",
+      "question": "Which is the best one-sentence description of statistics?",
+      "options": ["Memorising formulas", "Turning raw numbers into conclusions, with stated uncertainty", "Adding up lists of numbers", "Drawing charts"],
+      "correct": 1,
+      "explanation": "Statistics is the science of collecting, organising, analysing and interpreting data to answer questions, and it tells you how confident to be. Charts and arithmetic are only tools along the way."
+    },
+    {
+      "stage": "post",
+      "question": "A poll asks 1,000 voters and uses the result to forecast a national election. Which branch is this?",
+      "options": ["Descriptive, because it uses real numbers", "Inferential, because a sample stands in for a much larger group", "Descriptive, because polls are simple", "Neither"],
+      "correct": 1,
+      "explanation": "The 1,000 voters are a sample. The conclusion is about millions of voters nobody asked. Drawing conclusions about a larger group from a sample is inference."
+    },
+    {
+      "stage": "post",
+      "question": "Which is the signature of inferential statistics?",
+      "options": ["Exact answers", "Charts", "Answers that come with stated uncertainty", "Large datasets"],
+      "correct": 2,
+      "explanation": "Because a sample is only part of the picture, inferential results are probabilistic: 'unlikely to be chance', 'between 62 and 86 with 95% confidence'. Descriptive results are exact because they describe what was measured."
+    },
+    {
+      "stage": "post",
+      "question": "A company has the payroll for all 500 employees and computes the share over age 40. What is this?",
+      "options": ["Inferential, because there are many employees", "Descriptive, because every employee is included", "Inferential, because it is a percentage", "Impossible without a sample"],
+      "correct": 1,
+      "explanation": "Size does not decide the branch. Whether you measured the whole group does. With all 500 employees in hand, the percentage is an exact description."
+    },
+    {
+      "stage": "post",
+      "question": "A class has mean 74 and standard deviation 12.3. About what range holds most scores (mean ± 1 SD)?",
+      "options": ["41 to 98", "62 to 86", "74 to 86", "50 to 98"],
+      "correct": 1,
+      "explanation": "74 − 12.3 = 61.7 and 74 + 12.3 = 86.3, so roughly 62 to 86. The range 41 to 98 is the lowest and highest score, which is a different statement."
+    }
+  ]
+}

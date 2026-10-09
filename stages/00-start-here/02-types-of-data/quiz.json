@@ -1,0 +1,46 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Which of these is NOT a meaningful thing to average?",
+      "options": ["Exam scores", "Heights", "ZIP codes", "Daily temperatures"],
+      "correct": 2,
+      "explanation": "ZIP codes are labels. They contain digits, but the digits only identify a place. Exam scores, heights and temperatures are real amounts, so their averages mean something."
+    },
+    {
+      "stage": "pre",
+      "question": "Number of children in a family is...",
+      "options": ["Continuous", "Discrete", "Nominal", "Interval"],
+      "correct": 1,
+      "explanation": "You count children, and a family cannot have 2.6 of them. Whole counts with nothing in between are discrete."
+    },
+    {
+      "stage": "post",
+      "question": "Education level (high school, bachelor's, master's, PhD) is best described as...",
+      "options": ["Nominal", "Ordinal", "Continuous", "Ratio"],
+      "correct": 1,
+      "explanation": "The levels have a clear order, but the gap between them is not a fixed amount. Ordered categories with unequal gaps are ordinal."
+    },
+    {
+      "stage": "post",
+      "question": "Why is 20 °C not 'twice as hot' as 10 °C?",
+      "options": ["Temperature is discrete", "Celsius has no true zero, so ratios are meaningless", "Temperature is ordinal", "It actually is twice as hot"],
+      "correct": 1,
+      "explanation": "Celsius is an interval scale. 0 °C does not mean 'no heat', so statements about ratios do not hold. Weight and age have a true zero, so they are ratio scales."
+    },
+    {
+      "stage": "post",
+      "question": "Which chart suits a continuous variable such as height?",
+      "options": ["Pie chart", "Histogram", "Bar chart of categories", "None of these"],
+      "correct": 1,
+      "explanation": "A histogram groups continuous values into ranges. Bar and pie charts are meant for categories."
+    },
+    {
+      "stage": "post",
+      "question": "A satisfaction survey is coded 1 to 5 and a colleague reports a mean of 3.6. What is the main concern?",
+      "options": ["The mean is always wrong", "The gaps between points are not guaranteed equal, so the median and the share of each answer are safer", "Surveys cannot be analysed", "Nothing, this is perfectly standard"],
+      "correct": 1,
+      "explanation": "Ordinal data have order but no guaranteed equal spacing. A mean treats the codes as exact amounts. The median and the percentage choosing each option respect what the data really are."
+    }
+  ]
+}

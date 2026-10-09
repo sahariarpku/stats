@@ -158,3 +158,23 @@ button:focus-visible, .dot:focus-visible { outline: 2px solid var(--focus); outl
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+
+.ctrl {
+  display: grid;
+  grid-template-columns: 9.5rem 1fr 4.5rem;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin: 6px 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.ctrl output { color: var(--text-primary); font-variant-numeric: tabular-nums; text-align: right; }
+.ctrl input[type="range"] { width: 100%; accent-color: var(--series-1); }
+.controls.col { flex-direction: column; align-items: stretch; }
+
+@media (max-width: 600px) {
+  .ctrl { grid-template-columns: 1fr 4.5rem; }
+  .ctrl span { grid-column: 1 / -1; }
+}

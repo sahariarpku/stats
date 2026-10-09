@@ -1,0 +1,46 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "The average height of 50 randomly chosen adults is 171 cm. This number is a...",
+      "options": ["Parameter", "Statistic", "Population", "Variable"],
+      "correct": 1,
+      "explanation": "It is computed from a sample, so it is a statistic. A parameter would describe the entire population."
+    },
+    {
+      "stage": "pre",
+      "question": "Which symbol stands for the SAMPLE mean?",
+      "options": ["μ", "σ", "x̄", "N"],
+      "correct": 2,
+      "explanation": "x̄ (x-bar) is the sample mean. μ (mu) is the population mean. Remember: Greek letters go with parameters, Roman letters with statistics."
+    },
+    {
+      "stage": "post",
+      "question": "Two researchers each take a random sample from the same population and get different sample means. What does this show?",
+      "options": ["One of them made a mistake", "Normal sampling error", "The population mean changed", "The samples were biased"],
+      "correct": 1,
+      "explanation": "Different random samples give different statistics. The population mean (the parameter) stays fixed. The gap is sampling error, which is expected."
+    },
+    {
+      "stage": "post",
+      "question": "Which action tends to REDUCE sampling error?",
+      "options": ["Using a larger random sample", "Surveying only volunteers", "Surveying people in one location", "Using a sample SD"],
+      "correct": 0,
+      "explanation": "Larger random samples cluster closer to the parameter. Volunteers or a single location introduce bias, which more data cannot cure."
+    },
+    {
+      "stage": "post",
+      "question": "A survey outside a gym is used to claim how often 'people in the city' exercise. What is the main problem?",
+      "options": ["Sampling error", "Bias, because the sample is not representative", "The sample is too random", "Nothing is wrong"],
+      "correct": 1,
+      "explanation": "Gym-goers exercise more than average, so the sample tilts one way. That systematic tilt is bias. A bigger sample from the same place would repeat the same mistake."
+    },
+    {
+      "stage": "post",
+      "question": "For a sample, the standard deviation divides the sum of squared deviations by...",
+      "options": ["N", "n", "n − 1", "n + 1"],
+      "correct": 2,
+      "explanation": "Sample values sit closer to their own mean than to the true population mean, so dividing by n would understate the spread. Dividing by n − 1 (Bessel's correction) corrects that."
+    }
+  ]
+}

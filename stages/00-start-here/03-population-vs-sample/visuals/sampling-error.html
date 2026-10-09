@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sampling Error</title>
+<link rel="stylesheet" href="../../../../assets/visuals.css">
+</head>
+<body>
+<main class="viz">
+  <div class="viz-head">
+    <div>
+      <h1>The parameter stands still. The statistic wanders.</h1>
+      <p class="hint">Each grey dot is one person in a population of 200 (heights in cm). Draw a random sample and compare its average to the true average.</p>
+    </div>
+    <button id="theme" type="button">Theme: auto</button>
+  </div>
+
+  <svg id="plot" viewBox="0 0 760 350" role="img" aria-label="A population of 200 dots, with sampled dots highlighted and a history of sample means below"></svg>
+
+  <div class="legend">
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="6" y="0" width="2.5" height="14" fill="var(--series-1)"/></svg>Population mean μ (parameter)</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="var(--series-2)"/></svg>People in the sample</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 1 L13 7 L7 13 L1 7 Z" fill="var(--series-2)"/></svg>Sample mean x̄ (statistic)</span>
+  </div>
+
+  <div class="readout" aria-live="polite">
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>μ (fixed)</div><div class="value" id="mu"></div></div>
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-2)"></span>Latest x̄</div><div class="value" id="xbar">—</div></div>
+    <div class="card"><div class="label">Sampling error (x̄ − μ)</div><div class="value" id="err">—</div></div>
+    <div class="card"><div class="label">Samples drawn</div><div class="value" id="count">0</div></div>
+  </div>
+
+  <p class="verdict" id="verdict" aria-live="polite">Press "Draw a sample".</p>
+
+  <div class="controls col" id="sliders"></div>
+  <div class="controls">
+    <button id="one" type="button">Draw a sample</button>
+    <button id="many" type="button">Draw 20 samples</button>
+    <button id="reset" type="button">Reset</button>
+  </div>
+</main>
+
+<script src="../../../../assets/visuals.js"></script>
+<script>
+const rand = Viz.rng(7);
+const population = Array.from({ length: 200 }, () => Math.round(Math.min(145, Math.max(55, 100 + 15 * Viz.randn(rand))) * 10) / 10);
+const mu = Viz.mean(population);
+
+const X = Viz.scale(55, 145, 30, 730);
+const svg = document.getElementById("plot");
+const POP = { base: 160, r: 2.5, step: 5.2, bin: 3 };
+const HIST = { base: 312, r: 3.4, step: 7.2, bin: 1, maxLevels: 12 };
+
+let n = 10;
+let sampled = new Set();
+let means = [];
+
+const popDots = [];
+const levelByBin = new Map();
+population.forEach((v, i) => {
+  const key = Math.round(v / POP.bin);
+  const level = levelByBin.get(key) || 0;
+  levelByBin.set(key, level + 1);
+  const dot = Viz.el("circle", { cx: X(key * POP.bin), cy: POP.base - level * POP.step, r: POP.r, fill: "var(--dot)" }, svg);
+  popDots.push(dot);
+});
+
+Viz.axisBottom(svg, X, { y: POP.base + 8, from: 60, to: 140, step: 10 });
+Viz.el("text", { x: 30, y: 24, class: "strong" }, svg).textContent = "Population (200 people)";
+
+const muLine = Viz.el("line", { x1: X(mu), x2: X(mu), y1: 28, y2: 322, stroke: "var(--series-1)", "stroke-width": 2 }, svg);
+const muText = Viz.el("text", { x: X(mu), y: 16, "text-anchor": "middle", class: "strong" }, svg);
+muText.textContent = "μ = " + mu.toFixed(1);
+
+Viz.el("text", { x: 30, y: 236, class: "strong" }, svg).textContent = "Sample means so far";
+Viz.axisBottom(svg, X, { y: HIST.base + 10, from: 60, to: 140, step: 10 });
+const histLayer = Viz.el("g", {}, svg);
+const latestMark = Viz.el("path", { fill: "var(--series-2)", stroke: "var(--surface-1)", "stroke-width": 1.5, display: "none" }, svg);
+
+function diamond(cx, cy, r) {
+  return "M" + cx + " " + (cy - r) + " L" + (cx + r) + " " + cy + " L" + cx + " " + (cy + r) + " L" + (cx - r) + " " + cy + " Z";
+}
+
+function drawSample() {
+  const idx = population.map((_, i) => i);
+  for (let i = idx.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [idx[i], idx[j]] = [idx[j], idx[i]];
+  }
+  const picked = idx.slice(0, n);
+  sampled = new Set(picked);
+  const xbar = Viz.mean(picked.map((i) => population[i]));
+  means.push(xbar);
+  return xbar;
+}
+
+function render(xbar) {
+  popDots.forEach((dot, i) => {
+    const on = sampled.has(i);
+    dot.setAttribute("fill", on ? "var(--series-2)" : "var(--dot)");
+    dot.setAttribute("r", on ? POP.r + 0.8 : POP.r);
+  });
+  histLayer.replaceChildren();
+  const levels = new Map();
+  means.forEach((m) => {
+    const key = Math.round(m / HIST.bin);
+    const level = Math.min(levels.get(key) || 0, HIST.maxLevels);
+    levels.set(key, (levels.get(key) || 0) + 1);
+    Viz.el("path", { d: diamond(X(key * HIST.bin), HIST.base - level * HIST.step, HIST.r), fill: "var(--series-2)", opacity: 0.85 }, histLayer);
+  });
+  if (xbar !== undefined) {
+    latestMark.setAttribute("d", diamond(X(xbar), POP.base + 50, 6));
+    latestMark.setAttribute("display", "block");
+    document.getElementById("xbar").textContent = xbar.toFixed(1);
+    const err = xbar - mu;
+    document.getElementById("err").textContent = (err >= 0 ? "+" : "−") + Math.abs(err).toFixed(1);
+    document.getElementById("verdict").textContent = "This sample's average is " + xbar.toFixed(1) + ". The population average is still " + mu.toFixed(1) + ". The gap is sampling error. It is normal, and it changes with every sample.";
+  } else {
+    latestMark.setAttribute("display", "none");
+    document.getElementById("xbar").textContent = "—";
+    document.getElementById("err").textContent = "—";
+    document.getElementById("verdict").textContent = 'Press "Draw a sample".';
+  }
+  document.getElementById("count").textContent = means.length;
+  if (means.length >= 20) {
+    const spread = Math.max(...means) - Math.min(...means);
+    document.getElementById("verdict").textContent += " Across " + means.length + " samples, the averages ranged over " + spread.toFixed(1) + " cm.";
+  }
+}
+
+Viz.slider(document.getElementById("sliders"), {
+  label: "Sample size (n)", min: 3, max: 60, step: 1, value: n,
+  format: (v) => "n = " + v,
+  onInput: (v) => { n = v; },
+});
+
+document.getElementById("one").addEventListener("click", () => render(drawSample()));
+document.getElementById("many").addEventListener("click", () => { let last; for (let i = 0; i < 20; i++) last = drawSample(); render(last); });
+document.getElementById("reset").addEventListener("click", () => { means = []; sampled = new Set(); render(); });
+document.getElementById("mu").textContent = mu.toFixed(1);
+Viz.themeToggle(document.getElementById("theme"));
+render();
+</script>
+</body>
+</html>
