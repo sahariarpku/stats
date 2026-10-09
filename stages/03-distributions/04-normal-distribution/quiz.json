@@ -1,0 +1,46 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "In a roughly normal distribution, about what share of values lie within 2 standard deviations of the mean?",
+      "options": ["68%", "95%", "99.7%", "50%"],
+      "correct": 1,
+      "explanation": "The empirical rule: about 68% within 1 SD, 95% within 2 SD, 99.7% within 3 SD."
+    },
+    {
+      "stage": "pre",
+      "question": "Increasing the standard deviation of a normal distribution makes the curve...",
+      "options": ["Narrower and taller", "Wider and flatter", "Shift to the right", "Skewed"],
+      "correct": 1,
+      "explanation": "σ controls the spread. A larger σ spreads the same total area (1) over a wider range, so the peak is lower and the curve flatter. The mean controls the position."
+    },
+    {
+      "stage": "post",
+      "question": "IQ ~ N(100, 15). Which range holds about 95% of people?",
+      "options": ["85 to 115", "70 to 130", "55 to 145", "90 to 110"],
+      "correct": 1,
+      "explanation": "±2σ = 100 ± 30 = 70 to 130."
+    },
+    {
+      "stage": "post",
+      "question": "Exam scores ~ N(72, 11). A student scores 90. What is z, and roughly what share scores higher?",
+      "options": ["z = 1.64, about 5%", "z = 1.64, about 95%", "z = 18, about 5%", "z = 0.64, about 26%"],
+      "correct": 0,
+      "explanation": "z = (90 − 72) ÷ 11 ≈ 1.64. The table gives P(Z < 1.64) ≈ 0.9495, so about 1 − 0.9495 ≈ 5% scored higher."
+    },
+    {
+      "stage": "post",
+      "question": "The z-table gives P(Z < 1) = 0.8413 and P(Z < −1) = 0.1587. What is P(−1 < Z < 1)?",
+      "options": ["0.8413", "0.1587", "0.6827", "0.9500"],
+      "correct": 2,
+      "explanation": "Between = upper area − lower area = 0.8413 − 0.1587 = 0.6827, the familiar 68%."
+    },
+    {
+      "stage": "post",
+      "question": "Heights ~ N(69.1, 2.9) inches. The 90th percentile has z ≈ 1.28. What is that height?",
+      "options": ["About 72.8 inches", "About 65.4 inches", "About 69.1 inches", "About 75.0 inches"],
+      "correct": 0,
+      "explanation": "x = μ + zσ = 69.1 + 1.28 × 2.9 ≈ 72.8 inches. Going from a percentile back to a value uses z = (x − μ)/σ rearranged."
+    }
+  ]
+}

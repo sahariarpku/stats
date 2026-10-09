@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rare Events, One Parameter</title>
+<link rel="stylesheet" href="../../../../assets/visuals.css">
+<style>button[aria-pressed="true"] { background: var(--surface-2); border-color: var(--series-1); }</style>
+</head>
+<body>
+<main class="viz">
+  <div class="viz-head">
+    <div>
+      <h1>Rare events, one parameter</h1>
+      <p class="hint">Events arrive at an average of λ per interval. Change λ and the threshold k. Then compare with a binomial that has many trials and a tiny success chance.</p>
+    </div>
+    <button id="theme" type="button">Theme: auto</button>
+  </div>
+
+  <svg id="plot" viewBox="0 0 760 290" role="img" aria-label="Poisson probabilities as bars, with optional binomial markers"></svg>
+
+  <div class="legend">
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="2" width="12" height="11" fill="var(--series-1)"/></svg>k and below</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="2" width="12" height="11" fill="var(--dot)" opacity="0.6"/></svg>Above k</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 1 L13 7 L7 13 L1 7 Z" fill="var(--series-2)"/></svg>Binomial(1000, λ/1000)</span>
+  </div>
+
+  <div class="readout" aria-live="polite">
+    <div class="card"><div class="label">Mean = variance = λ</div><div class="value" id="lam"></div></div>
+    <div class="card"><div class="label">P(X = 0) = e^(−λ)</div><div class="value" id="p0"></div></div>
+    <div class="card"><div class="label">P(X = k)</div><div class="value" id="pk"></div></div>
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>P(X ≤ k)</div><div class="value" id="cdf"></div></div>
+  </div>
+  <p class="verdict" id="verdict" aria-live="polite"></p>
+
+  <div class="controls col" id="sliders"></div>
+  <div class="controls"><button id="binom" type="button" aria-pressed="false">Show the binomial look-alike</button></div>
+</main>
+
+<script src="../../../../assets/visuals.js"></script>
+<script>
+let lam = 4, k = 2, showBinom = false;
+const svg = document.getElementById("plot");
+const $ = (id) => document.getElementById(id);
+const f = (v) => (Math.round(v * 10000) / 10000).toString();
+const logFact = [0];
+for (let i = 1; i <= 1000; i++) logFact[i] = logFact[i - 1] + Math.log(i);
+const pois = (j) => Math.exp(-lam + j * Math.log(lam) - logFact[j]);
+const binom = (j) => { const p = lam / 1000; return Math.exp(logFact[1000] - logFact[j] - logFact[1000 - j] + j * Math.log(p) + (1000 - j) * Math.log(1 - p)); };
+
+const L = 56, R = 740, BASE = 240;
+const layer = Viz.el("g", {}, svg);
+let kSlider;
+
+function render() {
+  const hi = Math.max(10, Math.ceil(lam + 4.5 * Math.sqrt(lam) + 2));
+  const count = hi + 1;
+  const band = (R - L) / count;
+  const cx = (j) => L + band * (j + 0.5);
+  const probs = Array.from({ length: count }, (_, j) => pois(j));
+  const top = Math.max(...probs) * 1.15;
+  const Y = Viz.scale(0, top, BASE, 20);
+  if (k > hi) { k = hi; kSlider.set(k); }
+  kSlider.input.max = hi;
+
+  layer.replaceChildren();
+  Viz.el("line", { class: "axis-line", x1: L, x2: R, y1: BASE, y2: BASE }, layer);
+  for (let j = 0; j <= hi; j++) {
+    const on = j <= k;
+    const bar = Viz.el("rect", { x: cx(j) - band * 0.4, y: Y(probs[j]), width: band * 0.8, height: BASE - Y(probs[j]), fill: on ? "var(--series-1)" : "var(--dot)", opacity: on ? 1 : 0.55 }, layer);
+    Viz.el("title", {}, bar).textContent = "P(X = " + j + ") = " + f(probs[j]);
+    if (count <= 22 || j % 2 === 0) Viz.el("text", { x: cx(j), y: BASE + 20, "text-anchor": "middle" }, layer).textContent = j;
+    if (showBinom) {
+      const d = 6;
+      Viz.el("path", { d: "M" + cx(j) + " " + (Y(binom(j)) - d) + " L" + (cx(j) + d) + " " + Y(binom(j)) + " L" + cx(j) + " " + (Y(binom(j)) + d) + " L" + (cx(j) - d) + " " + Y(binom(j)) + " Z", fill: "var(--series-2)", stroke: "var(--surface-1)", "stroke-width": 1.5 }, layer);
+    }
+  }
+  Viz.el("text", { x: L - 8, y: Y(top / 1.15) + 4, "text-anchor": "end" }, layer).textContent = f(top / 1.15);
+  Viz.el("text", { x: (L + R) / 2, y: 280, "text-anchor": "middle" }, layer).textContent = "Number of events in the interval";
+
+  const cdf = probs.slice(0, k + 1).reduce((a, b) => a + b, 0);
+  $("lam").textContent = lam.toFixed(1);
+  $("p0").textContent = f(Math.exp(-lam));
+  $("pk").textContent = f(probs[k]);
+  $("cdf").textContent = f(cdf);
+  $("verdict").textContent = "On average " + lam.toFixed(1) + " events occur per interval. " + (showBinom
+    ? "The orange diamonds (a binomial with 1,000 trials) sit right on top of the Poisson bars: with many trials and a tiny p, only np = λ matters."
+    : "A small λ gives a skewed shape that piles up near 0. As λ grows, the shape becomes more symmetric and bell-like.");
+}
+
+Viz.slider($("sliders"), { label: "Average rate (λ)", min: 0.5, max: 20, step: 0.5, value: lam, format: (v) => "λ = " + v.toFixed(1), onInput: (v) => { lam = v; render(); } });
+kSlider = Viz.slider($("sliders"), { label: "Threshold (k)", min: 0, max: 30, step: 1, value: k, format: (v) => "k = " + v, onInput: (v) => { k = v; render(); } });
+$("binom").addEventListener("click", () => { showBinom = !showBinom; $("binom").setAttribute("aria-pressed", showBinom); $("binom").textContent = showBinom ? "Hide the binomial look-alike" : "Show the binomial look-alike"; render(); });
+Viz.themeToggle($("theme"));
+render();
+</script>
+</body>
+</html>

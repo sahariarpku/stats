@@ -1,0 +1,46 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "The probabilities in a valid discrete distribution must...",
+      "options": ["Each equal 1", "Sum to 1", "Be at least 0.5", "Be whole numbers"],
+      "correct": 1,
+      "explanation": "Every probability is between 0 and 1, and together they account for all possible outcomes, so they sum to exactly 1."
+    },
+    {
+      "stage": "pre",
+      "question": "For a continuous random variable, what is the probability that it equals one exact value?",
+      "options": ["Very small but positive", "0", "1", "It depends on the mean"],
+      "correct": 1,
+      "explanation": "A single point has zero width, hence zero area under the density curve. Continuous probabilities are always about ranges."
+    },
+    {
+      "stage": "post",
+      "question": "With P(X=0..4) = 0.20, 0.35, 0.25, 0.15, 0.05, what is P(X ≤ 2)?",
+      "options": ["0.25", "0.55", "0.80", "0.95"],
+      "correct": 2,
+      "explanation": "Add up to and including 2: 0.20 + 0.35 + 0.25 = 0.80. That value is the CDF F(2)."
+    },
+    {
+      "stage": "post",
+      "question": "For the same distribution, what is P(1 ≤ X ≤ 3)?",
+      "options": ["0.75", "0.35", "0.60", "0.95"],
+      "correct": 0,
+      "explanation": "Add the bars at 1, 2 and 3: 0.35 + 0.25 + 0.15 = 0.75. Equivalently F(3) − F(0) = 0.95 − 0.20."
+    },
+    {
+      "stage": "post",
+      "question": "A bus arrives uniformly at random between 9:00 and 9:20. What is P(arrival between 9:05 and 9:12)?",
+      "options": ["7/20 = 0.35", "1/20", "12/20", "5/20"],
+      "correct": 0,
+      "explanation": "The density is 1/20 per minute, and the interval is 7 minutes wide: area = 7 × 1/20 = 0.35."
+    },
+    {
+      "stage": "post",
+      "question": "Why is f(x) = x NOT a valid PDF on the interval [0, 1]?",
+      "options": ["It is negative somewhere", "The area under it is 0.5, not 1", "It is a straight line", "It is zero at x = 0"],
+      "correct": 1,
+      "explanation": "The area of the triangle under f(x) = x from 0 to 1 is 1/2. A PDF must enclose a total area of exactly 1 (f(x) = 2x would work)."
+    }
+  ]
+}

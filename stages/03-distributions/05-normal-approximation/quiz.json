@@ -1,0 +1,46 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Which pair of numbers should you check before using a normal approximation to a binomial?",
+      "options": ["n and p", "np and n(1 − p)", "μ and σ", "k and n"],
+      "correct": 1,
+      "explanation": "Both np and n(1 − p) need to be large (10 or more; some books accept 5). If either is small, the binomial is too lopsided for a bell curve to fit."
+    },
+    {
+      "stage": "pre",
+      "question": "For X ~ Binomial(200, 0.1), what are the mean and SD of the approximating normal?",
+      "options": ["μ = 20, σ ≈ 4.24", "μ = 20, σ = 18", "μ = 10, σ ≈ 4.24", "μ = 0.1, σ = 1"],
+      "correct": 0,
+      "explanation": "μ = np = 20 and σ = √(np(1 − p)) = √18 ≈ 4.243."
+    },
+    {
+      "stage": "post",
+      "question": "To approximate P(X ≤ 14) for a binomial, which normal limit do you use?",
+      "options": ["13.5", "14", "14.5", "15"],
+      "correct": 2,
+      "explanation": "The bar for 14 extends to 14.5 on the continuous scale, and 'at most 14' includes that whole bar, so use 14.5."
+    },
+    {
+      "stage": "post",
+      "question": "To approximate P(X ≥ 25), which normal limit do you use?",
+      "options": ["24", "24.5", "25", "25.5"],
+      "correct": 1,
+      "explanation": "The bar for 25 begins at 24.5, and 'at least 25' includes it. So the boundary is 24.5, and you want the area above it."
+    },
+    {
+      "stage": "post",
+      "question": "For X ~ Binomial(100, 0.5), how is P(X = 45) approximated?",
+      "options": ["P(Y = 45)", "P(44.5 < Y < 45.5)", "P(Y < 45)", "P(45 < Y < 46)"],
+      "correct": 1,
+      "explanation": "A single value corresponds to the bar from 44.5 to 45.5. The normal area over that interval is about 0.0484, matching the exact 0.0485."
+    },
+    {
+      "stage": "post",
+      "question": "For X ~ Binomial(10, 0.1), why is the normal approximation poor?",
+      "options": ["n is not an integer", "np = 1 is far below 10, so the shape is very lopsided", "p is greater than 0.5", "The mean is zero"],
+      "correct": 1,
+      "explanation": "With np = 1 most of the probability sits at 0 and 1, creating a sharply skewed shape. A symmetric bell fits badly there (and spills onto impossible negative counts)."
+    }
+  ]
+}

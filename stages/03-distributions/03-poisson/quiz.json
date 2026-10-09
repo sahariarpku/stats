@@ -1,0 +1,46 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Which situation suits a Poisson model?",
+      "options": ["Heads in 10 coin flips", "Number of emails arriving per hour on average", "Heights of 20 students", "The result of one die roll"],
+      "correct": 1,
+      "explanation": "Events arriving over time at an average rate, with no fixed number of trials, is the Poisson setting. Coin flips use the binomial, and heights are continuous."
+    },
+    {
+      "stage": "pre",
+      "question": "For a Poisson(λ) variable, the mean equals...",
+      "options": ["λ²", "√λ", "λ", "1/λ"],
+      "correct": 2,
+      "explanation": "Both the mean and the variance of a Poisson(λ) variable equal λ."
+    },
+    {
+      "stage": "post",
+      "question": "An ER averages 4 arrivals per hour. What is P(exactly 2 arrive in an hour)?",
+      "options": ["0.0183", "0.1465", "0.2381", "0.5"],
+      "correct": 1,
+      "explanation": "e⁻⁴ × 4² ÷ 2! = 0.018316 × 16 ÷ 2 ≈ 0.1465."
+    },
+    {
+      "stage": "post",
+      "question": "A factory averages 2 defects per batch. What is P(a batch has no defects)?",
+      "options": ["e⁻² ≈ 0.135", "0.5", "2/e ≈ 0.736", "0"],
+      "correct": 0,
+      "explanation": "P(X = 0) = e^(−λ) = e⁻² ≈ 0.1353. For any Poisson, the chance of zero events is e^(−λ)."
+    },
+    {
+      "stage": "post",
+      "question": "An ATM averages 18 transactions per hour. What λ should you use for a 15-minute window?",
+      "options": ["18", "9", "4.5", "1.5"],
+      "correct": 2,
+      "explanation": "λ scales with the window: 18 × (15/60) = 4.5."
+    },
+    {
+      "stage": "post",
+      "question": "A call centre averages 6 calls a minute. Which expression gives P(8 or more calls)?",
+      "options": ["1 − P(X ≤ 7)", "1 − P(X ≤ 8)", "P(X = 8)", "P(X ≤ 8)"],
+      "correct": 0,
+      "explanation": "'8 or more' is the complement of '7 or fewer'. So P(X ≥ 8) = 1 − P(X ≤ 7) ≈ 1 − 0.744 = 0.256."
+    }
+  ]
+}

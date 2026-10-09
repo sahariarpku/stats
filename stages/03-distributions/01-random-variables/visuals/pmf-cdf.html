@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PMF and CDF</title>
+<link rel="stylesheet" href="../../../../assets/visuals.css">
+<style>button[aria-pressed="true"] { background: var(--surface-2); border-color: var(--series-1); }</style>
+</head>
+<body>
+<main class="viz">
+  <div class="viz-head">
+    <div>
+      <h1>From the bars to the running total</h1>
+      <p class="hint">Top: the probability of each value (PMF). Bottom: the running total up to x (CDF). Slide x to move the threshold.</p>
+    </div>
+    <button id="theme" type="button">Theme: auto</button>
+  </div>
+
+  <div class="controls" id="choices" role="group" aria-label="Choose a distribution"></div>
+
+  <svg id="plot" viewBox="0 0 760 360" role="img" aria-label="Bars for a PMF above a staircase CDF" style="margin-top:10px"></svg>
+
+  <div class="legend">
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="2" width="12" height="11" fill="var(--series-1)"/></svg>Values up to x (counted in the CDF)</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="2" width="12" height="11" fill="var(--dot)" opacity="0.6"/></svg>Values above x</span>
+  </div>
+
+  <div class="readout" aria-live="polite">
+    <div class="card"><div class="label">P(X = x)</div><div class="value" id="pm"></div></div>
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>P(X ≤ x) = F(x)</div><div class="value" id="cd"></div></div>
+    <div class="card"><div class="label">P(X &gt; x) = 1 − F(x)</div><div class="value" id="up"></div></div>
+  </div>
+  <p class="verdict" id="verdict" aria-live="polite"></p>
+  <div class="controls col" id="sliders"></div>
+</main>
+
+<script src="../../../../assets/visuals.js"></script>
+<script>
+const SETS = {
+  defects: { name: "Defects per batch", xs: [0, 1, 2, 3, 4], ps: [0.20, 0.35, 0.25, 0.15, 0.05] },
+  die: { name: "One fair die", xs: [1, 2, 3, 4, 5, 6], ps: [1, 1, 1, 1, 1, 1].map((v) => v / 6) },
+  heads: { name: "Heads in 4 flips", xs: [0, 1, 2, 3, 4], ps: [1, 4, 6, 4, 1].map((v) => v / 16) },
+};
+let key = "defects", idx = 2;
+const svg = document.getElementById("plot");
+const $ = (id) => document.getElementById(id);
+const f = (v) => (Math.round(v * 1000) / 1000).toString();
+const LEFT = 70, RIGHT = 730;
+
+const layer = Viz.el("g", {}, svg);
+let sliderCtl;
+
+function render() {
+  const d = SETS[key];
+  const k = d.xs.length;
+  const band = (RIGHT - LEFT) / k;
+  const cx = (i) => LEFT + band * (i + 0.5);
+  const top = Math.max(...d.ps) * 1.15;
+  const Yp = Viz.scale(0, top, 150, 18);
+  const Yc = Viz.scale(0, 1, 330, 200);
+  const cum = d.ps.map((_, i) => d.ps.slice(0, i + 1).reduce((a, b) => a + b, 0));
+
+  layer.replaceChildren();
+  Viz.el("text", { x: LEFT, y: 12, class: "strong" }, layer).textContent = "PMF: P(X = x)";
+  Viz.el("text", { x: LEFT, y: 192, class: "strong" }, layer).textContent = "CDF: F(x) = P(X ≤ x)";
+  Viz.el("line", { class: "axis-line", x1: LEFT, x2: RIGHT, y1: 150, y2: 150 }, layer);
+  Viz.el("line", { class: "axis-line", x1: LEFT, x2: RIGHT, y1: 330, y2: 330 }, layer);
+
+  [0, 0.25, 0.5, 0.75, 1].forEach((v) => {
+    Viz.el("line", { x1: LEFT, x2: RIGHT, y1: Yc(v), y2: Yc(v), stroke: "var(--grid)", "stroke-width": 1, opacity: 0.6 }, layer);
+    Viz.el("text", { x: LEFT - 8, y: Yc(v) + 4, "text-anchor": "end" }, layer).textContent = v;
+  });
+
+  d.xs.forEach((x, i) => {
+    const on = i <= idx;
+    const bar = Viz.el("rect", { x: cx(i) - band * 0.3, y: Yp(d.ps[i]), width: band * 0.6, height: 150 - Yp(d.ps[i]), fill: on ? "var(--series-1)" : "var(--dot)", opacity: on ? 1 : 0.55, rx: 2 }, layer);
+    Viz.el("title", {}, bar).textContent = "P(X = " + x + ") = " + f(d.ps[i]);
+    Viz.el("text", { x: cx(i), y: Yp(d.ps[i]) - 5, "text-anchor": "middle" }, layer).textContent = f(d.ps[i]);
+    Viz.el("text", { x: cx(i), y: 170, "text-anchor": "middle" }, layer).textContent = x;
+    Viz.el("text", { x: cx(i), y: 350, "text-anchor": "middle" }, layer).textContent = x;
+    const x0 = LEFT + band * i, x1 = LEFT + band * (i + 1);
+    const level = Yc(cum[i]);
+    Viz.el("line", { x1: x0 + 3, x2: x1 - 3, y1: level, y2: level, stroke: on ? "var(--series-1)" : "var(--dot)", "stroke-width": 3 }, layer);
+    if (i > 0) Viz.el("line", { x1: x0 + 3, x2: x0 + 3, y1: Yc(cum[i - 1]), y2: level, stroke: on ? "var(--series-1)" : "var(--dot)", "stroke-width": 1.5, "stroke-dasharray": "3 3" }, layer);
+  });
+  Viz.el("circle", { cx: cx(idx), cy: Yc(cum[idx]), r: 7, fill: "var(--series-2)", stroke: "var(--surface-1)", "stroke-width": 2 }, layer);
+
+  $("pm").textContent = f(d.ps[idx]);
+  $("cd").textContent = f(cum[idx]);
+  $("up").textContent = f(1 - cum[idx]);
+  $("verdict").textContent = "F(" + d.xs[idx] + ") = " + d.ps.slice(0, idx + 1).map(f).join(" + ") + " = " + f(cum[idx]) + ". The CDF only ever goes up, from 0 to 1, and it jumps by P(X = x) at each possible value.";
+}
+
+function build() {
+  sliderCtl && sliderCtl.input.closest("label").remove();
+  idx = Math.min(idx, SETS[key].xs.length - 1);
+  sliderCtl = Viz.slider($("sliders"), { label: "Threshold x", min: 0, max: SETS[key].xs.length - 1, step: 1, value: idx, format: (v) => "x = " + SETS[key].xs[v], onInput: (v) => { idx = v; render(); } });
+  render();
+}
+
+Object.entries(SETS).forEach(([k, v]) => {
+  const b = document.createElement("button");
+  b.type = "button"; b.textContent = v.name; b.setAttribute("aria-pressed", k === key);
+  b.addEventListener("click", () => { key = k; idx = Math.floor(SETS[k].xs.length / 2); [...$("choices").children].forEach((c) => c.setAttribute("aria-pressed", c === b)); build(); });
+  $("choices").appendChild(b);
+});
+Viz.themeToggle($("theme"));
+build();
+</script>
+</body>
+</html>

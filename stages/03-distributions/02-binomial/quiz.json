@@ -1,0 +1,46 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Which of these is a binomial situation?",
+      "options": ["Count heads in 10 fair coin flips", "Flip a coin until the first head", "Measure the heights of 10 people", "Draw 5 cards without replacement and count aces"],
+      "correct": 0,
+      "explanation": "Ten independent yes/no trials with a fixed n and constant p satisfy BINS. Flipping until a head has no fixed n, heights are not yes/no, and drawing without replacement is not independent."
+    },
+    {
+      "stage": "pre",
+      "question": "For X ~ Binomial(n = 20, p = 0.5), what is the mean?",
+      "options": ["5", "10", "20", "0.5"],
+      "correct": 1,
+      "explanation": "Mean = n × p = 20 × 0.5 = 10."
+    },
+    {
+      "stage": "post",
+      "question": "A fair coin is flipped 8 times. What is P(exactly 3 heads)?",
+      "options": ["3/8", "56/256 ≈ 0.219", "1/8", "0.5"],
+      "correct": 1,
+      "explanation": "C(8, 3) × 0.5³ × 0.5⁵ = 56/256 ≈ 0.219. The 3/8 answer confuses the proportion of heads with the probability of that count."
+    },
+    {
+      "stage": "post",
+      "question": "For X ~ Binomial(10, 0.7), what are the variance and standard deviation?",
+      "options": ["Variance 7, SD 2.65", "Variance 2.1, SD ≈ 1.45", "Variance 0.21, SD 0.46", "Variance 3, SD 1.73"],
+      "correct": 1,
+      "explanation": "Variance = n p (1 − p) = 10 × 0.7 × 0.3 = 2.1. SD = √2.1 ≈ 1.45."
+    },
+    {
+      "stage": "post",
+      "question": "In 5 items each with a 10% chance of being defective, what is P(at least one defective)?",
+      "options": ["0.10", "0.50", "0.41", "0.59"],
+      "correct": 2,
+      "explanation": "Use the complement: 1 − P(none) = 1 − 0.9⁵ = 1 − 0.5905 = 0.4095 ≈ 0.41."
+    },
+    {
+      "stage": "post",
+      "question": "A fair coin gives 62 or more heads in 100 flips with probability about 0.0105. What does this suggest?",
+      "options": ["The coin is certainly biased", "The result is rare for a fair coin, so doubt about fairness is reasonable", "The coin is certainly fair", "The binomial does not apply"],
+      "correct": 1,
+      "explanation": "About a 1% chance is unusual if the coin is fair, which is evidence against fairness but not proof. This reasoning is the heart of hypothesis testing."
+    }
+  ]
+}

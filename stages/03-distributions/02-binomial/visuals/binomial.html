@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shape of the Binomial</title>
+<link rel="stylesheet" href="../../../../assets/visuals.css">
+<style>button[aria-pressed="true"] { background: var(--surface-2); border-color: var(--series-1); }</style>
+</head>
+<body>
+<main class="viz">
+  <div class="viz-head">
+    <div>
+      <h1>Shape of the binomial</h1>
+      <p class="hint">Count the successes in n trials with success probability p. Move the sliders. The blue bars are the values up to k.</p>
+    </div>
+    <button id="theme" type="button">Theme: auto</button>
+  </div>
+
+  <svg id="plot" viewBox="0 0 760 290" role="img" aria-label="Bar chart of the binomial probabilities with an optional normal curve"></svg>
+
+  <div class="legend">
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="2" width="12" height="11" fill="var(--series-1)"/></svg>k and below</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="2" width="12" height="11" fill="var(--dot)" opacity="0.6"/></svg>Above k</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="6" width="14" height="3" fill="var(--series-2)"/></svg>Normal curve (same mean and SD)</span>
+  </div>
+
+  <div class="readout" aria-live="polite">
+    <div class="card"><div class="label">Mean np</div><div class="value" id="mean"></div></div>
+    <div class="card"><div class="label">SD √(np(1−p))</div><div class="value" id="sd"></div></div>
+    <div class="card"><div class="label">P(X = k)</div><div class="value" id="pk"></div></div>
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>P(X ≤ k)</div><div class="value" id="cdf"></div></div>
+  </div>
+  <p class="verdict" id="verdict" aria-live="polite"></p>
+
+  <div class="controls col" id="sliders"></div>
+  <div class="controls"><button id="normal" type="button" aria-pressed="false">Show the normal curve</button></div>
+</main>
+
+<script src="../../../../assets/visuals.js"></script>
+<script>
+let n = 10, p = 0.7, k = 7, showNormal = false;
+const svg = document.getElementById("plot");
+const $ = (id) => document.getElementById(id);
+const f = (v) => (Math.round(v * 10000) / 10000).toString();
+const logFact = [0];
+for (let i = 1; i <= 100; i++) logFact[i] = logFact[i - 1] + Math.log(i);
+const pmf = (j) => Math.exp(logFact[n] - logFact[j] - logFact[n - j] + j * Math.log(p) + (n - j) * Math.log(1 - p));
+
+const L = 56, R = 740, BASE = 240;
+const layer = Viz.el("g", {}, svg);
+let kSlider;
+
+function render() {
+  const mean = n * p, sd = Math.sqrt(n * p * (1 - p));
+  const lo = Math.max(0, Math.floor(mean - 4.2 * sd - 1)), hi = Math.min(n, Math.ceil(mean + 4.2 * sd + 1));
+  const count = hi - lo + 1;
+  const band = (R - L) / count;
+  const probs = Array.from({ length: n + 1 }, (_, j) => pmf(j));
+  const top = Math.max(...probs.slice(lo, hi + 1), showNormal ? Viz.normPdf(mean, mean, sd) : 0) * 1.12;
+  const Y = Viz.scale(0, top, BASE, 20);
+  const cx = (j) => L + band * (j - lo + 0.5);
+  kSlider.input.max = n;
+  if (k > n) { k = n; kSlider.set(k); }
+
+  layer.replaceChildren();
+  Viz.el("line", { class: "axis-line", x1: L, x2: R, y1: BASE, y2: BASE }, layer);
+  const every = Math.max(1, Math.ceil(count / 14));
+  for (let j = lo; j <= hi; j++) {
+    const on = j <= k;
+    const bar = Viz.el("rect", { x: cx(j) - band * 0.42, y: Y(probs[j]), width: band * 0.84, height: BASE - Y(probs[j]), fill: on ? "var(--series-1)" : "var(--dot)", opacity: on ? 1 : 0.55 }, layer);
+    Viz.el("title", {}, bar).textContent = "P(X = " + j + ") = " + f(probs[j]);
+    if ((j - lo) % every === 0) Viz.el("text", { x: cx(j), y: BASE + 20, "text-anchor": "middle" }, layer).textContent = j;
+  }
+  Viz.el("text", { x: L - 8, y: Y(top / 1.12) + 4, "text-anchor": "end" }, layer).textContent = f(top / 1.12);
+  Viz.el("text", { x: (L + R) / 2, y: 280, "text-anchor": "middle" }, layer).textContent = "Number of successes";
+
+  if (showNormal) {
+    const pts = [];
+    for (let s = 0; s <= 200; s++) {
+      const x = lo - 0.5 + (s / 200) * count;
+      pts.push((L + band * (x - lo + 0.5)) + "," + Y(Viz.normPdf(x, mean, sd)));
+    }
+    Viz.el("polyline", { points: pts.join(" "), fill: "none", stroke: "var(--series-2)", "stroke-width": 3 }, layer);
+  }
+
+  const cdf = probs.slice(0, k + 1).reduce((a, b) => a + b, 0);
+  $("mean").textContent = f(mean);
+  $("sd").textContent = f(sd);
+  $("pk").textContent = f(probs[k]);
+  $("cdf").textContent = f(cdf);
+  const ok = mean >= 10 && n * (1 - p) >= 10;
+  $("verdict").textContent = "X ~ Binomial(" + n + ", " + p + "). " + (ok
+    ? "Both np = " + f(mean) + " and n(1 − p) = " + f(n * (1 - p)) + " are at least 10, so the bars follow the bell curve closely and the normal approximation works well."
+    : "Here np = " + f(mean) + " and n(1 − p) = " + f(n * (1 - p)) + " (at least one is below 10)" + ", so the shape is lopsided or bumpy and the normal approximation is shaky. Try raising n towards 100 with p near 0.5.");
+}
+
+Viz.slider($("sliders"), { label: "Trials (n)", min: 1, max: 100, step: 1, value: n, format: (v) => "n = " + v, onInput: (v) => { n = v; render(); } });
+Viz.slider($("sliders"), { label: "Success probability (p)", min: 0.01, max: 0.99, step: 0.01, value: p, format: (v) => "p = " + v.toFixed(2), onInput: (v) => { p = v; render(); } });
+kSlider = Viz.slider($("sliders"), { label: "Threshold (k)", min: 0, max: n, step: 1, value: k, format: (v) => "k = " + v, onInput: (v) => { k = v; render(); } });
+$("normal").addEventListener("click", () => { showNormal = !showNormal; $("normal").setAttribute("aria-pressed", showNormal); $("normal").textContent = showNormal ? "Hide the normal curve" : "Show the normal curve"; render(); });
+Viz.themeToggle($("theme"));
+render();
+</script>
+</body>
+</html>

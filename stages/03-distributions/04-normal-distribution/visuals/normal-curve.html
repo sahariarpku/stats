@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shading the Bell Curve</title>
+<link rel="stylesheet" href="../../../../assets/visuals.css">
+<style>button[aria-pressed="true"] { background: var(--surface-2); border-color: var(--series-1); }</style>
+</head>
+<body>
+<main class="viz">
+  <div class="viz-head">
+    <div>
+      <h1>Shading the bell curve</h1>
+      <p class="hint">The shaded area is the probability. Choose what to shade, move the limits, and change the mean and the SD of the curve itself.</p>
+    </div>
+    <button id="theme" type="button">Theme: auto</button>
+  </div>
+
+  <div class="controls" id="modes" role="group" aria-label="Region to shade">
+    <button type="button" data-mode="between" aria-pressed="true">Between a and b</button>
+    <button type="button" data-mode="below" aria-pressed="false">Below a</button>
+    <button type="button" data-mode="above" aria-pressed="false">Above a</button>
+  </div>
+
+  <svg id="plot" viewBox="0 0 760 270" role="img" aria-label="A normal curve with a shaded region" style="margin-top:10px"></svg>
+
+  <div class="readout" aria-live="polite">
+    <div class="card"><div class="label">z for a</div><div class="value" id="za"></div></div>
+    <div class="card" id="zbcard"><div class="label">z for b</div><div class="value" id="zb"></div></div>
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>Shaded probability</div><div class="value" id="prob"></div></div>
+  </div>
+  <p class="verdict" id="verdict" aria-live="polite"></p>
+
+  <div class="controls col" id="sliders"></div>
+  <div class="controls" id="presets">
+    <button type="button" data-k="1">Shade μ ± 1σ</button>
+    <button type="button" data-k="2">Shade μ ± 2σ</button>
+    <button type="button" data-k="3">Shade μ ± 3σ</button>
+  </div>
+</main>
+
+<script src="../../../../assets/visuals.js"></script>
+<script>
+let mu = 100, sigma = 15, a = 85, b = 115, mode = "between";
+const svg = document.getElementById("plot");
+const $ = (id) => document.getElementById(id);
+const X = Viz.scale(0, 200, 30, 730);
+const BASE = 215;
+const layer = Viz.el("g", {}, svg);
+let sA, sB;
+
+const fz = (v) => (v >= 0 ? "" : "−") + Math.abs(v).toFixed(2);
+const pct = (v) => (Math.round(v * 10000) / 100) + "%";
+
+function render() {
+  if (mode === "between" && a > b) { [a, b] = [b, a]; sA.set(a); sB.set(b); }
+  const top = Viz.normPdf(mu, mu, sigma) * 1.15;
+  const Y = Viz.scale(0, top, BASE, 20);
+  const curve = (x0, x1, steps = 160) => {
+    const pts = [];
+    for (let i = 0; i <= steps; i++) { const x = x0 + (i / steps) * (x1 - x0); pts.push([X(x), Y(Viz.normPdf(x, mu, sigma))]); }
+    return pts;
+  };
+
+  layer.replaceChildren();
+  Viz.axisBottom(layer, X, { y: BASE, from: 0, to: 200, step: 20 });
+  [-3, -2, -1, 1, 2, 3].forEach((k) => {
+    const x = mu + k * sigma;
+    if (x >= 0 && x <= 200) Viz.el("text", { x: X(x), y: BASE + 38, "text-anchor": "middle", opacity: 0.8 }, layer).textContent = (k > 0 ? "+" : "−") + Math.abs(k) + "σ";
+  });
+  Viz.el("text", { x: X(mu), y: BASE + 38, "text-anchor": "middle", class: "strong" }, layer).textContent = "μ";
+
+  let lo, hi;
+  if (mode === "between") { lo = a; hi = b; } else if (mode === "below") { lo = 0; hi = a; } else { lo = a; hi = 200; }
+  const area = curve(lo, hi, 120);
+  const d = "M" + X(lo) + " " + BASE + " " + area.map(([x, y]) => "L" + x + " " + y).join(" ") + " L" + X(hi) + " " + BASE + " Z";
+  Viz.el("path", { d, fill: "var(--series-1)", opacity: 0.5 }, layer);
+  Viz.el("polyline", { points: curve(0, 200, 240).map((p) => p.join(",")).join(" "), fill: "none", stroke: "var(--text-primary)", "stroke-width": 2.5 }, layer);
+  Viz.el("line", { x1: X(mu), x2: X(mu), y1: 20, y2: BASE, stroke: "var(--text-muted)", "stroke-dasharray": "4 4" }, layer);
+  const limits = mode === "between" ? [a, b] : [a];
+  limits.forEach((v, i) => {
+    Viz.el("line", { x1: X(v), x2: X(v), y1: Y(Viz.normPdf(v, mu, sigma)), y2: BASE, stroke: "var(--series-1)", "stroke-width": 2.5 }, layer);
+    Viz.el("text", { x: X(v), y: BASE + 20 + 0, "text-anchor": "middle", fill: "var(--series-1)" }, layer);
+  });
+
+  const Fa = Viz.normCdf(a, mu, sigma), Fb = Viz.normCdf(b, mu, sigma);
+  const prob = mode === "between" ? Fb - Fa : mode === "below" ? Fa : 1 - Fa;
+  $("za").textContent = fz((a - mu) / sigma);
+  $("zb").textContent = fz((b - mu) / sigma);
+  $("zbcard").style.display = mode === "between" ? "" : "none";
+  $("prob").textContent = pct(prob);
+  $("verdict").textContent = mode === "between"
+    ? "P(" + a + " < X < " + b + ") = P(Z < " + fz((b - mu) / sigma) + ") − P(Z < " + fz((a - mu) / sigma) + ") = " + Fb.toFixed(4) + " − " + Fa.toFixed(4) + " = " + prob.toFixed(4) + "."
+    : mode === "below"
+      ? "P(X < " + a + ") = P(Z < " + fz((a - mu) / sigma) + ") = " + prob.toFixed(4) + ", straight from the z-table (area to the left)."
+      : "P(X > " + a + ") = 1 − P(Z < " + fz((a - mu) / sigma) + ") = 1 − " + Fa.toFixed(4) + " = " + prob.toFixed(4) + ".";
+}
+
+Viz.slider($("sliders"), { label: "Mean (μ)", min: 40, max: 160, step: 1, value: mu, format: (v) => v, onInput: (v) => { mu = v; render(); } });
+Viz.slider($("sliders"), { label: "Standard deviation (σ)", min: 5, max: 30, step: 1, value: sigma, format: (v) => v, onInput: (v) => { sigma = v; render(); } });
+sA = Viz.slider($("sliders"), { label: "Lower limit a", min: 0, max: 200, step: 1, value: a, format: (v) => v, onInput: (v) => { a = v; render(); } });
+sB = Viz.slider($("sliders"), { label: "Upper limit b", min: 0, max: 200, step: 1, value: b, format: (v) => v, onInput: (v) => { b = v; render(); } });
+
+document.querySelectorAll("#modes button").forEach((btn) => btn.addEventListener("click", () => {
+  mode = btn.dataset.mode;
+  document.querySelectorAll("#modes button").forEach((x) => x.setAttribute("aria-pressed", x === btn));
+  render();
+}));
+document.querySelectorAll("#presets button").forEach((btn) => btn.addEventListener("click", () => {
+  const k = +btn.dataset.k;
+  mode = "between";
+  document.querySelectorAll("#modes button").forEach((x) => x.setAttribute("aria-pressed", x.dataset.mode === "between"));
+  a = Math.max(0, Math.round(mu - k * sigma)); b = Math.min(200, Math.round(mu + k * sigma));
+  sA.set(a); sB.set(b);
+  render();
+}));
+Viz.themeToggle($("theme"));
+render();
+</script>
+</body>
+</html>
