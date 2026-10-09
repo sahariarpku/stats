@@ -11,7 +11,7 @@
   <div class="viz-head">
     <div>
       <h1>Fit the line yourself</h1>
-      <p class="hint">Drag the sliders to place a line through the eight students. Each orange square has the area of one squared miss. The line with the smallest total area is the least-squares line.</p>
+      <p class="hint">Drag the sliders to place a line through the eight students. Each orange square's area is one student's miss, squared. The line with the smallest total area is the best fit, called the least-squares line.</p>
     </div>
     <button id="theme" type="button">Theme: auto</button>
   </div>
@@ -29,7 +29,7 @@
     <div class="card"><div class="label"><span class="mark" style="background:var(--series-2)"></span>Your total squared miss (SSE)</div><div class="value" id="sse"></div></div>
     <div class="card"><div class="label">Best possible SSE</div><div class="value" id="best">141.9</div></div>
     <div class="card"><div class="label">Your line</div><div class="value" id="eq" style="font-size:1.15rem"></div></div>
-    <div class="card"><div class="label">Extra squared miss</div><div class="value" id="gap"></div></div>
+    <div class="card"><div class="label">Extra squared miss (vs the best)</div><div class="value" id="gap"></div></div>
   </div>
   <p class="verdict" id="verdict" aria-live="polite"></p>
 
@@ -98,6 +98,14 @@ $("snap").addEventListener("click", () => { S.a = A; S.b = B; S.snapped = true; 
 $("flat").addEventListener("click", () => { S.a = 65; S.b = 0; sa.set(65); sb.set(0); render(); });
 $("squares").addEventListener("click", () => { S.showSq = !S.showSq; $("squares").textContent = S.showSq ? "Hide the squares" : "Show the squares"; $("squares").setAttribute("aria-pressed", S.showSq); render(); });
 Viz.themeToggle($("theme"));
+Viz.tour([
+  { target: "#plot", title: "Eight students", text: "Each **grey dot** is one student: hours studied across, exam score up. The **blue line** is a guess at the trend. Right now it says **ŷ = 50.0 + 3.00x**: start at 50 points, then add 3 points for every hour of study." },
+  { target: "#plot", title: "Measuring the misses", text: "Each **orange vertical line** is a miss: how far a student's real score is from the line. Each **orange square** has sides as long as that miss, so its area is the miss **squared**. A miss twice as big makes a square four times as big." },
+  { target: ".readout", title: "Add up the squares", text: "All the square areas together make **198.0**. That total is called the **SSE** (sum of squared errors). The best any straight line can do here is **141.9**, so this guess is **56.1** worse than it could be." },
+  { target: "#flat", title: "Ignore study time", text: "This line predicts **65** (the average score) for everyone, whatever they studied. Look at the big squares at both ends. The total jumps to **798.0**. Hours of study clearly help predict the score.", action: { label: "Show the flat line", run: () => $("flat").click() } },
+  { target: "#snap", title: "The best line", text: "Here it is: **ŷ = 47.2 + 3.95x**, with a total of **141.9** and nothing extra. Each extra hour of study goes with about **3.95** more points. This is the **least-squares line**. A faint dashed copy now stays on the chart for reference.", action: { label: "Snap to the best line", run: () => $("snap").click() } },
+  { target: "#sliders", title: "Your turn", text: "Drag either slider and try to beat **141.9**. Look for this: every move away from the dashed line makes the orange squares grow in total. That is exactly what \"best fit\" means." },
+]);
 render();
 </script>
 </body>

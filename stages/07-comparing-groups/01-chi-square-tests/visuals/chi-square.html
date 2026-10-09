@@ -11,7 +11,7 @@
   <div class="viz-head">
     <div>
       <h1>Observed versus expected</h1>
-      <p class="hint">A 2×2 table of 200 people. Change how many bought after each ad. The chi-square statistic adds up how far each cell is from what "no relationship" would predict.</p>
+      <p class="hint">200 people saw either a video ad or a banner ad. Change how many bought after each. The chi-square number adds up how far each count is from what we would expect if the ad made no difference.</p>
     </div>
     <button id="theme" type="button">Theme: auto</button>
   </div>
@@ -20,20 +20,20 @@
 
   <div class="legend">
     <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="2" width="12" height="11" fill="var(--series-2)"/></svg>Observed</span>
-    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="2" width="12" height="11" fill="none" stroke="var(--text-primary)" stroke-width="2" stroke-dasharray="3 2"/></svg>Expected if independent</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="2" width="12" height="11" fill="none" stroke="var(--text-primary)" stroke-width="2" stroke-dasharray="3 2"/></svg>Expected if the ad made no difference</span>
     <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="3" width="12" height="9" fill="var(--series-1)" opacity="0.5"/></svg>p-value (right tail)</span>
   </div>
 
   <div class="readout" aria-live="polite">
-    <div class="card"><div class="label">χ² (df = 1)</div><div class="value" id="chi"></div></div>
+    <div class="card"><div class="label">Chi-square χ² (df = 1)</div><div class="value" id="chi"></div></div>
     <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>p-value</div><div class="value" id="pv"></div></div>
-    <div class="card"><div class="label">Cramér's V</div><div class="value" id="cv"></div></div>
-    <div class="card"><div class="label">Smallest expected count</div><div class="value" id="minE"></div></div>
+    <div class="card"><div class="label">Strength: Cramér's V (0 to 1)</div><div class="value" id="cv"></div></div>
+    <div class="card"><div class="label">Smallest expected count (want 5+)</div><div class="value" id="minE"></div></div>
   </div>
   <p class="verdict" id="verdict" aria-live="polite"></p>
 
   <div class="controls col" id="sliders"></div>
-  <div class="controls"><button id="reset" type="button">Back to the lesson (60/40 vs 45/55)</button><button id="none" type="button">Make them independent</button></div>
+  <div class="controls"><button id="reset" type="button">Back to the lesson (60/40 vs 45/55)</button><button id="none" type="button">No difference between ads</button></div>
 </main>
 
 <script src="../../../../assets/visuals.js"></script>
@@ -78,9 +78,9 @@ function render() {
   if (tail.length) Viz.el("path", { d: "M" + Xc(Math.max(0.15, cx0)) + " 300 " + tail.map(([x, y]) => "L" + x + " " + y).join(" ") + " L" + Xc(12) + " 300 Z", fill: "var(--series-1)", opacity: 0.5 }, layer);
   Viz.el("polyline", { points: pts.map((q) => q.join(",")).join(" "), fill: "none", stroke: "var(--text-primary)", "stroke-width": 2.5 }, layer);
   Viz.axisBottom(layer, Xc, { y: 300, from: 0, to: 12, step: 2 });
-  Viz.el("text", { x: 730, y: 205, "text-anchor": "end", class: "strong" }, layer).textContent = "χ² distribution, df = 1";
+  Viz.el("text", { x: 730, y: 205, "text-anchor": "end", class: "strong" }, layer).textContent = "χ² values from luck alone (df = 1)";
   Viz.el("line", { x1: Xc(3.841), x2: Xc(3.841), y1: 205, y2: 300, stroke: "var(--text-muted)", "stroke-width": 1.5, "stroke-dasharray": "5 4" }, layer);
-  Viz.el("text", { x: Xc(3.841) + 5, y: 216 }, layer).textContent = "critical 3.841";
+  Viz.el("text", { x: Xc(3.841) + 5, y: 216 }, layer).textContent = "cut-off 3.841";
   Viz.el("line", { x1: Xc(cx0), x2: Xc(cx0), y1: 205, y2: 300, stroke: "var(--series-1)", "stroke-width": 3 }, layer);
   Viz.el("text", { x: Xc(cx0), y: 342, "text-anchor": "middle", class: "strong" }, layer).textContent = "your χ² = " + chi.toFixed(2);
 
@@ -91,7 +91,7 @@ function render() {
   $("minE").textContent = minE.toFixed(1) + (minE < 5 ? " ⚠" : "");
   $("verdict").textContent = chi < 0.005
     ? "Observed equals expected in every cell: the two variables look completely independent, χ² ≈ 0."
-    : (p <= 0.05 ? "Past the critical value 3.841 (p ≤ 0.05): the pattern differs from independence by more than chance would usually allow, so we reject H₀. " : "Short of the critical value 3.841 (p > 0.05): the gaps could plausibly be chance, so we cannot reject independence. ") +
+    : (p <= 0.05 ? "Past the cut-off 3.841 (p ≤ 0.05): the counts differ from \"no relationship\" by more than chance would usually allow, so we reject H₀. " : "Short of the cut-off 3.841 (p > 0.05): the gaps could easily be chance, so we cannot rule out \"no relationship\". ") +
       "Purchase rates: video " + (100 * a / r1).toFixed(0) + "% vs banner " + (100 * c / r2).toFixed(0) + "%." + (minE < 5 ? " Warning: a small expected count makes chi-square unreliable. Use Fisher's exact test." : "");
 }
 
@@ -101,6 +101,14 @@ const setAll = (o) => { Object.assign(C, o); Object.keys(o).forEach((k) => slide
 $("reset").addEventListener("click", () => setAll({ a: 60, b: 40, c: 45, d: 55 }));
 $("none").addEventListener("click", () => setAll({ a: 50, b: 50, c: 50, d: 50 }));
 Viz.themeToggle($("theme"));
+Viz.tour([
+  { target: "#plot", title: "What happened vs. what luck predicts", text: "100 people saw a **video ad** and 100 saw a **banner ad**. The **orange bars** are what really happened. The **dashed boxes** are what we would expect if the ad made **no difference**. Above each bar you can read both, like **60 vs 52.5**: 60 video viewers bought, where 52.5 were expected." },
+  { target: "#plot", title: "Adding up the surprise", text: "Under each bar, **adds** shows that cell's share of the surprise: the gap squared, divided by the expected count. The four shares add up to **χ² = 4.51**. The curve below shows the χ² values that luck alone tends to produce. Your χ² (the **blue line**) sits past the dashed **cut-off of 3.841**." },
+  { target: ".readout", title: "Read the result", text: "p = **0.0337**, below 0.05, so ad type and buying look **related**: 60% bought after the video, 45% after the banner. **Cramér's V = 0.15** says the link is fairly weak (0 means none, 1 means perfect). The smallest expected count is **47.5**, well above 5, so the test can be trusted." },
+  { target: "#none", title: "If the ad made no difference", text: "Now every cell holds **50**. The orange bars fill the dashed boxes exactly, every cell adds **0.00**, and χ² = **0**, with p = **1**. Nothing to explain.", action: { label: "Show me", run: () => $("none").click() } },
+  { target: "#sliders", title: "A stronger video ad", text: "Now **70** of 100 video viewers buy, and **30** do not. The gaps grow, χ² jumps to **12.79**, p falls to **0.0003**, and Cramér's V rises to **0.25**.", action: { label: "Set video to 70 / 30", run: () => { $("reset").click(); const r = document.querySelectorAll("#sliders input[type=range]"); r[0].value = 70; r[0].dispatchEvent(new Event("input")); r[1].value = 30; r[1].dispatchEvent(new Event("input")); } } },
+  { target: "#sliders", title: "Your turn", text: "Drag **Video: bought** and **Banner: bought** both down to 5. Look for the **⚠** next to the smallest expected count. Below 5, chi-square is unreliable, and Fisher's exact test is the better choice." },
+]);
 render();
 </script>
 </body>

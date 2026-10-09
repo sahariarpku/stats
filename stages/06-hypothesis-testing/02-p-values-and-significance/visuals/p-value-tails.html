@@ -92,7 +92,7 @@ function render() {
   $("av").textContent = alpha.toFixed(2);
   $("dec").textContent = reject ? "Reject H₀" : "Fail to reject";
   $("verdict").textContent = "The shaded area is " + (p < 0.0001 ? "< 0.0001" : p.toFixed(4)) + (reject ? ", which is at or below α = " : ", which is above α = ") + alpha + ". " +
-    (reject ? "A statistic this extreme would be too surprising if H₀ were true, so we reject H₀. (The line sits beyond the dashed critical value.)" : "A statistic this extreme is not surprising enough, so H₀ stays standing. (The line is inside the dashed critical value.)") +
+    (reject ? "A statistic this extreme would be too surprising if H₀ were true, so we reject H₀. (The blue line sits beyond the dashed cut-off.)" : "A statistic this extreme is not surprising enough, so H₀ stays standing. (The blue line is inside the dashed cut-off.)") +
     (tail !== "two" ? " Try the two-tailed button: the p-value doubles." : "");
 }
 

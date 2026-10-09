@@ -80,11 +80,12 @@ function render() {
   Viz.el("text", { x: X0 - 8, y: Y0 + rowsPos * SP + GAP - 8, class: "strong" }, layer).textContent = "Tested negative (" + (N - positives) + ")";
 
   const post = tp / (tp + fp);
-  $("pos").textContent = Math.round(tp + fp) + " of 1,000";
-  $("tp").textContent = "about " + Math.round(tp);
+  $("pos").textContent = positives + " of 1,000";   // same rounded counts as the picture
+  $("tp").textContent = "about " + counts[0];
   $("post").textContent = isFinite(post) ? pct(post) : "—";
-  $("verdict").textContent = "Out of about " + Math.round(tp + fp) + " people who test positive, about " + Math.round(tp) + " are sick and about " + Math.round(fp) + " are false alarms. So a positive result means a " + pct(post) + " chance of being sick" +
-    (post < 0.5 ? ". The disease is so rare that false alarms outnumber real cases." : ". Here the disease is common enough that a positive result is mostly right.");
+  const even = Math.abs(post - 0.5) < 1e-9;   // floating point can land a hair under 0.5
+  $("verdict").textContent = "Out of about " + positives + " people who test positive, about " + counts[0] + " are sick and about " + counts[1] + " are false alarms. So a positive result means a " + pct(post) + " chance of being sick" +
+    (even ? ". Real cases and false alarms are exactly balanced, so a positive result is a coin flip." : post < 0.5 ? ". The disease is so rare that false alarms outnumber real cases." : ". Here the disease is common enough that a positive result is mostly right.");
 }
 
 Viz.slider($("sliders"), { label: "Disease rate: share who are sick (prior)", min: 0.001, max: 0.5, step: 0.001, value: prior, format: pct, onInput: (v) => { prior = v; render(); } }).input.id = "prior";

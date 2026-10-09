@@ -12,7 +12,7 @@
   <div class="viz-head">
     <div>
       <h1>Shading the bell curve</h1>
-      <p class="hint">The shaded area is the probability. Choose what to shade, move the limits, and change the mean and the SD of the curve itself.</p>
+      <p class="hint">The curve is tall where values are common and low where they are rare. The shaded area is the chance of landing in that region. Choose what to shade, move the limits, or change the centre (mean) and width (SD).</p>
     </div>
     <button id="theme" type="button">Theme: auto</button>
   </div>
@@ -26,17 +26,17 @@
   <svg id="plot" viewBox="0 0 760 270" role="img" aria-label="A normal curve with a shaded region" style="margin-top:10px"></svg>
 
   <div class="readout" aria-live="polite">
-    <div class="card"><div class="label">z for a</div><div class="value" id="za"></div></div>
-    <div class="card" id="zbcard"><div class="label">z for b</div><div class="value" id="zb"></div></div>
-    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>Shaded probability</div><div class="value" id="prob"></div></div>
+    <div class="card"><div class="label">a in SDs from the mean (z)</div><div class="value" id="za"></div></div>
+    <div class="card" id="zbcard"><div class="label">b in SDs from the mean (z)</div><div class="value" id="zb"></div></div>
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>Shaded area = chance</div><div class="value" id="prob"></div></div>
   </div>
   <p class="verdict" id="verdict" aria-live="polite"></p>
 
   <div class="controls col" id="sliders"></div>
   <div class="controls" id="presets">
-    <button type="button" data-k="1">Shade μ ± 1σ</button>
-    <button type="button" data-k="2">Shade μ ± 2σ</button>
-    <button type="button" data-k="3">Shade μ ± 3σ</button>
+    <button type="button" data-k="1">Shade within 1 SD (μ ± 1σ)</button>
+    <button type="button" data-k="2">Within 2 SD (μ ± 2σ)</button>
+    <button type="button" data-k="3">Within 3 SD (μ ± 3σ)</button>
   </div>
 </main>
 
@@ -97,8 +97,8 @@ function render() {
       : "P(X > " + a + ") = 1 − P(Z < " + fz((a - mu) / sigma) + ") = 1 − " + Fa.toFixed(4) + " = " + prob.toFixed(4) + ".";
 }
 
-Viz.slider($("sliders"), { label: "Mean (μ)", min: 40, max: 160, step: 1, value: mu, format: (v) => v, onInput: (v) => { mu = v; render(); } });
-Viz.slider($("sliders"), { label: "Standard deviation (σ)", min: 5, max: 30, step: 1, value: sigma, format: (v) => v, onInput: (v) => { sigma = v; render(); } });
+Viz.slider($("sliders"), { label: "Mean μ (the centre)", min: 40, max: 160, step: 1, value: mu, format: (v) => v, onInput: (v) => { mu = v; render(); } });
+Viz.slider($("sliders"), { label: "Standard deviation σ (the width)", min: 5, max: 30, step: 1, value: sigma, format: (v) => v, onInput: (v) => { sigma = v; render(); } });
 sA = Viz.slider($("sliders"), { label: "Lower limit a", min: 0, max: 200, step: 1, value: a, format: (v) => v, onInput: (v) => { a = v; render(); } });
 sB = Viz.slider($("sliders"), { label: "Upper limit b", min: 0, max: 200, step: 1, value: b, format: (v) => v, onInput: (v) => { b = v; render(); } });
 
@@ -116,6 +116,14 @@ document.querySelectorAll("#presets button").forEach((btn) => btn.addEventListen
   render();
 }));
 Viz.themeToggle($("theme"));
+Viz.tour([
+  { target: "#plot", title: "A bell-shaped curve", text: "Think of test scores that average **100**, with a typical spread (SD) of **15**. The curve is highest in the middle: most scores are near 100. It falls away on both sides: very high or very low scores are rare." },
+  { target: "#plot", title: "Area means chance", text: "The **blue shaded area** is the chance a score lands in that region. The whole area under the curve is 1 (100%). Right now it is shaded from **85 to 115**, one SD either side of 100. That covers **68.27%** of all scores." },
+  { target: "#presets", title: "The 68-95-99.7 rule", text: "Let us shade **two SDs** either side, from 70 to 130. The area grows to **95.45%**. Three SDs (55 to 145) gives **99.73%**. These numbers hold for every bell curve, whatever its centre and width.", action: { label: "Shade within 2 SD", run: () => document.querySelector('#presets button[data-k="2"]').click() } },
+  { target: "#plot", title: "Just one side", text: "Now press **Above a** and shade only the scores **above 130**. Just **2.28%** of scores are that high. The first card says 130 is **2.00** SDs above the mean: that count is its **z-score**.", action: { label: "Shade above 130", run: () => { document.querySelector('#modes button[data-mode="above"]').click(); const r = document.querySelectorAll("#sliders input[type=range]")[2]; r.value = 130; r.dispatchEvent(new Event("input")); } } },
+  { target: "#sliders", title: "Stretch the bell", text: "**Mean** slides the whole bell left or right. **Standard deviation** makes it wider and flatter. Let us double the SD to **30**: now **15.87%** of scores are above 130, because 130 is only 1 SD above the mean.", action: { label: "Set the SD to 30", run: () => { const r = document.querySelectorAll("#sliders input[type=range]")[1]; r.value = 30; r.dispatchEvent(new Event("input")); } } },
+  { target: "#modes", title: "Your turn", text: "Pick **Between a and b** and drag the two limits. Look for: a slice near the middle holds far more area than a slice of the same width out in the tails." },
+]);
 render();
 </script>
 </body>

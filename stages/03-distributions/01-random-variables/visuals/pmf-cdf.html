@@ -12,7 +12,7 @@
   <div class="viz-head">
     <div>
       <h1>From the bars to the running total</h1>
-      <p class="hint">Top: the probability of each value (PMF). Bottom: the running total up to x (CDF). Slide x to move the threshold.</p>
+      <p class="hint">Top: the chance of each possible value (the PMF). Bottom: those chances added up from the left, up to x (the CDF, a running total). Slide x to move the cut-off.</p>
     </div>
     <button id="theme" type="button">Theme: auto</button>
   </div>
@@ -22,14 +22,14 @@
   <svg id="plot" viewBox="0 0 760 360" role="img" aria-label="Bars for a PMF above a staircase CDF" style="margin-top:10px"></svg>
 
   <div class="legend">
-    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="2" width="12" height="11" fill="var(--series-1)"/></svg>Values up to x (counted in the CDF)</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="2" width="12" height="11" fill="var(--series-1)"/></svg>Values up to x (added into the running total)</span>
     <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="2" width="12" height="11" fill="var(--dot)" opacity="0.6"/></svg>Values above x</span>
   </div>
 
   <div class="readout" aria-live="polite">
-    <div class="card"><div class="label">P(X = x)</div><div class="value" id="pm"></div></div>
-    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>P(X ≤ x) = F(x)</div><div class="value" id="cd"></div></div>
-    <div class="card"><div class="label">P(X &gt; x) = 1 − F(x)</div><div class="value" id="up"></div></div>
+    <div class="card"><div class="label">Chance of exactly x, P(X = x)</div><div class="value" id="pm"></div></div>
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>Chance of x or less, F(x)</div><div class="value" id="cd"></div></div>
+    <div class="card"><div class="label">Chance of more than x, 1 − F(x)</div><div class="value" id="up"></div></div>
   </div>
   <p class="verdict" id="verdict" aria-live="polite"></p>
   <div class="controls col" id="sliders"></div>
@@ -62,8 +62,8 @@ function render() {
   const cum = d.ps.map((_, i) => d.ps.slice(0, i + 1).reduce((a, b) => a + b, 0));
 
   layer.replaceChildren();
-  Viz.el("text", { x: LEFT, y: 12, class: "strong" }, layer).textContent = "PMF: P(X = x)";
-  Viz.el("text", { x: LEFT, y: 192, class: "strong" }, layer).textContent = "CDF: F(x) = P(X ≤ x)";
+  Viz.el("text", { x: LEFT, y: 12, class: "strong" }, layer).textContent = "PMF: chance of each value, P(X = x)";
+  Viz.el("text", { x: LEFT, y: 192, class: "strong" }, layer).textContent = "CDF: running total, F(x) = P(X ≤ x)";
   Viz.el("line", { class: "axis-line", x1: LEFT, x2: RIGHT, y1: 150, y2: 150 }, layer);
   Viz.el("line", { class: "axis-line", x1: LEFT, x2: RIGHT, y1: 330, y2: 330 }, layer);
 
@@ -89,13 +89,13 @@ function render() {
   $("pm").textContent = f(d.ps[idx]);
   $("cd").textContent = f(cum[idx]);
   $("up").textContent = f(1 - cum[idx]);
-  $("verdict").textContent = "F(" + d.xs[idx] + ") = " + d.ps.slice(0, idx + 1).map(f).join(" + ") + " = " + f(cum[idx]) + ". The CDF only ever goes up, from 0 to 1, and it jumps by P(X = x) at each possible value.";
+  $("verdict").textContent = "F(" + d.xs[idx] + ") = " + d.ps.slice(0, idx + 1).map(f).join(" + ") + " = " + f(cum[idx]) + ". The running total only ever goes up, from 0 to 1, stepping up by one bar's height at each value.";
 }
 
 function build() {
   sliderCtl && sliderCtl.input.closest("label").remove();
   idx = Math.min(idx, SETS[key].xs.length - 1);
-  sliderCtl = Viz.slider($("sliders"), { label: "Threshold x", min: 0, max: SETS[key].xs.length - 1, step: 1, value: idx, format: (v) => "x = " + SETS[key].xs[v], onInput: (v) => { idx = v; render(); } });
+  sliderCtl = Viz.slider($("sliders"), { label: "Cut-off x", min: 0, max: SETS[key].xs.length - 1, step: 1, value: idx, format: (v) => "x = " + SETS[key].xs[v], onInput: (v) => { idx = v; render(); } });
   render();
 }
 
@@ -106,6 +106,14 @@ Object.entries(SETS).forEach(([k, v]) => {
   $("choices").appendChild(b);
 });
 Viz.themeToggle($("theme"));
+Viz.tour([
+  { target: "#plot", title: "Defects in a batch", text: "A factory checks each batch of products and counts the faulty ones (defects). Each **bar** on top is the chance of one count: **0** defects has a chance of 0.2 (20%), **1** defect 0.35, and so on. All the bars add up to 1 (100%)." },
+  { target: "#plot", title: "The running total", text: "The **staircase** at the bottom adds the bars up from the left. At **2** it has added 0.2 + 0.35 + 0.25 = **0.8**: an 80% chance of **2 defects or fewer**. The orange dot marks where the cut-off is." },
+  { target: ".readout", title: "Three questions, three answers", text: "**Exactly 2**: 0.25 (just one bar). **2 or fewer**: 0.8 (the running total). **More than 2**: 1 − 0.8 = **0.2**. That last trick is handy: take the running total away from 1." },
+  { target: "#sliders", title: "Move the cut-off", text: "Let us slide the cut-off to **4**, the highest value. Every bar turns blue and the running total reaches **1**: it is certain a batch has 4 defects or fewer.", action: { label: "Slide to 4", run: () => { const r = document.querySelectorAll("#sliders input[type=range]")[0]; r.value = 4; r.dispatchEvent(new Event("input")); } } },
+  { target: "#plot", title: "A different shape", text: "Now try **Heads in 4 flips** (the third button above the chart). The bars make a hill, so the staircase climbs gently, then steeply in the middle, then gently again. Big bars make big steps.", action: { label: "Show Heads in 4 flips", run: () => document.querySelector("#choices button:nth-child(3)").click() } },
+  { target: "#sliders", title: "Your turn", text: "Slide the cut-off along and watch the staircase. Look for: it never goes down, and each step is exactly as tall as the bar above it. Try **One fair die** too: equal bars make equal steps." },
+]);
 build();
 </script>
 </body>

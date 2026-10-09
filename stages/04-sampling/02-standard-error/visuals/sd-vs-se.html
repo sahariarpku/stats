@@ -11,7 +11,7 @@
   <div class="viz-head">
     <div>
       <h1>SD stays, SE shrinks</h1>
-      <p class="hint">Each dot is one person in a fresh sample from a population with σ = 10. Raise n and press "New sample". The wide band is ±1 SD (how people vary). The narrow band is ±1 SE (how well the mean is known).</p>
+      <p class="hint">Each dot is one person's score in a random sample. In the whole population the average is 50 and people typically differ by about 10 (σ = 10). The wide band is ±1 SD: how much people vary. The narrow band is ±1 SE: how sure we are of the average. Raise n and press "New sample".</p>
     </div>
     <button id="theme" type="button">Theme: auto</button>
   </div>
@@ -19,15 +19,15 @@
   <svg id="plot" viewBox="0 0 760 270" role="img" aria-label="A sample of dots with the mean, a wide SD band and a narrow SE band"></svg>
 
   <div class="legend">
-    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="2" width="14" height="10" fill="var(--dot)" opacity="0.35"/></svg>Mean ± 1 SD</span>
-    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="3" y="0" width="8" height="14" fill="var(--series-1)" opacity="0.7"/></svg>Mean ± 1 SE</span>
-    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="6" y="0" width="2.5" height="14" fill="var(--series-2)"/></svg>True mean μ = 50</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="2" width="14" height="10" fill="var(--dot)" opacity="0.35"/></svg>Mean ± 1 SD: how much people vary</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="3" y="0" width="8" height="14" fill="var(--series-1)" opacity="0.7"/></svg>Mean ± 1 SE: how sure we are of the average</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="6" y="0" width="2.5" height="14" fill="var(--series-2)"/></svg>True average of everyone, μ = 50</span>
   </div>
 
   <div class="readout" aria-live="polite">
-    <div class="card"><div class="label">Sample mean x̄</div><div class="value" id="xbar"></div></div>
+    <div class="card"><div class="label">Sample average x̄</div><div class="value" id="xbar"></div></div>
     <div class="card"><div class="label">SD s (spread of people)</div><div class="value" id="s"></div></div>
-    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>SE = s ÷ √n</div><div class="value" id="se"></div></div>
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>SE = s ÷ √n (uncertainty of the average)</div><div class="value" id="se"></div></div>
   </div>
   <p class="verdict" id="verdict" aria-live="polite"></p>
 
@@ -75,9 +75,17 @@ function render() {
   $("verdict").textContent = "With n = " + n + ": the SD is " + f2(s) + " (people vary about 10 points), but the mean is known to within SE = " + f2(s) + " ÷ √" + n + " = " + f2(se) + ". Raise n and the SD stays near 10 while the SE keeps falling.";
 }
 
-Viz.slider($("sliders"), { label: "Sample size (n)", min: 2, max: 200, step: 1, value: n, format: (v) => "n = " + v, onInput: (v) => { n = v; newSample(); render(); } });
+Viz.slider($("sliders"), { label: "People in the sample (n)", min: 2, max: 200, step: 1, value: n, format: (v) => "n = " + v, onInput: (v) => { n = v; newSample(); render(); } });
 $("again").addEventListener("click", () => { newSample(); render(); });
 Viz.themeToggle($("theme"));
+Viz.tour([
+  { target: "#plot", title: "One sample of people", text: "Each grey dot is **one person** in a random sample of **25**, placed by their score. The **orange line** is the true average of everyone, **50**. In real life you would not know that number." },
+  { target: "#plot", title: "Two bands, two questions", text: "The **wide grey band** reaches one SD either side of the sample's average. It answers: how much do **individual people** differ? About 10 points. The **narrow blue band** reaches one SE either side. It answers: how far off is **the average itself** likely to be? About 2 points." },
+  { target: ".readout", title: "Where the SE comes from", text: "SE = SD ÷ √n. With 25 people, √25 = 5, so the SE is roughly 10 ÷ 5 = **2**. The more people you ask, the bigger the number you divide by." },
+  { target: "#sliders", title: "Ask more people", text: "Let us take a sample of **100** people. The SD stays near 10, because people still differ just as much. But the SE falls to about **1**, because √100 = 10.", action: { label: "Use 100 people", run: () => { const r = document.querySelectorAll("#sliders input[type=range]")[0]; r.value = 100; r.dispatchEvent(new Event("input")); } } },
+  { target: "#again", title: "A fresh sample", text: "Each press draws 100 new people. The average moves a little each time, but it rarely strays more than a couple of SEs from the orange line. That is what the SE promises.", action: { label: "Draw a new sample", run: () => document.getElementById("again").click() } },
+  { target: "#sliders", title: "Your turn", text: "Slide n down to **4**, then up to **200**. Look for: the grey band stays about the same width, while the blue band keeps getting narrower. More data pins down the average; it does not make people any less varied." },
+]);
 newSample();
 render();
 </script>

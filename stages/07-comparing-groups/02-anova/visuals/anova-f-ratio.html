@@ -11,7 +11,7 @@
   <div class="viz-head">
     <div>
       <h1>Between versus within</h1>
-      <p class="hint">Fifteen exam scores in three teaching groups. Slide the groups apart or squeeze them together, and widen or narrow the scatter inside each group. F compares the gaps between group means with the scatter inside the groups.</p>
+      <p class="hint">Fifteen exam scores in three teaching groups. Slide the groups apart or squeeze them together, and widen or narrow the scatter inside each group. F compares the gaps between group averages (the signal) with the scatter inside the groups (the noise).</p>
     </div>
     <button id="theme" type="button">Theme: auto</button>
   </div>
@@ -22,13 +22,13 @@
     <span><svg viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="var(--series-1)"/></svg>A: Lecture</span>
     <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="2" y="2" width="10" height="10" fill="var(--series-2)"/></svg>B: Flipped</span>
     <span><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 1 L13 13 L1 13 Z" fill="var(--text-secondary)"/></svg>C: Problem-based</span>
-    <span><svg viewBox="0 0 14 14" aria-hidden="true"><line x1="7" y1="0" x2="7" y2="14" stroke="var(--text-primary)" stroke-width="2" stroke-dasharray="3 2"/></svg>Grand mean</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><line x1="7" y1="0" x2="7" y2="14" stroke="var(--text-primary)" stroke-width="2" stroke-dasharray="3 2"/></svg>Overall average (grand mean)</span>
   </div>
 
   <div class="readout" aria-live="polite">
-    <div class="card"><div class="label">Between (MSB)</div><div class="value" id="msb"></div></div>
-    <div class="card"><div class="label">Within (MSW)</div><div class="value" id="msw"></div></div>
-    <div class="card"><div class="label">F = MSB ÷ MSW</div><div class="value" id="f"></div></div>
+    <div class="card"><div class="label">Between groups: signal (MSB)</div><div class="value" id="msb"></div></div>
+    <div class="card"><div class="label">Within groups: noise (MSW)</div><div class="value" id="msw"></div></div>
+    <div class="card"><div class="label">F = signal ÷ noise</div><div class="value" id="f"></div></div>
     <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>p-value</div><div class="value" id="pv"></div></div>
   </div>
   <p class="verdict" id="verdict" aria-live="polite"></p>
@@ -133,7 +133,7 @@ function render() {
     g.forEach((v) => drawMark(layer, DATA[i].shape, X(v), rows[i], DATA[i].color));
     if (Math.abs(m - grand) > 1.5) Viz.el("line", { x1: X(m), x2: X(grand), y1: rows[i] + 24, y2: rows[i] + 24, stroke: "var(--text-primary)", "stroke-width": 2.5 }, layer);
   });
-  Viz.el("text", { x: X(grand) + 6, y: 12, class: "strong" }, layer).textContent = "grand mean " + grand.toFixed(1);
+  Viz.el("text", { x: X(grand) + 6, y: 12, class: "strong" }, layer).textContent = "overall average " + grand.toFixed(1);
 
   // F distribution
   const d1 = k - 1, d2 = N - k;
@@ -147,10 +147,10 @@ function render() {
   if (tail.length > 1) Viz.el("path", { d: "M" + Xc(Math.max(0.04, F0)) + " 385 " + tail.map(([x, y]) => "L" + x + " " + y).join(" ") + " L" + Xc(fmax) + " 385 Z", fill: "var(--series-1)", opacity: 0.5 }, layer);
   Viz.el("polyline", { points: pts.map((q) => q.join(",")).join(" "), fill: "none", stroke: "var(--text-primary)", "stroke-width": 2.5 }, layer);
   Viz.axisBottom(layer, Xc, { y: 385, from: 0, to: fmax, step: 1 });
-  Viz.el("text", { x: 725, y: 262, "text-anchor": "end", class: "strong" }, layer).textContent = `F distribution, df = (${d1}, ${d2})`;
+  Viz.el("text", { x: 725, y: 262, "text-anchor": "end", class: "strong" }, layer).textContent = `F values from luck alone, df = (${d1}, ${d2})`;
   const crit = 3.885;
   Viz.el("line", { x1: Xc(crit), x2: Xc(crit), y1: 268, y2: 385, stroke: "var(--text-muted)", "stroke-width": 1.5, "stroke-dasharray": "5 4" }, layer);
-  Viz.el("text", { x: Xc(crit) + 5, y: 282 }, layer).textContent = "critical 3.885";
+  Viz.el("text", { x: Xc(crit) + 5, y: 282 }, layer).textContent = "cut-off 3.885";
   Viz.el("line", { x1: Xc(F0), x2: Xc(F0), y1: 268, y2: 385, stroke: "var(--series-1)", "stroke-width": 3 }, layer);
   Viz.el("text", { x: Xc(F0) > 600 ? Xc(F0) - 6 : Xc(F0) + 6, y: 320, "text-anchor": Xc(F0) > 600 ? "end" : "start", class: "strong" }, layer).textContent = "your F = " + (Number.isFinite(F) ? F.toFixed(2) : "huge") + (F > fmax ? " (off the chart)" : "");
 
@@ -184,6 +184,14 @@ $("same").addEventListener("click", () => {
 });
 $("noisy").addEventListener("click", () => setAll(S.shift, 3));
 Viz.themeToggle($("theme"));
+Viz.tour([
+  { target: "#plot", title: "Fifteen students, three methods", text: "Each shape is **one student's** exam score: **A** (lecture, circles), **B** (flipped classroom, squares) and **C** (problem-based, triangles). The thick coloured tick in each row is that group's average: **80.0**, **88.8** and **71.0**. The dashed line is the average of all 15 students, **79.9**." },
+  { target: "#plot", title: "Signal and noise", text: "The thin coloured lines show how far each student is from **their own group's** average: that is ordinary noise. The thick dark lines under rows B and C show how far each **group's** average is from the overall average: that is the signal we care about. (Group A sits almost exactly on it.)" },
+  { target: ".readout", title: "F compares the two", text: "**Signal = 396.1**, **noise = 9.2**, so F = **42.90**. The lower curve shows the F values that luck alone tends to produce. Ours is way past the **cut-off of 3.885** (off the right of the chart), so p < 0.0001: the teaching methods really do seem to differ." },
+  { target: "#same", title: "Remove the signal", text: "Now groups B and C are shifted so all three averages line up (B by −9 points, C by +9). The signal drops to **0.1**, F = **0.01** and p = **0.9928**. The scatter inside each group has not changed at all.", action: { label: "Line up the averages", run: () => $("same").click() } },
+  { target: "#noisy", title: "Turn up the noise", text: "Back to the real averages, but now every student sits **three times** further from their group's average. The noise jumps to **83.1**, F shrinks to **4.77** and p = **0.0300**. Same gaps between groups, but much harder to see through the scatter.", action: { label: "Reset, then triple the scatter", run: () => { $("reset").click(); $("noisy").click(); } } },
+  { target: "#sliders", title: "Your turn", text: "Push **Scatter inside the groups** a little higher, or shift one group. Look for the moment the blue line on the lower curve slips left of the **cut-off**: then the gaps between groups are no bigger than chance would give." },
+]);
 render();
 </script>
 </body>

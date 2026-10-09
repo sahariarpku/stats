@@ -11,7 +11,7 @@
   <div class="viz-head">
     <div>
       <h1>A hundred polls of the same population</h1>
-      <p class="hint">The true support is fixed. Each poll asks n random people and reports a percentage. Run many polls and watch how far they stray, and how often they land within the margin of error.</p>
+      <p class="hint">A fixed share of all voters truly supports an idea (54% to start). Each poll asks n random people and reports the share who said yes. Run many polls and watch how far they stray, and how often they land within the margin of error.</p>
     </div>
     <button id="theme" type="button">Theme: auto</button>
   </div>
@@ -19,14 +19,14 @@
   <svg id="plot" viewBox="0 0 760 270" role="img" aria-label="Histogram of poll results around the true proportion"></svg>
 
   <div class="legend">
-    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="2" width="12" height="11" fill="var(--series-1)"/></svg>Polls inside the 95% margin</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="2" width="12" height="11" fill="var(--series-1)"/></svg>Polls within the margin of error (95%)</span>
     <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="2" width="12" height="11" fill="var(--series-2)"/></svg>Polls outside it</span>
-    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="6" y="0" width="2.5" height="14" fill="var(--text-primary)"/></svg>True support p</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="6" y="0" width="2.5" height="14" fill="var(--text-primary)"/></svg>True support among all voters, p</span>
   </div>
 
   <div class="readout" aria-live="polite">
     <div class="card"><div class="label">Polls run</div><div class="value" id="count">0</div></div>
-    <div class="card"><div class="label">Margin of error 1.96·SE</div><div class="value" id="moe"></div></div>
+    <div class="card"><div class="label">Margin of error (1.96 × SE)</div><div class="value" id="moe"></div></div>
     <div class="card"><div class="label">Polls within the margin</div><div class="value" id="cover">—</div></div>
     <div class="card"><div class="label">Lowest and highest poll</div><div class="value" id="range">—</div></div>
   </div>
@@ -77,7 +77,7 @@ function render() {
     Viz.el("line", { class: "axis-line", x1: X(t), x2: X(t), y1: 215, y2: 220 }, layer);
     Viz.el("text", { x: X(t), y: 236, "text-anchor": "middle" }, layer).textContent = Math.round(t * 100) + "%";
   }
-  [[p - moe, "−1.96 SE"], [p + moe, "+1.96 SE"]].forEach(([v, label]) => {
+  [[p - moe, "− margin"], [p + moe, "+ margin"]].forEach(([v, label]) => {
     Viz.el("line", { x1: X(v), x2: X(v), y1: 20, y2: 215, stroke: "var(--text-muted)", "stroke-width": 1.5, "stroke-dasharray": "4 4" }, layer);
     Viz.el("text", { x: X(v), y: 14, "text-anchor": "middle", opacity: 0.85 }, layer).textContent = label;
   });
@@ -94,12 +94,20 @@ function render() {
   }
 }
 
-Viz.slider($("sliders"), { label: "True support (p)", min: 0.2, max: 0.8, step: 0.01, value: p, format: (v) => pct(v, 0), onInput: (v) => { p = v; polls = []; render(); } });
+Viz.slider($("sliders"), { label: "True support among all voters (p)", min: 0.2, max: 0.8, step: 0.01, value: p, format: (v) => pct(v, 0), onInput: (v) => { p = v; polls = []; render(); } });
 Viz.slider($("sliders"), { label: "People per poll (n)", min: 50, max: 3000, step: 50, value: n, format: (v) => v.toLocaleString(), onInput: (v) => { n = v; polls = []; render(); } });
 $("run100").addEventListener("click", () => runPolls(100));
 $("run1000").addEventListener("click", () => runPolls(1000));
 $("reset").addEventListener("click", () => { polls = []; $("cover").textContent = "—"; $("range").textContent = "—"; $("verdict").textContent = 'Press "Run 100 polls".'; render(); });
 Viz.themeToggle($("theme"));
+Viz.tour([
+  { target: "#plot", title: "The truth we are chasing", text: "Suppose exactly **54%** of all voters support an idea: the black line. A poll cannot ask everyone, so it asks **1,000** random people. The two dashed lines mark the **margin of error**: 3.1 points either side of the truth." },
+  { target: "#run100", title: "Run 100 polls", text: "Let us run **100 separate polls**, each with 1,000 new random people. Each result lands in a bar. A taller bar means more polls got that result.", action: { label: "Run 100 polls", run: () => document.getElementById("run100").click() } },
+  { target: "#plot", title: "Where did they land?", text: "Most polls land close to 54%, in **blue**, inside the dashed lines. A few, in **orange**, miss by more. Nobody did anything wrong: it is just the luck of who happened to be asked." },
+  { target: ".readout", title: "About 19 in 20", text: "**Polls within the margin** should be close to **95%**. That is what a 95% margin of error means: about 19 polls in 20 land this close to the truth. **Lowest and highest poll** shows how far the unluckiest ones strayed." },
+  { target: "#sliders", title: "Smaller polls", text: "Let us ask only **250** people per poll and run 100 polls. The margin grows to about **6.2 points**, twice as wide: a quarter of the people gives twice the wobble.", action: { label: "Use 250 people", run: () => { const r = document.querySelectorAll("#sliders input[type=range]")[1]; r.value = 250; r.dispatchEvent(new Event("input")); document.getElementById("run100").click(); } } },
+  { target: "#sliders", title: "Your turn", text: "Slide the poll size up to **3,000** and run 1,000 polls. Look for: the margin falls to about **1.8 points**. Precision gets expensive: halving the margin takes 4 times as many people." },
+]);
 render();
 </script>
 </body>

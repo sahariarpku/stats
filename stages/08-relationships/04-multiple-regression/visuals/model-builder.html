@@ -20,7 +20,7 @@
   <div class="viz-head">
     <div>
       <h1>Build the model</h1>
-      <p class="hint">Ten houses. Choose which predictors go into the model and see how every coefficient, its standard error and R² change. Watch what happens to bedrooms when square feet joins.</p>
+      <p class="hint">Ten houses. Choose which facts (predictors) the model may use to predict price, and see how each estimate, its uncertainty (standard error) and R² change. Watch what happens to bedrooms when square feet joins.</p>
     </div>
     <button id="theme" type="button">Theme: auto</button>
   </div>
@@ -33,15 +33,15 @@
   <svg id="plot" viewBox="0 0 760 270" role="img" aria-label="Two scatter plots of price: against square feet and against bedrooms"></svg>
 
   <div class="readout" aria-live="polite">
-    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>R²</div><div class="value" id="r2"></div></div>
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>R² (share explained)</div><div class="value" id="r2"></div></div>
     <div class="card"><div class="label">Adjusted R²</div><div class="value" id="adj"></div></div>
     <div class="card"><div class="label">s (typical miss, $K)</div><div class="value" id="s"></div></div>
-    <div class="card"><div class="label">Correlation of the two predictors</div><div class="value" id="corr"></div></div>
+    <div class="card"><div class="label">How alike the two predictors are (correlation)</div><div class="value" id="corr"></div></div>
   </div>
 
   <div class="scroll">
   <table class="coef" aria-live="polite">
-    <thead><tr><th>Term</th><th>Estimate</th><th>Std. error</th><th>t</th><th>p</th></tr></thead>
+    <thead><tr><th>Term</th><th>Estimate ($K)</th><th>Std. error</th><th>t</th><th>p</th></tr></thead>
     <tbody id="tbody"></tbody>
   </table>
   </div>
@@ -142,6 +142,15 @@ function render() {
 $("use-sqft").addEventListener("change", render);
 $("use-beds").addEventListener("change", render);
 Viz.themeToggle($("theme"));
+const tick = (id, on) => { const c = $(id); if (c.checked !== on) c.click(); };
+Viz.tour([
+  { target: "#plot", title: "Ten houses", text: "Each **grey dot** is one house. On the **left**, its price (in thousands of dollars) against its size in square feet. On the **right**, price against number of bedrooms. Both clouds rise: bigger houses, and houses with more bedrooms, cost more." },
+  { target: ".toggles", title: "Choose the ingredients", text: "These boxes decide what the model may use. Both are ticked, so it predicts price from **square feet and bedrooms together**." },
+  { target: ".scroll", title: "Read the table", text: "Each row says how much the price changes for one more unit, **holding the other one fixed**. Square feet: **0.1668** ($K), about $167 per extra square foot, with p < 0.0001. Bedrooms: only **0.8065** ($K) per bedroom, with p = **0.872**: no clear effect at all." },
+  { target: ".toggles", title: "Bedrooms on its own", text: "Now square feet is switched off. Suddenly each extra bedroom goes with about **$75.6K**, with p < 0.0001. Bedrooms looks hugely important!", action: { label: "Untick square feet", run: () => { tick("use-beds", true); tick("use-sqft", false); } } },
+  { target: ".readout", title: "Borrowed credit", text: "Square feet is back on, and bedrooms collapses again to **0.81**. The reason is in the last card: the two predictors have a correlation of **0.98**. Bigger houses simply have more bedrooms, so on its own, bedrooms was taking credit that really belongs to size.", action: { label: "Tick square feet again", run: () => tick("use-sqft", true) } },
+  { target: ".toggles", title: "Your turn", text: "Now untick **bedrooms** to keep square feet alone. Look for this: R² hardly changes, but the square-feet row gets much **more certain** (its standard error drops from 0.0105 to 0.0022). The second predictor was adding noise, not information." },
+]);
 render();
 </script>
 </body>

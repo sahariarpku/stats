@@ -11,7 +11,7 @@
   <div class="viz-head">
     <div>
       <h1>Prior to posterior</h1>
-      <p class="hint">What fraction θ of customers will buy with a new checkout page? Start with a prior belief, add data (some buy, some do not), and watch belief reshape itself. The old page converted 25%.</p>
+      <p class="hint">What share θ of customers will buy with a new checkout page? Start with a belief (the prior), add data (some buy, some do not), and watch the belief update. The old page sold to 25% of customers.</p>
     </div>
     <button id="theme" type="button">Theme: auto</button>
   </div>
@@ -32,10 +32,10 @@
   </div>
 
   <div class="readout" aria-live="polite">
-    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>Posterior mean</div><div class="value" id="pm"></div></div>
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>Posterior mean (updated best guess)</div><div class="value" id="pm"></div></div>
     <div class="card"><div class="label">95% credible interval</div><div class="value" id="ci" style="font-size:1.25rem"></div></div>
-    <div class="card"><div class="label">P(θ &gt; 25%)</div><div class="value" id="pa"></div></div>
-    <div class="card"><div class="label">Frequentist: p̂ and 95% Wilson CI</div><div class="value" id="fq" style="font-size:1.05rem"></div></div>
+    <div class="card"><div class="label">Chance the new page beats 25%</div><div class="value" id="pa"></div></div>
+    <div class="card"><div class="label">Classic answer: p̂ and 95% CI (Wilson)</div><div class="value" id="fq" style="font-size:1.05rem"></div></div>
   </div>
   <p class="verdict" id="verdict" aria-live="polite"></p>
 
@@ -119,7 +119,7 @@ function render() {
   const priorMean = a / (a + b);
   $("verdict").textContent = n === 0
     ? "With no data the posterior is just the prior. Add customers with the sliders."
-    : "Posterior = prior × likelihood. The posterior mean " + (100 * pm).toFixed(1) + "% sits between the prior mean (" + (100 * priorMean).toFixed(0) + "%) and the data's " + (100 * k / n).toFixed(1) + "%. With only " + n + " customers the prior still pulls; with hundreds, every prior ends up in about the same place. A direct statement: given these data and this prior, there is " + (above > 0.9995 ? "over a 99.9%" : "a " + (100 * above).toFixed(0) + "%") + " probability that the new page beats 25%." + (a === 1 && b === 1 ? " (With a flat prior the orange likelihood and the blue posterior are the same curve.)" : "");
+    : "Posterior = prior × likelihood. The posterior mean " + (100 * pm).toFixed(1) + "% sits between the prior mean (" + (100 * priorMean).toFixed(0) + "%) and the data's " + (100 * k / n).toFixed(1) + "%. " + (n < 100 ? "With only " + n + " customers the prior still pulls; with hundreds, every prior ends up in about the same place." : "With " + n + " customers the data dominate, and every prior ends up in about the same place.") + " A direct statement: given these data and this prior, the probability that the new page beats 25% is " + (above > 0.9995 ? "over 99.9%" : (100 * above).toFixed(0) + "%") + "." + (a === 1 && b === 1 ? " (With a flat prior the orange likelihood and the blue posterior are the same curve.)" : "");
 }
 
 function sync() { sk.input.max = S.n; if (S.k > S.n) S.k = S.n; sk.set(S.k); }
@@ -134,6 +134,14 @@ document.querySelectorAll("#priors button").forEach((btn) => btn.addEventListene
 $("x10").addEventListener("click", () => { S.n = Math.min(400, S.n * 10); S.k = Math.min(S.n, S.k * 10); sn.set(S.n); sync(); render(); });
 $("reset").addEventListener("click", () => { S.n = 40; S.k = 14; sn.set(40); sync(); render(); });
 Viz.themeToggle($("theme"));
+Viz.tour([
+  { target: "#plot", title: "Curves of belief", text: "Every curve here is a **belief** about **θ**, the true share of customers who will buy on a new checkout page. Where a curve is taller, that rate is more believable. The dashed vertical line marks the old page's **25%**." },
+  { target: "#priors", title: "Start with a prior", text: "Before seeing any data you state a **prior** (the grey dashed curve). Right now it is the **flat prior**: no opinion, so every rate from 0% to 100% is equally believable." },
+  { target: ".readout", title: "Add the data", text: "**14 of 40** customers bought (35%). The orange dotted **likelihood** shows which rates fit those data. Prior and likelihood combine into the **posterior** (solid blue), the updated belief. With a flat prior the two are the same curve, so the blue covers the orange. The posterior's best guess is **35.7%**, with a 95% credible interval of **22.1% to 50.6%**. There is a **93.3%** chance the new page beats 25%." },
+  { target: "#priors", title: "A sceptic's view", text: "A sceptic expects the new page to sell to about 25%, like the old one. Same data, but the posterior is pulled towards 25%: best guess **31.7%**, and the chance of beating the old page drops to **86.9%**.", action: { label: "Choose the sceptical prior", run: () => document.querySelector("#priors button[data-a='5']").click() } },
+  { target: "#x10", title: "Ten times the data", text: "Same 35% rate, but now **140 of 400** customers. The data swamp the sceptic's prior: best guess **34.5%**, interval **30.1% to 39.1%**, and **over 99.9%** chance the new page is better. The classic interval in the last card (30.5 to 39.8) nearly matches.", action: { label: "Use 10 times the data", run: () => $("x10").click() } },
+  { target: "#priors", title: "Your turn", text: "Switch between the three priors now, then press **Back to 14 of 40** and switch again. Look for this: with little data the prior matters a lot. With lots of data, every prior lands in about the same place." },
+]);
 render();
 </script>
 </body>

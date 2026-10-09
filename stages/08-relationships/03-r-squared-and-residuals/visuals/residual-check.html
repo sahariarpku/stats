@@ -11,7 +11,7 @@
   <div class="viz-head">
     <div>
       <h1>Residual detective</h1>
-      <p class="hint">Four datasets, each fitted with a straight line. The top plot shows the data. The bottom plot shows the leftovers (residuals). A healthy fit leaves a shapeless band around zero.</p>
+      <p class="hint">Four datasets, each fitted with a straight line. The top plot shows the data. The bottom plot shows the leftovers (residuals): how far each point sits above or below the line. A healthy fit leaves a shapeless band around zero.</p>
     </div>
     <button id="theme" type="button">Theme: auto</button>
   </div>
@@ -32,7 +32,7 @@
   </div>
 
   <div class="readout" aria-live="polite">
-    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>R²</div><div class="value" id="r2"></div></div>
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>R² (share explained)</div><div class="value" id="r2"></div></div>
     <div class="card"><div class="label">Slope</div><div class="value" id="slope"></div></div>
     <div class="card"><div class="label">s (typical miss)</div><div class="value" id="s"></div></div>
     <div class="card"><div class="label">Residual plot says</div><div class="value" id="say" style="font-size:1.1rem"></div></div>
@@ -112,6 +112,15 @@ document.querySelectorAll("#tabs button").forEach((b) => b.addEventListener("cli
   render();
 }));
 Viz.themeToggle($("theme"));
+const tab = (k) => document.querySelector("#tabs button[data-k='" + k + "']").click();
+Viz.tour([
+  { target: "#plot", title: "Data on top, leftovers below", text: "The **top** plot shows 30 points and the straight **blue line** fitted through them. The **bottom** plot shows each point's **residual**: its real value minus what the line predicted. Dots above the dashed zero line are higher than the line predicted. Dots below are lower." },
+  { target: ".readout", title: "A healthy fit", text: "Here the leftovers form a **shapeless band** around zero ✓. **R² = 93%**: the line accounts for 93% of the ups and downs in y. The typical miss, **s**, is about **1.5**. With no pattern left over, these numbers can be trusted." },
+  { target: "#tabs", title: "Curved data", text: "R² is even higher, **95%**, but the leftovers form a clear **U**: the line is too low at both ends and too high in the middle. The real relationship bends, so a straight line is the wrong tool. A high R² does not prove the line fits.", action: { label: "Show the curved data", run: () => tab("curve") } },
+  { target: "#tabs", title: "A widening fan", text: "Now the leftovers spread out more and more as x grows, like a fan. R² is **81%**, but predictions on the right are much less reliable than on the left, and the usual p-values can mislead.", action: { label: "Show the fan", run: () => tab("fan") } },
+  { target: "#plot", title: "One odd point", text: "A single **orange** point far below the rest at the right drags the whole line down. The slope falls from **1.90** to **1.40**, and R² drops to **45%**. Check whether that point is a mistake or a real case before deciding what to do.", action: { label: "Show the odd point", run: () => tab("out") } },
+  { target: "#tabs", title: "Your turn", text: "Click through all four buttons and watch only the **bottom** plot. Look for **any shape at all**: a curve, a fan or a lone point. A good straight-line fit leaves nothing behind but random scatter." },
+]);
 render();
 </script>
 </body>

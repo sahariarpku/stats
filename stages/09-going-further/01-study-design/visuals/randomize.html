@@ -11,7 +11,7 @@
   <div class="viz-head">
     <div>
       <h1>Choice versus coin flip</h1>
-      <p class="hint">A treatment truly adds +5 points to recovery. In each study, 200 patients are compared with and without it. When sicker patients tend to choose the treatment, the comparison goes wrong. A coin flip fixes it. Run many studies and watch where the estimates land.</p>
+      <p class="hint">A treatment truly adds +5 points to recovery. Each study compares 200 patients with and without it. If sicker patients tend to choose the treatment, the comparison goes wrong. Letting a coin flip decide fixes it. Run many studies and see where their answers land.</p>
     </div>
     <button id="theme" type="button">Theme: auto</button>
   </div>
@@ -25,9 +25,9 @@
   </div>
 
   <div class="readout" aria-live="polite">
-    <div class="card"><div class="label"><span class="mark" style="background:var(--series-2)"></span>Choice: average estimate</div><div class="value" id="m1">–</div></div>
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-2)"></span>Patients choose: average answer</div><div class="value" id="m1">–</div></div>
     <div class="card"><div class="label">Treated group sicker by</div><div class="value" id="b1">–</div></div>
-    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>Random: average estimate</div><div class="value" id="m2">–</div></div>
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>Coin flip: average answer</div><div class="value" id="m2">–</div></div>
     <div class="card"><div class="label">Treated group sicker by</div><div class="value" id="b2">–</div></div>
   </div>
   <p class="verdict" id="verdict" aria-live="polite"></p>
@@ -116,6 +116,13 @@ $("run1").addEventListener("click", () => run("choice", false));
 $("run2").addEventListener("click", () => run("random", true));
 $("clear").addEventListener("click", () => { R.choice.est = []; R.choice.bal = []; R.random.est = []; R.random.bal = []; render(); });
 Viz.themeToggle($("theme"));
+Viz.tour([
+  { target: "#plot", title: "A treatment that really works", text: "We know the truth here: the treatment adds **+5 points** to recovery (the dashed line). Each **study** compares 200 patients who got it with patients who did not, and reports an answer. Every study becomes a small slice of a bar, placed where its answer landed. **Top row**: patients choose for themselves. **Bottom row**: a coin decides." },
+  { target: "#run1", title: "Let patients choose", text: "Here sicker patients are more likely to take the treatment, and sicker patients recover less anyway. The **orange** answers pile up around **−1.4**, left of \"no effect\". The treatment looks harmful, even though it truly helps.", action: { label: "Run 100 studies", run: () => $("run1").click() } },
+  { target: ".readout", title: "Why it went wrong", text: "The treated group started out **sicker by about 1.07 SD** (standard deviations, a big gap). The comparison mixes up the treatment with how ill people were to begin with. More patients per study would not fix this, only shrink the spread." },
+  { target: "#run2", title: "Let a coin decide", text: "Now a coin flip decides who gets the treatment. The **blue** answers pile up around **+5.00**, right on the truth, and the treated group is sicker by **0.00 SD**. The coin made the two groups alike, even in ways nobody measured.", action: { label: "Run 100 coin-flip studies", run: () => $("run2").click() } },
+  { target: "#sliders", title: "Your turn", text: "Drag the slider down to **0** (nobody chooses based on how ill they are) and run the \"patients choose\" studies again. Look for this: the further right you set the slider, the further the orange pile drifts from the true +5." },
+]);
 render();
 </script>
 </body>

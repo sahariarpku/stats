@@ -11,7 +11,7 @@
   <div class="viz-head">
     <div>
       <h1>Reading a Q-Q plot</h1>
-      <p class="hint">Draw a sample from a chosen shape. The histogram shows the shape. The Q-Q plot lines up your sorted data against what a normal curve would give: points on the straight line mean "normal". Shapiro–Wilk turns the same idea into a p-value.</p>
+      <p class="hint">Draw a sample from a chosen shape. The histogram shows its shape. The Q-Q plot lines up your sorted data against where a bell curve (normal) would put them: dots on the straight line mean "normal". The Shapiro–Wilk test turns the same idea into a p-value.</p>
     </div>
     <button id="theme" type="button">Theme: auto</button>
   </div>
@@ -34,9 +34,9 @@
   </div>
 
   <div class="readout" aria-live="polite">
-    <div class="card"><div class="label">Shapiro–Wilk W</div><div class="value" id="w"></div></div>
+    <div class="card"><div class="label">Shapiro–Wilk W (1 = perfectly normal)</div><div class="value" id="w"></div></div>
     <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>p-value</div><div class="value" id="p"></div></div>
-    <div class="card"><div class="label">Skewness</div><div class="value" id="sk"></div></div>
+    <div class="card"><div class="label">Skewness (0 = balanced)</div><div class="value" id="sk"></div></div>
     <div class="card"><div class="label">Sample size</div><div class="value" id="nn"></div></div>
   </div>
   <p class="verdict" id="verdict" aria-live="polite"></p>
@@ -143,6 +143,14 @@ document.querySelectorAll("#shapes button").forEach((b) => b.addEventListener("c
 Viz.slider($("sliders"), { label: "Sample size", min: 12, max: 300, step: 1, value: S.n, format: (v) => v, onInput: (v) => { S.n = v; draw(); } });
 $("again").addEventListener("click", draw);
 Viz.themeToggle($("theme"));
+const shape = (k) => document.querySelector("#shapes button[data-k='" + k + "']").click();
+Viz.tour([
+  { target: "#plot", title: "Two views of the same 40 values", text: "**Left:** a histogram. Taller bars mean more values in that range. **Right:** the Q-Q plot. Each dot is one value, sorted from smallest to largest, placed against where a perfect bell curve would put it. If the data are bell-shaped (normal), the dots **hug the blue line**." },
+  { target: ".readout", title: "The test's verdict", text: "**Shapiro–Wilk** turns the same check into numbers. W close to 1 and a **large** p-value mean \"no sign of trouble\". For this sample, W = **0.987** and p = **0.919**: it looks normal, as it should, because it really came from a bell curve." },
+  { target: "#shapes", title: "A lopsided shape", text: "**Right-skewed** data have a long tail of big values, like incomes or waiting times. On the Q-Q plot the dots **bend upward at the right end**: the biggest values are bigger than a bell curve would give. In this sample p is **below 0.0001** and the skewness is **1.24**.", action: { label: "Show right-skewed data", run: () => shape("right") } },
+  { target: "#shapes", title: "Heavy tails", text: "Now extreme values on **both** sides turn up more often than a bell curve allows. Both ends of the Q-Q plot curl away from the line in an **S** shape. In this sample p = **0.027**.", action: { label: "Show heavy tails", run: () => shape("heavy") } },
+  { target: "#sliders", title: "Your turn", text: "Try every shape, press **Draw a new sample** a few times, and move **Sample size**. Look for this: with only 12 values, even lopsided data often pass the test. With 300, tiny wobbles get flagged. So always look at the plot, not just the p-value." },
+]);
 draw();
 </script>
 </body>

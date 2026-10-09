@@ -11,7 +11,7 @@
   <div class="viz-head">
     <div>
       <h1>Ranks ignore outliers</h1>
-      <p class="hint">Task times in seconds for two app designs. Slide the slowest "old design" time up and down. The t-test reacts to every second. The rank-based test only cares about the order.</p>
+      <p class="hint">Seconds taken to finish a task on two app designs. Slide the slowest "old design" time up and down. The t-test reacts to every extra second. The rank-based test only cares about who finished before whom.</p>
     </div>
     <button id="theme" type="button">Theme: auto</button>
   </div>
@@ -25,10 +25,10 @@
   </div>
 
   <div class="readout" aria-live="polite">
-    <div class="card"><div class="label">Welch t-test p</div><div class="value" id="tp"></div></div>
-    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>Mann–Whitney p</div><div class="value" id="mp"></div></div>
-    <div class="card"><div class="label">U (smaller)</div><div class="value" id="u"></div></div>
-    <div class="card"><div class="label">Moving value's rank</div><div class="value" id="rk"></div></div>
+    <div class="card"><div class="label">t-test p (uses the sizes)</div><div class="value" id="tp"></div></div>
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>Mann–Whitney p (uses the order)</div><div class="value" id="mp"></div></div>
+    <div class="card"><div class="label">U (smaller = cleaner split)</div><div class="value" id="u"></div></div>
+    <div class="card"><div class="label">Circled value's rank</div><div class="value" id="rk"></div></div>
   </div>
   <p class="verdict" id="verdict" aria-live="polite"></p>
 
@@ -153,6 +153,14 @@ $("b28").addEventListener("click", () => go(28));
 $("b95").addEventListener("click", () => go(95));
 $("b200").addEventListener("click", () => go(200));
 Viz.themeToggle($("theme"));
+Viz.tour([
+  { target: "#plot", title: "Twelve people, two designs", text: "Each **blue circle** is one person using the **new** app design, and each **orange square** one person on the **old** design. Further right means **slower**. The thick tick in each row is the group's average. One old-design person took **95 seconds** (circled). Maybe a phone call interrupted them." },
+  { target: "#plot", title: "Line them all up", text: "The tiles underneath put all 12 times in order, from fastest (**#1**) to slowest (**#12**). Almost every blue tile comes before every orange one. A rank-based test such as **Mann–Whitney** looks only at this order, not at the sizes." },
+  { target: ".readout", title: "One outlier, two verdicts", text: "The **t-test** uses the actual seconds, so the 95 drags the old average up to **34.5** and makes the old group look very spread out. Its p = **0.156**: not significant. **Mann–Whitney** only sees the order and gives p = **0.009**: the new design is faster." },
+  { target: "#b28", title: "Without the outlier", text: "Now the slowest old time is a normal **28 s**. Both tests agree: t-test p = **0.006**, Mann–Whitney p = **0.009**. The rank test did not move at all, and the circled value is now **11 of 12**.", action: { label: "Set it to 28 s", run: () => $("b28").click() } },
+  { target: "#b200", title: "A really extreme value", text: "Now that person took **200 s**. The old average jumps to **52.0**, and the t-test gets even less sure: p = **0.257**. Mann–Whitney still says **0.009**, because 200 is simply rank 12, exactly like 95 was.", action: { label: "Set it to 200 s", run: () => $("b200").click() } },
+  { target: "#sliders", title: "Your turn", text: "Drag the slider slowly from 200 down to 10. Look for this: the **Mann–Whitney** p-value only changes when the circled value **passes** another person's time, never just because it gets bigger or smaller." },
+]);
 render();
 </script>
 </body>

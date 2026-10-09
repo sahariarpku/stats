@@ -12,7 +12,7 @@
   <div class="viz-head">
     <div>
       <h1>Sampling distribution builder</h1>
-      <p class="hint">Top: the whole population. Bottom: the average of each random sample you draw. Pick a population shape, set the sample size, and keep drawing.</p>
+      <p class="hint">Top: the whole population. Bottom: a pile made from the average of each random sample you draw. Pick a population shape, set how many values go in each sample, and keep drawing.</p>
     </div>
     <button id="theme" type="button">Theme: auto</button>
   </div>
@@ -24,14 +24,14 @@
   <div class="legend">
     <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="2" width="12" height="11" fill="var(--dot)" opacity="0.7"/></svg>Population</span>
     <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="2" width="12" height="11" fill="var(--series-1)"/></svg>Sample means</span>
-    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="6" width="14" height="3" fill="var(--series-2)"/></svg>Prediction: normal, mean μ, SD σ/√n</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="6" width="14" height="3" fill="var(--series-2)"/></svg>Prediction: a bell centred on μ, spread σ/√n</span>
   </div>
 
   <div class="readout" aria-live="polite">
-    <div class="card"><div class="label">Population μ, σ</div><div class="value" id="pop"></div></div>
+    <div class="card"><div class="label">Population average μ, spread σ</div><div class="value" id="pop"></div></div>
     <div class="card"><div class="label">Samples drawn</div><div class="value" id="count">0</div></div>
     <div class="card"><div class="label">Average of the sample means</div><div class="value" id="mm">—</div></div>
-    <div class="card"><div class="label">SD of means: observed / σ/√n</div><div class="value" id="se">—</div></div>
+    <div class="card"><div class="label">Spread of the averages: actual / predicted σ/√n</div><div class="value" id="se">—</div></div>
   </div>
   <p class="verdict" id="verdict" aria-live="polite">Press "Draw 1 sample" or "Draw 200 samples".</p>
 
@@ -136,12 +136,20 @@ Object.entries(SHAPES).forEach(([key, s]) => {
   $("shapes").appendChild(b);
 });
 
-Viz.slider($("sliders"), { label: "Sample size (n)", min: 1, max: 100, step: 1, value: n, format: (v) => "n = " + v, onInput: (v) => { n = v; means = []; render(); } });
+Viz.slider($("sliders"), { label: "Values in each sample (n)", min: 1, max: 100, step: 1, value: n, format: (v) => "n = " + v, onInput: (v) => { n = v; means = []; render(); } });
 $("one").addEventListener("click", () => draw(1));
 $("many").addEventListener("click", () => draw(200));
 $("reset").addEventListener("click", () => { means = []; $("verdict").textContent = 'Press "Draw 1 sample" or "Draw 200 samples".'; $("mm").textContent = "—"; $("se").textContent = "—"; render(); });
 $("pred").addEventListener("click", () => { showPred = !showPred; $("pred").setAttribute("aria-pressed", showPred); $("pred").textContent = "Prediction curve: " + (showPred ? "on" : "off"); render(); });
 Viz.themeToggle($("theme"));
+Viz.tour([
+  { target: "#plot", title: "A lopsided population", text: "The grey shape on top is the **whole population**: 20,000 values. This one is **skewed**: most values are low and a few are very high. Its average, the blue line, is **μ = 30**." },
+  { target: "#many", title: "Draw many samples", text: "Each sample picks **5 values** at random and works out their average. Let us draw **200 samples**. Each average drops into the bottom chart, and together they build a pile.", action: { label: "Draw 200 samples", run: () => document.getElementById("many").click() } },
+  { target: "#plot", title: "Look at the pile", text: "The pile of averages is centred near **30**, the population average. It is narrower than the population and less lopsided. The **orange curve** is what theory predicts the pile should look like." },
+  { target: ".readout", title: "Check the spread", text: "The last card compares how spread out the averages really are with the prediction **σ/√n = 14.7 ÷ √5 ≈ 6.55**. They should be close. This spread has a name: the **standard error**." },
+  { target: "#plot", title: "Bigger samples", text: "Let us use the slider below to put **30 values** in each sample, then draw 200 more. The pile gets much **narrower** (predicted spread 2.68) and turns into a neat **bell**, even though the population is lopsided.", action: { label: "Use 30 per sample", run: () => { const r = document.querySelectorAll("#sliders input[type=range]")[0]; r.value = 30; r.dispatchEvent(new Event("input")); document.getElementById("many").click(); } } },
+  { target: "#shapes", title: "Your turn", text: "Try **Two humps** or **Uniform (flat)**, first with a small sample size, then a big one. Look for: whatever the population looks like, the pile of averages becomes a bell as n grows." },
+]);
 render();
 </script>
 </body>

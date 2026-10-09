@@ -11,7 +11,7 @@
   <div class="viz-head">
     <div>
       <h1>Feel the correlation</h1>
-      <p class="hint">Forty points. Slide the strength of the relationship (for the curved shapes it sets how tightly the points hug the curve), change its shape, or add one outlier, and watch Pearson's r and Spearman's ρ respond.</p>
+      <p class="hint">Forty points, each measured on two things: x (across) and y (up). Slide the strength of the relationship (for the curved shapes it sets how tightly the points hug the curve), change its shape, or add one odd point, and watch the two correlation numbers, Pearson's r and Spearman's ρ, respond.</p>
     </div>
     <button id="theme" type="button">Theme: auto</button>
   </div>
@@ -20,14 +20,14 @@
 
   <div class="legend">
     <span><svg viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="var(--dot)"/></svg>Data point</span>
-    <span><svg viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="5.5" fill="var(--series-2)"/></svg>The outlier</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="5.5" fill="var(--series-2)"/></svg>The odd one out (outlier)</span>
     <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="6" width="14" height="3" fill="var(--series-1)"/></svg>Best straight line</span>
   </div>
 
   <div class="readout" aria-live="polite">
     <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>Pearson r</div><div class="value" id="pr"></div></div>
     <div class="card"><div class="label">Spearman ρ</div><div class="value" id="sr"></div></div>
-    <div class="card"><div class="label">r² (variation shared)</div><div class="value" id="r2"></div></div>
+    <div class="card"><div class="label">r² (share explained by the line)</div><div class="value" id="r2"></div></div>
     <div class="card"><div class="label">In words</div><div class="value" id="word" style="font-size:1.1rem"></div></div>
   </div>
   <p class="verdict" id="verdict" aria-live="polite"></p>
@@ -146,6 +146,17 @@ Object.entries(shapes).forEach(([k, btn]) => btn.addEventListener("click", () =>
 }));
 $("outlier").addEventListener("click", () => { S.outlier = !S.outlier; $("outlier").setAttribute("aria-pressed", S.outlier); render(); });
 Viz.themeToggle($("theme"));
+const setStrength = (v) => { const r = document.querySelector("#sliders input[type=range]"); r.value = v; r.dispatchEvent(new Event("input")); };
+const setOutlier = (on) => { if ((S.outlier) !== on) $("outlier").click(); };
+Viz.tour([
+  { target: "#plot", title: "Forty points, two measurements each", text: "Each **grey dot** is one thing measured twice, like a student's hours of study (**x**, across) and exam score (**y**, up). The **blue line** is the best straight line through the cloud. Here the dots rise together from bottom left to top right." },
+  { target: ".readout", title: "One number for the pattern", text: "**Pearson's r = 0.80** says how closely the dots follow a straight line, on a scale from −1 to +1. 0.80 is **very strong positive**: when x goes up, y tends to go up too. **Spearman's ρ = 0.76** does the same job using ranks (1st, 2nd, 3rd...) instead of the actual values." },
+  { target: "#sliders", title: "Flip the direction", text: "Now the cloud **falls** from top left to bottom right, and r = **−0.80**. Just as strong, but negative: when x goes up, y tends to go down. The sign gives the direction, the size gives the strength.", action: { label: "Set strength to −0.80", run: () => setStrength(-0.8) } },
+  { target: "#sliders", title: "No pattern", text: "Now it is a shapeless cloud. The line lies flat and r = **0.00**: \"no linear pattern\". Knowing x tells you nothing about y.", action: { label: "Set strength to 0", run: () => setStrength(0) } },
+  { target: "#shape-u", title: "A pattern that r cannot see", text: "Back to strength 0.80, but the points now form a **U**. There is an obvious pattern, yet r = **0.00** and ρ = **−0.01**. Correlation only measures straight or steadily rising patterns. That is why you always look at the picture first.", action: { label: "Show the U shape", run: () => { setOutlier(false); setStrength(0.8); $("shape-u").click(); } } },
+  { target: "#outlier", title: "One odd point", text: "Back to a straight pattern, plus one **orange** point far off at the bottom right. That single point drags r from 0.80 down to **0.42**. Spearman's ρ only falls to **0.63**, because ranks cannot be fooled by distance.", action: { label: "Add the odd point", run: () => { $("shape-line").click(); setStrength(0.8); setOutlier(true); } } },
+  { target: "#sliders", title: "Your turn", text: "Remove the odd point, press **Rising curve**, then drag the slider up to **1.00**. Look for this: as the points hug the curve, **ρ** climbs all the way to 1.00 while **r** stalls below 0.9. The order is perfect even though the points do not sit on a straight line." },
+]);
 render();
 </script>
 </body>

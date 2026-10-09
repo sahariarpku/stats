@@ -11,7 +11,7 @@
   <div class="viz-head">
     <div>
       <h1>Resample your own data</h1>
-      <p class="hint">Five heart rates (grey). Each resample draws five values with replacement (orange, stacked when a value is picked more than once). The pile below collects the mean of every resample.</p>
+      <p class="hint">Five people's resting heart rates (grey). A resample picks five of these at random, and the same one may be picked again (orange, stacked when repeated). The pile at the bottom collects the average of every resample.</p>
     </div>
     <button id="theme" type="button">Theme: auto</button>
   </div>
@@ -21,14 +21,14 @@
   <div class="legend">
     <span><svg viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="5.5" fill="var(--dot)"/></svg>Your five values</span>
     <span><svg viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="5.5" fill="var(--series-2)"/></svg>Latest resample</span>
-    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="2" width="12" height="11" fill="var(--series-1)"/></svg>Bootstrap means</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="2" width="12" height="11" fill="var(--series-1)"/></svg>Averages of the resamples</span>
   </div>
 
   <div class="readout" aria-live="polite">
     <div class="card"><div class="label">Latest resample</div><div class="value" id="last" style="font-size:1.05rem">—</div></div>
     <div class="card"><div class="label">Resamples so far</div><div class="value" id="count">0</div></div>
-    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>Bootstrap SE</div><div class="value" id="bse">—</div></div>
-    <div class="card"><div class="label">95% interval (2.5th–97.5th)</div><div class="value" id="ci" style="font-size:1.2rem">—</div></div>
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>Bootstrap SE (spread of the pile)</div><div class="value" id="bse">—</div></div>
+    <div class="card"><div class="label">Middle 95% of the averages</div><div class="value" id="ci" style="font-size:1.2rem">—</div></div>
   </div>
   <p class="verdict" id="verdict" aria-live="polite">Press "One resample".</p>
 
@@ -64,7 +64,7 @@ function render() {
   DATA.forEach((v) => Viz.el("circle", { cx: X(v), cy: 36, r: 8, fill: "var(--dot)", stroke: "var(--surface-1)", "stroke-width": 2 }, layer));
   Viz.el("line", { x1: X(Viz.mean(DATA)), x2: X(Viz.mean(DATA)), y1: 24, y2: 52, stroke: "var(--series-1)", "stroke-width": 2 }, layer);
 
-  Viz.el("text", { x: 40, y: 98, class: "strong" }, layer).textContent = "Latest resample (with replacement)";
+  Viz.el("text", { x: 40, y: 98, class: "strong" }, layer).textContent = "Latest resample (repeats allowed)";
   Viz.el("line", { class: "axis-line", x1: 40, x2: 720, y1: 160, y2: 160 }, layer);
   if (last) {
     const stacks = new Map();
@@ -79,7 +79,7 @@ function render() {
   }
 
   const base = 305, bw = 0.5;
-  Viz.el("text", { x: 40, y: 212, class: "strong" }, layer).textContent = "Means of all resamples";
+  Viz.el("text", { x: 40, y: 212, class: "strong" }, layer).textContent = "Averages of all resamples";
   const bins = new Map();
   means.forEach((m) => { const k = Math.round(m / bw); bins.set(k, (bins.get(k) || 0) + 1); });
   const top = Math.max(1, ...bins.values());
@@ -108,6 +108,14 @@ $("h").addEventListener("click", () => add(100));
 $("k").addEventListener("click", () => add(1000));
 $("reset").addEventListener("click", () => { means = []; last = null; $("bse").textContent = "—"; $("ci").textContent = "—"; $("verdict").textContent = 'Press "One resample".'; render(); });
 Viz.themeToggle($("theme"));
+Viz.tour([
+  { target: "#plot", title: "Just five heart rates", text: "The grey dots at the top are **5 people's resting heart rates**: 62, 65, 68, 70 and 75 beats per minute. Their average, the blue line, is **68**. With 5 different people, how much would that average change? We cannot ask anyone else, so we use a clever trick." },
+  { target: "#one", title: "One resample", text: "A **resample** picks 5 values from these same 5 at random, **putting each one back** before the next pick. So some heart rates show up twice and some not at all. The orange triangle marks the average of the picks.", action: { label: "Make one resample", run: () => document.getElementById("one").click() } },
+  { target: ".readout", title: "Repeats are the point", text: "**Latest resample** lists the 5 values that were picked. Because repeats are allowed, each resample is a slightly different version of your data, so its average comes out a little different too." },
+  { target: "#plot", title: "Do it 1,000 times", text: "Let us press **Add 1,000** to make 1,000 resamples. Each average drops into the pile at the bottom. The width of the pile shows how much the average could wobble.", action: { label: "Add 1,000 resamples", run: () => document.getElementById("k").click() } },
+  { target: ".readout", title: "Read off the answer", text: "The **Bootstrap SE** is the spread of the pile: about **2** beats per minute (theory says 1.98). The **middle 95%** of the averages runs from roughly **64 to 72**. That is a range for the true average, found without any formula." },
+  { target: ".controls", title: "Your turn", text: "Press **Reset** and build the pile again, a few at a time and then in bulk. Look for: with only a handful of resamples the numbers jump around; after a few thousand they hardly move." },
+]);
 render();
 </script>
 </body>

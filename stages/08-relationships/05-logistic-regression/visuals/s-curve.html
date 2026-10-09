@@ -11,7 +11,7 @@
   <div class="viz-head">
     <div>
       <h1>Fit the S-curve</h1>
-      <p class="hint">Twenty students: hours studied, and whether each passed (1) or failed (0). Shape the S-curve with the two sliders. Each dashed stem shows how much probability the curve gave to what really happened. The best curve gives the highest log-likelihood.</p>
+      <p class="hint">Twenty students: hours studied, and whether each passed (1) or failed (0). Shape the S-curve with the first two sliders. Each dashed stem shows how surprised the curve was by what really happened. The best curve has the highest log-likelihood (closest to 0).</p>
     </div>
     <button id="theme" type="button">Theme: auto</button>
   </div>
@@ -26,13 +26,13 @@
   </div>
 
   <div class="readout" aria-live="polite">
-    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>Log-likelihood</div><div class="value" id="ll"></div></div>
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>Log-likelihood (closer to 0 is better)</div><div class="value" id="ll"></div></div>
     <div class="card"><div class="label">Best possible</div><div class="value">−7.75</div></div>
     <div class="card"><div class="label">Odds multiply by (per extra hour)</div><div class="value" id="or"></div></div>
-    <div class="card"><div class="label">50% point</div><div class="value" id="mid"></div></div>
+    <div class="card"><div class="label">Hours for a 50% chance</div><div class="value" id="mid"></div></div>
   </div>
   <div class="readout" aria-live="polite">
-    <div class="card"><div class="label">Correct at the cut-off</div><div class="value" id="acc"></div></div>
+    <div class="card"><div class="label">Correct pass/fail guesses</div><div class="value" id="acc"></div></div>
     <div class="card"><div class="label">Pass predicted, failed (FP)</div><div class="value" id="fp"></div></div>
     <div class="card"><div class="label">Fail predicted, passed (FN)</div><div class="value" id="fn"></div></div>
   </div>
@@ -105,12 +105,21 @@ function render() {
     ? "That is the maximum-likelihood S-curve. Each extra hour multiplies the odds of passing by e^1.449 = 4.26, and the curve crosses 50% at about 2.9 hours."
     : "Likelihood is the product of the probabilities the curve gave to what actually happened (here shown as a sum of logs). Stems that are short mean the curve 'expected' that outcome. Long stems are surprises. Keep adjusting until the total stops improving (the best is −7.75; yours is " + gap.toFixed(2) + " lower).";
 }
-s0 = Viz.slider($("sliders"), { label: "Intercept b₀", min: -10, max: 2, step: 0.05, value: S.b0, format: (v) => v.toFixed(2), onInput: (v) => { S.b0 = v; render(); } });
+s0 = Viz.slider($("sliders"), { label: "Intercept b₀ (moves the curve sideways)", min: -10, max: 2, step: 0.05, value: S.b0, format: (v) => v.toFixed(2), onInput: (v) => { S.b0 = v; render(); } });
 s1 = Viz.slider($("sliders"), { label: "Slope b₁ (steepness)", min: 0, max: 3, step: 0.02, value: S.b1, format: (v) => v.toFixed(2), onInput: (v) => { S.b1 = v; render(); } });
 sc = Viz.slider($("sliders"), { label: "Cut-off for predicting 'pass'", min: 0.1, max: 0.9, step: 0.05, value: S.cut, format: (v) => v.toFixed(2), onInput: (v) => { S.cut = v; render(); } });
 $("fit").addEventListener("click", () => { S.b0 = BEST.b0; S.b1 = BEST.b1; s0.set(BEST.b0); s1.set(BEST.b1); render(); });
 $("line").addEventListener("click", () => { S.showLine = !S.showLine; $("line").textContent = S.showLine ? "Hide the straight-line fit" : "Show the straight-line fit"; $("line").setAttribute("aria-pressed", S.showLine); render(); });
 Viz.themeToggle($("theme"));
+Viz.tour([
+  { target: "#plot", title: "Pass or fail", text: "Each dot is one of 20 students, placed by hours studied. **Blue dots at the top (1)** passed. **Orange dots at the bottom (0)** failed. The black **S-curve** gives the chance of passing for any number of hours. It always stays between 0 and 1, like a real chance must." },
+  { target: "#plot", title: "Short stems are good", text: "A **dashed stem** joins each student to the curve. A **short** stem means the curve expected what happened. A **long** stem means it was a surprise. A good curve keeps the surprises few and small." },
+  { target: ".readout", title: "Scoring the curve", text: "The **log-likelihood** adds up how well the curve expected each result. It is **−10.32** now, and the best possible is **−7.75** (closer to 0 is better). This curve says each extra hour multiplies the odds of passing by **1.65**, and it crosses 50% at **4.00 hours**." },
+  { target: "#fit", title: "Let the computer find the best curve", text: "This is the best possible S-curve: log-likelihood **−7.75**. Each extra hour of study multiplies the odds of passing by **4.26**, and a student has a 50% chance at about **2.94 hours**.", action: { label: "Fit the best curve", run: () => $("fit").click() } },
+  { target: ".readout:has(#acc)", title: "From chances to yes/no", text: "To make a firm guess, we predict \"pass\" when the chance is at least the **cut-off**, 0.50. The best curve gets **16 of 20** right: 2 predicted to pass but failed, 2 predicted to fail but passed. Lower the cut-off to 0.30 and more students are predicted to pass: wrong passes rise to **3**, missed passes fall to **1**.", action: { label: "Set cut-off to 0.30", run: () => { const r = document.querySelectorAll("#sliders input[type=range]")[2]; r.value = 0.3; r.dispatchEvent(new Event("input")); } } },
+  { target: "#line", title: "Why not a straight line?", text: "The grey dashed line is an ordinary straight-line fit to the 0s and 1s. It dips **below 0** on the left and climbs **above 1** on the right: impossible chances. That is why we bend it into an S.", action: { label: "Show the straight line", run: () => { if (!S.showLine) $("line").click(); } } },
+  { target: "#sliders", title: "Your turn", text: "Drag the **steepness** slider. Look for this: a steeper curve switches from fail to pass more sharply, but if you go too steep the long stems grow and the log-likelihood gets worse." },
+]);
 render();
 </script>
 </body>

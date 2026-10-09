@@ -12,7 +12,7 @@
   <div class="viz-head">
     <div>
       <h1>Rare events, one parameter</h1>
-      <p class="hint">Events arrive at an average of λ per interval. Change λ and the threshold k. Then compare with a binomial that has many trials and a tiny success chance.</p>
+      <p class="hint">Events (like patients arriving at a hospital) happen at an average of λ (lambda) per hour. Each bar is the chance of exactly that many in one hour. Change λ and the cut-off k, then try the look-alike button.</p>
     </div>
     <button id="theme" type="button">Theme: auto</button>
   </div>
@@ -20,16 +20,16 @@
   <svg id="plot" viewBox="0 0 760 290" role="img" aria-label="Poisson probabilities as bars, with optional binomial markers"></svg>
 
   <div class="legend">
-    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="2" width="12" height="11" fill="var(--series-1)"/></svg>k and below</span>
-    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="2" width="12" height="11" fill="var(--dot)" opacity="0.6"/></svg>Above k</span>
-    <span><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 1 L13 7 L7 13 L1 7 Z" fill="var(--series-2)"/></svg>Binomial(1000, λ/1000)</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="2" width="12" height="11" fill="var(--series-1)"/></svg>k or fewer events</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="2" width="12" height="11" fill="var(--dot)" opacity="0.6"/></svg>More than k</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 1 L13 7 L7 13 L1 7 Z" fill="var(--series-2)"/></svg>Binomial look-alike: 1,000 tries, tiny chance each</span>
   </div>
 
   <div class="readout" aria-live="polite">
-    <div class="card"><div class="label">Mean = variance = λ</div><div class="value" id="lam"></div></div>
-    <div class="card"><div class="label">P(X = 0) = e^(−λ)</div><div class="value" id="p0"></div></div>
-    <div class="card"><div class="label">P(X = k)</div><div class="value" id="pk"></div></div>
-    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>P(X ≤ k)</div><div class="value" id="cdf"></div></div>
+    <div class="card"><div class="label">Average λ (also the variance)</div><div class="value" id="lam"></div></div>
+    <div class="card"><div class="label">Chance of none, P(X = 0)</div><div class="value" id="p0"></div></div>
+    <div class="card"><div class="label">Chance of exactly k, P(X = k)</div><div class="value" id="pk"></div></div>
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>Chance of k or fewer, P(X ≤ k)</div><div class="value" id="cdf"></div></div>
   </div>
   <p class="verdict" id="verdict" aria-live="polite"></p>
 
@@ -76,22 +76,30 @@ function render() {
     }
   }
   Viz.el("text", { x: L - 8, y: Y(top / 1.15) + 4, "text-anchor": "end" }, layer).textContent = f(top / 1.15);
-  Viz.el("text", { x: (L + R) / 2, y: 280, "text-anchor": "middle" }, layer).textContent = "Number of events in the interval";
+  Viz.el("text", { x: (L + R) / 2, y: 280, "text-anchor": "middle" }, layer).textContent = "Number of events in one hour (or any fixed stretch of time)";
 
   const cdf = probs.slice(0, k + 1).reduce((a, b) => a + b, 0);
   $("lam").textContent = lam.toFixed(1);
   $("p0").textContent = f(Math.exp(-lam));
   $("pk").textContent = f(probs[k]);
   $("cdf").textContent = f(cdf);
-  $("verdict").textContent = "On average " + lam.toFixed(1) + " events occur per interval. " + (showBinom
+  $("verdict").textContent = "On average " + lam.toFixed(1) + " events happen per hour. " + (showBinom
     ? "The orange diamonds (a binomial with 1,000 trials) sit right on top of the Poisson bars: with many trials and a tiny p, only np = λ matters."
     : "A small λ gives a skewed shape that piles up near 0. As λ grows, the shape becomes more symmetric and bell-like.");
 }
 
-Viz.slider($("sliders"), { label: "Average rate (λ)", min: 0.5, max: 20, step: 0.5, value: lam, format: (v) => "λ = " + v.toFixed(1), onInput: (v) => { lam = v; render(); } });
-kSlider = Viz.slider($("sliders"), { label: "Threshold (k)", min: 0, max: 30, step: 1, value: k, format: (v) => "k = " + v, onInput: (v) => { k = v; render(); } });
+Viz.slider($("sliders"), { label: "Average per hour (λ)", min: 0.5, max: 20, step: 0.5, value: lam, format: (v) => "λ = " + v.toFixed(1), onInput: (v) => { lam = v; render(); } });
+kSlider = Viz.slider($("sliders"), { label: "Cut-off (k)", min: 0, max: 30, step: 1, value: k, format: (v) => "k = " + v, onInput: (v) => { k = v; render(); } });
 $("binom").addEventListener("click", () => { showBinom = !showBinom; $("binom").setAttribute("aria-pressed", showBinom); $("binom").textContent = showBinom ? "Hide the binomial look-alike" : "Show the binomial look-alike"; render(); });
 Viz.themeToggle($("theme"));
+Viz.tour([
+  { target: "#plot", title: "Patients arriving", text: "An emergency room gets **4 patients an hour** on average. Some hours bring more, some fewer. Each **bar** is the chance of exactly that many arrivals in one hour. 3 and 4 are the most likely, each about 0.195 (20%)." },
+  { target: ".readout", title: "Reading the cards", text: "The average, **λ = 4**, is the only number this model needs. The chance of a completely **empty hour** is just 0.0183 (under 2%). The chance of **exactly 2** arrivals is 0.1465, and of **2 or fewer** is 0.2381." },
+  { target: "#sliders", title: "Planning for a rush", text: "The manager worries about **8 or more** patients in an hour. Let us move the cut-off to **7**. The blue bars add up to 0.9489, so a rush of 8 or more has about a **5%** chance (1 − 0.9489).", action: { label: "Set the cut-off to 7", run: () => { const r = document.querySelectorAll("#sliders input[type=range]")[1]; r.value = 7; r.dispatchEvent(new Event("input")); } } },
+  { target: "#sliders", title: "A busier hospital", text: "Let us raise the average to **15** an hour. The hill moves right, spreads out and looks more like a balanced bell. A small average piles up near 0 instead.", action: { label: "Set the average to 15", run: () => { const r = document.querySelectorAll("#sliders input[type=range]")[0]; r.value = 15; r.dispatchEvent(new Event("input")); } } },
+  { target: "#binom", title: "A look-alike", text: "Imagine 1,000 people nearby, each with a tiny chance of coming in this hour. Counting them is a **binomial**. Its orange diamonds sit right on top of the bars: when there are many tries and each chance is tiny, only the average matters.", action: { label: "Show the look-alike", run: () => { if (document.getElementById("binom").getAttribute("aria-pressed") !== "true") document.getElementById("binom").click(); } } },
+  { target: "#sliders", title: "Your turn", text: "Drag λ down to **1** and watch the bars pile up against 0. Look for: the chance of an empty hour (the second card) jumps to about **0.37**." },
+]);
 render();
 </script>
 </body>

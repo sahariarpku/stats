@@ -12,7 +12,7 @@
   <div class="viz-head">
     <div>
       <h1>Shape of the binomial</h1>
-      <p class="hint">Count the successes in n trials with success probability p. Move the sliders. The blue bars are the values up to k.</p>
+      <p class="hint">Try something n times, where each try succeeds with chance p, and count the successes. Each bar is the chance of one possible count. Bars up to k are blue.</p>
     </div>
     <button id="theme" type="button">Theme: auto</button>
   </div>
@@ -20,16 +20,16 @@
   <svg id="plot" viewBox="0 0 760 290" role="img" aria-label="Bar chart of the binomial probabilities with an optional normal curve"></svg>
 
   <div class="legend">
-    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="2" width="12" height="11" fill="var(--series-1)"/></svg>k and below</span>
-    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="2" width="12" height="11" fill="var(--dot)" opacity="0.6"/></svg>Above k</span>
-    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="6" width="14" height="3" fill="var(--series-2)"/></svg>Normal curve (same mean and SD)</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="2" width="12" height="11" fill="var(--series-1)"/></svg>k or fewer successes</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="2" width="12" height="11" fill="var(--dot)" opacity="0.6"/></svg>More than k</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="6" width="14" height="3" fill="var(--series-2)"/></svg>Bell-shaped normal curve (same centre and spread)</span>
   </div>
 
   <div class="readout" aria-live="polite">
-    <div class="card"><div class="label">Mean np</div><div class="value" id="mean"></div></div>
-    <div class="card"><div class="label">SD √(np(1−p))</div><div class="value" id="sd"></div></div>
-    <div class="card"><div class="label">P(X = k)</div><div class="value" id="pk"></div></div>
-    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>P(X ≤ k)</div><div class="value" id="cdf"></div></div>
+    <div class="card"><div class="label">Average count, n × p</div><div class="value" id="mean"></div></div>
+    <div class="card"><div class="label">Typical spread (SD), √(np(1−p))</div><div class="value" id="sd"></div></div>
+    <div class="card"><div class="label">Chance of exactly k, P(X = k)</div><div class="value" id="pk"></div></div>
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>Chance of k or fewer, P(X ≤ k)</div><div class="value" id="cdf"></div></div>
   </div>
   <p class="verdict" id="verdict" aria-live="polite"></p>
 
@@ -95,11 +95,19 @@ function render() {
     : "Here np = " + f(mean) + " and n(1 − p) = " + f(n * (1 - p)) + " (at least one is below 10)" + ", so the shape is lopsided or bumpy and the normal approximation is shaky. Try raising n towards 100 with p near 0.5.");
 }
 
-Viz.slider($("sliders"), { label: "Trials (n)", min: 1, max: 100, step: 1, value: n, format: (v) => "n = " + v, onInput: (v) => { n = v; render(); } });
-Viz.slider($("sliders"), { label: "Success probability (p)", min: 0.01, max: 0.99, step: 0.01, value: p, format: (v) => "p = " + v.toFixed(2), onInput: (v) => { p = v; render(); } });
-kSlider = Viz.slider($("sliders"), { label: "Threshold (k)", min: 0, max: n, step: 1, value: k, format: (v) => "k = " + v, onInput: (v) => { k = v; render(); } });
+Viz.slider($("sliders"), { label: "Number of tries (n)", min: 1, max: 100, step: 1, value: n, format: (v) => "n = " + v, onInput: (v) => { n = v; render(); } });
+Viz.slider($("sliders"), { label: "Chance each try succeeds (p)", min: 0.01, max: 0.99, step: 0.01, value: p, format: (v) => "p = " + v.toFixed(2), onInput: (v) => { p = v; render(); } });
+kSlider = Viz.slider($("sliders"), { label: "Cut-off (k)", min: 0, max: n, step: 1, value: k, format: (v) => "k = " + v, onInput: (v) => { k = v; render(); } });
 $("normal").addEventListener("click", () => { showNormal = !showNormal; $("normal").setAttribute("aria-pressed", showNormal); $("normal").textContent = showNormal ? "Hide the normal curve" : "Show the normal curve"; render(); });
 Viz.themeToggle($("theme"));
+Viz.tour([
+  { target: "#plot", title: "Ten patients, one drug", text: "A drug works for **70%** of patients, and **10** patients take it. How many will it help? Each **bar** is one possible answer, from 0 to 10, and its height is the chance of that answer. The tallest bar is at **7**." },
+  { target: ".readout", title: "The key numbers", text: "On average the drug helps **7** of the 10 (n × p = 10 × 0.7). The **SD** of about 1.45 says the real count usually lands within 1 or 2 of that. The chance of **exactly 7** is 0.2668, and of **7 or fewer** is 0.6172." },
+  { target: "#sliders", title: "Three sliders", text: "**Number of tries (n)**: how many patients. **Chance each try succeeds (p)**: how often the drug works. **Cut-off (k)**: bars at k and below turn blue, and the last card adds them up." },
+  { target: "#sliders", title: "More patients", text: "Let us give the drug to **100** patients and move the cut-off to **70**. The bars now form a smooth, balanced hill centred on 70, with an SD of about 4.58.", action: { label: "Use 100 patients", run: () => { const rs = document.querySelectorAll("#sliders input[type=range]"); rs[0].value = 100; rs[0].dispatchEvent(new Event("input")); rs[2].value = 70; rs[2].dispatchEvent(new Event("input")); } } },
+  { target: "#normal", title: "Meet the bell curve", text: "Now show the **normal curve**: a smooth bell with the same centre and spread. With 100 patients it hugs the bars closely, so it can stand in for them. With only 10 patients it would fit badly.", action: { label: "Show the curve", run: () => { if (document.getElementById("normal").getAttribute("aria-pressed") !== "true") document.getElementById("normal").click(); } } },
+  { target: "#sliders", title: "Your turn", text: "Drag **p** down to about 0.05 and watch the hill squash against the left edge. Look for: the sentence above tells you when the bell curve is a safe stand-in (both n × p and n × (1 − p) at least 10)." },
+]);
 render();
 </script>
 </body>
