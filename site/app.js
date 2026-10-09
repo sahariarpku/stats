@@ -232,6 +232,7 @@
       const fit = () => {
         cancelAnimationFrame(raf);
         raf = requestAnimationFrame(() => {
+          if (!frame.isConnected || !d.defaultView) return; // the page moved on and the frame is gone
           let bottom = target.getBoundingClientRect().bottom;
           d.querySelectorAll(".tour-card").forEach((c) => { bottom = Math.max(bottom, c.getBoundingClientRect().bottom); });
           frame.style.height = Math.ceil(bottom + (d.defaultView.scrollY || 0) + 30) + "px";
