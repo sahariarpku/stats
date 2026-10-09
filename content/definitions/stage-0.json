@@ -1,0 +1,92 @@
+{
+  "Statistics": {
+    "explain": "Statistics is the craft of turning data into conclusions while being honest about how sure you are. It has two jobs. The first is to describe the data you have, with averages, spreads and pictures. The second is to infer: to say something about a bigger group, or the future, from a limited set of observations. The key word is uncertainty. A statistician never just says 'the answer is 7'. They say 'it is probably between 6 and 8, and here is how confident I am'.",
+    "example": "A café counts 120 customers on Monday and 95 on Tuesday. Saying 'Monday was busier' is description. Saying 'Mondays are usually busier, and we should staff an extra barista' is inference, and statistics tells you how many Mondays you need to watch before you can say that with confidence.",
+    "joke": ["Why did the statistician bring a ladder to work?", "To take their conclusions to the next level of confidence."],
+    "walk": "what-is-statistics"
+  },
+  "Descriptive": {
+    "explain": "Descriptive statistics summarise the data you actually hold. They make no claim about anyone outside your data set, so there is nothing to be uncertain about: if you averaged your 30 test scores correctly, that average is exactly right. Means, medians, percentages, ranges and charts are all descriptive tools. They answer 'what does my data look like?' and stop there.",
+    "example": "Your class of 30 students scored an average of 71 on a quiz, with the lowest at 42 and the highest at 98. Those three numbers describe this class exactly. They say nothing yet about students in other classes.",
+    "joke": ["Why are descriptive statistics so easy to get along with?", "They only talk about people who are actually in the room."],
+    "walk": "what-is-statistics"
+  },
+  "Inferential": {
+    "explain": "Inferential statistics take a step beyond the data. You study a sample, then draw a conclusion about the larger group it came from. Because you did not see everyone, the conclusion carries uncertainty, and good inference always states how much: a margin of error, a confidence interval, or a p-value. It is the difference between 'these 500 voters favour Smith by 4 points' and 'the whole country probably favours Smith by between 1 and 7 points'.",
+    "example": "A poll asks 1,000 adults and finds 54% support a new park. The inference is that support among all adults in the city is about 54%, give or take 3 percentage points. The '±3' is the honest part: it admits we only asked 1,000 people.",
+    "joke": ["Why did the inferential statistician never finish a sentence with certainty?", "They always left a little margin for error."],
+    "walk": "what-is-statistics"
+  },
+  "Population": {
+    "explain": "The population is the entire group your question is about. Not the people you managed to ask, but every single one you care about. It can be people, but also light bulbs from a factory, days of the year, or trees in a forest. Defining the population clearly is the first step of any study, because a sample can only speak for the population it was drawn from.",
+    "example": "If the question is 'how many hours do UK teenagers sleep on school nights?', the population is every teenager in the UK, several million people. You cannot ask them all, so you will study a sample of them.",
+    "joke": ["Why did the population refuse to fill in the survey?", "It said, 'You can't handle all of me. Take a sample.'"],
+    "walk": "population-sample"
+  },
+  "Sample": {
+    "explain": "A sample is the smaller group you actually measure, chosen to stand in for the population. Think of tasting a spoonful of soup to judge the whole pot. The spoonful only tells the truth if the soup was stirred, and in statistics, stirring means choosing the sample at random. A large but badly chosen sample can be worse than a small, fair one.",
+    "example": "To estimate how many hours UK teenagers sleep, researchers randomly pick 800 teenagers from school registers across the country. Those 800 are the sample. Their average, say 7.4 hours, is the best guess for the whole population.",
+    "joke": ["Why did the chef trust just one spoonful of soup?", "Because it was a well-stirred random sample."],
+    "walk": "population-sample"
+  },
+  "Variable": {
+    "explain": "A variable is any characteristic that can differ from one individual to the next. Age, eye colour, number of siblings and favourite pizza topping are all variables. In a spreadsheet, each column is usually a variable and each row is an individual. The first question to ask about any variable is what type it is, because the type decides which charts and calculations make sense.",
+    "example": "In a survey of 50 students, the columns might be height (cm), year group, number of pets and favourite subject. Each of these four columns is a variable, because its value changes from student to student.",
+    "joke": ["Why did the variable go to therapy?", "It couldn't stop changing from person to person."],
+    "walk": "data-types"
+  },
+  "Categorical": {
+    "explain": "Categorical data sort individuals into groups or labels. Blood type, country of birth and favourite colour are categorical. Sometimes the labels are written as numbers, like ZIP codes or shirt numbers, but doing arithmetic with them makes no sense: the average of two ZIP codes is not a place. The test is simple. If adding or averaging the values would be nonsense, the data are categorical.",
+    "example": "A survey records each person's blood type: A, B, AB or O. You can count how many people fall into each group (say 18 A, 6 B, 2 AB and 24 O) and draw a bar chart, but you cannot work out an 'average blood type'.",
+    "joke": ["Why did the ZIP code refuse to be averaged?", "It said, 'I may look like a number, but I'm categorical at heart.'"],
+    "walk": "data-types"
+  },
+  "Numerical": {
+    "explain": "Numerical data are numbers where arithmetic means something. Heights, prices, temperatures and test scores are numerical, because it makes sense to add them, subtract them or take an average. Numerical data come in two flavours: discrete (counted, like the number of children) and continuous (measured, like weight).",
+    "example": "Five friends spent £12, £8, £15, £10 and £5 on lunch. These are numerical: the total is £50 and the average is £10. Compare that with their shirt numbers, which look like numbers but are really labels.",
+    "joke": ["Why are numerical data so good at parties?", "They always add something."],
+    "walk": "data-types"
+  },
+  "Discrete": {
+    "explain": "Discrete data are counts. They jump from one value to the next with nothing in between: a family can have 2 or 3 children, but not 2.4. Any time you answer a question with 'how many?', you are usually collecting discrete data. A discrete average can still be a fraction (2.4 children per family), even though no single family has 2.4.",
+    "example": "A teacher records how many books each of 10 students read over the summer: 0, 2, 1, 5, 3, 2, 4, 1, 0, 2. Every value is a whole number, because you cannot read half a book and count it. The average is 20 ÷ 10 = 2 books.",
+    "joke": ["Why did the family with 2.4 children get confused?", "Nobody told them averages don't have to be discrete."],
+    "walk": "data-types"
+  },
+  "Continuous": {
+    "explain": "Continuous data are measurements that could, in principle, take any value in a range. Between 1.70 m and 1.71 m there are endless possible heights, limited only by how fine your ruler is. Time, weight, distance and temperature are classic continuous variables. In practice we round them, but the thing being measured flows smoothly.",
+    "example": "Five runners finish a race in 31.2, 28.75, 35.04, 29.9 and 33.18 minutes. A stopwatch with more decimal places would give even more precise times, which is the mark of continuous data.",
+    "joke": ["Why did the continuous variable never finish its sentence?", "There was always another decimal place to add."],
+    "walk": "data-types"
+  },
+  "Ordinal": {
+    "explain": "Ordinal data are categories with a natural order, but uneven or unknown gaps between them. Survey answers like 'disagree, neutral, agree', medal positions, and T-shirt sizes are ordinal. You can say one is higher than another, but not by how much: the gap between gold and silver might be a hundredth of a second, while the gap between silver and bronze is a full minute. That is why the median suits ordinal data better than the mean.",
+    "example": "A hotel asks guests to rate their stay as Poor, Fair, Good or Excellent. 'Excellent' is clearly better than 'Good', so the data have order. But nobody can say the jump from Fair to Good is the same size as the jump from Good to Excellent.",
+    "joke": ["Why did the bronze medallist feel cheated by ordinal data?", "It knew it was third, but nobody would say how far behind."],
+    "walk": "data-types"
+  },
+  "Parameter": {
+    "explain": "A parameter is a fixed number that describes a whole population, such as the true average height of every adult in a country. It exists, but we almost never know it, because we cannot measure everyone. Parameters are usually written with Greek letters: μ for a population mean, σ for a population standard deviation, p for a population proportion. The whole point of a sample is to estimate them.",
+    "example": "The true proportion of all voters in a city who support a new tram line is a parameter, say p = 0.58. Nobody knows it is 0.58. A poll of 600 voters might find 0.55, which is our estimate of that unknown 0.58.",
+    "joke": ["Why is the parameter so mysterious?", "Everyone talks about it, but nobody has ever actually met it."],
+    "walk": "population-sample"
+  },
+  "Statistic": {
+    "explain": "A statistic is a number you calculate from a sample. The sample mean x̄, the sample standard deviation s and the sample proportion p̂ are all statistics. Unlike a parameter, you know a statistic exactly, but it changes from sample to sample. We use statistics to estimate parameters, and much of this course is about how far a statistic is likely to sit from the parameter it is chasing.",
+    "example": "You weigh 25 apples from an orchard and find their average weight is 152 g. That 152 g is a statistic. Weigh a different 25 apples and you might get 149 g. Both are estimates of the true average weight of every apple in the orchard.",
+    "joke": ["What did the statistic say to the parameter?", "I'm just trying to get close to you."],
+    "walk": "population-sample"
+  },
+  "Sampling error": {
+    "explain": "Sampling error is the natural gap between a statistic and the parameter it estimates, which happens simply because you looked at a sample instead of everyone. It is not a mistake. Even a perfectly random sample will rarely land exactly on the truth. The good news is that sampling error shrinks as the sample grows, and statistics lets you measure how big it is likely to be.",
+    "example": "The true average height of students in a school is 165 cm. One random sample of 20 students gives 163.1 cm, another gives 166.4 cm. Those gaps of −1.9 cm and +1.4 cm are sampling error. With samples of 200, the gaps would usually be much smaller.",
+    "joke": ["Why didn't the statistician apologise for their sampling error?", "Because it wasn't a mistake. It was just the luck of the draw."],
+    "walk": "population-sample"
+  },
+  "Bias": {
+    "explain": "Bias is a systematic tilt: the way you collected the data pushes every result in the same direction. Unlike sampling error, bias does not average out, and a bigger sample does not fix it. It just gives you a more confident wrong answer. Common causes are surveying only volunteers, only people who are easy to reach, or asking leading questions. Think of a bathroom scale that always reads 2 kg heavy: weigh yourself a thousand times and you will still be 2 kg off.",
+    "example": "A gym asks its members how often people exercise and finds an average of 4.5 times a week. The figure is badly biased as an estimate for the whole town, because people who join gyms exercise far more than everyone else. Surveying 5,000 members instead of 500 would not fix it.",
+    "joke": ["Why did the biased survey only interview people at the gym?", "It was working out the answer it wanted."],
+    "walk": "bias-vs-error"
+  }
+}

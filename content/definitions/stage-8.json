@@ -1,0 +1,353 @@
+{
+  "Scatter plot": {
+    "explain": "A scatter plot puts each case on a graph as a single dot, with one variable along the bottom (x) and the other up the side (y). It is the first thing to draw when you want to know whether two numerical variables are related. At a glance it shows direction (do the dots rise or fall?), strength (do they hug a line or form a cloud?), shape (straight or curved?) and any odd points that sit far from the rest.",
+    "example": "Eight students report hours studied (1 to 8) and exam scores (48, 62, 55, 66, 63, 74, 70, 82). Plotting each student as a dot at (hours, score) shows the dots climbing from bottom left to top right, with a little wobble. That picture already tells you more study tends to go with higher scores.",
+    "joke": [
+      "Why did the scatter plot never get lost?",
+      "It always knew its x and y coordinates."
+    ],
+    "walk": "correlation"
+  },
+  "Pearson's r": {
+    "explain": "Pearson's r is a single number between −1 and +1 that measures how closely two variables follow a straight line. Near +1 means the dots rise together in a tight line, near −1 means one falls as the other rises, and near 0 means no straight-line pattern. Two warnings come with it. r only sees straight lines, so a perfect U-shape can score 0. And r says nothing about cause: a strong r is a reason to investigate, not a verdict.",
+    "example": "For the eight students (hours 1 to 8, scores 48, 62, 55, 66, 63, 74, 70, 82), r = 0.91. That is a strong positive straight-line link: students who studied more generally scored higher, with only small exceptions.",
+    "joke": [
+      "Why did Pearson's r get dumped?",
+      "It only cared about straight relationships."
+    ],
+    "walk": "correlation"
+  },
+  "r²": {
+    "explain": "r² is simply Pearson's r squared. It tells you what share of the variation in y lines up with a straight-line link to x. An r of 0.9 sounds close to perfect, but r² = 0.81 is more honest: 81% of the ups and downs in y move with x, and 19% is left to everything else. Because squaring removes the sign, r² cannot tell you whether the link is positive or negative.",
+    "example": "With r = 0.91 for hours studied and exam score, r² = 0.91² ≈ 0.82. So about 82% of the differences between students' scores line up with how long they studied. The other 18% comes from sleep, luck, prior knowledge and so on.",
+    "joke": [
+      "Why did r square itself before the meeting?",
+      "It wanted to look more explained."
+    ],
+    "walk": "correlation"
+  },
+  "Spearman's ρ": {
+    "explain": "Spearman's ρ (rho) is Pearson's r applied to ranks instead of raw values. You replace each value with its position (1st, 2nd, 3rd...) and then measure how well the two rankings agree. This makes it robust to outliers and lets it detect any relationship that steadily rises or falls, even a curved one. It also works for ordinal data like 'rank these five films'.",
+    "example": "For the eight students, the hours are already ranked 1 to 8, and the scores rank 1, 3, 2, 5, 4, 7, 6, 8. The rank differences are 0, −1, 1, −1, 1, −1, 1, 0, so Σd² = 6 and ρ = 1 − 6 × 6 ÷ (8 × 63) ≈ 0.93. The rankings agree very closely.",
+    "joke": [
+      "Why doesn't Spearman care how rich you are?",
+      "It only wants to know where you rank."
+    ],
+    "walk": "correlation"
+  },
+  "Correlation vs causation": {
+    "explain": "Two variables can move together without one causing the other. Often a third variable, a confounder, drives both. Sometimes the cause runs the opposite way to what you assume, and sometimes the link is pure coincidence. A correlation is a clue that something interesting is going on. Only a well-designed experiment, where you change one thing and hold the rest steady, can show that one variable actually changes another.",
+    "example": "Across 12 days, ice-cream sales and swimming accidents have r = 0.84. Ice cream does not cause drowning. Hot weather sends more people to buy ice cream and more people into the water. Compare days of similar temperature and the link largely vanishes.",
+    "joke": [
+      "Did you hear that ice cream causes drowning?",
+      "Neither did the sun, and it's been behind the whole thing."
+    ],
+    "walk": "confounding"
+  },
+  "Regression line": {
+    "explain": "The regression line, ŷ = a + bx, is the straight line that best predicts y from x. 'Best' has a precise meaning: it makes the sum of the squared vertical misses (residuals) as small as possible, which is why it is called the least-squares line. It always passes through the point (x̄, ȳ). Once you have it, you can predict y for any x within the range of your data.",
+    "example": "For the eight students, least squares gives ŷ = 47.2 + 3.95 × hours. A student who studies 6.5 hours is predicted to score 47.2 + 3.95 × 6.5 ≈ 72.9.",
+    "joke": [
+      "Why did the regression line go to therapy?",
+      "It was tired of trying to please every point at once."
+    ],
+    "walk": "regression-line"
+  },
+  "Slope (b)": {
+    "explain": "The slope b is how much the predicted y changes, on average, when x goes up by one unit. It carries units: points per hour, pounds per square metre, kilograms per centimetre. A positive slope means y tends to rise with x, a negative slope means it tends to fall. It is an average rate, not a promise for each individual.",
+    "example": "In ŷ = 47.2 + 3.95 × hours, the slope is 3.95. Each extra hour of study goes with about 4 more exam points, on average. Two extra hours would predict roughly 7.9 more points.",
+    "joke": [
+      "Why was the slope always so positive?",
+      "It knew every extra step would take it higher."
+    ],
+    "walk": "regression-line"
+  },
+  "Intercept (a)": {
+    "explain": "The intercept a is the predicted y when x equals 0: where the line crosses the y-axis. Sometimes it has a real meaning, and sometimes it is just a number that pins the line in place. If x = 0 lies far outside your data (a house with zero square metres, an adult who is 0 cm tall), do not read too much into the intercept.",
+    "example": "In ŷ = 47.2 + 3.95 × hours, the intercept is 47.2. A student who did no study at all is predicted to score about 47. The smallest x in the data is 1 hour, so 0 hours is only a short step outside it and the prediction is roughly sensible.",
+    "joke": [
+      "Why did the intercept never leave home?",
+      "It liked to start from zero."
+    ],
+    "walk": "regression-line"
+  },
+  "Residual": {
+    "explain": "A residual is how far a real data point sits from the line's prediction: actual y minus predicted ŷ. A positive residual means the point is above the line (the model under-predicted), a negative one means it is below (the model over-predicted). Residuals are the raw material for judging a model: their squares are what least squares minimises, and their pattern tells you whether a straight line was the right choice.",
+    "example": "The student who studied 2 hours scored 62. The line predicts 47.2 + 3.95 × 2 ≈ 55.1. The residual is 62 − 55.1 = +6.9: this student did about 7 points better than the line expected.",
+    "joke": [
+      "What did the data point say to the regression line?",
+      "You've missed me, and I can prove it with a residual."
+    ],
+    "walk": "regression-line"
+  },
+  "SSE": {
+    "explain": "SSE, the sum of squared errors, adds up the square of every residual: Σ(y − ŷ)². Squaring stops positive and negative misses from cancelling out and punishes big misses more than small ones. The least-squares line is defined as the line with the smallest possible SSE. Any other line you could draw through the same points would have a bigger one.",
+    "example": "For the eight students, the residuals are about −3.2, 6.9, −4.1, 3.0, −4.0, 3.1, −4.9 and 3.2. Squaring and adding them gives SSE ≈ 141.9. Tilt the line even slightly and that total goes up.",
+    "joke": [
+      "Why is SSE so hard to impress?",
+      "It squares every mistake you make."
+    ],
+    "walk": "regression-line"
+  },
+  "s (standard error of the estimate)": {
+    "explain": "s, the standard error of the estimate, is the typical size of a residual: roughly how far a real point lands from the line. It is calculated as √[SSE ÷ (n − 2)], dividing by n − 2 because the line used up two numbers (slope and intercept). It is in the same units as y, which makes it easy to interpret: 'predictions are usually off by about s'.",
+    "example": "For the eight students, SSE ≈ 141.9 and n = 8, so s = √(141.9 ÷ 6) ≈ 4.9. A typical prediction from the line misses a student's real score by about 5 points.",
+    "joke": [
+      "Why did the regression line carry an s everywhere?",
+      "So it could tell everyone how wrong it usually is."
+    ],
+    "walk": "regression-line"
+  },
+  "Interpolation / extrapolation": {
+    "explain": "Interpolation means predicting y for an x inside the range you measured. Extrapolation means predicting beyond it. Interpolation is usually reasonable, because you have data nearby to support the line. Extrapolation is risky, because nothing guarantees the straight-line pattern continues: growth slows, limits kick in, and the world curves.",
+    "example": "The students studied between 1 and 8 hours. Predicting a score for 6.5 hours (about 72.9) is interpolation. Predicting for 20 hours gives 47.2 + 3.95 × 20 ≈ 126, which is impossible on a test marked out of 100. That is extrapolation going wrong.",
+    "joke": [
+      "My weight-loss line says I'll weigh −20 kg by Christmas.",
+      "I've decided to stop extrapolating and start eating."
+    ],
+    "walk": "regression-line"
+  },
+  "Regression to the mean": {
+    "explain": "When a measurement is extreme partly by luck, the next measurement of the same thing tends to be less extreme. This is regression to the mean. It is not a force pulling people back; it happens because the luck that made the first score extreme is unlikely to repeat. It fools people constantly: a treatment given to the sickest patients, or praise withheld after a great performance, can seem to 'work' when the change was mostly regression.",
+    "example": "Ten students sit a Monday quiz and again on Friday. The top scorer on Monday got 89 and dropped to 80 on Friday, while the lowest Monday scorer rose from 52 to 62. Nobody's ability changed overnight. The extreme scores simply had more good or bad luck in them.",
+    "joke": [
+      "Why did the record-breaking athlete hate statistics?",
+      "Because the stats said their next season would be more average."
+    ],
+    "walk": "regression-to-the-mean"
+  },
+  "SST, SSR, SSE": {
+    "explain": "These three sums of squares split up the variation in y. SST (total) measures how far the y-values spread around their mean. SSR (regression) is the part the line explains. SSE (error) is the part left over in the residuals. They always fit together as SST = SSR + SSE, like a pie cut into an 'explained' slice and an 'unexplained' slice.",
+    "example": "For the eight students, the scores spread around their mean with SST = 798. The line explains SSR ≈ 656, and the residuals leave SSE ≈ 142. Check: 656 + 142 = 798.",
+    "joke": [
+      "Why are SST, SSR and SSE such a close family?",
+      "Because SSR and SSE always add up to the total."
+    ],
+    "walk": "r-squared"
+  },
+  "Adjusted R²": {
+    "explain": "R² can only go up when you add a predictor, even a useless one, because extra flexibility always soaks up a little noise. Adjusted R² corrects for this by charging a small penalty for every predictor. If a new variable does not pull its weight, adjusted R² goes down. Use it when comparing models with different numbers of predictors.",
+    "example": "For the eight students, R² = 656 ÷ 798 ≈ 0.82. With n = 8 and one predictor, adjusted R² = 1 − (1 − 0.82) × 7 ÷ 6 ≈ 0.79. Add a useless predictor like shoe size and R² might creep to 0.83, while adjusted R² would likely fall.",
+    "joke": [
+      "Why did adjusted R² refuse to hire more predictors?",
+      "It had already seen what happens to the budget."
+    ],
+    "walk": "r-squared"
+  },
+  "Residual plot": {
+    "explain": "A residual plot puts the residuals on the y-axis against the fitted values (or x) on the x-axis. If a straight line suits the data, you should see a shapeless horizontal band around zero. A curve in the plot means the relationship is not straight. A fan shape means the spread changes. A residual plot often reveals problems that the original scatter plot hides.",
+    "example": "For the eight students, the residuals (−3.2, 6.9, −4.1, 3.0, −4.0, 3.1, −4.9, 3.2) bounce above and below zero with no curve or fan, so the straight line looks appropriate. If instead the residuals were positive at both ends and negative in the middle, you would need a curve.",
+    "joke": [
+      "Why did the residual plot get sent to art school?",
+      "Because a good one looks like absolutely nothing."
+    ],
+    "walk": "residual-plots"
+  },
+  "Heteroscedasticity": {
+    "explain": "Heteroscedasticity (try saying it twice) means the spread of the residuals changes as x changes, usually fanning out as x grows. It does not bias the slope, but it makes the usual standard errors and p-values unreliable, and a single 's' no longer describes the typical miss. Common fixes are transforming y (often with logs) or using robust standard errors.",
+    "example": "Predicting monthly spending from income: households on £1,500 a month spend within about £100 of the line, while households on £10,000 a month can be £2,000 above or below it. The residual plot looks like a megaphone. That is heteroscedasticity.",
+    "joke": [
+      "Why did the residuals get spread out at the party?",
+      "The x-values kept getting bigger and nobody could keep them in line."
+    ],
+    "walk": "residual-plots"
+  },
+  "Leverage": {
+    "explain": "Leverage measures how unusual a point's x-value is compared with the rest. A point far from x̄ sits at the end of the seesaw, so it has the power to tilt the line. High leverage alone is not a problem: if the point lies on the trend, it simply confirms it. Trouble starts when a high-leverage point also misses the pattern.",
+    "example": "Add a ninth student who studied 9 hours to the eight who studied 1 to 8. With x̄ = 5, the newcomer's leverage is h = 1/9 + (9 − 5)² ÷ 60 ≈ 0.38, against an average leverage of 0.22. Their score has unusual power over where the line goes.",
+    "joke": [
+      "Why did the data point at x = 100 get all the attention?",
+      "It had a lot of leverage over the rest of the group."
+    ],
+    "walk": "residual-plots"
+  },
+  "Influential point": {
+    "explain": "An influential point is one that changes the fitted line noticeably if you remove it. It usually combines high leverage (an unusual x) with a large residual (a big miss). Cook's distance measures this: values above 1 are a common warning flag. Never delete an influential point just because it is inconvenient. Check whether it is a mistake, and report results with and without it.",
+    "example": "A ninth student studies 9 hours but scores only 30, with a residual of −32.8. Combined with high leverage, that gives Cook's distance D = 1.96, well above 1. Adding this one student drags the slope from 3.95 down to 0.43 and R² from 0.82 to 0.01.",
+    "joke": [
+      "Why did the influential point get its own reality show?",
+      "Every time it left, everything changed."
+    ],
+    "walk": "residual-plots"
+  },
+  "Confidence interval (mean)": {
+    "explain": "A confidence interval for the mean response gives a range for the average y of all individuals with a particular x. It answers 'what is the typical score of students who study 6.5 hours?'. Because it is about an average, it is fairly narrow, and it is narrowest near x̄, where the line is pinned down best.",
+    "example": "For the eight students, the 95% confidence interval for the mean score at 6.5 hours is about 72.9 ± 5.6, or 67.3 to 78.5. We are fairly sure the average for everyone who studies 6.5 hours falls in that range.",
+    "joke": [
+      "Why is the confidence interval for the mean so calm?",
+      "It only has to worry about the average student."
+    ],
+    "walk": "residual-plots"
+  },
+  "Prediction interval": {
+    "explain": "A prediction interval gives a range for a single new individual's y at a given x. It must cover two sources of doubt: where the true line is, and how far one person can scatter around it. That makes it much wider than the confidence interval for the mean. If you want to predict one person, use this one.",
+    "example": "At 6.5 hours, the 95% prediction interval for one new student's score is about 72.9 ± 13.2, or 59.8 to 86.1. That is more than twice as wide as the interval for the average (±5.6), because individuals vary far more than averages do.",
+    "joke": [
+      "Why is the prediction interval so much wider?",
+      "Predicting one person is harder than predicting a crowd."
+    ],
+    "walk": "residual-plots"
+  },
+  "Multiple regression": {
+    "explain": "Multiple regression predicts y from two or more predictors at once: ŷ = a + b₁x₁ + b₂x₂ + .... With two predictors, the line becomes a flat plane through a 3D cloud of points. Its big advantage is that each slope is measured while the others are held fixed, which lets you separate effects that would be tangled together in a simple regression.",
+    "example": "Predicting exam score from hours of study and hours of sleep for 12 students gives ŷ = 23.9 + 3.02 × study + 5.16 × sleep. A student who studies 5 hours and sleeps 7 is predicted to score 23.9 + 15.1 + 36.1 ≈ 75.",
+    "joke": [
+      "Why did the regression line upgrade to multiple regression?",
+      "It was tired of living in a flat."
+    ],
+    "walk": "multiple-regression"
+  },
+  "Partial slope": {
+    "explain": "A partial slope is the change in predicted y for one extra unit of one predictor, while every other predictor stays the same. It is the 'all else being equal' effect. It can be very different from the slope you would get using that predictor alone, because the simple slope mixes in the effects of anything correlated with it.",
+    "example": "In ŷ = 23.9 + 3.02 × study + 5.16 × sleep, the partial slope for sleep is 5.16. Comparing two students who studied the same number of hours, the one who slept an hour more is predicted to score about 5 points higher.",
+    "joke": [
+      "Why is the partial slope so fair?",
+      "It always insists that everything else be held equal."
+    ],
+    "walk": "multiple-regression"
+  },
+  "Dummy variable": {
+    "explain": "A dummy variable turns a category into a number the regression can use: 1 if the individual is in the group, 0 if not. Its coefficient is the average difference between the group and the baseline, holding the other predictors fixed. A category with k groups needs k − 1 dummies; the leftover group is the baseline everyone is compared with.",
+    "example": "Predicting house price from size and garden: garden = 1 if the house has one, 0 if not. If the coefficient is 12,000, then two houses of the same size differ in predicted price by £12,000 when one has a garden and the other does not.",
+    "joke": [
+      "Why did the dummy variable feel so confident?",
+      "Because it's always either all in or not at all."
+    ],
+    "walk": "multiple-regression"
+  },
+  "Overall F-test": {
+    "explain": "The overall F-test asks one big question about a multiple regression: do the predictors, taken together, explain anything at all? Its null hypothesis is that every slope is zero. F compares the explained variation per predictor with the unexplained variation per remaining degree of freedom. A large F (small p-value) means at least one predictor is useful, though it does not say which.",
+    "example": "For the 12 students with study and sleep as predictors, F = (SSR ÷ 2) ÷ (SSE ÷ 9) ≈ 521, with a p-value far below 0.001. We reject the idea that neither study nor sleep helps predict the score.",
+    "joke": [
+      "Why did the overall F-test get invited to every meeting?",
+      "It could tell whether anyone in the room was useful."
+    ],
+    "walk": "multiple-regression"
+  },
+  "Multicollinearity": {
+    "explain": "Multicollinearity means two or more predictors are strongly correlated, so they carry much the same information. The model can still predict well, but it cannot tell which predictor deserves the credit. The slopes become unstable, their standard errors balloon, and they can flip sign when you add or drop a single data point.",
+    "example": "Predicting house price from both floor area (m²) and number of rooms: bigger houses have more rooms, so the two predictors are correlated around 0.9. The model might say each extra room lowers the price, which makes no sense. Both predictors are telling the same story.",
+    "joke": [
+      "Why did the two correlated predictors get kicked off the team?",
+      "Nobody could tell which one actually scored."
+    ],
+    "walk": "multicollinearity"
+  },
+  "VIF": {
+    "explain": "The variance inflation factor, VIF = 1 ÷ (1 − R²ⱼ), measures how much multicollinearity inflates the variance of one predictor's slope. R²ⱼ comes from predicting that predictor from all the others. A VIF of 1 means no overlap. Above about 5 to 10 is a warning sign. The standard error grows by √VIF.",
+    "example": "If floor area can be predicted from the number of rooms with R²ⱼ = 0.90, then VIF = 1 ÷ (1 − 0.90) = 10. The slope's standard error is √10 ≈ 3.2 times larger than it would be with no overlap.",
+    "joke": [
+      "Why did the VIF hit 10?",
+      "It found out the two predictors had been copying each other's homework."
+    ],
+    "walk": "multicollinearity"
+  },
+  "Overfitting": {
+    "explain": "Overfitting happens when a model is so flexible that it fits the noise in your data, not just the pattern. It looks brilliant on the data it was built from and disappoints on new data. Signs include too many predictors for the sample size, a wiggly curve through every point, and a big drop in accuracy when you test on fresh cases.",
+    "example": "Through the eight students' scores, a seventh-degree polynomial can pass exactly through every point, so R² = 1. But between the points it swings wildly, predicting absurd scores for 6.5 hours of study. The plain straight line, with R² = 0.82, predicts new students far better.",
+    "joke": [
+      "Why did the overfitted model ace the practice test but fail the exam?",
+      "It memorised the answers instead of learning the subject."
+    ],
+    "walk": "multicollinearity"
+  },
+  "Logistic regression": {
+    "explain": "Logistic regression predicts a yes/no outcome: pass or fail, spam or not, sick or healthy. A straight line could predict probabilities below 0 or above 1, so logistic regression models the log-odds as a straight line and then squeezes the result through an S-shaped curve. The output is always a proper probability between 0 and 1.",
+    "example": "Suppose the fitted model for passing an exam is log-odds = −4 + 1.2 × hours. At 3 hours the log-odds is −0.4, giving a 40% chance of passing. At 5 hours it is 2, giving an 88% chance.",
+    "joke": [
+      "Why did the straight line fail at predicting yes or no?",
+      "It kept promising a 130% chance of passing."
+    ],
+    "walk": "logistic-regression"
+  },
+  "Odds": {
+    "explain": "Odds compare the chance of yes with the chance of no: odds = p ÷ (1 − p). A probability of 0.5 gives odds of 1 ('evens'). A probability of 0.8 gives odds of 4, often said as '4 to 1'. Odds run from 0 to infinity, which is why logistic regression likes them: unlike probabilities, they have no ceiling at 1.",
+    "example": "If 80% of students who study 6 hours pass, the odds of passing are 0.8 ÷ 0.2 = 4. For every student who fails, four pass.",
+    "joke": [
+      "What are the odds that a statistician uses odds in a sentence?",
+      "Higher than you think, and they'll tell you exactly how much."
+    ],
+    "walk": "logistic-regression"
+  },
+  "Logit": {
+    "explain": "The logit is the natural log of the odds: ln[p ÷ (1 − p)]. It stretches probabilities, which are trapped between 0 and 1, onto the whole number line from minus infinity to plus infinity. A probability of 0.5 has a logit of 0; probabilities above 0.5 give positive logits, below 0.5 negative ones. Logistic regression fits a straight line to the logit.",
+    "example": "A probability of 0.8 has odds 4, so its logit is ln 4 ≈ 1.39. A probability of 0.2 has odds 0.25, so its logit is ln 0.25 ≈ −1.39. Equal distances from 0.5 give mirror-image logits.",
+    "joke": [
+      "Why did the probability go to the logit gym?",
+      "It wanted to stretch beyond its limits."
+    ],
+    "walk": "logistic-regression"
+  },
+  "Sigmoid": {
+    "explain": "The sigmoid, p = 1 ÷ (1 + e^−z), is the S-shaped curve that turns any number z into a probability between 0 and 1. It is the reverse of the logit. Very negative z gives a probability near 0, z = 0 gives exactly 0.5, and very positive z gives a probability near 1. The curve is steepest in the middle, where a small change in z moves the probability the most.",
+    "example": "If a model gives z = 2, the sigmoid gives p = 1 ÷ (1 + e^−2) ≈ 0.88. If z = 0, p = 0.5. If z = −2, p ≈ 0.12.",
+    "joke": [
+      "Why is the sigmoid so good at diplomacy?",
+      "No matter how extreme you get, it keeps you between 0 and 1."
+    ],
+    "walk": "logistic-regression"
+  },
+  "Odds ratio": {
+    "explain": "In logistic regression, the odds ratio e^b tells you by what factor the odds multiply for each one-unit rise in x. An odds ratio of 2 means the odds double. An odds ratio of 1 means no change, and below 1 means the odds shrink. Note that it multiplies the odds, not the probability, so the change in probability depends on where you start.",
+    "example": "With log-odds = −4 + 1.2 × hours, the odds ratio is e^1.2 ≈ 3.3. Each extra hour of study multiplies the odds of passing by about 3.3. Going from 3 to 4 hours turns odds of 0.67 into odds of about 2.2.",
+    "joke": [
+      "Why did the odds ratio feel so powerful?",
+      "Every step it took, it multiplied."
+    ],
+    "walk": "logistic-regression"
+  },
+  "Maximum likelihood": {
+    "explain": "Maximum likelihood chooses the parameter values that make the data you actually saw as probable as possible. You ask: 'If the true value were this, how likely would my data be?' and pick the value with the highest answer. Logistic regression uses it to find its coefficients, because least squares does not suit yes/no outcomes.",
+    "example": "A coin lands heads 7 times in 10 flips. If p = 0.5, the chance of that exact sequence is 0.5¹⁰ ≈ 0.00098. If p = 0.7, it is 0.7⁷ × 0.3³ ≈ 0.0022, more than twice as likely. No other value of p beats 0.7, so the maximum-likelihood estimate is p̂ = 0.7.",
+    "joke": [
+      "Why did maximum likelihood win the detective award?",
+      "It always picked the story that best explained the evidence."
+    ],
+    "walk": "logistic-regression"
+  },
+  "Likelihood-ratio test": {
+    "explain": "The likelihood-ratio test compares two nested models: a simpler one and a fuller one that adds some predictors. If the extra predictors help, the fuller model's log-likelihood will be noticeably higher. The test statistic is χ² = 2 × (difference in log-likelihoods), with degrees of freedom equal to the number of predictors added. It plays the role in logistic regression that the F-test plays in ordinary regression.",
+    "example": "A model with no predictors has log-likelihood −13.8. Adding hours of study raises it to −9.2. The test statistic is 2 × (−9.2 − (−13.8)) = 9.2 on 1 degree of freedom, giving p ≈ 0.002. Hours of study clearly improves the model.",
+    "joke": [
+      "Why did the simple model lose the likelihood-ratio test?",
+      "The bigger model made a much more likely story."
+    ],
+    "walk": "logistic-regression"
+  },
+  "Confusion matrix": {
+    "explain": "A confusion matrix is a 2 × 2 table that checks a yes/no classifier against reality. Its four cells are true positives (said yes, was yes), false positives (said yes, was no), false negatives (said no, was yes) and true negatives (said no, was no). The counts depend on the cut-off you choose for turning a predicted probability into a yes. Move the cut-off and the cells shift.",
+    "example": "A spam filter checks 200 emails, 50 of which are spam. It flags 45 of the spam (TP = 45, FN = 5) and wrongly flags 15 of the 150 genuine emails (FP = 15, TN = 135). Overall it is right 180 times out of 200, or 90%.",
+    "joke": [
+      "Why was the spam filter so confused?",
+      "It kept putting the invitations in the junk and the junk in the inbox."
+    ],
+    "walk": "confusion-matrix"
+  },
+  "Sensitivity / specificity": {
+    "explain": "Sensitivity is the share of actual yeses the model catches: TP ÷ (TP + FN). Specificity is the share of actual noes it correctly clears: TN ÷ (TN + FP). There is usually a trade-off. Lower the cut-off and you catch more yeses (higher sensitivity) but raise more false alarms (lower specificity). Which matters more depends on the cost of each kind of mistake.",
+    "example": "For the spam filter, sensitivity = 45 ÷ 50 = 90%: it catches 9 in 10 spam emails. Specificity = 135 ÷ 150 = 90%: it lets 9 in 10 genuine emails through. A medical screening test might accept lower specificity in exchange for very high sensitivity, so it rarely misses a real case.",
+    "joke": [
+      "Why did the smoke alarm have high sensitivity but low specificity?",
+      "It went off every time someone made toast."
+    ],
+    "walk": "confusion-matrix"
+  },
+  "Outlier": {
+    "explain": "In a scatter plot, an outlier is a point that sits far away from the overall pattern of the others. One outlier can drag Pearson's r up or down dramatically, or pull a regression line towards itself, especially when its x-value is also unusual. Always look at the plot before trusting r, and check whether an outlier is a recording mistake or a genuinely unusual case worth explaining.",
+    "example": "For the eight students, r = 0.91. Add a ninth student who studied 9 hours but scored only 30, and r collapses to about 0.08. One point turned a strong relationship into what looks like no relationship at all.",
+    "joke": [
+      "Why did the outlier sit alone at the scatter plot party?",
+      "It just didn't fit in with the trend."
+    ],
+    "walk": "correlation"
+  },
+  "Confounder": {
+    "explain": "A confounder is a hidden third variable that affects both of the variables you are studying, creating a link between them that is not cause and effect. Because it moves both at once, the two variables rise and fall together even if neither has any effect on the other. Randomised experiments break confounding; in observational data you can only measure and adjust for the confounders you think of.",
+    "example": "Ice-cream sales and swimming accidents rise together (r = 0.84 over 12 days). Temperature is the confounder: hot days bring both more ice-cream buyers and more swimmers. Within days of similar temperature, the link between ice cream and accidents largely disappears.",
+    "joke": [
+      "Why did the confounder never get caught?",
+      "It always let two other variables take the blame."
+    ],
+    "walk": "confounding"
+  }
+}

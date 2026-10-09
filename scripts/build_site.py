@@ -85,8 +85,9 @@ def read_definitions():
     """Explanations, examples, jokes and walkthrough links for glossary terms (content/definitions/*.json)."""
     defs = {}
     for f in sorted((ROOT / "content" / "definitions").glob("*.json")):
+        stage = int(re.search(r"stage-(\d+)", f.name).group(1))
         for term, d in json.loads(f.read_text(encoding="utf-8")).items():
-            defs[term.lower()] = d
+            defs[(stage, term.lower())] = d
     return defs
 
 
@@ -156,7 +157,9 @@ def build():
     course["walks"] = read_walks()
     defs = read_definitions()
     for g in course["glossary"]:
-        d = defs.get(g["term"].lower())
+        # A term taught in several stages takes the definition written for the stage the glossary links to.
+        stage = int(g["lesson"].split(".")[0])
+        d = defs.get((stage, g["term"].lower())) or next((v for (_, t), v in defs.items() if t == g["term"].lower()), None)
         if d:
             g.update({k: d[k] for k in ("explain", "example", "joke", "walk") if k in d})
     course["sources"] = (ROOT / "SOURCE_NOTES.md").read_text(encoding="utf-8")
