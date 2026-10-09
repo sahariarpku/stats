@@ -1,0 +1,46 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "An effect size measures...",
+      "options": ["The probability that H₀ is true", "How big a difference or relationship is, independent of sample size", "The significance level", "The sample size needed"],
+      "correct": 1,
+      "explanation": "An effect size quantifies magnitude. Unlike the p-value, it does not depend on how many observations you collected."
+    },
+    {
+      "stage": "pre",
+      "question": "Cohen's d expresses a difference between means in units of...",
+      "options": ["Raw points", "Pooled standard deviations", "Standard errors", "Percentages"],
+      "correct": 1,
+      "explanation": "d = (x̄₁ − x̄₂) ÷ pooled SD, so d = 0.5 means the means differ by half a standard deviation."
+    },
+    {
+      "stage": "post",
+      "question": "Training group: n = 25, mean 78, SD 10. Control: n = 25, mean 70, SD 12. What is Cohen's d (approximately)?",
+      "options": ["0.36", "0.72", "1.04", "8.0"],
+      "correct": 1,
+      "explanation": "Pooled SD = √[(10² + 12²)/2] = √122 = 11.05. d = 8/11.05 = 0.72."
+    },
+    {
+      "stage": "post",
+      "question": "Means 52 vs 48, both SD 8. Using Cohen's benchmarks, d = 0.5 is...",
+      "options": ["Small", "Medium", "Large", "Negligible"],
+      "correct": 1,
+      "explanation": "d = 4/8 = 0.5. By convention 0.2 is small, 0.5 medium and 0.8 large."
+    },
+    {
+      "stage": "post",
+      "question": "A study of 100,000 people finds p = 0.01 and d = 0.02. The best interpretation is...",
+      "options": ["A large, important effect", "Statistically significant but practically negligible", "The test is wrong", "No effect at all"],
+      "correct": 1,
+      "explanation": "With a huge n, even trivial differences become significant. d = 0.02 means the groups differ by a fiftieth of an SD: the real-world importance is minimal."
+    },
+    {
+      "stage": "post",
+      "question": "A pilot study with 4 people per group finds d = 1.0 but p = 0.21. The best conclusion is...",
+      "options": ["There is no effect", "The result is inconclusive: a large estimated effect, but too little data", "The effect is statistically proven", "d must be wrong"],
+      "correct": 1,
+      "explanation": "A large d with a tiny sample leaves the effect too uncertain to confirm. Low power makes a non-significant result inconclusive, not negative."
+    }
+  ]
+}

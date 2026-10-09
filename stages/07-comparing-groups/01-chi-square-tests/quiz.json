@@ -1,0 +1,46 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "The chi-square test of independence is used when...",
+      "options": ["Comparing two means", "Both variables are categorical (counts in a table)", "Predicting a number", "Checking a correlation"],
+      "correct": 1,
+      "explanation": "Chi-square tests work on counts in categories, asking whether two categorical variables are related."
+    },
+    {
+      "stage": "pre",
+      "question": "The expected count in a cell of a contingency table is...",
+      "options": ["Always 5", "(row total × column total) ÷ grand total", "The observed count", "The grand total ÷ 4"],
+      "correct": 1,
+      "explanation": "Under independence the expected count is (row total × column total) ÷ grand total."
+    },
+    {
+      "stage": "post",
+      "question": "Video ad: 60 bought, 40 not. Banner ad: 45 bought, 55 not. What is the expected count of video-bought?",
+      "options": ["45", "50", "52.5", "60"],
+      "correct": 2,
+      "explanation": "Row total 100 × column total 105 ÷ 200 = 52.5."
+    },
+    {
+      "stage": "post",
+      "question": "For that table χ² = 4.51 with df = 1 (critical value 3.841). What is the decision at α = 0.05?",
+      "options": ["Fail to reject", "Reject H₀: purchase is related to ad type", "Cannot tell", "The data are invalid"],
+      "correct": 1,
+      "explanation": "4.51 > 3.841 (p = 0.034), so we reject independence and conclude the two variables are associated."
+    },
+    {
+      "stage": "post",
+      "question": "A fair die is rolled 120 times. What are the expected count per face and the degrees of freedom for a goodness-of-fit test?",
+      "options": ["20 per face, df = 5", "20 per face, df = 6", "6 per face, df = 5", "120 per face, df = 1"],
+      "correct": 0,
+      "explanation": "Expected = 120/6 = 20 for each face. df = categories − 1 = 6 − 1 = 5."
+    },
+    {
+      "stage": "post",
+      "question": "A 2×2 table has an expected count of 2.1 in one cell. Which test is more appropriate?",
+      "options": ["Chi-square", "Fisher's exact test", "Paired t-test", "z-test"],
+      "correct": 1,
+      "explanation": "Chi-square needs expected counts of about 5 or more. With small expected counts, Fisher's exact test is the appropriate alternative."
+    }
+  ]
+}

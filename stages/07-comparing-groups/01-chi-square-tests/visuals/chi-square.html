@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Observed versus Expected</title>
+<link rel="stylesheet" href="../../../../assets/visuals.css">
+</head>
+<body>
+<main class="viz">
+  <div class="viz-head">
+    <div>
+      <h1>Observed versus expected</h1>
+      <p class="hint">A 2×2 table of 200 people. Change how many bought after each ad. The chi-square statistic adds up how far each cell is from what "no relationship" would predict.</p>
+    </div>
+    <button id="theme" type="button">Theme: auto</button>
+  </div>
+
+  <svg id="plot" viewBox="0 0 760 350" role="img" aria-label="Observed and expected counts for four cells, and the chi-square curve with the test statistic marked"></svg>
+
+  <div class="legend">
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="2" width="12" height="11" fill="var(--series-2)"/></svg>Observed</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="2" width="12" height="11" fill="none" stroke="var(--text-primary)" stroke-width="2" stroke-dasharray="3 2"/></svg>Expected if independent</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="3" width="12" height="9" fill="var(--series-1)" opacity="0.5"/></svg>p-value (right tail)</span>
+  </div>
+
+  <div class="readout" aria-live="polite">
+    <div class="card"><div class="label">χ² (df = 1)</div><div class="value" id="chi"></div></div>
+    <div class="card"><div class="label"><span class="mark" style="background:var(--series-1)"></span>p-value</div><div class="value" id="pv"></div></div>
+    <div class="card"><div class="label">Cramér's V</div><div class="value" id="cv"></div></div>
+    <div class="card"><div class="label">Smallest expected count</div><div class="value" id="minE"></div></div>
+  </div>
+  <p class="verdict" id="verdict" aria-live="polite"></p>
+
+  <div class="controls col" id="sliders"></div>
+  <div class="controls"><button id="reset" type="button">Back to the lesson (60/40 vs 45/55)</button><button id="none" type="button">Make them independent</button></div>
+</main>
+
+<script src="../../../../assets/visuals.js"></script>
+<script>
+const C = { a: 60, b: 40, c: 45, d: 55 };
+const NAMES = { a: "Video: bought", b: "Video: did not", c: "Banner: bought", d: "Banner: did not" };
+const svg = document.getElementById("plot");
+const $ = (id) => document.getElementById(id);
+const layer = Viz.el("g", {}, svg);
+const sliders = {};
+const lgam = Viz.lgamma;
+
+function render() {
+  const { a, b, c, d } = C;
+  const r1 = a + b, r2 = c + d, k1 = a + c, k2 = b + d, N = r1 + r2;
+  const E = { a: r1 * k1 / N, b: r1 * k2 / N, c: r2 * k1 / N, d: r2 * k2 / N };
+  const O = { a, b, c, d };
+  const chi = Object.keys(O).reduce((s, k) => s + (O[k] - E[k]) ** 2 / E[k], 0);
+  const p = 2 * (1 - Viz.normCdf(Math.sqrt(chi)));
+  const V = Math.sqrt(chi / N);
+
+  layer.replaceChildren();
+  const top = Math.max(...Object.values(O), ...Object.values(E)) * 1.15;
+  const Yb = Viz.scale(0, top, 140, 20);
+  const keys = ["a", "b", "c", "d"];
+  keys.forEach((k, i) => {
+    const cx = 110 + i * 170;
+    Viz.el("rect", { x: cx - 30, y: Yb(O[k]), width: 60, height: 140 - Yb(O[k]), fill: "var(--series-2)", rx: 2 }, layer);
+    Viz.el("rect", { x: cx - 36, y: Yb(E[k]), width: 72, height: 140 - Yb(E[k]), fill: "none", stroke: "var(--text-primary)", "stroke-width": 2, "stroke-dasharray": "5 3" }, layer);
+    Viz.el("text", { x: cx, y: Yb(Math.max(O[k], E[k])) - 6, "text-anchor": "middle", class: "strong" }, layer).textContent = O[k] + " vs " + E[k].toFixed(1);
+    Viz.el("text", { x: cx, y: 158, "text-anchor": "middle" }, layer).textContent = NAMES[k];
+    Viz.el("text", { x: cx, y: 174, "text-anchor": "middle", opacity: 0.85 }, layer).textContent = "adds " + ((O[k] - E[k]) ** 2 / E[k]).toFixed(2);
+  });
+  Viz.el("line", { class: "axis-line", x1: 40, x2: 730, y1: 140, y2: 140 }, layer);
+
+  const Xc = Viz.scale(0, 12, 40, 730);
+  const f = (x) => Math.exp(-0.5 * Math.log(x) - x / 2 - 0.5 * Math.log(2) - lgam(0.5));
+  const Yc = Viz.scale(0, 0.5, 300, 195);
+  const pts = []; for (let x = 0.15; x <= 12; x += 0.05) pts.push([Xc(x), Yc(Math.min(f(x), 0.5))]);
+  const cx0 = Math.min(chi, 12);
+  const tail = []; for (let x = Math.max(0.15, cx0); x <= 12; x += 0.05) tail.push([Xc(x), Yc(Math.min(f(x), 0.5))]);
+  if (tail.length) Viz.el("path", { d: "M" + Xc(Math.max(0.15, cx0)) + " 300 " + tail.map(([x, y]) => "L" + x + " " + y).join(" ") + " L" + Xc(12) + " 300 Z", fill: "var(--series-1)", opacity: 0.5 }, layer);
+  Viz.el("polyline", { points: pts.map((q) => q.join(",")).join(" "), fill: "none", stroke: "var(--text-primary)", "stroke-width": 2.5 }, layer);
+  Viz.axisBottom(layer, Xc, { y: 300, from: 0, to: 12, step: 2 });
+  Viz.el("text", { x: 730, y: 205, "text-anchor": "end", class: "strong" }, layer).textContent = "χ² distribution, df = 1";
+  Viz.el("line", { x1: Xc(3.841), x2: Xc(3.841), y1: 205, y2: 300, stroke: "var(--text-muted)", "stroke-width": 1.5, "stroke-dasharray": "5 4" }, layer);
+  Viz.el("text", { x: Xc(3.841) + 5, y: 216 }, layer).textContent = "critical 3.841";
+  Viz.el("line", { x1: Xc(cx0), x2: Xc(cx0), y1: 205, y2: 300, stroke: "var(--series-1)", "stroke-width": 3 }, layer);
+  Viz.el("text", { x: Xc(cx0), y: 342, "text-anchor": "middle", class: "strong" }, layer).textContent = "your χ² = " + chi.toFixed(2);
+
+  const minE = Math.min(...Object.values(E));
+  $("chi").textContent = chi.toFixed(2);
+  $("pv").textContent = p < 0.0001 ? "< 0.0001" : p.toFixed(4);
+  $("cv").textContent = V.toFixed(2);
+  $("minE").textContent = minE.toFixed(1) + (minE < 5 ? " ⚠" : "");
+  $("verdict").textContent = chi < 0.005
+    ? "Observed equals expected in every cell: the two variables look completely independent, χ² ≈ 0."
+    : (p <= 0.05 ? "Past the critical value 3.841 (p ≤ 0.05): the pattern differs from independence by more than chance would usually allow, so we reject H₀. " : "Short of the critical value 3.841 (p > 0.05): the gaps could plausibly be chance, so we cannot reject independence. ") +
+      "Purchase rates: video " + (100 * a / r1).toFixed(0) + "% vs banner " + (100 * c / r2).toFixed(0) + "%." + (minE < 5 ? " Warning: a small expected count makes chi-square unreliable. Use Fisher's exact test." : "");
+}
+
+const mk = (key, label) => { sliders[key] = Viz.slider($("sliders"), { label, min: 5, max: 95, step: 1, value: C[key], format: (v) => v, onInput: (v) => { C[key] = v; render(); } }); };
+mk("a", NAMES.a); mk("b", NAMES.b); mk("c", NAMES.c); mk("d", NAMES.d);
+const setAll = (o) => { Object.assign(C, o); Object.keys(o).forEach((k) => sliders[k].set(o[k])); render(); };
+$("reset").addEventListener("click", () => setAll({ a: 60, b: 40, c: 45, d: 55 }));
+$("none").addEventListener("click", () => setAll({ a: 50, b: 50, c: 50, d: 50 }));
+Viz.themeToggle($("theme"));
+render();
+</script>
+</body>
+</html>

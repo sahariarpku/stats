@@ -1,0 +1,46 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "You compare the mean score of two independent classes. Which test?",
+      "options": ["Paired t-test", "Welch (independent) t-test", "Chi-square test", "One-sample z-test"],
+      "correct": 1,
+      "explanation": "A numerical outcome in two independent groups calls for the two-sample (Welch) t-test."
+    },
+    {
+      "stage": "pre",
+      "question": "The same 30 patients are measured before and after treatment. Which test?",
+      "options": ["Independent t-test", "Paired t-test", "ANOVA", "Chi-square"],
+      "correct": 1,
+      "explanation": "Same subjects measured twice means paired data, so use the paired t-test."
+    },
+    {
+      "stage": "post",
+      "question": "Three fertiliser groups of 5 plots each are compared on yield (roughly normal). Which test?",
+      "options": ["Three separate t-tests", "One-way ANOVA", "Chi-square test", "Paired t-test"],
+      "correct": 1,
+      "explanation": "Comparing 3 or more independent group means calls for one-way ANOVA, avoiding the inflated false-alarm rate of multiple t-tests."
+    },
+    {
+      "stage": "post",
+      "question": "Skewed incomes from two small independent samples (n = 12 each) are compared. Which test is the safest?",
+      "options": ["Welch t-test", "Mann–Whitney U test", "Paired t-test", "z-test"],
+      "correct": 1,
+      "explanation": "Small, clearly non-normal samples favour the rank-based Mann–Whitney U test, the nonparametric alternative to the independent t-test."
+    },
+    {
+      "stage": "post",
+      "question": "Is purchase (yes/no) independent of ad type (video/banner)? Which test?",
+      "options": ["Welch t-test", "Chi-square test of independence", "Pearson correlation", "ANOVA"],
+      "correct": 1,
+      "explanation": "Two categorical variables and the question of association call for the chi-square test of independence."
+    },
+    {
+      "stage": "post",
+      "question": "A non-significant Shapiro–Wilk test (p = 0.4) with n = 8 means...",
+      "options": ["The data are definitely normal", "There is little evidence against normality, but the test has low power with such a small n", "The data are non-normal", "A t-test is impossible"],
+      "correct": 1,
+      "explanation": "With very small samples the test almost never rejects. 'No evidence against normality' is not proof of normality, so also look at a plot."
+    }
+  ]
+}

@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Which Test Should I Use</title>
+<link rel="stylesheet" href="../../../../assets/visuals.css">
+<style>
+  .opts { display: grid; gap: 8px; margin: 10px 0 16px; }
+  .opts button { text-align: left; padding: 12px 14px; font-size: 1rem; }
+  .crumbs { color: var(--text-secondary); font-size: 0.9rem; margin: 6px 0 4px; min-height: 1.4em; }
+  .result { padding: 16px; background: var(--surface-2); border-radius: 10px; border-left: 5px solid var(--series-1); }
+  .result h2 { margin: 0 0 6px; font-size: 1.3rem; }
+  .result a { color: var(--series-1); }
+  .q { font-size: 1.15rem; font-weight: 650; margin: 14px 0 4px; }
+  .step { color: var(--text-muted); font-size: 0.85rem; }
+</style>
+</head>
+<body>
+<main class="viz">
+  <div class="viz-head">
+    <div>
+      <h1>Which test should I use?</h1>
+      <p class="hint">Answer a few questions about your data and design. The chooser follows the same rules as the lesson.</p>
+    </div>
+    <button id="theme" type="button">Theme: auto</button>
+  </div>
+
+  <div class="crumbs" id="crumbs"></div>
+  <div id="stage"></div>
+  <div class="controls"><button id="back" type="button">← Back</button><button id="restart" type="button">Start over</button></div>
+</main>
+
+<script src="../../../../assets/visuals.js"></script>
+<script>
+const L = {
+  z: "../../04-z-tests/docs/en.md",
+  t1: "../../05-one-sample-t-test/docs/en.md",
+  t2: "../../06-two-sample-t-test/docs/en.md",
+  tp: "../../07-paired-t-test/docs/en.md",
+  chi: "../../../07-comparing-groups/01-chi-square-tests/docs/en.md",
+  anova: "../../../07-comparing-groups/02-anova/docs/en.md",
+  rank: "../../../07-comparing-groups/03-rank-based-tests/docs/en.md",
+  corr: "../../../08-relationships/01-correlation/docs/en.md",
+  reg: "../../../08-relationships/02-simple-linear-regression/docs/en.md",
+  mreg: "../../../08-relationships/04-multiple-regression/docs/en.md",
+  logit: "../../../08-relationships/05-logistic-regression/docs/en.md",
+};
+const R = (name, why, link, lesson) => ({ result: { name, why, link, lesson } });
+
+const TREE = {
+  q: "What type is the outcome you measured?", opts: [
+    ["A number (height, score, time, price)", {
+      q: "What do you want to do?", opts: [
+        ["Compare one group's mean with a known value", {
+          q: "Do you know the population standard deviation σ?", opts: [
+            ["Yes, σ is known", R("One-sample z-test", "One group, numerical outcome, σ known.", L.z, "Lesson 6.4")],
+            ["No, I only have the sample SD (the usual case)", {
+              q: "Is the data roughly normal, or is n about 30 or more?", opts: [
+                ["Yes", R("One-sample t-test", "One group, numerical outcome, σ unknown, assumptions fine.", L.t1, "Lesson 6.5")],
+                ["No: small and clearly skewed or full of outliers", R("Wilcoxon signed-rank test", "The rank-based back-up for a one-sample t-test.", L.rank, "Lesson 7.3")],
+              ],
+            }],
+          ],
+        }],
+        ["Compare two groups", {
+          q: "Are the two groups paired (same people twice, or matched pairs)?", opts: [
+            ["Independent: different people in each group", {
+              q: "Is the data roughly normal in each group, or n about 30 or more?", opts: [
+                ["Yes", R("Welch two-sample t-test", "Two independent groups, numerical outcome. Welch's version is the safe default.", L.t2, "Lesson 6.6")],
+                ["No: small and clearly skewed or ordinal", R("Mann–Whitney U test", "The rank-based back-up for the independent t-test.", L.rank, "Lesson 7.3")],
+              ],
+            }],
+            ["Paired: same people before and after, or matched", {
+              q: "Are the differences roughly normal, or is n about 30 or more?", opts: [
+                ["Yes", R("Paired t-test", "Two linked groups, numerical outcome: test the differences.", L.tp, "Lesson 6.7")],
+                ["No", R("Wilcoxon signed-rank test", "The rank-based back-up for the paired t-test.", L.rank, "Lesson 7.3")],
+              ],
+            }],
+          ],
+        }],
+        ["Compare three or more groups", {
+          q: "Are the groups independent?", opts: [
+            ["Yes, different people in each group", {
+              q: "Is the data roughly normal in each group, with similar spreads?", opts: [
+                ["Yes", R("One-way ANOVA", "Three or more independent groups, numerical outcome. Do not run many t-tests.", L.anova, "Lesson 7.2")],
+                ["No", R("Kruskal–Wallis test", "The rank-based back-up for one-way ANOVA.", L.rank, "Lesson 7.3")],
+              ],
+            }],
+            ["No, the same people are measured repeatedly", R("Repeated-measures ANOVA (or Friedman test if non-normal)", "Linked measurements on the same subjects. Beyond this course's core, so see a textbook after Lesson 7.2.", L.anova, "Lesson 7.2")],
+          ],
+        }],
+        ["See whether two numerical variables are related", {
+          q: "Is the relationship roughly linear, with no wild outliers and roughly normal data?", opts: [
+            ["Yes", R("Pearson correlation (and simple linear regression)", "Two numerical variables, linear relationship.", L.corr, "Lesson 8.1")],
+            ["No: curved, ranked or outlier-heavy", R("Spearman rank correlation", "The rank-based back-up for Pearson.", L.corr, "Lesson 8.1")],
+          ],
+        }],
+        ["Predict the number from one or more other variables", R("Linear regression (simple or multiple)", "A numerical outcome predicted from predictors.", L.mreg, "Lessons 8.2 to 8.4")],
+      ],
+    }],
+    ["A category or yes/no (pass/fail, brand, opinion)", {
+      q: "What do you want to do?", opts: [
+        ["Compare one proportion with a claimed value", {
+          q: "Are the counts large (at least 10 expected successes and 10 failures)?", opts: [
+            ["Yes", R("One-proportion z-test", "One group, categorical outcome, enough data for the normal model.", L.z, "Lesson 6.4")],
+            ["No, the counts are small", R("Exact binomial test", "With few events, use the binomial probabilities directly.", L.z, "Lessons 3.2 and 6.4")],
+          ],
+        }],
+        ["Compare two groups' proportions", {
+          q: "Are the two groups paired (same people twice)?", opts: [
+            ["Independent groups", {
+              q: "Is any expected cell count below 5?", opts: [
+                ["No, the counts are comfortable", R("Chi-square test (or two-proportion z-test)", "Two independent groups, categorical outcome.", L.chi, "Lesson 7.1")],
+                ["Yes, tiny counts", R("Fisher's exact test", "Chi-square needs expected counts of about 5 or more. Fisher's test is exact.", L.chi, "Lesson 7.1")],
+              ],
+            }],
+            ["Paired: same people before and after", R("McNemar's test", "Paired categorical outcomes: it uses only the people who changed.", L.chi, "Lesson 7.1")],
+          ],
+        }],
+        ["See whether two categorical variables are associated", R("Chi-square test of independence", "Two categorical variables in a contingency table.", L.chi, "Lesson 7.1")],
+        ["Predict a yes/no outcome from other variables", R("Logistic regression", "A binary outcome predicted from one or more predictors.", L.logit, "Lesson 8.5")],
+      ],
+    }],
+  ],
+};
+
+const stack = [];
+const $ = (id) => document.getElementById(id);
+
+function render() {
+  const node = stack.length ? stack[stack.length - 1].next : TREE;
+  const stage = $("stage");
+  stage.replaceChildren();
+  $("crumbs").textContent = stack.map((s) => s.label).join("  ›  ");
+  $("back").disabled = stack.length === 0;
+  if (node.result) {
+    const r = node.result;
+    const d = document.createElement("div");
+    d.className = "result";
+    d.setAttribute("role", "status");
+    d.innerHTML = "<div class='step'>Your test</div><h2></h2><p></p><p><a></a></p>";
+    d.querySelector("h2").textContent = r.name;
+    d.querySelector("p").textContent = r.why;
+    const a = d.querySelector("a");
+    a.href = r.link; a.textContent = "Learn it: " + r.lesson + " →";
+    stage.appendChild(d);
+    return;
+  }
+  const q = document.createElement("div");
+  q.className = "q"; q.textContent = node.q;
+  const step = document.createElement("div");
+  step.className = "step"; step.textContent = "Question " + (stack.length + 1);
+  const opts = document.createElement("div");
+  opts.className = "opts";
+  node.opts.forEach(([label, next]) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.textContent = label;
+    b.addEventListener("click", () => { stack.push({ label, next }); render(); });
+    opts.appendChild(b);
+  });
+  stage.append(step, q, opts);
+}
+
+$("back").addEventListener("click", () => { stack.pop(); render(); });
+$("restart").addEventListener("click", () => { stack.length = 0; render(); });
+Viz.themeToggle($("theme"));
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How Big Is the Difference</title>
+<link rel="stylesheet" href="../../../../assets/visuals.css">
+</head>
+<body>
+<main class="viz">
+  <div class="viz-head">
+    <div>
+      <h1>How big is the difference?</h1>
+      <p class="hint">Two groups with the same spread. Slide the effect size d and the number of people per group. The curves show the effect. The p-value shows how convincing it looks.</p>
+    </div>
+    <button id="theme" type="button">Theme: auto</button>
+  </div>
+
+  <svg id="plot" viewBox="0 0 760 245" role="img" aria-label="Two normal curves separated by the effect size, with their overlap shaded"></svg>
+
+  <div class="legend">
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="6" width="14" height="3" fill="var(--series-2)"/></svg>Group 1</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="6" width="14" height="3" fill="var(--series-1)"/></svg>Group 2</span>
+    <span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="3" width="12" height="9" fill="var(--dot)" opacity="0.6"/></svg>Overlap of the two groups</span>
+  </div>
+
+  <div class="readout" aria-live="polite">
+    <div class="card"><div class="label">Overlap of the curves</div><div class="value" id="ovl"></div></div>
+    <div class="card"><div class="label">Random pick from group 1 beats group 2</div><div class="value" id="cl"></div></div>
+    <div class="card"><div class="label">Two-sample t (df = 2n − 2)</div><div class="value" id="tv"></div></div>
+    <div class="card"><div class="label">Two-tailed p-value</div><div class="value" id="pv"></div></div>
+  </div>
+  <p class="verdict" id="verdict" aria-live="polite"></p>
+
+  <div class="controls col" id="sliders"></div>
+  <div class="controls">
+    <button type="button" id="p1">Tiny effect, huge sample</button>
+    <button type="button" id="p2">Large effect, tiny sample</button>
+    <button type="button" id="p3">Medium effect, decent sample</button>
+  </div>
+</main>
+
+<script src="../../../../assets/visuals.js"></script>
+<script>
+let d = 0.5, n = 50;
+const svg = document.getElementById("plot");
+const $ = (id) => document.getElementById(id);
+const X = Viz.scale(-3.5, 5.5, 30, 730);
+const Y = Viz.scale(0, 0.42, 190, 15);
+const layer = Viz.el("g", {}, svg);
+let sd, sn;
+
+function render() {
+  layer.replaceChildren();
+  Viz.axisBottom(layer, X, { y: 190, from: -3, to: 5, step: 1 });
+  const f1 = (x) => Viz.normPdf(x, d, 1), f2 = (x) => Viz.normPdf(x, 0, 1);
+  const pts = [[], []];
+  for (let x = -3.5; x <= 5.501; x += 0.05) { pts[0].push([X(x), Y(Math.min(f1(x), f2(x)))]); }
+  Viz.el("path", { d: "M" + X(-3.5) + " 190 " + pts[0].map(([x, y]) => "L" + x + " " + y).join(" ") + " L" + X(5.5) + " 190 Z", fill: "var(--dot)", opacity: 0.55 }, layer);
+  const line = (f, color) => { const p = []; for (let x = -3.5; x <= 5.501; x += 0.05) p.push(X(x) + "," + Y(f(x))); Viz.el("polyline", { points: p.join(" "), fill: "none", stroke: color, "stroke-width": 3 }, layer); };
+  line(f2, "var(--series-1)"); line(f1, "var(--series-2)");
+  [[0, "var(--series-1)"], [d, "var(--series-2)"]].forEach(([m, c]) => Viz.el("line", { x1: X(m), x2: X(m), y1: Y(0.4), y2: 190, stroke: c, "stroke-width": 1.5, "stroke-dasharray": "4 4" }, layer));
+  Viz.el("text", { x: X(d / 2), y: 232, "text-anchor": "middle", class: "strong" }, layer).textContent = "d = " + d.toFixed(2) + " SD apart";
+
+  const ovl = 2 * Viz.normCdf(-d / 2), cl = Viz.normCdf(d / Math.SQRT2);
+  const se = Math.sqrt(2 / n), t = d / se, df = 2 * n - 2;
+  const p = df > 400 ? 2 * (1 - Viz.normCdf(Math.abs(t))) : 2 * (1 - Viz.tCdf(Math.abs(t), df));
+  const size = d < 0.2 ? "negligible" : d < 0.5 ? "small" : d < 0.8 ? "medium" : "large";
+  $("ovl").textContent = (ovl * 100).toFixed(0) + "%";
+  $("cl").textContent = (cl * 100).toFixed(0) + "%";
+  $("tv").textContent = t.toFixed(2);
+  $("pv").textContent = p < 0.0001 ? "< 0.0001" : p.toFixed(4);
+  const sig = p <= 0.05;
+  $("verdict").textContent = "Effect size d = " + d.toFixed(2) + " (" + size + "), " + n.toLocaleString() + " people per group, p " + (p < 0.0001 ? "< 0.0001" : "= " + p.toFixed(4)) + ". " +
+    (sig && d < 0.2 ? "Statistically significant but practically negligible: the huge sample detects a difference too small to matter."
+      : sig ? "Significant and a meaningful size: the evidence is convincing and the effect is worth noticing."
+        : d >= 0.5 ? "A sizable difference that this sample is too small to confirm: inconclusive, not 'no effect'. More data are needed."
+          : "Not significant, and the effect is small: little evidence of anything important.");
+}
+
+sd = Viz.slider($("sliders"), { label: "Effect size d", min: 0, max: 2, step: 0.01, value: d, format: (v) => v.toFixed(2), onInput: (v) => { d = v; render(); } });
+sn = Viz.slider($("sliders"), { label: "People per group (n)", min: 0.48, max: 4.7, step: 0.01, value: Math.log10(n), format: (v) => Math.round(Math.pow(10, v)).toLocaleString(), onInput: (v) => { n = Math.round(Math.pow(10, v)); render(); } });
+const set = (dd, nn) => { d = dd; n = nn; sd.set(d); sn.set(Math.log10(n)); n = Math.round(Math.pow(10, Number(sn.input.value))); render(); };
+$("p1").addEventListener("click", () => set(0.02, 40000));
+$("p2").addEventListener("click", () => set(1.0, 4));
+$("p3").addEventListener("click", () => set(0.5, 64));
+Viz.themeToggle($("theme"));
+render();
+</script>
+</body>
+</html>
