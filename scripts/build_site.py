@@ -91,6 +91,29 @@ def read_definitions():
     return defs
 
 
+def read_resources():
+    """The "Go further" block of every lesson: free reading links and one open-access SSCI paper (content/resources/*.json)."""
+    import os
+    d = Path(os.environ.get("RESOURCES_DIR", ROOT / "content" / "resources"))
+    if not d.exists():
+        return {}
+    meta = json.loads((d / "journals.json").read_text(encoding="utf-8")) if (d / "journals.json").exists() else {"journals": []}
+    index = {j["issn"]: j["index"] for j in meta["journals"]}
+    reading, papers = {}, {}
+    for f in sorted(d.glob("*.json")):
+        if f.name == "journals.json":
+            continue
+        data = json.loads(f.read_text(encoding="utf-8"))
+        (reading if f.name.startswith("reading") else papers).update(data)
+    out = {}
+    for lid in set(reading) | set(papers):
+        item = {"read": reading.get(lid, [])}
+        if lid in papers:
+            item["paper"] = {**papers[lid], "index": index.get(papers[lid].get("issn"), ""), "checked": meta.get("checked", "")}
+        out[lid] = item
+    return out
+
+
 def people_say(text):
     """The middle 'What people say' column of a lesson's Key Terms table, by term."""
     m = re.search(r"^## Key Terms\s*\n(.*?)(?=^## )", text, re.M | re.S)
@@ -110,6 +133,7 @@ def section(text, heading):
 def build():
     course = {"stages": [], "animations": [], "glossary": [], "tables": []}
     lesson_files = {}
+    resources = read_resources()
     for stage in sorted(p for p in STAGES.iterdir() if p.is_dir()):
         num = int(stage.name[:2])
         title, goal = STAGE_GOALS[stage.name]
@@ -145,6 +169,8 @@ def build():
             cheat = (lesson / "outputs" / "cheat-sheet.md").read_text(encoding="utf-8")
             code = {f"{path}/code/{py.name}": py.read_text(encoding="utf-8") for py in sorted((lesson / "code").glob("*.py"))}
             lesson_files[lid] = {"id": lid, "md": text, "quiz": quiz, "cheat": cheat, "code": code}
+            if lid in resources:
+                lesson_files[lid]["resources"] = resources[lid]
         course["stages"].append(st)
 
     seen = set()

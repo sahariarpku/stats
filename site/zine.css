@@ -349,3 +349,21 @@ a.chip, a.chip:hover { text-decoration: none; }
 /* charts must never trap a finger that wants to scroll the page */
 .wk-stage svg, .wk-stage canvas { touch-action: pan-y pinch-zoom; }
 .embed iframe, .player iframe { touch-action: pan-y pinch-zoom; }
+
+/* ---------- Go further (reading and a real paper) ---------- */
+.gofurther { margin-top: 3em; }
+.gofurther > h2 { font-size: 2.5rem; margin: 0 0 0.5em; width: fit-content; max-width: 100%; background: linear-gradient(104deg, transparent 0 1%, var(--hl-h) 1% 99%, transparent 99%) 0 92% / 100% 46% no-repeat; padding: 0 0.15em; }
+.gf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
+@media (max-width: 800px) { .gf-grid { grid-template-columns: 1fr; } }
+.gf-grid .card { padding: 18px 22px 20px; }
+.gf-grid h3 { margin: 0 0 8px; font-size: 1.7rem; color: var(--accent-ink); }
+.gf-read ul { list-style: none; margin: 0; padding: 0; }
+.gf-read li { padding: 10px 0; border-bottom: 2px dashed var(--line); }
+.gf-read li:last-child { border-bottom: 0; }
+.gf-read a { font-size: 1.2rem; font-weight: 400; }
+.gf-src { margin-left: 6px; font-family: var(--hand); font-weight: 700; font-size: 1.05rem; color: var(--warm); }
+.gf-note { display: block; font-size: 1.02rem; color: var(--ink-2); line-height: 1.4; }
+.gf-uses { font-size: 1.15rem; margin: 0 0 10px; }
+.gf-cite { margin: 0 0 12px; padding: 10px 14px; background: var(--hl-soft); border: 2px dashed var(--pen); border-radius: 6px 14px 6px 14px; font-size: 1.02rem; line-height: 1.45; overflow-wrap: anywhere; }
+.gf-badges { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.gf-check { margin: 12px 0 0; font-size: 0.95rem; color: var(--ink-3); line-height: 1.4; }

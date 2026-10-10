@@ -634,6 +634,26 @@
     if (anchor === "quiz") { const q = $("#sec-quiz"); if (q) q.scrollIntoView(); }
   }
 
+  /* ---------- "Go further": free reading and one real open-access paper that used this statistic ---------- */
+  function goFurther(r) {
+    if (!r || (!(r.read || []).length && !r.paper)) return null;
+    const sec = document.createElement("section");
+    sec.className = "gofurther";
+    const links = (r.read || []).map((x) => `<li><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.title)}</a> <span class="gf-src">${esc(x.source)}</span><span class="gf-note">${esc(x.note)}</span></li>`).join("");
+    const p = r.paper;
+    sec.innerHTML = `<h2 id="sec-go-further"><span class="sec-head"><span class="e" aria-hidden="true">🧭</span><span>Go further</span></span></h2>
+      <div class="gf-grid">
+        ${links ? `<div class="card gf-read"><h3>📚 Read more, free</h3><ul>${links}</ul></div>` : ""}
+        ${p ? `<div class="card gf-paper"><h3>🔬 Seen in a real study</h3>
+          <p class="gf-uses">${esc(p.uses)}</p>
+          <p class="gf-cite">${esc(p.cite)}</p>
+          <div class="gf-badges"><span class="chip">🔓 Open access · ${esc(p.license)}</span><span class="chip">📑 ${esc(p.index || "SSCI")}-indexed journal</span></div>
+          <a class="btn-mini btn-walk" href="https://doi.org/${esc(p.doi)}" target="_blank" rel="noopener">Read the paper ↗</a>
+          <p class="gf-check">Journal listing checked on Clarivate's Master Journal List, ${esc(p.checked || p.verified)}. Papers are free to read and copy under the licence shown.</p></div>` : ""}
+      </div>`;
+    return sec;
+  }
+
   function renderLessonBody(l, data) {
     const body = $("#lessonBody");
     let text = data.md
@@ -770,6 +790,8 @@
       }
     });
     linkTerms(body, l);
+    const gf = goFurther(data.resources);
+    if (gf) body.appendChild(gf);
 
     // finish block
     const fin = document.createElement("div");
