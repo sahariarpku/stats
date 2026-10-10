@@ -955,8 +955,8 @@
     const all = C.walks || [];
     const i = all.findIndex((x) => x.id === id);
     const prev = all[i - 1], next = all[i + 1];
-    setView(`<div class="wrap" style="max-width:980px">
-      <div class="page-head" style="padding-bottom:14px">
+    setView(`<div class="wrap walk-page" style="max-width:1100px">
+      <div class="page-head">
         <div class="crumbs"><a href="#/">Home</a> › <a href="#/walks">Walkthroughs</a> › Lesson ${w.lesson}</div>
       </div>
       <div id="wkHost"><div class="loading">Loading the animation...</div></div>

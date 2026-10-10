@@ -316,8 +316,9 @@
       renderer.setClearColor(0x000000, 0);
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(o.fov || 40, W / H, 0.1, 100);
-      const size = () => { const r = wrap.getBoundingClientRect(); renderer.setSize(r.width, r.width * (H / W), false); };
+      const size = () => { const r = svg.getBoundingClientRect(); if (r.width) renderer.setSize(r.width, r.width * (H / W), false); };
       size();
+      if (window.ResizeObserver) { if (wrap.__ro) wrap.__ro.disconnect(); wrap.__ro = new ResizeObserver(() => { size(); renderer.render(scene, camera); }); wrap.__ro.observe(svg); }
       const render = () => renderer.render(scene, camera);
       // Where a 3D point lands on the 800 x 450 SVG stage (for labels drawn in SVG).
       const project = (x, y, z) => { const v = new THREE.Vector3(x, y, z).project(camera); return [(v.x + 1) / 2 * W, (1 - v.y) / 2 * H]; };
@@ -489,7 +490,7 @@
     if (meta.phoneText) host.style.setProperty("--wk-phone", meta.phoneText); else host.style.removeProperty("--wk-phone");
     host.innerHTML = `
       <div class="wk-head">
-        <div><div class="wk-eyebrow">🎬 Animated walkthrough${meta.lesson ? " · Lesson " + meta.lesson : ""}</div><h3 class="wk-title"></h3></div>
+        <h3 class="wk-title"></h3>
         ${opts.onClose ? '<button class="wk-x" type="button" aria-label="Close walkthrough">✕</button>' : ""}
       </div>
       <div class="wk-stage"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label=""></svg></div>
@@ -503,6 +504,21 @@
       </div>`;
     const $ = (s) => host.querySelector(s);
     $(".wk-title").textContent = meta.title;
+    // One screen: the picture takes whatever height is left after the title, the narration and the buttons.
+    const fit = () => {
+      const stage = $(".wk-stage"), say = $(".wk-say");
+      if (!stage || !host.isConnected) return;
+      const hh = host.clientHeight, ww = host.clientWidth;
+      if (!hh || !ww) return;
+      const chrome = $(".wk-head").offsetHeight + $(".wk-controls").offsetHeight;
+      say.style.flex = "none"; say.style.maxHeight = Math.round(hh * 0.4) + "px";
+      const sayH = say.offsetHeight;
+      say.style.flex = ""; say.style.maxHeight = "";
+      const border = stage.offsetHeight - stage.clientHeight; // the stage's dashed top and bottom lines
+      const h = Math.max(110, Math.min(hh - chrome - sayH - border, ww * (H / W)));
+      stage.style.height = Math.ceil(h + border) + "px";
+    };
+    if (window.ResizeObserver) new ResizeObserver(fit).observe(host); else window.addEventListener("resize", fit);
     const svg = $("svg");
     svg.setAttribute("aria-label", meta.title);
     let steps = def.factory(Scene(document.createElementNS(NS, "svg")), Animator());
@@ -530,6 +546,7 @@
       steps = def.factory(S, A);
       $(".wk-stepno").textContent = `Step ${cur + 1} of ${n}`;
       $(".wk-text").innerHTML = inline(steps[cur].say);
+      fit();
       host.querySelectorAll(".wk-dot").forEach((d, i) => { d.classList.toggle("on", i === cur); d.classList.toggle("seen", i < cur); d.setAttribute("aria-current", i === cur ? "step" : "false"); });
       $(".wk-back").disabled = cur === 0;
       $(".wk-next").textContent = cur === n - 1 ? (opts.onClose ? "Done ✓" : "Start over ↺") : "Next →";
