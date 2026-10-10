@@ -1,0 +1,82 @@
+{
+  "2.1": {
+    "cite": "Kim, Y.-H., Jeong, S. H., Kim, S.-C., Kim, Y., & Chae, K.-S. (2026). Discrepancies between empirical and theoretical probability in human binary choices within the game of Go. Frontiers in Psychology, 17, 1594220.",
+    "doi": "10.3389/fpsyg.2026.1594220",
+    "journal": "Frontiers in Psychology",
+    "issn": "1664-1078",
+    "year": 2026,
+    "license": "CC BY 4.0",
+    "uses": "The authors compared the empirical probability of choosing the black stone in Go, calculated as the share of stone selections out of all trials for each player, with the theoretical probability of 0.5.",
+    "verified": "2026-10-10"
+  },
+  "2.2": {
+    "cite": "Safati, A. B., Carr, T. H., Lowe, C. J., & Smilek, D. (2024). Mind wandering on command. Frontiers in Psychology, 15, 1448226.",
+    "doi": "10.3389/fpsyg.2024.1448226",
+    "journal": "Frontiers in Psychology",
+    "issn": "1664-1078",
+    "year": 2024,
+    "license": "CC BY 4.0",
+    "uses": "The authors counterbalanced the order of four instruction levels by giving participants all possible permutations of the orders, and chose the sample size so that each permutation was run twice. In a second experiment, all 48 possible permutations of the instruction and eye conditions were each run twice.",
+    "verified": "2026-10-10"
+  },
+  "2.3": {
+    "cite": "Stegmüller, N., Binder, K., & Krauss, S. (2024). How general is the natural frequency effect? The case of joint probabilities. Frontiers in Psychology, 15, 1296359.",
+    "doi": "10.3389/fpsyg.2024.1296359",
+    "journal": "Frontiers in Psychology",
+    "issn": "1664-1078",
+    "year": 2024,
+    "license": "CC BY 4.0",
+    "uses": "The authors asked participants to find joint probabilities of two binary events, and they explain these through the multiplication rule P(B and A) = P(B) x P(A|B), which simplifies to P(B) x P(A) when the events are independent.",
+    "verified": "2026-10-10"
+  },
+  "2.4": {
+    "cite": "Reani, M., Davies, A., Peek, N., & Jay, C. (2019). Evidencing how experience and problem format affect probabilistic reasoning through interaction analysis. Frontiers in Psychology, 10, 1548.",
+    "doi": "10.3389/fpsyg.2019.01548",
+    "journal": "Frontiers in Psychology",
+    "issn": "1664-1078",
+    "year": 2019,
+    "license": "CC BY 4.0",
+    "uses": "The authors gave participants a task that required reasoning about conditional probabilities, written as P(H | E), such as the probability of a disease given a positive test. They studied how people's own experience and the format of the numbers (percentages or natural frequencies) affected the accuracy of their answers.",
+    "verified": "2026-10-10"
+  },
+  "2.5": {
+    "cite": "Tommasi, M., Ferrara, G., & Saggino, A. (2018). Application of Bayes' theorem in valuating depression tests performance. Frontiers in Psychology, 9, 1240.",
+    "doi": "10.3389/fpsyg.2018.01240",
+    "journal": "Frontiers in Psychology",
+    "issn": "1664-1078",
+    "year": 2018,
+    "license": "CC BY 4.0",
+    "uses": "The authors used Bayes' theorem to estimate the posterior probability of depression from the prior probability (how common the disorder is) and the sensitivity and specificity of several depression self-report tests. They took the sensitivity and specificity values from published studies to judge each test's diagnostic accuracy.",
+    "verified": "2026-10-10"
+  },
+  "2.6": {
+    "cite": "Bruckmaier, G., Krauss, S., Binder, K., Hilbert, S., & Brunner, M. (2021). Tversky and Kahneman's cognitive illusions: Who can solve them, and why? Frontiers in Psychology, 12, 584689.",
+    "doi": "10.3389/fpsyg.2021.584689",
+    "journal": "Frontiers in Psychology",
+    "issn": "1664-1078",
+    "year": 2021,
+    "license": "CC BY 4.0",
+    "uses": "The authors tested people on classic judgment problems, including the hospital problem, which they describe as based on the law of large numbers: the expected number of days with more than 60 percent boys is greater in a small hospital than in a large one. This is a match through the law of large numbers and expected value in a task, not an expected payoff calculation.",
+    "verified": "2026-10-10"
+  },
+  "3.1": {
+    "cite": "Li, M., Liu, K., Song, Y., Wang, M., & Wu, J. (2021). Serial interval and generation interval for imported and local infectors, respectively, estimated using reported contact-tracing data of COVID-19 in China. Frontiers in Public Health, 8, 577431.",
+    "doi": "10.3389/fpubh.2020.577431",
+    "journal": "Frontiers in Public Health",
+    "issn": "2296-2565",
+    "year": 2021,
+    "license": "CC BY 4.0",
+    "uses": "The authors modelled the serial interval, generation interval and incubation period of COVID-19 by fitting lognormal, gamma and Weibull distributions to the observed contact-tracing data. They compared the fitted distributions using the widely applicable information criterion (WAIC) and plotted them over the empirical distributions.",
+    "verified": "2026-10-10"
+  },
+  "3.2": {
+    "cite": "Mastorogianni, M. E., Konstanti, S., Dratsiou, I., & Bamidis, P. D. (2024). Masked emotions: Does children's affective state influence emotion recognition? Frontiers in Psychology, 15, 1329070.",
+    "doi": "10.3389/fpsyg.2024.1329070",
+    "journal": "Frontiers in Psychology",
+    "issn": "1664-1078",
+    "year": 2024,
+    "license": "CC BY 4.0",
+    "uses": "The authors coded each child's answer as success or failure and ran an exact binomial test with an exact Clopper-Pearson 95% confidence interval to judge how accurately children recognised the masked emotion of disgust. They report the one-sample binomial success rate (probability of a correct answer) for 69 children.",
+    "verified": "2026-10-10"
+  }
+}

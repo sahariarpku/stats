@@ -1,0 +1,112 @@
+{
+  "5.2": {
+    "cite": "He, Q., Huang, X., Liu, Y., Li, X., Huang, L., Park, I. H., et al. (2026). Multimedia-assisted narrative intervention for existential distress among patients with advanced cancer: a one-group pre–post study. Frontiers in Public Health, 14, 1932219.",
+    "doi": "10.3389/fpubh.2026.1932219",
+    "journal": "Frontiers in Public Health",
+    "issn": "2296-2565",
+    "year": 2026,
+    "license": "CC BY 4.0",
+    "uses": "The authors compared scores before and after a 4-week intervention with paired-samples t-tests and reported each mean difference with its 95% confidence interval (for example, meaning in life rose by 0.42, 95% CI 0.33 to 0.51).",
+    "verified": "2026-10-10"
+  },
+  "5.3": {
+    "cite": "García-Gil, A., Hernández-Jurado, B. I., Luna-Ruiz-Esparza, M. A., Espinoza-Angulo, E., Machado-Jiménez, H., Gómez-Campaña, H., et al. (2025). Prevalence and age-related trends of refractive errors in Mexican outpatients: a cross-sectional study. Frontiers in Public Health, 13, 1675138.",
+    "doi": "10.3389/fpubh.2025.1675138",
+    "journal": "Frontiers in Public Health",
+    "issn": "2296-2565",
+    "year": 2025,
+    "license": "CC BY 4.0",
+    "uses": "The authors report prevalence proportions with exact 95% confidence intervals computed by the Clopper-Pearson method, which they chose for its accuracy in estimating intervals for proportions.",
+    "verified": "2026-10-10"
+  },
+  "6.1": {
+    "cite": "Huang, M., Li, Z., Zheng, Y., & Yang, C. (2025). Cognitive processing of Chinese verbal irony: the role of reverse adjacency relations in reaction time and accuracy. Frontiers in Psychology, 16, 1619358.",
+    "doi": "10.3389/fpsyg.2025.1619358",
+    "journal": "Frontiers in Psychology",
+    "issn": "1664-1078",
+    "year": 2025,
+    "license": "CC BY 4.0",
+    "uses": "Before running paired t-tests on comprehension accuracy, the authors state a null hypothesis (no difference in mean accuracy between the two sentence groups) and an alternative hypothesis (the means are not equal), then judge the test against 0.05.",
+    "verified": "2026-10-10"
+  },
+  "6.2": {
+    "cite": "Li, S., Huang, Y., Xu, C., Wu, J., & Qu, C. (2024). Asymmetric adaption in social learning: Understanding the dilemma of competition and cooperation. Behavioral Sciences, 14(8), 721.",
+    "doi": "10.3390/bs14080721",
+    "journal": "Behavioral Sciences",
+    "issn": "2076-328X",
+    "year": 2024,
+    "license": "CC BY 4.0",
+    "uses": "The authors set the significance level at p < 0.05 with a Bonferroni correction and also report Bayes factors that weigh the alternative hypothesis against the null, which shows p-values used with a stated alpha and supplemented by another measure of evidence.",
+    "verified": "2026-10-10"
+  },
+  "6.3": {
+    "cite": "McGaffick, C., Gulrajani, N., Kong, N., & Adams, N. (2023). Learning in a crisis moment: a randomized controlled trial in emergency bystander intervention. BMC Psychology, 11(1), 212.",
+    "doi": "10.1186/s40359-023-01146-x",
+    "journal": "BMC Psychology",
+    "issn": "2050-7283",
+    "year": 2023,
+    "license": "CC BY 4.0",
+    "uses": "The authors ran an a priori power analysis from pilot data (alpha 0.05, power 0.80, effect size 0.73), found that 60 participants were needed, and recruited about 150 for safety. They state a null and an alternative hypothesis for the trial.",
+    "verified": "2026-10-10"
+  },
+  "6.4": {
+    "cite": "Šulejová, K., Líška, D., Liptáková, E., Szántová, M., Patarák, M., Koller, T., et al. (2022). Relationship between alcohol consumption and adverse childhood experiences in college students–A cross-sectional study. Frontiers in Psychology, 13, 1004651.",
+    "doi": "10.3389/fpsyg.2022.1004651",
+    "journal": "Frontiers in Psychology",
+    "issn": "1664-1078",
+    "year": 2022,
+    "license": "CC BY 4.0",
+    "uses": "A two-proportion z-test, pooled for H0: p1 = p2, was used to test whether the proportions of adverse childhood experiences were equal between men and women.",
+    "verified": "2026-10-10"
+  },
+  "6.5": {
+    "cite": "Zou, L., Wu, J., & Liu, C. (2025). No detectable effects of chronic stress on moral decision-making are found: A data reanalysis and a pre-registered replication and extension. Behavioral Sciences, 15(8), 1068.",
+    "doi": "10.3390/bs15081068",
+    "journal": "Behavioral Sciences",
+    "issn": "2076-328X",
+    "year": 2025,
+    "license": "CC BY 4.0",
+    "uses": "The authors used a one-sample t-test to compare participants' mean probability of accepting a harmful action with a test value of 0.5, and found it was higher (t = 7.56, df = 207, p < 0.001, Cohen's d = 0.52).",
+    "verified": "2026-10-10"
+  },
+  "6.6": {
+    "cite": "D’Agostino, S. R., Landon, T. J., Roylance, A., Briggs, A., & Bhana-Lopez, N. (2025). Exploring the social validity and diffusion potential of common naturalistic developmental behavioral intervention strategies implemented in community preschools. Behavioral Sciences, 15(3), 357.",
+    "doi": "10.3390/bs15030357",
+    "journal": "Behavioral Sciences",
+    "issn": "2076-328X",
+    "year": 2025,
+    "license": "CC BY 4.0",
+    "uses": "Parents and autistic adults were compared with independent samples t-tests. Where group sizes were unequal and the homogeneity of variance assumption was not met, the authors switched to Welch's t-test (for example t = 3.3, df = 58.8) and reported Cohen's d.",
+    "verified": "2026-10-10"
+  },
+  "6.7": {
+    "cite": "Liu, J., Liu, X., & Ding, M. (2024). The impact of a positive discipline group intervention on parenting self-efficacy among mothers of young children. Frontiers in Public Health, 12, 1461435.",
+    "doi": "10.3389/fpubh.2024.1461435",
+    "journal": "Frontiers in Public Health",
+    "issn": "2296-2565",
+    "year": 2024,
+    "license": "CC BY 4.0",
+    "uses": "The authors used paired samples t-tests to compare mothers' parenting self-efficacy scores before and after a 6-week intervention, and independent samples t-tests to compare the intervention and control groups, with Cohen's d for the size of change.",
+    "verified": "2026-10-10"
+  },
+  "6.8": {
+    "cite": "Huang, M., Li, Z., Zheng, Y., & Yang, C. (2025). Cognitive processing of Chinese verbal irony: the role of reverse adjacency relations in reaction time and accuracy. Frontiers in Psychology, 16, 1619358.",
+    "doi": "10.3389/fpsyg.2025.1619358",
+    "journal": "Frontiers in Psychology",
+    "issn": "1664-1078",
+    "year": 2025,
+    "license": "CC BY 4.0",
+    "uses": "After a significant paired t-test, the authors report Cohen's d = 0.455 with a 95% confidence interval and read it against the 0.2, 0.5 and 0.8 benchmarks as a medium effect, saying the difference was significant but moderate in size.",
+    "verified": "2026-10-10"
+  },
+  "6.9": {
+    "cite": "Puteikis, K., Ažukaitis, K., Dadurkevičienė, D., Simanauskas, K., Šileikienė, V., Jankauskienė, A., et al. (2024). Primary arterial hypertension associated with cognitive dysfunction in young adults: Results from a cross-sectional controlled study. Behavioral Sciences, 14(4), 321.",
+    "doi": "10.3390/bs14040321",
+    "journal": "Behavioral Sciences",
+    "issn": "2076-328X",
+    "year": 2024,
+    "license": "CC BY 4.0",
+    "uses": "The authors checked each continuous variable with the Shapiro-Wilk test, then compared the hypertension and control groups with Student's t-test when the data were normal and the Mann-Whitney U test when they were not.",
+    "verified": "2026-10-10"
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "3.3": {
+    "cite": "Jendryczko, D., Berkemeyer, L., & Holling, H. (2020). Introducing a computerized figural memory test based on automatic item generation: An analysis with the Rasch Poisson counts model. Frontiers in Psychology, 11, Article 945.",
+    "doi": "10.3389/fpsyg.2020.00945",
+    "journal": "Frontiers in Psychology",
+    "issn": "1664-1078",
+    "year": 2020,
+    "license": "CC BY 4.0",
+    "uses": "The authors treated the number of correct responses on figural memory items as counts and fitted the Rasch Poisson counts model, an item response model built on the Poisson distribution, plus modifications of it, to pilot-study data.",
+    "verified": "2026-10-10"
+  },
+  "3.4": {
+    "cite": "Wu, H., & Zhang, M. (2026). Reliability and validity testing of the Canadian agility and movement skill assessment test and establishment of the shanghai norm. Frontiers in Psychology, 17, Article 1833662.",
+    "doi": "10.3389/fpsyg.2026.1833662",
+    "journal": "Frontiers in Psychology",
+    "issn": "1664-1078",
+    "year": 2026,
+    "license": "CC BY 4.0",
+    "uses": "To build percentile norms for children's movement scores, the authors first checked that the scores were normally distributed (skewness and kurtosis within plus or minus 2), then converted them to standard Z scores and percentiles.",
+    "verified": "2026-10-10"
+  },
+  "3.5": {
+    "cite": "Siebielec, J., & Raciborski, F. (2026). Assessment of vaccine information accuracy across large language models. Frontiers in Public Health, 14, Article 1811462.",
+    "doi": "10.3389/fpubh.2026.1811462",
+    "journal": "Frontiers in Public Health",
+    "issn": "2296-2565",
+    "year": 2026,
+    "license": "CC BY 4.0",
+    "uses": "The authors compared the proportion of correct answers (out of 90 questions) between pairs of language models with a two-sample Z-test for proportions, which relies on the normal approximation to the binomial. The paper does not use the phrase 'normal approximation' itself, so this is a close but not word-for-word match.",
+    "verified": "2026-10-10"
+  },
+  "4.1": {
+    "cite": "Kerkhoff, D., & Nussbeck, F. W. (2019). The influence of sample size on parameter estimates in three-level random-effects models. Frontiers in Psychology, 10, Article 1067.",
+    "doi": "10.3389/fpsyg.2019.01067",
+    "journal": "Frontiers in Psychology",
+    "issn": "1664-1078",
+    "year": 2019,
+    "license": "CC BY 4.0",
+    "uses": "The authors built a large population dataset, drew 1000 random samples of each size from it, and compared the estimates from the samples with the true population parameters, which shows how estimates vary from sample to sample.",
+    "verified": "2026-10-10"
+  },
+  "4.2": {
+    "cite": "Zhou, J., Feng, L., Hu, C., Pao, C., Xiao, L., & Wang, G. (2019). Associations among depressive symptoms, childhood abuse, neuroticism, social support, and coping style in the population covering general adults, depressed patients, bipolar disorder patients, and high risk population for depression. Frontiers in Psychology, 10, Article 1321.",
+    "doi": "10.3389/fpsyg.2019.01321",
+    "journal": "Frontiers in Psychology",
+    "issn": "1664-1078",
+    "year": 2019,
+    "license": "CC BY 4.0",
+    "uses": "The authors ran a stepwise multiple regression predicting depressive symptoms (PHQ-9) and reported each partial regression coefficient (B) together with its standard error (SE) in a results table.",
+    "verified": "2026-10-10"
+  },
+  "4.3": {
+    "cite": "Pek, J., Wong, O., & Wong, A. C. M. (2018). How to address non-normality: A taxonomy of approaches, reviewed, and illustrated. Frontiers in Psychology, 9, Article 2104.",
+    "doi": "10.3389/fpsyg.2018.02104",
+    "journal": "Frontiers in Psychology",
+    "issn": "1664-1078",
+    "year": 2018,
+    "license": "CC BY 4.0",
+    "uses": "The authors explain that when the sample is large enough, the central limit theorem lets researchers use normal-based inference for linear model estimates even if the errors are not normal, and they compare this with other remedies using three empirical examples. This is a methods review with examples, not a study that applied the theorem to its own survey data, so the match is looser.",
+    "verified": "2026-10-10"
+  },
+  "4.4": {
+    "cite": "Mathur, P., Leburu, S., & Kulothungan, V. (2022). Prevalence, awareness, treatment and control of diabetes in India from the countrywide national NCD monitoring survey. Frontiers in Public Health, 10, Article 748157.",
+    "doi": "10.3389/fpubh.2022.748157",
+    "journal": "Frontiers in Public Health",
+    "issn": "2296-2565",
+    "year": 2022,
+    "license": "CC BY 4.0",
+    "uses": "Using a national survey of adults, the authors reported weighted means and proportions with 95% confidence intervals, for example the percentage of adults with diabetes who were aware of it, on treatment, and had it under control.",
+    "verified": "2026-10-10"
+  },
+  "4.5": {
+    "cite": "Tsaousis, I., & Alghamdi, M. H. (2022). Examining academic performance across gender differently: Measurement invariance and latent mean differences using bias-corrected bootstrap confidence intervals. Frontiers in Psychology, 13, Article 896638.",
+    "doi": "10.3389/fpsyg.2022.896638",
+    "journal": "Frontiers in Psychology",
+    "issn": "1664-1078",
+    "year": 2022,
+    "license": "CC BY 4.0",
+    "uses": "With a sample of 1,800 high school graduates, the authors used bias-corrected bootstrap confidence intervals to test measurement invariance of a general academic ability model across gender and to examine latent mean differences.",
+    "verified": "2026-10-10"
+  },
+  "5.1": {
+    "cite": "Yosef, T., Sebeta, A., Tekalign, E., Sisay, B. G., Bekele, B. B., Tesfaw, A., et al. (2024). Assessment of abdominal obesity prevalence and determinants among adults in southwest Ethiopia: A cross-sectional study. Frontiers in Public Health, 12, Article 1400066.",
+    "doi": "10.3389/fpubh.2024.1400066",
+    "journal": "Frontiers in Public Health",
+    "issn": "2296-2565",
+    "year": 2024,
+    "license": "CC BY 4.0",
+    "uses": "The authors reported the prevalence of abdominal obesity as 18% with a 95% confidence interval (15 to 21%), and they gave 95% confidence intervals for the adjusted prevalence ratios from a robust Poisson regression to judge the strength of each association.",
+    "verified": "2026-10-10"
+  }
+}

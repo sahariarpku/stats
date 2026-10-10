@@ -1,0 +1,112 @@
+{
+  "7.1": {
+    "cite": "Lastella, M., O'Mullan, C., Paterson, J. L., & Reynolds, A. C. (2019). Sex and sleep: Perceptions of sex as a sleep promoting behavior in the general adult population. Frontiers in Public Health, 7, Article 33.",
+    "doi": "10.3389/fpubh.2019.00033",
+    "journal": "Frontiers in Public Health",
+    "issn": "2296-2565",
+    "year": 2019,
+    "license": "CC BY 4.0",
+    "uses": "In an online survey of 778 adults, the authors ran chi square analyses to see whether men and women differed in their reported sleep quality and sleep onset after different sexual activities.",
+    "verified": "2026-10-10"
+  },
+  "7.2": {
+    "cite": "Malykh, S., Demareva, V., Malykh, A., Ismatullina, V. I., Adamovich, T., Kolyasnikov, P., et al. (2026). Post-COVID-19 consequences and psychological well-being in students: The mediating role of trait anxiety. Behavioral Sciences, 16(6), 996.",
+    "doi": "10.3390/bs16060996",
+    "journal": "Behavioral Sciences",
+    "issn": "2076-328X",
+    "year": 2026,
+    "license": "CC BY 4.0",
+    "uses": "The authors split 7,482 students into three groups (no COVID-19, COVID-19 without lasting consequences, COVID-19 with lasting consequences) and compared them with ANOVA followed by Tukey post hoc tests.",
+    "verified": "2026-10-10"
+  },
+  "7.3": {
+    "cite": "Alromaih, Y., Aldakhil, S., Alsaloom, D., Alkhalaf, G. A., & Alshehi, R. (2026). Effectiveness of health exhibitions on knowledge and attitudes toward nutrition and disease prevention in Saudi Arabia: An intervention study. Frontiers in Public Health, 14, Article 1827711.",
+    "doi": "10.3389/fpubh.2026.1827711",
+    "journal": "Frontiers in Public Health",
+    "issn": "2296-2565",
+    "year": 2026,
+    "license": "CC BY 4.0",
+    "uses": "The Shapiro-Wilk test showed the knowledge and attitude scores were not normal and partly ordinal, so the authors used the Wilcoxon signed-rank test for before and after scores and Mann-Whitney U and Kruskal-Wallis tests for group comparisons.",
+    "verified": "2026-10-10"
+  },
+  "8.1": {
+    "cite": "Hirano, Y. O., Tamagawa, R., & Matsumoto, T. (2022). Factors influencing the psychological independence of retired community-dwelling older adults in Japan. Frontiers in Psychology, 13, Article 1004645.",
+    "doi": "10.3389/fpsyg.2022.1004645",
+    "journal": "Frontiers in Psychology",
+    "issn": "1664-1078",
+    "year": 2022,
+    "license": "CC BY 4.0",
+    "uses": "In a questionnaire study of 246 older adults, the authors used Pearson's correlation coefficient, alongside t-tests and multiple regression, to examine how psychological independence relates to other measured variables.",
+    "verified": "2026-10-10"
+  },
+  "8.2": {
+    "cite": "Eriksson, K., Strimling, P., & Vartanova, I. (2023). Appropriateness ratings of everyday behaviors in the United States now and 50 years ago. Frontiers in Psychology, 14, Article 1237494.",
+    "doi": "10.3389/fpsyg.2023.1237494",
+    "journal": "Frontiers in Psychology",
+    "issn": "1664-1078",
+    "year": 2023,
+    "license": "CC BY 4.0",
+    "uses": "The authors ran a simple linear regression of the overall appropriateness rating of 37 everyday behaviors on a single externalities and internalities index, and reported the slope B with its confidence interval. This is a close match for slope only; I did not confirm that an intercept is reported.",
+    "verified": "2026-10-10"
+  },
+  "8.3": {
+    "cite": "Liang, N., Wang, X., Ren, J., Zhang, Y., Liu, X., Ka, L., et al. (2026). Examining the status quo and related factors of clinical nurses' spare-time planning. Frontiers in Public Health, 14, Article 1798726.",
+    "doi": "10.3389/fpubh.2026.1798726",
+    "journal": "Frontiers in Public Health",
+    "issn": "2296-2565",
+    "year": 2026,
+    "license": "CC BY 4.0",
+    "uses": "For their linear regression of nurses' spare-time planning, the authors reported R squared and adjusted R squared, then checked residuals with a normal P-P plot and a plot of standardized residuals against predicted values to judge normality and constant variance.",
+    "verified": "2026-10-10"
+  },
+  "8.4": {
+    "cite": "Zoghlami, W., Hawani, A., Khiari, H., Mnedla, S., Marsigliante, S., Elloumi, A., et al. (2023). The relationship between emotional intelligence, anxiety, and performance in physical education and sport students. Frontiers in Psychology, 14, Article 1236070.",
+    "doi": "10.3389/fpsyg.2023.1236070",
+    "journal": "Frontiers in Psychology",
+    "issn": "1664-1078",
+    "year": 2023,
+    "license": "CC BY 4.0",
+    "uses": "With 350 students, the authors first ran simple linear regressions and then a multiple regression with several anxiety and emotional intelligence subscales entered together to study what relates to exam performance.",
+    "verified": "2026-10-10"
+  },
+  "8.5": {
+    "cite": "Gaskell, C., Sarada, P., Aleem, E., & Bendriss, G. (2023). Identifying lifestyle factors associated to co-morbidity of obesity and psychiatric disorders, a pilot study. Frontiers in Public Health, 11, Article 1132994.",
+    "doi": "10.3389/fpubh.2023.1132994",
+    "journal": "Frontiers in Public Health",
+    "issn": "2296-2565",
+    "year": 2023,
+    "license": "CC BY 4.0",
+    "uses": "The authors used multivariate logistic regression to see whether lifestyle habits such as alcohol, smoking, exercise and sleep predicted having both obesity and a mental health condition, and reported odds ratios with 95% confidence intervals.",
+    "verified": "2026-10-10"
+  },
+  "9.1": {
+    "cite": "Ostacoli, L., Carletto, S., Cavallo, M., Baldomir-Gago, P., Di Lorenzo, G., Fernandez, I., et al. (2018). Comparison of eye movement desensitization reprocessing and cognitive behavioral therapy as adjunctive treatments for recurrent depression: The European Depression EMDR Network (EDEN) randomized controlled trial. Frontiers in Psychology, 9, Article 74.",
+    "doi": "10.3389/fpsyg.2018.00074",
+    "journal": "Frontiers in Psychology",
+    "issn": "1664-1078",
+    "year": 2018,
+    "license": "CC BY 4.0",
+    "uses": "A single-blind randomized controlled trial in which 82 patients were randomized 1:1 to EMDR or CBT using a block-wise sequence generated by a central computer system, with allocation handled by a study coordinator.",
+    "verified": "2026-10-10"
+  },
+  "9.2": {
+    "cite": "Alromaih, Y., Aldakhil, S., Alsaloom, D., Alkhalaf, G. A., & Alshehi, R. (2026). Effectiveness of health exhibitions on knowledge and attitudes toward nutrition and disease prevention in Saudi Arabia: An intervention study. Frontiers in Public Health, 14, Article 1827711.",
+    "doi": "10.3389/fpubh.2026.1827711",
+    "journal": "Frontiers in Public Health",
+    "issn": "2296-2565",
+    "year": 2026,
+    "license": "CC BY 4.0",
+    "uses": "Before choosing tests, the authors checked the normality of the knowledge and attitude scores with the Shapiro-Wilk test and checked equal variances with Levene's test. Normality failed, so they switched to non-parametric tests.",
+    "verified": "2026-10-10"
+  },
+  "9.3": {
+    "cite": "Santiago, P. H. R., Quintero, A., Haag, D., Roberts, R., Smithers, L., & Jamieson, L. (2021). Drop-the-p: Bayesian CFA of the Multidimensional Scale of Perceived Social Support in Australia. Frontiers in Psychology, 12, Article 542257.",
+    "doi": "10.3389/fpsyg.2021.542257",
+    "journal": "Frontiers in Psychology",
+    "issn": "1664-1078",
+    "year": 2021,
+    "license": "CC BY 4.0",
+    "uses": "The authors fitted a Bayesian confirmatory factor analysis to survey data from 3,899 adults, reported 95% credible intervals for model fit and reliability, and used the Bayes factor to compare competing factor structures.",
+    "verified": "2026-10-10"
+  }
+}
