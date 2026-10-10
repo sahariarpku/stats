@@ -96,6 +96,9 @@ python3 scripts/build_indexes.py   # refresh stage pages, glossary, animation li
 
 Writing a new walkthrough or definition? See [`site/walk/AUTHORING.md`](site/walk/AUTHORING.md). Definitions live in `content/definitions/`, walkthroughs in `site/walks/`.
 
+
+Every lesson ends with a **Go further** block: three free places to read more, and one real open-access paper from a Social Sciences Citation Index journal that used the lesson's statistic. The sources live in `content/resources/` (see its README); `python3 scripts/check_resources.py` validates them, and every DOI was confirmed against Crossref and every journal against Clarivate's Master Journal List.
+
 ## Running the code (optional)
 
 You only need Python 3. There is nothing to install.

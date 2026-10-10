@@ -10,6 +10,7 @@ It verifies, for every lesson:
   * every markdown table has the same number of cells in every row
   * every Python script runs and passes its own asserts
   * every glossary term has an explanation, example, joke and walkthrough (scripts/check_definitions.py)
+  * every lesson has reading links and a verified open-access SSCI paper (scripts/check_resources.py)
   * the website data in site/ matches the lessons (scripts/build_site.py)
 Exit code 0 means everything is fine.
 """
@@ -117,6 +118,10 @@ def main():
     print(r.stdout.strip().splitlines()[-1] if r.stdout.strip() else "")
     if r.returncode != 0:
         err("definitions: " + "; ".join(l for l in r.stdout.splitlines() if l.startswith("PROBLEM"))[:600])
+    r = subprocess.run([sys.executable, str(ROOT / "scripts" / "check_resources.py"), "--strict"], capture_output=True, text=True)
+    print(r.stdout.strip().splitlines()[-1] if r.stdout.strip() else "")
+    if r.returncode != 0:
+        err("resources: " + "; ".join(l for l in r.stdout.splitlines() if l.startswith("PROBLEM"))[:600])
     r = subprocess.run([sys.executable, str(ROOT / "scripts" / "build_site.py"), "--check"], capture_output=True, text=True)
     print(r.stdout.strip().splitlines()[0] if r.stdout.strip() else "")
     if r.returncode != 0:

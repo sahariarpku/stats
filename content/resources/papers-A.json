@@ -1,0 +1,82 @@
+{
+  "0.1": {
+    "cite": "Jin, X., & Ye, Y. (2022). Impact of fine arts education on psychological wellbeing of higher education students through moderating role of creativity and self-efficacy. Frontiers in Psychology, 13, 957578.",
+    "doi": "10.3389/fpsyg.2022.957578",
+    "journal": "Frontiers in Psychology",
+    "issn": "1664-1078",
+    "year": 2022,
+    "license": "CC BY 4.0",
+    "uses": "The authors surveyed 376 Chinese undergraduates and analysed the data in SPSS, which they say includes both descriptive and inferential statistics, to describe the sample and to test whether creativity and self-efficacy moderate the link between fine arts education and wellbeing.",
+    "verified": "2026-10-10"
+  },
+  "0.2": {
+    "cite": "Harrison, A., James, C., Ferguson-Henry, K., Rocke, K., & Lowe, G. (2026). Eating disorders among adolescents and young adults in Kingston, Jamaica. Frontiers in Psychology, 17, 1704895.",
+    "doi": "10.3389/fpsyg.2026.1704895",
+    "journal": "Frontiers in Psychology",
+    "issn": "1664-1078",
+    "year": 2026,
+    "license": "CC BY 4.0",
+    "uses": "The authors summarised categorical variables with proportions and frequencies and continuous variables with means and medians. They then matched the tests to the variable type, using the t-test and analysis of variance to compare means and the Pearson chi-squared test for associations between categorical variables.",
+    "verified": "2026-10-10"
+  },
+  "0.3": {
+    "cite": "Abid, N., Aslam, S., Alghamdi, A. A., & Kumar, T. (2023). Relationships among students' reading habits, study skills, and academic achievement in English at the secondary level. Frontiers in Psychology, 14, 1020269.",
+    "doi": "10.3389/fpsyg.2023.1020269",
+    "journal": "Frontiers in Psychology",
+    "issn": "1664-1078",
+    "year": 2023,
+    "license": "CC BY 4.0",
+    "uses": "The study targeted science-section secondary students in Punjab, Pakistan, and drew a sample of 1,614 students from 40 high schools in Lahore using non-proportionate stratified random sampling. The responses were then analysed with descriptive and inferential statistics.",
+    "verified": "2026-10-10"
+  },
+  "1.1": {
+    "cite": "Strayhorn, J., Faraone, S. V., & Zhang-James, Y. (2025). Time on task limits psychotherapy's role in reducing the societal burden of aggression. Frontiers in Public Health, 13, 1570642.",
+    "doi": "10.3389/fpubh.2025.1570642",
+    "journal": "Frontiers in Public Health",
+    "issn": "2296-2565",
+    "year": 2025,
+    "license": "CC BY 4.0",
+    "uses": "The authors analysed the number of psychotherapy sessions received by 32,322 people with Intermittent Explosive Disorder and found a highly skewed distribution. They report that the mode and the median were zero sessions while the mean was four, which shows how the three averages differ for skewed data.",
+    "verified": "2026-10-10"
+  },
+  "1.2": {
+    "cite": "Ke, X., Lin, W., Li, D., Zhao, S., Chen, M., Xiao, Y., et al. (2022). Spending and hospital stay for melanoma in Hunan, China. Frontiers in Public Health, 10, 917119.",
+    "doi": "10.3389/fpubh.2022.917119",
+    "journal": "Frontiers in Public Health",
+    "issn": "2296-2565",
+    "year": 2022,
+    "license": "CC BY 4.0",
+    "uses": "The authors described hospital spending and length of stay for 2,644 melanoma patients using the median together with the interquartile range (IQR). They then compared groups with nonparametric tests and quantile regression rather than means.",
+    "verified": "2026-10-10"
+  },
+  "1.3": {
+    "cite": "Li, Y., Xiao, T., Liao, H., Qu, H., Ren, P., & Chen, X. (2024). Fear of progression, loneliness, and hope in patients with gastrointestinal cancer: a cross-sectional relational study. Frontiers in Psychology, 14, 1279561.",
+    "doi": "10.3389/fpsyg.2023.1279561",
+    "journal": "Frontiers in Psychology",
+    "issn": "1664-1078",
+    "year": 2024,
+    "license": "CC BY 4.0",
+    "uses": "The authors reported the average score and standard deviation for fear of progression (32.94 with SD 10.64), loneliness and hope in 245 patients. They then used t-tests, one-way analysis of variance and regression to explain the variability in fear of progression. This study reports standard deviations but does not report the variance itself.",
+    "verified": "2026-10-10"
+  },
+  "1.4": {
+    "cite": "Araújo, O., Freitas, O., Sousa, G., Ribeiro, I., Carvalho, J. C., & Martins, S. (2025). Psychometric proprieties analyses of Psychological Vulnerability Scale for secondary school students. Frontiers in Psychology, 15, 1462830.",
+    "doi": "10.3389/fpsyg.2024.1462830",
+    "journal": "Frontiers in Psychology",
+    "issn": "1664-1078",
+    "year": 2025,
+    "license": "CC BY 4.0",
+    "uses": "The authors checked the shape of the item distributions for 1,875 secondary school students by computing skewness (between -0.557 and 0.6385) and kurtosis (between -1.29 and -0.704) and judged these values acceptable before running confirmatory factor analysis.",
+    "verified": "2026-10-10"
+  },
+  "1.5": {
+    "cite": "Schmidt, S. L., Araguez, I. M., Neves, V. V., van Duinkerken, E., Schmidt, G. J., Tolentino, J. C., et al. (2022). Attention deficits in Brazilian health care workers with chronic pain. Frontiers in Psychology, 13, 1024584.",
+    "doi": "10.3389/fpsyg.2022.1024584",
+    "journal": "Frontiers in Psychology",
+    "issn": "1664-1078",
+    "year": 2022,
+    "license": "CC BY 4.0",
+    "uses": "The authors converted each health care worker's attention test results into Z-scores using the distribution of 211 healthy people as the reference group. Workers with a Z-score above 1.64 were classified as significantly impaired.",
+    "verified": "2026-10-10"
+  }
+}
