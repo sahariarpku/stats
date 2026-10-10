@@ -1,0 +1,942 @@
+{
+ "0.1": [
+  {
+   "title": "Hello data",
+   "url": "https://openintro-ims.netlify.app/data-hello",
+   "source": "Introduction to Modern Statistics",
+   "note": "Opens the book with what statistics is and how data answer questions."
+  },
+  {
+   "title": "Importance of Statistics",
+   "url": "https://onlinestatbook.com/2/introduction/importance.html",
+   "source": "Online Statistics Education",
+   "note": "Short page with everyday examples of statistics in news and research."
+  },
+  {
+   "title": "Statistics",
+   "url": "https://en.wikipedia.org/wiki/Statistics",
+   "source": "Wikipedia",
+   "note": "Overview of the field, its history and its main branches."
+  }
+ ],
+ "0.2": [
+  {
+   "title": "Levels of Measurement",
+   "url": "https://onlinestatbook.com/2/introduction/levels_of_measurement.html",
+   "source": "Online Statistics Education",
+   "note": "Explains nominal, ordinal, interval and ratio scales with examples."
+  },
+  {
+   "title": "Hello data",
+   "url": "https://openintro-ims.netlify.app/data-hello",
+   "source": "Introduction to Modern Statistics",
+   "note": "Covers numerical and categorical variables in the first chapter."
+  },
+  {
+   "title": "Level of measurement",
+   "url": "https://en.wikipedia.org/wiki/Level_of_measurement",
+   "source": "Wikipedia",
+   "note": "Reference on the four classic measurement scales and their uses."
+  }
+ ],
+ "0.3": [
+  {
+   "title": "Inferential Statistics",
+   "url": "https://onlinestatbook.com/2/introduction/inferential.html",
+   "source": "Online Statistics Education",
+   "note": "Shows how a sample is used to learn about a population."
+  },
+  {
+   "title": "Study design",
+   "url": "https://openintro-ims.netlify.app/data-design",
+   "source": "Introduction to Modern Statistics",
+   "note": "Describes populations, samples and the main ways to sample."
+  },
+  {
+   "title": "Sampling (statistics)",
+   "url": "https://en.wikipedia.org/wiki/Sampling_(statistics)",
+   "source": "Wikipedia",
+   "note": "Reference on populations, sampling frames and sampling methods."
+  }
+ ],
+ "1.1": [
+  {
+   "title": "Measures of Central Tendency",
+   "url": "https://onlinestatbook.com/2/summarizing_distributions/measures.html",
+   "source": "Online Statistics Education",
+   "note": "Defines mean, median and mode and when each one fits."
+  },
+  {
+   "title": "Descriptive statistics",
+   "url": "https://learningstatisticswithr.com/book/descriptives.html",
+   "source": "Learning Statistics with R",
+   "note": "Walks through measures of central tendency, with worked examples."
+  },
+  {
+   "title": "Average",
+   "url": "https://en.wikipedia.org/wiki/Average",
+   "source": "Wikipedia",
+   "note": "Short reference on the different kinds of average."
+  }
+ ],
+ "1.2": [
+  {
+   "title": "Box Plots",
+   "url": "https://onlinestatbook.com/2/graphing_distributions/boxplots.html",
+   "source": "Online Statistics Education",
+   "note": "Shows how quartiles and whiskers build a box plot."
+  },
+  {
+   "title": "Exploring numerical data",
+   "url": "https://openintro-ims.netlify.app/explore-numerical",
+   "source": "Introduction to Modern Statistics",
+   "note": "Covers quartiles, the IQR and box plots with real data."
+  },
+  {
+   "title": "1.3.3.7. Box Plot",
+   "url": "https://itl.nist.gov/div898/handbook/eda/section3/eda337.htm",
+   "source": "NIST/SEMATECH e-Handbook of Statistical Methods",
+   "note": "Handbook entry on reading and using box plots."
+  }
+ ],
+ "1.3": [
+  {
+   "title": "Measures of Variability",
+   "url": "https://onlinestatbook.com/2/summarizing_distributions/variability.html",
+   "source": "Online Statistics Education",
+   "note": "Explains range, variance and standard deviation step by step."
+  },
+  {
+   "title": "Exploring numerical data",
+   "url": "https://openintro-ims.netlify.app/explore-numerical",
+   "source": "Introduction to Modern Statistics",
+   "note": "Shows how variance and standard deviation measure spread."
+  },
+  {
+   "title": "Standard deviation",
+   "url": "https://en.wikipedia.org/wiki/Standard_deviation",
+   "source": "Wikipedia",
+   "note": "Reference with formulas and the link to the normal curve."
+  }
+ ],
+ "1.4": [
+  {
+   "title": "Histograms",
+   "url": "https://onlinestatbook.com/2/graphing_distributions/histograms.html",
+   "source": "Online Statistics Education",
+   "note": "Shows how to build and read a histogram."
+  },
+  {
+   "title": "1.3.5.11. Measures of Skewness and Kurtosis",
+   "url": "https://itl.nist.gov/div898/handbook/eda/section3/eda35b.htm",
+   "source": "NIST/SEMATECH e-Handbook of Statistical Methods",
+   "note": "Handbook entry on measuring skewness and tail weight."
+  },
+  {
+   "title": "Skewness",
+   "url": "https://en.wikipedia.org/wiki/Skewness",
+   "source": "Wikipedia",
+   "note": "Reference on left and right skew and how it is measured."
+  }
+ ],
+ "1.5": [
+  {
+   "title": "Standard Normal Distribution",
+   "url": "https://onlinestatbook.com/2/normal_distribution/standard_normal.html",
+   "source": "Online Statistics Education",
+   "note": "Shows how a z-score converts a value to standard units."
+  },
+  {
+   "title": "Descriptive statistics",
+   "url": "https://learningstatisticswithr.com/book/descriptives.html",
+   "source": "Learning Statistics with R",
+   "note": "Includes a section on standard scores and how to read them."
+  },
+  {
+   "title": "Standard score",
+   "url": "https://en.wikipedia.org/wiki/Standard_score",
+   "source": "Wikipedia",
+   "note": "Reference on z-scores, formulas and comparing values."
+  }
+ ],
+ "2.1": [
+  {
+   "title": "Basic Probability",
+   "url": "https://seeing-theory.brown.edu/basic-probability/index.html",
+   "source": "Seeing Theory",
+   "note": "Interactive coin tosses show chance events and long-run frequency."
+  },
+  {
+   "title": "Basic Concepts in Probability",
+   "url": "https://onlinestatbook.com/2/probability/basic.html",
+   "source": "Online Statistics Education",
+   "note": "Shows how to compute simple probabilities."
+  },
+  {
+   "title": "Probability",
+   "url": "https://en.wikipedia.org/wiki/Probability",
+   "source": "Wikipedia",
+   "note": "Reference on the definition and rules of probability."
+  }
+ ],
+ "2.2": [
+  {
+   "title": "Permutations and Combinations",
+   "url": "https://onlinestatbook.com/2/probability/permutations.html",
+   "source": "Online Statistics Education",
+   "note": "Counts ordered and unordered arrangements with formulas."
+  },
+  {
+   "title": "Compound Probability",
+   "url": "https://seeing-theory.brown.edu/compound-probability/index.html",
+   "source": "Seeing Theory",
+   "note": "Interactive counting of permutations and combinations."
+  },
+  {
+   "title": "Lesson 3: Counting Techniques",
+   "url": "https://online.stat.psu.edu/stat414/lesson/3",
+   "source": "Penn State STAT 414",
+   "note": "Counting principles, permutations and combinations with examples."
+  }
+ ],
+ "2.3": [
+  {
+   "title": "Compound Probability",
+   "url": "https://seeing-theory.brown.edu/compound-probability/index.html",
+   "source": "Seeing Theory",
+   "note": "Interactive Venn diagrams for unions, intersections and sets."
+  },
+  {
+   "title": "Lesson 2: Properties of Probability",
+   "url": "https://online.stat.psu.edu/stat414/lesson/2",
+   "source": "Penn State STAT 414",
+   "note": "Covers the addition rule, complements and event algebra."
+  },
+  {
+   "title": "Basic Concepts in Probability",
+   "url": "https://onlinestatbook.com/2/probability/basic.html",
+   "source": "Online Statistics Education",
+   "note": "Gives the rules for the probability of A or B and A and B."
+  }
+ ],
+ "2.4": [
+  {
+   "title": "Lesson 4: Conditional Probability",
+   "url": "https://online.stat.psu.edu/stat414/lesson/4",
+   "source": "Penn State STAT 414",
+   "note": "Defines conditional probability and the multiplication rule."
+  },
+  {
+   "title": "Compound Probability",
+   "url": "https://seeing-theory.brown.edu/compound-probability/index.html",
+   "source": "Seeing Theory",
+   "note": "Interactive section on conditional probability."
+  },
+  {
+   "title": "Conditional probability",
+   "url": "https://en.wikipedia.org/wiki/Conditional_probability",
+   "source": "Wikipedia",
+   "note": "Reference with the definition, formulas and examples."
+  }
+ ],
+ "2.5": [
+  {
+   "title": "Bayesian Inference",
+   "url": "https://seeing-theory.brown.edu/bayesian-inference/index.html",
+   "source": "Seeing Theory",
+   "note": "Interactive disease test example that applies Bayes' theorem."
+  },
+  {
+   "title": "Bayes' Theorem",
+   "url": "https://onlinestatbook.com/2/probability/bayes.html",
+   "source": "Online Statistics Education",
+   "note": "Explains the theorem with a demonstration and worked cases."
+  },
+  {
+   "title": "Lesson 6: Bayes' Theorem",
+   "url": "https://online.stat.psu.edu/stat414/lesson/6",
+   "source": "Penn State STAT 414",
+   "note": "Step-by-step derivation and practice problems."
+  }
+ ],
+ "2.6": [
+  {
+   "title": "Basic Probability",
+   "url": "https://seeing-theory.brown.edu/basic-probability/index.html",
+   "source": "Seeing Theory",
+   "note": "Interactive section on expectation as the long-run average."
+  },
+  {
+   "title": "Lesson 8: Mathematical Expectation",
+   "url": "https://online.stat.psu.edu/stat414/lesson/8",
+   "source": "Penn State STAT 414",
+   "note": "Defines the expected value of a random variable with examples."
+  },
+  {
+   "title": "Law of large numbers",
+   "url": "https://en.wikipedia.org/wiki/Law_of_large_numbers",
+   "source": "Wikipedia",
+   "note": "Reference on why sample averages settle near the expected value."
+  }
+ ],
+ "3.1": [
+  {
+   "title": "Probability Distributions",
+   "url": "https://seeing-theory.brown.edu/probability-distributions/index.html",
+   "source": "Seeing Theory",
+   "note": "Interactive random variables and discrete and continuous distributions."
+  },
+  {
+   "title": "Lesson 3: Probability Distributions",
+   "url": "https://online.stat.psu.edu/stat500/lesson/3",
+   "source": "Penn State STAT 500",
+   "note": "Introduces random variables and common distributions."
+  },
+  {
+   "title": "Random variable",
+   "url": "https://en.wikipedia.org/wiki/Random_variable",
+   "source": "Wikipedia",
+   "note": "Reference on discrete and continuous random variables."
+  }
+ ],
+ "3.2": [
+  {
+   "title": "Binomial Distribution",
+   "url": "https://onlinestatbook.com/2/probability/binomial.html",
+   "source": "Online Statistics Education",
+   "note": "Explains the binomial formula and when it applies."
+  },
+  {
+   "title": "Lesson 10: The Binomial Distribution",
+   "url": "https://online.stat.psu.edu/stat414/lesson/10",
+   "source": "Penn State STAT 414",
+   "note": "Derives the binomial pmf, mean and variance."
+  },
+  {
+   "title": "1.3.6.6.18. Binomial Distribution",
+   "url": "https://itl.nist.gov/div898/handbook/eda/section3/eda366i.htm",
+   "source": "NIST/SEMATECH e-Handbook of Statistical Methods",
+   "note": "Handbook summary with formulas and example plots."
+  }
+ ],
+ "3.3": [
+  {
+   "title": "Lesson 12: The Poisson Distribution",
+   "url": "https://online.stat.psu.edu/stat414/lesson/12",
+   "source": "Penn State STAT 414",
+   "note": "Derives the Poisson distribution and its link to the binomial."
+  },
+  {
+   "title": "1.3.6.6.19. Poisson Distribution",
+   "url": "https://itl.nist.gov/div898/handbook/eda/section3/eda366j.htm",
+   "source": "NIST/SEMATECH e-Handbook of Statistical Methods",
+   "note": "Handbook summary of the Poisson pmf and its properties."
+  },
+  {
+   "title": "Poisson distribution",
+   "url": "https://en.wikipedia.org/wiki/Poisson_distribution",
+   "source": "Wikipedia",
+   "note": "Reference on counts of events in a fixed interval."
+  }
+ ],
+ "3.4": [
+  {
+   "title": "Introduction to Normal Distributions",
+   "url": "https://onlinestatbook.com/2/normal_distribution/intro.html",
+   "source": "Online Statistics Education",
+   "note": "Describes the bell curve and the 68-95-99.7 pattern."
+  },
+  {
+   "title": "Lesson 16: Normal Distributions",
+   "url": "https://online.stat.psu.edu/stat414/lesson/16",
+   "source": "Penn State STAT 414",
+   "note": "Covers the normal density and standard normal probabilities."
+  },
+  {
+   "title": "Normal distribution",
+   "url": "https://en.wikipedia.org/wiki/Normal_distribution",
+   "source": "Wikipedia",
+   "note": "Reference on the normal curve, its parameters and uses."
+  }
+ ],
+ "3.5": [
+  {
+   "title": "Normal Approximation to the Binomial",
+   "url": "https://onlinestatbook.com/2/normal_distribution/normal_approx.html",
+   "source": "Online Statistics Education",
+   "note": "Shows when and how a normal curve approximates a binomial."
+  },
+  {
+   "title": "Lesson 28: Approximations for Discrete Distributions",
+   "url": "https://online.stat.psu.edu/stat414/lesson/28",
+   "source": "Penn State STAT 414",
+   "note": "Normal approximation to the binomial, with continuity correction."
+  },
+  {
+   "title": "Binomial distribution",
+   "url": "https://en.wikipedia.org/wiki/Binomial_distribution",
+   "source": "Wikipedia",
+   "note": "Has a section on the normal approximation of the binomial."
+  }
+ ],
+ "4.1": [
+  {
+   "title": "Introduction to Sampling Distributions",
+   "url": "https://onlinestatbook.com/2/sampling_distributions/intro_samp_dist.html",
+   "source": "Online Statistics Education",
+   "note": "Defines a sampling distribution with a simple example."
+  },
+  {
+   "title": "Sampling Distributions",
+   "url": "https://onlinestatbook.com/2/sampling_distributions/sampling_distributions.html",
+   "source": "Online Statistics Education",
+   "note": "Chapter page that links to interactive sampling demos."
+  },
+  {
+   "title": "Lesson 4: Sampling Distributions",
+   "url": "https://online.stat.psu.edu/stat500/lesson/4",
+   "source": "Penn State STAT 500",
+   "note": "Sampling distributions of means and proportions with examples."
+  }
+ ],
+ "4.2": [
+  {
+   "title": "Sampling Distribution of the Mean",
+   "url": "https://onlinestatbook.com/2/sampling_distributions/samp_dist_mean.html",
+   "source": "Online Statistics Education",
+   "note": "Shows how the standard error of the mean shrinks with sample size."
+  },
+  {
+   "title": "Inference with mathematical models",
+   "url": "https://openintro-ims.netlify.app/foundations-mathematical",
+   "source": "Introduction to Modern Statistics",
+   "note": "Covers standard error and the central limit theorem."
+  },
+  {
+   "title": "Standard error",
+   "url": "https://en.wikipedia.org/wiki/Standard_error",
+   "source": "Wikipedia",
+   "note": "Reference on the standard error and how it differs from the SD."
+  }
+ ],
+ "4.3": [
+  {
+   "title": "Probability Distributions",
+   "url": "https://seeing-theory.brown.edu/probability-distributions/index.html",
+   "source": "Seeing Theory",
+   "note": "Interactive central limit theorem demo with several shapes."
+  },
+  {
+   "title": "Lesson 27: The Central Limit Theorem",
+   "url": "https://online.stat.psu.edu/stat414/lesson/27",
+   "source": "Penn State STAT 414",
+   "note": "States the theorem and works through applications."
+  },
+  {
+   "title": "Central limit theorem",
+   "url": "https://en.wikipedia.org/wiki/Central_limit_theorem",
+   "source": "Wikipedia",
+   "note": "Reference with statements, history and examples."
+  }
+ ],
+ "4.4": [
+  {
+   "title": "Sampling Distribution of a proportion",
+   "url": "https://onlinestatbook.com/2/sampling_distributions/samp_dist_p.html",
+   "source": "Online Statistics Education",
+   "note": "Gives the mean and standard error of a sample proportion."
+  },
+  {
+   "title": "Inference for a single proportion",
+   "url": "https://openintro-ims.netlify.app/inference-one-prop",
+   "source": "Introduction to Modern Statistics",
+   "note": "Shows the sampling variability of a proportion in practice."
+  },
+  {
+   "title": "Lesson 4: Sampling Distributions",
+   "url": "https://online.stat.psu.edu/stat500/lesson/4",
+   "source": "Penn State STAT 500",
+   "note": "Includes sampling distributions of sample proportions."
+  }
+ ],
+ "4.5": [
+  {
+   "title": "Confidence intervals with bootstrapping",
+   "url": "https://openintro-ims.netlify.app/foundations-bootstrapping",
+   "source": "Introduction to Modern Statistics",
+   "note": "Explains resampling and bootstrap intervals with examples."
+  },
+  {
+   "title": "Frequentist Inference",
+   "url": "https://seeing-theory.brown.edu/frequentist-inference/index.html",
+   "source": "Seeing Theory",
+   "note": "Interactive bootstrap demo in the last section."
+  },
+  {
+   "title": "Bootstrapping (statistics)",
+   "url": "https://en.wikipedia.org/wiki/Bootstrapping_(statistics)",
+   "source": "Wikipedia",
+   "note": "Reference on resampling to estimate an estimator's distribution."
+  }
+ ],
+ "5.1": [
+  {
+   "title": "Confidence Intervals Introduction",
+   "url": "https://onlinestatbook.com/2/estimation/confidence.html",
+   "source": "Online Statistics Education",
+   "note": "Explains what a confidence level means."
+  },
+  {
+   "title": "Lesson 5: Confidence Intervals",
+   "url": "https://online.stat.psu.edu/stat500/lesson/5",
+   "source": "Penn State STAT 500",
+   "note": "Builds intervals and interprets confidence levels."
+  },
+  {
+   "title": "Confidence Intervals",
+   "url": "https://lakens.github.io/statistical_inferences/07-CI.html",
+   "source": "Improving Your Statistical Inferences",
+   "note": "Chapter on how to read and report confidence intervals."
+  }
+ ],
+ "5.2": [
+  {
+   "title": "t Distribution",
+   "url": "https://onlinestatbook.com/2/estimation/t_distribution.html",
+   "source": "Online Statistics Education",
+   "note": "Shows how the t curve differs from the normal."
+  },
+  {
+   "title": "Inference for a single mean",
+   "url": "https://openintro-ims.netlify.app/inference-one-mean",
+   "source": "Introduction to Modern Statistics",
+   "note": "Builds t intervals and tests for a mean."
+  },
+  {
+   "title": "Student's t-distribution",
+   "url": "https://en.wikipedia.org/wiki/Student%27s_t-distribution",
+   "source": "Wikipedia",
+   "note": "Reference on the t distribution and degrees of freedom."
+  }
+ ],
+ "5.3": [
+  {
+   "title": "Confidence Interval on a Proportion",
+   "url": "https://onlinestatbook.com/2/estimation/proportion_ci.html",
+   "source": "Online Statistics Education",
+   "note": "Gives the interval formula with a worked poll example."
+  },
+  {
+   "title": "Inference for a single proportion",
+   "url": "https://openintro-ims.netlify.app/inference-one-prop",
+   "source": "Introduction to Modern Statistics",
+   "note": "Confidence intervals and tests for one proportion."
+  },
+  {
+   "title": "Binomial proportion confidence interval",
+   "url": "https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval",
+   "source": "Wikipedia",
+   "note": "Compares several interval methods for a proportion."
+  }
+ ],
+ "6.1": [
+  {
+   "title": "Hypothesis testing with randomization",
+   "url": "https://openintro-ims.netlify.app/foundations-randomization",
+   "source": "Introduction to Modern Statistics",
+   "note": "Introduces null and alternative hypotheses by simulation."
+  },
+  {
+   "title": "Significance Testing",
+   "url": "https://onlinestatbook.com/2/logic_of_hypothesis_testing/significance.html",
+   "source": "Online Statistics Education",
+   "note": "Walks through the logic of a significance test."
+  },
+  {
+   "title": "Using p-values to test a hypothesis",
+   "url": "https://lakens.github.io/statistical_inferences/01-pvalue.html",
+   "source": "Improving Your Statistical Inferences",
+   "note": "Chapter on the logic of testing with p-values."
+  }
+ ],
+ "6.2": [
+  {
+   "title": "The ASA Statement on p-Values: Context, Process, and Purpose",
+   "url": "https://www.tandfonline.com/doi/full/10.1080/00031305.2016.1154108",
+   "source": "The American Statistician",
+   "note": "Six principles on what a p-value does and does not say."
+  },
+  {
+   "title": "The p value and the base rate fallacy",
+   "url": "https://statisticsdonewrong.com/p-value.html",
+   "source": "Statistics Done Wrong",
+   "note": "Explains common mistakes in reading p-values."
+  },
+  {
+   "title": "P-value",
+   "url": "https://en.wikipedia.org/wiki/P-value",
+   "source": "Wikipedia",
+   "note": "Reference on the definition and misuse of p-values."
+  }
+ ],
+ "6.3": [
+  {
+   "title": "Decision Errors",
+   "url": "https://openintro-ims.netlify.app/foundations-errors",
+   "source": "Introduction to Modern Statistics",
+   "note": "Covers Type I and Type II errors and the significance level."
+  },
+  {
+   "title": "Type I and II Errors",
+   "url": "https://onlinestatbook.com/2/logic_of_hypothesis_testing/errors.html",
+   "source": "Online Statistics Education",
+   "note": "Short page that separates the two kinds of error."
+  },
+  {
+   "title": "Statistical power and underpowered statistics",
+   "url": "https://statisticsdonewrong.com/power.html",
+   "source": "Statistics Done Wrong",
+   "note": "Shows how low power hides real effects."
+  }
+ ],
+ "6.4": [
+  {
+   "title": "Testing a Single Mean",
+   "url": "https://onlinestatbook.com/2/tests_of_means/single_mean.html",
+   "source": "Online Statistics Education",
+   "note": "Works a z-test for a mean and explains the steps."
+  },
+  {
+   "title": "Inference for a single proportion",
+   "url": "https://openintro-ims.netlify.app/inference-one-prop",
+   "source": "Introduction to Modern Statistics",
+   "note": "Includes the z-test for a proportion."
+  },
+  {
+   "title": "Z-test",
+   "url": "https://en.wikipedia.org/wiki/Z-test",
+   "source": "Wikipedia",
+   "note": "Reference on when a z-test applies."
+  }
+ ],
+ "6.5": [
+  {
+   "title": "Inference for a single mean",
+   "url": "https://openintro-ims.netlify.app/inference-one-mean",
+   "source": "Introduction to Modern Statistics",
+   "note": "Runs a one-sample t-test with conditions and examples."
+  },
+  {
+   "title": "Comparing two means",
+   "url": "https://learningstatisticswithr.com/book/ttest.html",
+   "source": "Learning Statistics with R",
+   "note": "Starts with the one-sample t-test and its assumptions."
+  },
+  {
+   "title": "Student's t-test",
+   "url": "https://en.wikipedia.org/wiki/Student%27s_t-test",
+   "source": "Wikipedia",
+   "note": "Reference covering the one-sample and other t-tests."
+  }
+ ],
+ "6.6": [
+  {
+   "title": "Inference for comparing two independent means",
+   "url": "https://openintro-ims.netlify.app/inference-two-means",
+   "source": "Introduction to Modern Statistics",
+   "note": "Tests and intervals for a difference of two means."
+  },
+  {
+   "title": "Testing Differences Between Means",
+   "url": "https://onlinestatbook.com/2/tests_of_means/difference_means.html",
+   "source": "Online Statistics Education",
+   "note": "Works the independent-groups t-test step by step."
+  },
+  {
+   "title": "1.3.5.3. Two-Sample t-Test for Equal Means",
+   "url": "https://itl.nist.gov/div898/handbook/eda/section3/eda353.htm",
+   "source": "NIST/SEMATECH e-Handbook of Statistical Methods",
+   "note": "Handbook entry with the test statistic and assumptions."
+  }
+ ],
+ "6.7": [
+  {
+   "title": "Inference for comparing paired means",
+   "url": "https://openintro-ims.netlify.app/inference-paired-means",
+   "source": "Introduction to Modern Statistics",
+   "note": "Shows how to analyze paired data using differences."
+  },
+  {
+   "title": "Difference Between Means, Correlated Pairs",
+   "url": "https://onlinestatbook.com/2/tests_of_means/correlated.html",
+   "source": "Online Statistics Education",
+   "note": "Explains the paired t-test with an example."
+  },
+  {
+   "title": "Comparing two means",
+   "url": "https://learningstatisticswithr.com/book/ttest.html",
+   "source": "Learning Statistics with R",
+   "note": "Includes a section on the paired-samples t-test."
+  }
+ ],
+ "6.8": [
+  {
+   "title": "Using Effect Size, or Why the P Value Is Not Enough",
+   "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3444174/",
+   "source": "Journal of Graduate Medical Education",
+   "note": "Short article on effect sizes and why p-values are not enough."
+  },
+  {
+   "title": "Effect Sizes",
+   "url": "https://lakens.github.io/statistical_inferences/06-effectsize.html",
+   "source": "Improving Your Statistical Inferences",
+   "note": "Chapter on Cohen's d and other effect sizes."
+  },
+  {
+   "title": "Effect size",
+   "url": "https://en.wikipedia.org/wiki/Effect_size",
+   "source": "Wikipedia",
+   "note": "Reference list of effect size measures."
+  }
+ ],
+ "6.9": [
+  {
+   "title": "12.2 - Choose the Correct Statistical Technique",
+   "url": "https://online.stat.psu.edu/stat500/lesson/12/12.2",
+   "source": "Penn State STAT 500",
+   "note": "Guides the choice of a method from the data type and design."
+  },
+  {
+   "title": "6.6: Choosing Statistical Tests",
+   "url": "https://stats.libretexts.org/Bookshelves/Introductory_Statistics/Statistics%3A_Open_for_Everyone_(Peter)/06%3A_The_Foundations_of_Hypothesis_Testing/6.06%3A_Choosing_Statistical_Tests",
+   "source": "Statistics LibreTexts",
+   "note": "Matches common hypotheses to the right test."
+  },
+  {
+   "title": "Choosing the Correct Statistical Test",
+   "url": "https://stats.oarc.ucla.edu/other/mult-pkg/whatstat/",
+   "source": "UCLA OARC Stats",
+   "note": "Table of common analyses by variable type and design."
+  }
+ ],
+ "7.1": [
+  {
+   "title": "Inference for two-way tables",
+   "url": "https://openintro-ims.netlify.app/inference-tables",
+   "source": "Introduction to Modern Statistics",
+   "note": "Chi-square tests of independence and goodness of fit."
+  },
+  {
+   "title": "Lesson 8: Chi-Square Test for Independence",
+   "url": "https://online.stat.psu.edu/stat500/lesson/8",
+   "source": "Penn State STAT 500",
+   "note": "Builds the test for two categorical variables."
+  },
+  {
+   "title": "Contingency Tables",
+   "url": "https://onlinestatbook.com/2/chi_square/contingency.html",
+   "source": "Online Statistics Education",
+   "note": "Explains expected counts and the chi-square statistic."
+  }
+ ],
+ "7.2": [
+  {
+   "title": "Inference for comparing many means",
+   "url": "https://openintro-ims.netlify.app/inference-many-means",
+   "source": "Introduction to Modern Statistics",
+   "note": "Explains ANOVA, the F statistic and conditions."
+  },
+  {
+   "title": "One-Factor ANOVA (Between Subjects)",
+   "url": "https://onlinestatbook.com/2/analysis_of_variance/one-way.html",
+   "source": "Online Statistics Education",
+   "note": "Works a one-way ANOVA with sums of squares."
+  },
+  {
+   "title": "7.4.3. Are the means equal?",
+   "url": "https://itl.nist.gov/div898/handbook/prc/section4/prc43.htm",
+   "source": "NIST/SEMATECH e-Handbook of Statistical Methods",
+   "note": "Handbook entry on the ANOVA test of equal means."
+  }
+ ],
+ "7.3": [
+  {
+   "title": "Lesson 11: Introduction to Nonparametric Tests and Bootstrap",
+   "url": "https://online.stat.psu.edu/stat500/lesson/11",
+   "source": "Penn State STAT 500",
+   "note": "Introduces tests that do not assume normality."
+  },
+  {
+   "title": "Nonparametric Statistical Tests",
+   "url": "https://hbiostat.org/bbr/nonpar",
+   "source": "Biostatistics for Biomedical Research",
+   "note": "Wilcoxon signed-rank, rank-sum and Kruskal-Wallis tests."
+  },
+  {
+   "title": "Mann-Whitney U test",
+   "url": "https://en.wikipedia.org/wiki/Mann%E2%80%93Whitney_U_test",
+   "source": "Wikipedia",
+   "note": "Reference on the rank-sum test for two groups."
+  }
+ ],
+ "8.1": [
+  {
+   "title": "Values of the Pearson Correlation",
+   "url": "https://onlinestatbook.com/2/describing_bivariate_data/pearson.html",
+   "source": "Online Statistics Education",
+   "note": "Shows how r is computed and what its values mean."
+  },
+  {
+   "title": "Regression Analysis",
+   "url": "https://seeing-theory.brown.edu/regression-analysis/index.html",
+   "source": "Seeing Theory",
+   "note": "Interactive section on correlation and fitting lines."
+  },
+  {
+   "title": "Pearson correlation coefficient",
+   "url": "https://en.wikipedia.org/wiki/Pearson_correlation_coefficient",
+   "source": "Wikipedia",
+   "note": "Reference on the formula, properties and limits."
+  }
+ ],
+ "8.2": [
+  {
+   "title": "Linear regression with a single predictor",
+   "url": "https://openintro-ims.netlify.app/model-slr",
+   "source": "Introduction to Modern Statistics",
+   "note": "Fits a line to data and interprets slope and intercept."
+  },
+  {
+   "title": "Introduction to Linear Regression",
+   "url": "https://onlinestatbook.com/2/regression/intro.html",
+   "source": "Online Statistics Education",
+   "note": "Explains the least squares line with an example."
+  },
+  {
+   "title": "Lesson 1: Simple Linear Regression",
+   "url": "https://online.stat.psu.edu/stat501/lesson/1",
+   "source": "Penn State STAT 501",
+   "note": "Shows the regression model, fitting and interpretation."
+  }
+ ],
+ "8.3": [
+  {
+   "title": "Linear regression with a single predictor",
+   "url": "https://openintro-ims.netlify.app/model-slr",
+   "source": "Introduction to Modern Statistics",
+   "note": "Covers residuals and R-squared for a fitted line."
+  },
+  {
+   "title": "Partitioning the Sums of Squares in Regression",
+   "url": "https://onlinestatbook.com/2/regression/partitioning.html",
+   "source": "Online Statistics Education",
+   "note": "Shows how R-squared splits explained and error variation."
+  },
+  {
+   "title": "Coefficient of determination",
+   "url": "https://en.wikipedia.org/wiki/Coefficient_of_determination",
+   "source": "Wikipedia",
+   "note": "Reference on R-squared, its meaning and its limits."
+  }
+ ],
+ "8.4": [
+  {
+   "title": "Linear regression with multiple predictors",
+   "url": "https://openintro-ims.netlify.app/model-mlr",
+   "source": "Introduction to Modern Statistics",
+   "note": "Fits models with several predictors and reads coefficients."
+  },
+  {
+   "title": "Introduction to Multiple Regression",
+   "url": "https://onlinestatbook.com/2/regression/multiple_regression.html",
+   "source": "Online Statistics Education",
+   "note": "Short worked introduction to two predictors."
+  },
+  {
+   "title": "Lesson 5: Multiple Linear Regression",
+   "url": "https://online.stat.psu.edu/stat501/lesson/5",
+   "source": "Penn State STAT 501",
+   "note": "Extends simple regression to several predictors."
+  }
+ ],
+ "8.5": [
+  {
+   "title": "Logistic regression",
+   "url": "https://openintro-ims.netlify.app/model-logistic",
+   "source": "Introduction to Modern Statistics",
+   "note": "Models a yes or no outcome with odds and probabilities."
+  },
+  {
+   "title": "Regression, Section 11.6 Logistic regression",
+   "url": "https://greenteapress.com/thinkstats2/html/thinkstats2012.html",
+   "source": "Think Stats",
+   "note": "Explains odds and a worked logistic regression in code."
+  },
+  {
+   "title": "Logistic regression",
+   "url": "https://en.wikipedia.org/wiki/Logistic_regression",
+   "source": "Wikipedia",
+   "note": "Reference on the logistic model and odds ratios."
+  }
+ ],
+ "9.1": [
+  {
+   "title": "Study design",
+   "url": "https://openintro-ims.netlify.app/data-design",
+   "source": "Introduction to Modern Statistics",
+   "note": "Compares observational studies and experiments."
+  },
+  {
+   "title": "Experimental Designs",
+   "url": "https://onlinestatbook.com/2/research_design/designs.html",
+   "source": "Online Statistics Education",
+   "note": "Covers between and within subject designs."
+  },
+  {
+   "title": "A brief introduction to research design",
+   "url": "https://learningstatisticswithr.com/book/studydesign.html",
+   "source": "Learning Statistics with R",
+   "note": "Covers measurement, validity and experimental design."
+  }
+ ],
+ "9.2": [
+  {
+   "title": "1.3.3.21. Normal Probability Plot",
+   "url": "https://itl.nist.gov/div898/handbook/eda/section3/eda33l.htm",
+   "source": "NIST/SEMATECH e-Handbook of Statistical Methods",
+   "note": "Shows how to check normality with a probability plot."
+  },
+  {
+   "title": "Modeling distributions",
+   "url": "https://greenteapress.com/thinkstats2/html/thinkstats2006.html",
+   "source": "Think Stats",
+   "note": "Compares data to a normal model using plots."
+  },
+  {
+   "title": "Normality test",
+   "url": "https://en.wikipedia.org/wiki/Normality_test",
+   "source": "Wikipedia",
+   "note": "Reference on formal tests for normality."
+  }
+ ],
+ "9.3": [
+  {
+   "title": "Bayesian statistics",
+   "url": "https://lakens.github.io/statistical_inferences/04-bayes.html",
+   "source": "Improving Your Statistical Inferences",
+   "note": "Contrasts Bayesian and frequentist reasoning."
+  },
+  {
+   "title": "Bayesian statistics",
+   "url": "https://learningstatisticswithr.com/book/bayes.html",
+   "source": "Learning Statistics with R",
+   "note": "Chapter on Bayesian inference compared with orthodox tests."
+  },
+  {
+   "title": "Bayesian Inference",
+   "url": "https://seeing-theory.brown.edu/bayesian-inference/index.html",
+   "source": "Seeing Theory",
+   "note": "Interactive priors, likelihoods and posteriors."
+  }
+ ]
+}
