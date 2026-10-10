@@ -4,34 +4,36 @@
 
 :root {
   color-scheme: light;
-  --surface-1: #f7f0de;
-  --surface-2: #fff1a8;
-  --card-bg: #fffcf2;
-  --text-primary: #211e1a;
-  --text-secondary: #4a4337;
+  --surface-1: #f6f1e3;
+  --surface-2: #fff5c9;
+  --card-bg: #fffdf6;
+  --text-primary: #2a2620;
+  --text-secondary: #4d463a;
   --text-muted: #6d634f;
-  --grid: #d8cbab;
-  --pen: #211e1a;
-  --hl: #ffdf4d;
+  --grid: #ddd2b6;
+  --pen: #4a4337;
+  --shadow-c: rgba(74, 67, 55, 0.4);
+  --hl: #fbe48a;
   --dot: #8a8270;
-  --series-1: #2f56d9;
-  --series-2: #e9502e;
-  --focus: #e9502e;
-  --grid-paper: rgba(60, 100, 170, 0.12);
+  --series-1: #3b5fd0;
+  --series-2: #dd5f3e;
+  --focus: #dd5f3e;
+  --grid-paper: rgba(60, 100, 170, 0.07);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:where(:not([data-theme="light"])) {
     color-scheme: dark;
-    --surface-1: #1d1a16;
+    --surface-1: #1e1b17;
     --surface-2: #4d4113;
     --card-bg: #2a261f;
     --text-primary: #f4ecd8;
     --text-secondary: #d2c8ae;
     --text-muted: #a89d84;
     --grid: #4a4336;
-    --pen: #f4ecd8;
-    --hl: #e6c200;
+    --pen: #cfc5ad;
+    --shadow-c: rgba(0, 0, 0, 0.35);
+    --hl: #d9b92e;
     --dot: #a89d84;
     --series-1: #86a6ff;
     --series-2: #ff8a63;
@@ -42,15 +44,16 @@
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --surface-1: #1d1a16;
+  --surface-1: #1e1b17;
   --surface-2: #4d4113;
   --card-bg: #2a261f;
   --text-primary: #f4ecd8;
   --text-secondary: #d2c8ae;
   --text-muted: #a89d84;
   --grid: #4a4336;
-  --pen: #f4ecd8;
-  --hl: #e6c200;
+  --pen: #cfc5ad;
+  --shadow-c: rgba(0, 0, 0, 0.35);
+  --hl: #d9b92e;
   --dot: #a89d84;
   --series-1: #86a6ff;
   --series-2: #ff8a63;
@@ -95,11 +98,10 @@ body {
 }
 
 .viz svg {
-  filter: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='r' x='-1%25' y='-1%25' width='102%25' height='102%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.02 0.025' numOctaves='2' seed='4' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='3' xChannelSelector='R' yChannelSelector='G'/%3E%3C/filter%3E%3C/svg%3E#r");
   display: block;
   width: 100%;
   height: auto;
-  touch-action: none;
+  touch-action: pan-y pinch-zoom; /* the chart must never trap a finger that is trying to scroll the page */
 }
 
 .viz svg text {
@@ -137,9 +139,9 @@ body {
 .card {
   padding: 10px 14px;
   background: var(--card-bg);
-  border: 2.5px solid var(--pen);
+  border: 2px solid var(--pen);
   border-radius: 14px 8px 16px 8px / 8px 16px 8px 14px;
-  box-shadow: 3px 3px 0 var(--pen);
+  box-shadow: 3px 3px 0 var(--shadow-c);
 }
 
 .card .label { color: var(--text-secondary); font-size: 1.05rem; }
@@ -156,22 +158,22 @@ body {
 
 button {
   padding: 6px 16px;
-  border: 2.5px solid var(--pen);
+  border: 2px solid var(--pen);
   border-radius: 16px 9px 18px 9px / 9px 18px 9px 16px;
   background: var(--card-bg);
   color: var(--text-primary);
   font: 400 1.2rem/1.2 "Caveat Brush", "Patrick Hand", cursive;
   letter-spacing: 0.02em;
-  box-shadow: 2px 2px 0 var(--pen);
+  box-shadow: 2px 2px 0 var(--shadow-c);
   cursor: pointer;
   transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
 }
 
-button:hover { background: var(--surface-2); transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--pen); }
+button:hover { background: var(--surface-2); transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--shadow-c); }
 button:active { transform: translate(2px, 2px); box-shadow: none; }
 button:focus-visible, .dot:focus-visible { outline: 3px dashed var(--focus); outline-offset: 3px; }
 
-.dot { cursor: grab; }
+.dot { cursor: grab; touch-action: none; }
 .dot:active { cursor: grabbing; }
 
 @media (max-width: 600px) {
@@ -206,13 +208,13 @@ button:focus-visible, .dot:focus-visible { outline: 3px dashed var(--focus); out
 /* ---------- guided tour ---------- */
 .tour-tools { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; position: relative; flex: none; }
 .tour-tools > div:first-child, .tour-tools { min-width: 0; }
-.tour-btn { display: inline-flex; align-items: center; gap: 8px; padding: 6px 18px; border-radius: 16px 9px 18px 9px / 9px 18px 9px 16px; border: 2.5px solid var(--pen); background: var(--hl); color: #211e1a; font: 400 1.3rem/1.2 "Caveat Brush", cursive; letter-spacing: 0.02em; cursor: pointer; white-space: nowrap; box-shadow: 3px 3px 0 var(--pen); transform: rotate(-1.5deg); }
-.tour-btn:hover { background: var(--hl); filter: brightness(1.05); transform: rotate(0deg) translate(-1px, -1px); box-shadow: 4px 4px 0 var(--pen); }
-.tour-nudge { position: relative; max-width: 230px; background: var(--card-bg); color: var(--text-primary); border: 2.5px solid var(--pen); font: 700 1.2rem/1.2 "Caveat", cursive; padding: 6px 12px; border-radius: 14px 6px 16px 6px; text-align: left; transform: rotate(2deg); animation: tour-bob 2.4s ease-in-out infinite; }
-.tour-nudge::before { content: ""; position: absolute; top: -9px; right: 28px; width: 12px; height: 12px; background: var(--card-bg); border-left: 2.5px solid var(--pen); border-top: 2.5px solid var(--pen); transform: rotate(45deg); }
-@keyframes tour-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(3px); } }
-.tour-ring { outline: 3.5px dashed var(--series-2) !important; outline-offset: 5px; border-radius: 12px; box-shadow: 0 0 0 9px color-mix(in srgb, var(--hl) 40%, transparent); transition: outline-color 0.2s ease; }
-.tour-card { position: absolute; z-index: 60; background: var(--card-bg); color: var(--text-primary); border: 3px solid var(--pen); border-radius: 18px 10px 20px 10px / 10px 20px 10px 18px; padding: 14px 18px 12px; box-shadow: 5px 5px 0 var(--pen); font-size: 1.2rem; line-height: 1.4; }
+.tour-btn { display: inline-flex; align-items: center; gap: 8px; padding: 6px 18px; border-radius: 16px 9px 18px 9px / 9px 18px 9px 16px; border: 2px solid var(--pen); background: var(--hl); color: #2a2620; font: 400 1.3rem/1.2 "Caveat Brush", cursive; letter-spacing: 0.02em; cursor: pointer; white-space: nowrap; box-shadow: 3px 3px 0 var(--shadow-c); }
+.tour-btn:hover { background: var(--hl); filter: brightness(1.05);  box-shadow: 4px 4px 0 var(--shadow-c); }
+.tour-nudge { position: relative; max-width: 230px; background: var(--card-bg); color: var(--text-primary); border: 2px solid var(--pen); font: 700 1.2rem/1.2 "Caveat", cursive; padding: 6px 12px; border-radius: 14px 6px 16px 6px; text-align: left; }
+.tour-nudge::before { content: ""; position: absolute; top: -9px; right: 28px; width: 12px; height: 12px; background: var(--card-bg); border-left: 2px solid var(--pen); border-top: 2px solid var(--pen); transform: rotate(45deg); }
+@keyframes tour-in { from { opacity: 0; } to { opacity: 1; } }
+.tour-ring { outline: 3px dashed var(--series-2) !important; outline-offset: 5px; border-radius: 12px; }
+.tour-card { position: absolute; z-index: 60; background: var(--card-bg); color: var(--text-primary); border: 2px solid var(--pen); border-radius: 18px 10px 20px 10px / 10px 20px 10px 18px; padding: 14px 18px 12px; box-shadow: 5px 5px 0 var(--shadow-c); font-size: 1.2rem; line-height: 1.4; animation: tour-in 0.35s ease-out both; }
 .tour-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
 .tour-step { font: 700 1.25rem/1 "Caveat", cursive; color: var(--series-2); }
 .tour-x { border: 0; background: none; box-shadow: none; color: var(--text-secondary); font: 400 1.1rem/1 sans-serif; cursor: pointer; width: 32px; height: 32px; padding: 0; border-radius: 8px; }
@@ -222,6 +224,9 @@ button:focus-visible, .dot:focus-visible { outline: 3px dashed var(--focus); out
 .tour-nav { display: flex; gap: 8px; flex-wrap: wrap; }
 .tour-nav button { flex: 1; min-height: 42px; padding: 4px 10px; }
 .tour-nav button:disabled { opacity: 0.4; cursor: default; }
-.tour-nav .tour-next { background: var(--hl); color: #211e1a; }
+.tour-nav .tour-next { background: var(--hl); color: #2a2620; }
 .tour-nav .tour-do { flex-basis: 100%; order: -1; background: color-mix(in srgb, var(--series-2) 18%, var(--card-bg)); }
 @media (max-width: 600px) { .viz-head { flex-wrap: wrap; } .tour-tools { flex-direction: row; align-items: center; width: 100%; justify-content: space-between; flex-wrap: wrap; } .tour-nudge::before { display: none; } }
+
+/* the site's "Still" switch (and the OS reduced-motion setting) turns every movement off */
+:root[data-motion="still"] *, :root[data-motion="still"] *::before, :root[data-motion="still"] *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }

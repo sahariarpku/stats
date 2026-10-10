@@ -12,7 +12,7 @@
 <link rel="preload" href="assets/fonts/patrick-hand-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/caveat-brush-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <script>
-  try { var t = localStorage.getItem("sfs-theme"); if (t) document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+  try { var t = localStorage.getItem("sfs-theme"); if (t) document.documentElement.setAttribute("data-theme", t); var m = localStorage.getItem("sfs-motion"); if (m) document.documentElement.setAttribute("data-motion", m); } catch (e) {}
 </script>
 </head>
 <body>
@@ -38,6 +38,9 @@
         <label class="sr-only" for="q">Search lessons and terms</label>
         <input id="q" type="search" placeholder="Search, e.g. p-value" autocomplete="off">
       </form>
+      <button class="icon-btn motion-btn" id="motionBtn" type="button" aria-pressed="false" aria-label="Turn all movement off or on">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 12c3-5 5 5 8 0s5 5 8 0" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 18c3-5 5 5 8 0s5 5 8 0" stroke-linecap="round" stroke-linejoin="round" opacity=".45"/><path d="M4 6c3-5 5 5 8 0s5 5 8 0" stroke-linecap="round" stroke-linejoin="round" opacity=".45"/></svg>
+      </button>
       <button class="icon-btn" id="themeBtn" type="button" aria-label="Switch between light and dark">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" stroke-linejoin="round"/></svg>
       </button>
@@ -55,6 +58,7 @@
   </div>
 </footer>
 <script src="assets/vendor/marked.umd.js"></script>
+<script src="assets/vendor/anime.min.js"></script>
 <script src="site/data.js"></script>
 <script>window.WALK_BASE = "";</script>
 <script src="site/app.js"></script>

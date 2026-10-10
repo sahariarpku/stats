@@ -177,7 +177,12 @@ const Viz = {
       const st = steps[i];
       if (ring) ring.classList.remove("tour-ring");
       ring = st.target ? document.querySelector(st.target) : null;
-      if (ring) { ring.classList.add("tour-ring"); ring.scrollIntoView({ block: "center", behavior: "smooth" }); }
+      if (ring) {
+        ring.classList.add("tour-ring");
+        // Scroll only when the target is mostly off screen, and then just far enough (no smooth swooping).
+        const rr = ring.getBoundingClientRect();
+        if (rr.bottom < 40 || rr.top > window.innerHeight - 40) ring.scrollIntoView({ block: "nearest", behavior: "auto" });
+      }
       if (!card) {
         card = document.createElement("div");
         card.className = "tour-card";
@@ -220,7 +225,7 @@ const Viz = {
       card.style.left = Math.min(vw - w - 12, Math.max(12, r.left + r.width / 2 - w / 2)) + "px";
       // On small screens the card can end up below the fold: bring it into view.
       const cb = card.getBoundingClientRect();
-      if (reveal === true && (cb.bottom > window.innerHeight - 8 || cb.top < 0)) { clearTimeout(place.s); place.s = setTimeout(() => card && card.scrollIntoView({ block: "nearest", behavior: "smooth" }), 450); }
+      if (reveal === true && (cb.bottom > window.innerHeight - 8 || cb.top < 0)) { clearTimeout(place.s); place.s = setTimeout(() => card && card.scrollIntoView({ block: "nearest", behavior: "auto" }), 450); }
     }
     window.addEventListener("resize", () => place());
     window.addEventListener("scroll", () => { if (card && ring) { clearTimeout(place.t); place.t = setTimeout(place, 120); } }, { passive: true });

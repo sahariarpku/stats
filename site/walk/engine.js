@@ -23,7 +23,8 @@
   const NS = "http://www.w3.org/2000/svg";
   const W = 800, H = 450;
   const REG = {};
-  const reduceMotion = () => window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // "Still" is the site's own switch for people who find movement tiring; it behaves like the OS reduced-motion setting.
+  const reduceMotion = () => (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) || document.documentElement.getAttribute("data-motion") === "still";
 
   const COLORS = {
     blue: "var(--w-blue)", orange: "var(--w-orange)", green: "var(--w-green)", purple: "var(--w-purple)",
@@ -37,8 +38,10 @@
     inOut: (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2),
     out: (t) => 1 - Math.pow(1 - t, 3),
     linear: (t) => t,
-    back: (t) => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); },
+    back: (t) => 1 - Math.pow(1 - t, 3), // no overshoot: bouncing past the target is tiring to watch
   };
+  // The same curves for anime.js. Every one of them settles smoothly with no bounce.
+  const ANIME_EASE = { inOut: "easeInOutSine", out: "easeOutCubic", in: "easeInSine", linear: "linear", back: "easeOutCubic", soft: "easeOutQuart" };
 
   function mk(tag, attrs, parent) {
     const n = document.createElementNS(NS, tag);
@@ -341,7 +344,8 @@
   const SPECIAL = { tx: "__tx", ty: "__ty", s: "__s", rot: "__rot" };
 
   function Animator() {
-    const A = { instant: false, alive: true, speed: 1, timers: [] };
+    // speed 0.85 makes every move a little slower than its nominal duration, which reads as calmer
+    const A = { instant: false, alive: true, speed: 0.85, timers: [], jobs: new Set() };
     const getV = (el, k) => {
       if (SPECIAL[k]) { const v = el[SPECIAL[k]]; return v === undefined ? (k === "s" ? 1 : 0) : v; }
       const a = el.getAttribute(k);
@@ -357,32 +361,31 @@
       if (el.tagName === "text" && "x" in vals) el.querySelectorAll(":scope > tspan").forEach((ts) => ts.setAttribute("x", vals.x));
       if (t) setT(el, el.__tx || 0, el.__ty || 0, el.__s === undefined ? 1 : el.__s, el.__rot || 0);
     };
-    // Tween numeric attributes (and tx, ty, s, rot) of one or many elements.
+    // Tween numeric attributes (and tx, ty, s, rot) of one or many elements with anime.js.
     A.to = (els, props, o = {}) => {
       const arr = list(els);
-      const dur = A.instant || reduceMotion() ? 0 : (o.dur === undefined ? 700 : o.dur) / A.speed;
-      const stagger = A.instant ? 0 : (o.stagger || 0) / A.speed;
-      const ease = EASE[o.ease || "inOut"];
+      const still = A.instant || reduceMotion();
+      const dur = still ? 0 : (o.dur === undefined ? 700 : o.dur) / A.speed;
+      const stagger = still ? 0 : (o.stagger || 0) / A.speed;
       return Promise.all(arr.map((el, i) => new Promise((res) => {
         const p = typeof props === "function" ? props(el, i) : props;
         const from = {}; for (const k in p) from[k] = getV(el, k);
         if (dur === 0) { setV(el, p); return res(); }
-        const start = () => {
-          const t0 = performance.now();
-          const tick = (now) => {
-            if (!A.alive) { setV(el, p); return res(); }
-            const t = Math.min(1, (now - t0) / dur), e = ease(t), cur = {};
-            for (const k in p) cur[k] = from[k] + (p[k] - from[k]) * e;
-            setV(el, cur);
-            if (t < 1) requestAnimationFrame(tick); else res();
-          };
-          requestAnimationFrame(tick);
-        };
-        if (stagger * i > 0) A.timers.push(setTimeout(start, stagger * i)); else start();
+        const apply = (e) => { const cur = {}; for (const k in p) cur[k] = from[k] + (p[k] - from[k]) * e; setV(el, cur); };
+        if (!window.anime) { // anime.js did not load: fall back to a plain frame loop
+          const ease = EASE[o.ease || "inOut"] || EASE.inOut;
+          const start = () => { const t0 = performance.now(); const tick = (now) => { if (!A.alive) { setV(el, p); return res(); } const t = Math.min(1, (now - t0) / dur); apply(ease(t)); if (t < 1) requestAnimationFrame(tick); else res(); }; requestAnimationFrame(tick); };
+          if (stagger * i > 0) A.timers.push(setTimeout(start, stagger * i)); else start();
+          return;
+        }
+        const st = { t: 0 };
+        const job = { finish: () => { a.pause(); setV(el, p); A.jobs.delete(job); res(); } };
+        A.jobs.add(job);
+        const a = window.anime({ targets: st, t: 1, duration: dur, delay: stagger * i, easing: ANIME_EASE[o.ease || "inOut"] || ANIME_EASE.inOut, update: () => apply(st.t), complete: () => { apply(1); A.jobs.delete(job); res(); } });
       })));
     };
-    A.fadeIn = (els, o = {}) => A.to(els, { opacity: 1 }, { dur: 500, ...o });
-    A.fadeOut = (els, o = {}) => A.to(els, { opacity: 0 }, { dur: 400, ...o });
+    A.fadeIn = (els, o = {}) => A.to(els, { opacity: 1 }, { dur: 600, ...o });
+    A.fadeOut = (els, o = {}) => A.to(els, { opacity: 0 }, { dur: 450, ...o });
     A.remove = async (els, o = {}) => { await A.fadeOut(els, o); list(els).forEach((e) => e.remove()); };
     A.wait = (ms) => (A.instant || !A.alive ? Promise.resolve() : new Promise((r) => A.timers.push(setTimeout(r, ms / A.speed))));
     A.all = (arr) => Promise.all(arr);
@@ -427,27 +430,33 @@
     };
     // Swap the text of a text element with a quick cross-fade.
     A.swap = async (el, str, o = {}) => { await A.to(el, { opacity: 0 }, { dur: 160, ...o }); setTextOf(el, str); await A.to(el, { opacity: 1 }, { dur: 220, ...o }); };
-    // Gentle attention pulse.
+    // Soft attention cue: one slow dip and return, never a flash.
     A.pulse = async (els, o = {}) => {
       const arr = list(els);
       if (A.instant || reduceMotion()) return;
-      for (let k = 0; k < (o.times || 2); k++) {
-        await A.to(arr, { opacity: 0.35 }, { dur: 220 });
-        await A.to(arr, { opacity: 1 }, { dur: 260 });
+      for (let k = 0; k < (o.times || 1); k++) {
+        await A.to(arr, { opacity: 0.55 }, { dur: 450 });
+        await A.to(arr, { opacity: 1 }, { dur: 550 });
       }
     };
     // Generic tween: calls fn(t) for t from 0 to 1 (for 3D objects or anything that is not an SVG attribute).
     A.tween = (dur, fn, o = {}) => {
       if (A.instant || reduceMotion()) { fn(1); return Promise.resolve(); }
       return new Promise((res) => {
-        const t0 = performance.now(), d = dur / A.speed, ease = EASE[o.ease || "inOut"];
-        const tick = (now) => { if (!A.alive) { fn(1); return res(); } const t = Math.min(1, (now - t0) / d); fn(ease(t)); if (t < 1) requestAnimationFrame(tick); else res(); };
-        requestAnimationFrame(tick);
+        if (!window.anime) {
+          const t0 = performance.now(), d = dur / A.speed, ease = EASE[o.ease || "inOut"] || EASE.inOut;
+          const tick = (now) => { if (!A.alive) { fn(1); return res(); } const t = Math.min(1, (now - t0) / d); fn(ease(t)); if (t < 1) requestAnimationFrame(tick); else res(); };
+          return requestAnimationFrame(tick);
+        }
+        const st = { t: 0 };
+        const job = { finish: () => { a.pause(); fn(1); A.jobs.delete(job); res(); } };
+        A.jobs.add(job);
+        const a = window.anime({ targets: st, t: 1, duration: dur / A.speed, easing: ANIME_EASE[o.ease || "inOut"] || ANIME_EASE.inOut, update: () => fn(st.t), complete: () => { fn(1); A.jobs.delete(job); res(); } });
       });
     };
     // Run fn(dt) every frame until the step is left (for gentle continuous motion such as rotating a 3D view).
     A.loop = (fn) => { let last = performance.now(); const tick = (now) => { if (!A.alive) return; fn(Math.min(50, now - last)); last = now; requestAnimationFrame(tick); }; requestAnimationFrame(tick); };
-    A.kill = () => { A.alive = false; A.timers.forEach(clearTimeout); };
+    A.kill = () => { A.alive = false; A.timers.forEach(clearTimeout); [...A.jobs].forEach((j) => j.finish()); };
     return A;
   }
   function setTextOf(t, str) {

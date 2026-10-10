@@ -41,7 +41,7 @@ Walk.register("multiple-regression", {"title": "Multiple regression: from a line
     T.c = c;
     labels = [["study (hours)", [2.3, -1.5, -2]], ["sleep (hours)", [-2, -1.5, 2.4]], ["exam score ↑", [-2, 2.05, -2]]].map(([txt, p]) => ({ t: S.text(0, 0, txt, { size: 18, weight: 700, color: "ink2" }), p }));
     const place = () => labels.forEach((l) => { const v = new T.THREE.Vector3(...l.p).applyMatrix4(group.matrixWorld); const [px, py] = T.project(v.x, v.y, v.z); l.t.setAttribute("x", px); l.t.setAttribute("y", py); l.t.querySelectorAll("tspan").forEach((ts) => ts.setAttribute("x", px)); });
-    const view = () => { angle = BASE + 0.32 * Math.sin(clock); camera.position.set(Math.sin(angle) * 8.6, ELEV, Math.cos(angle) * 8.6); camera.lookAt(0, -0.2, 0); group.updateMatrixWorld(); place(); T.render(); };
+    const view = () => { angle = BASE + 0.14 * Math.sin(clock); camera.position.set(Math.sin(angle) * 8.6, ELEV, Math.cos(angle) * 8.6); camera.lookAt(0, -0.2, 0); group.updateMatrixWorld(); place(); T.render(); };
     T.view = view;
     view();
     A.loop((dt) => { clock += dt * 0.00035; view(); });

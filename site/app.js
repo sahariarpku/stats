@@ -39,15 +39,19 @@
 
   /* ---------- theme ---------- */
   const currentTheme = () => document.documentElement.getAttribute("data-theme") || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  const motionMode = () => document.documentElement.getAttribute("data-motion") || "calm";
+  const motionOff = () => motionMode() === "still" || (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
   function syncFrame(frame) {
     try {
       const d = frame.contentDocument;
       if (!d) return;
       d.documentElement.setAttribute("data-theme", currentTheme());
+      d.documentElement.setAttribute("data-motion", motionMode());
       if (!d.getElementById("sfs-embed-style")) {
         const s = d.createElement("style");
         s.id = "sfs-embed-style";
-        s.textContent = "#theme{display:none!important} body{background:transparent}";
+        // no inner scrolling: the frame is sized to its content, so a swipe always scrolls the page
+        s.textContent = "#theme{display:none!important} html,body{overflow:hidden!important} body{background:transparent}";
         d.head.appendChild(s);
       }
     } catch (e) { /* opened from disk: frames are isolated, which is fine */ }
@@ -58,6 +62,31 @@
     try { localStorage.setItem("sfs-theme", next); } catch (e) { /* ignore */ }
     $$("iframe").forEach(syncFrame);
   });
+
+  /* ---------- "Still" switch: stop all movement for people who find it tiring ---------- */
+  const motionBtn = $("#motionBtn");
+  function setMotion(m, save) {
+    document.documentElement.setAttribute("data-motion", m);
+    motionBtn.setAttribute("aria-pressed", String(m === "still"));
+    motionBtn.title = m === "still" ? "Movement is off. Click to turn gentle motion back on." : "Gentle motion is on. Click to turn all movement off.";
+    if (save) { try { localStorage.setItem("sfs-motion", m); } catch (e) { /* ignore */ } }
+    $$("iframe").forEach(syncFrame);
+  }
+  setMotion(document.documentElement.getAttribute("data-motion") || "calm", false);
+  motionBtn.addEventListener("click", () => setMotion(motionMode() === "still" ? "calm" : "still", true));
+
+  /* ---------- gentle entrance for the cards that are on screen (anime.js) ---------- */
+  function reveal() {
+    if (!window.anime || motionOff()) return;
+    const all = $$(".hero .wrap > div > *, .section-head, .page-head, .stage-banner, .lesson-head, .card, .tile, .term, .lesson-row, .stage-card, .goal, .step, .walk-tile", app);
+    const shown = all.filter((el) => { const r = el.getBoundingClientRect(); return r.top < innerHeight && r.bottom > 0 && !all.some((o) => o !== el && o.contains(el)); }).slice(0, 14);
+    if (!shown.length) return;
+    shown.forEach((el) => { el.style.opacity = "0"; });
+    window.anime({
+      targets: shown, opacity: [0, 1], translateY: [12, 0], duration: 560, delay: window.anime.stagger(50), easing: "easeOutCubic",
+      complete: () => shown.forEach((el) => { el.style.opacity = ""; el.style.transform = ""; }),
+    });
+  }
 
   /* ---------- menu, search ---------- */
   const nav = $("#nav");
@@ -233,9 +262,9 @@
         cancelAnimationFrame(raf);
         raf = requestAnimationFrame(() => {
           if (!frame.isConnected || !d.defaultView) return; // the page moved on and the frame is gone
-          let bottom = target.getBoundingClientRect().bottom;
+          let bottom = Math.max(target.getBoundingClientRect().bottom, d.body.getBoundingClientRect().bottom - 30);
           d.querySelectorAll(".tour-card").forEach((c) => { bottom = Math.max(bottom, c.getBoundingClientRect().bottom); });
-          frame.style.height = Math.ceil(bottom + (d.defaultView.scrollY || 0) + 30) + "px";
+          frame.style.height = Math.ceil(bottom + (d.defaultView.scrollY || 0) + 32) + "px";
         });
       };
       fit();
@@ -385,7 +414,7 @@
       pts += (pts ? " L" : "M") + (20 + x) + " " + (base - dens * N * step).toFixed(1);
     }
     curve.setAttribute("d", pts);
-    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches || document.documentElement.getAttribute("data-motion") === "still";
     let timer;
     function run() {
       g.replaceChildren();
@@ -403,16 +432,18 @@
         c.setAttribute("cy", y);
         c.setAttribute("fill", "var(--accent)");
         c.setAttribute("opacity", "0.88");
-        if (!reduce) { c.style.transition = "transform .55s cubic-bezier(.3,.7,.4,1)"; c.style.transform = `translate(${210 - x}px, ${12 - y}px)`; }
+        if (!reduce) { c.style.transition = "transform .75s cubic-bezier(.25,.6,.35,1)"; c.style.transform = `translate(${210 - x}px, ${12 - y}px)`; }
         g.appendChild(c);
         if (!reduce) requestAnimationFrame(() => requestAnimationFrame(() => { c.style.transform = "translate(0,0)"; }));
         i++;
         if (i < N) { if (reduce) drop(); else timer = setTimeout(drop, 45); }
-        else { curve.style.opacity = 1; if (!reduce) timer = setTimeout(run, 5000); }
+        else curve.style.opacity = 1; // plays once; a tap replays it
       };
       drop();
     }
     run();
+    svg.style.cursor = "pointer";
+    svg.addEventListener("click", () => { clearTimeout(timer); run(); });
     return { svg, stop: () => clearTimeout(timer) };
   }
 
@@ -426,6 +457,7 @@
     nav.classList.remove("open");
     $("#menuBtn").setAttribute("aria-expanded", "false");
     $("#readbar").style.width = "0";
+    requestAnimationFrame(reveal);
   }
 
   function viewHome() {
@@ -452,7 +484,7 @@
             <div><b>${nJokes || C.glossary.length}</b><span>${nJokes ? "terms, each with a joke" : "terms explained"}</span></div>
           </div>
         </div>
-        <div class="card hero-art" id="heroArt"><div class="cap">Random dots, one at a time, build a bell curve. You will find out why in Stage 4.</div></div>
+        <div class="card hero-art" id="heroArt"><div class="cap">Random dots, one at a time, build a bell curve. Tap the picture to watch again. You will find out why in Stage 4.</div></div>
       </div></section>
 
       <section class="section"><div class="wrap">
