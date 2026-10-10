@@ -1,0 +1,13 @@
+{
+  "checked": "2026-10-10",
+  "how": "Index status read from Clarivate's Web of Science Master Journal List (mjl.clarivate.com/search-results?issn=...), open access from DOAJ and the Crossref licence field. Journals that are only in SCIE (BMC Public Health, JMIR, PLOS ONE) or ESCI (Education Sciences) were checked and are NOT allowed. IJERPH was delisted from SCIE/SSCI in 2023.",
+  "journals": [
+    {"name": "Frontiers in Psychology", "issn": "1664-1078", "index": "SSCI"},
+    {"name": "Frontiers in Public Health", "issn": "2296-2565", "index": "SCIE, SSCI"},
+    {"name": "BMC Psychology", "issn": "2050-7283", "index": "SSCI"},
+    {"name": "Sustainability", "issn": "2071-1050", "index": "SCIE, SSCI"},
+    {"name": "Behavioral Sciences", "issn": "2076-328X", "index": "SSCI"},
+    {"name": "BMC Medical Education", "issn": "1472-6920", "index": "SCIE, SSCI"},
+    {"name": "Humanities and Social Sciences Communications", "issn": "2662-9992", "index": "SSCI, AHCI"}
+  ]
+}
