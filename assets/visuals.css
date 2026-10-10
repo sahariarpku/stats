@@ -1,45 +1,61 @@
+@font-face { font-family: "Caveat Brush"; font-weight: 400; font-display: swap; src: url("fonts/caveat-brush-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "Patrick Hand"; font-weight: 400; font-display: swap; src: url("fonts/patrick-hand-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "Caveat"; font-weight: 700; font-display: swap; src: url("fonts/caveat-latin-700-normal.woff2") format("woff2"); }
+
 :root {
   color-scheme: light;
-  --surface-1: #fcfcfb;
-  --surface-2: #f0efec;
-  --text-primary: #0b0b0b;
-  --text-secondary: #52514e;
-  --text-muted: #6f6e69;
-  --grid: #dcdbd6;
-  --dot: #8a8984;
-  --series-1: #2a78d6;
-  --series-2: #eb6834;
-  --focus: #2a78d6;
+  --surface-1: #f7f0de;
+  --surface-2: #fff1a8;
+  --card-bg: #fffcf2;
+  --text-primary: #211e1a;
+  --text-secondary: #4a4337;
+  --text-muted: #6d634f;
+  --grid: #d8cbab;
+  --pen: #211e1a;
+  --hl: #ffdf4d;
+  --dot: #8a8270;
+  --series-1: #2f56d9;
+  --series-2: #e9502e;
+  --focus: #e9502e;
+  --grid-paper: rgba(60, 100, 170, 0.12);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:where(:not([data-theme="light"])) {
     color-scheme: dark;
-    --surface-1: #1a1a19;
-    --surface-2: #2a2a28;
-    --text-primary: #ffffff;
-    --text-secondary: #c3c2b7;
-    --text-muted: #a4a39a;
-    --grid: #3a3a37;
-    --dot: #9a9992;
-    --series-1: #3987e5;
-    --series-2: #d95926;
-    --focus: #3987e5;
+    --surface-1: #1d1a16;
+    --surface-2: #4d4113;
+    --card-bg: #2a261f;
+    --text-primary: #f4ecd8;
+    --text-secondary: #d2c8ae;
+    --text-muted: #a89d84;
+    --grid: #4a4336;
+    --pen: #f4ecd8;
+    --hl: #e6c200;
+    --dot: #a89d84;
+    --series-1: #86a6ff;
+    --series-2: #ff8a63;
+    --focus: #ff8a63;
+    --grid-paper: rgba(244, 236, 216, 0.05);
   }
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --surface-1: #1a1a19;
-  --surface-2: #2a2a28;
-  --text-primary: #ffffff;
-  --text-secondary: #c3c2b7;
-  --text-muted: #a4a39a;
-  --grid: #3a3a37;
-  --dot: #9a9992;
-  --series-1: #3987e5;
-  --series-2: #d95926;
-  --focus: #3987e5;
+  --surface-1: #1d1a16;
+  --surface-2: #4d4113;
+  --card-bg: #2a261f;
+  --text-primary: #f4ecd8;
+  --text-secondary: #d2c8ae;
+  --text-muted: #a89d84;
+  --grid: #4a4336;
+  --pen: #f4ecd8;
+  --hl: #e6c200;
+  --dot: #a89d84;
+  --series-1: #86a6ff;
+  --series-2: #ff8a63;
+  --focus: #ff8a63;
+  --grid-paper: rgba(244, 236, 216, 0.05);
 }
 
 * { box-sizing: border-box; }
@@ -49,7 +65,9 @@ body {
   padding: 24px 16px 40px;
   background: var(--surface-1);
   color: var(--text-primary);
-  font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font: 18.5px/1.5 "Patrick Hand", "Segoe Print", "Comic Sans MS", system-ui, sans-serif;
+  background-image: linear-gradient(var(--grid-paper) 1.5px, transparent 1.5px), linear-gradient(90deg, var(--grid-paper) 1.5px, transparent 1.5px);
+  background-size: 30px 30px;
 }
 
 .viz {
@@ -66,17 +84,18 @@ body {
 
 .viz h1 {
   margin: 0 0 4px;
-  font-size: 1.25rem;
-  line-height: 1.3;
+  font: 400 2.1rem/1.05 "Caveat Brush", "Segoe Print", cursive;
+  letter-spacing: 0.01em;
 }
 
 .viz .hint {
   margin: 0 0 16px;
   color: var(--text-secondary);
-  font-size: 0.95rem;
+  font-size: 1.15rem;
 }
 
 .viz svg {
+  filter: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='r' x='-1%25' y='-1%25' width='102%25' height='102%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.02 0.025' numOctaves='2' seed='4' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='3' xChannelSelector='R' yChannelSelector='G'/%3E%3C/filter%3E%3C/svg%3E#r");
   display: block;
   width: 100%;
   height: auto;
@@ -85,16 +104,16 @@ body {
 
 .viz svg text {
   fill: var(--text-secondary);
-  font: 12px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font: 14px "Patrick Hand", "Segoe Print", "Comic Sans MS", system-ui, sans-serif;
 }
 
 .viz svg text.strong {
   fill: var(--text-primary);
-  font-weight: 600;
-  font-size: 13px;
+  font-weight: 400;
+  font-size: 15.5px;
 }
 
-.viz .axis-line { stroke: var(--grid); stroke-width: 1; }
+.viz .axis-line { stroke: var(--text-muted); stroke-width: 1.5; }
 
 .legend {
   display: flex;
@@ -102,7 +121,7 @@ body {
   gap: 8px 20px;
   margin: 8px 0 16px;
   color: var(--text-secondary);
-  font-size: 0.9rem;
+  font-size: 1.1rem;
 }
 
 .legend span { display: inline-flex; align-items: center; gap: 8px; }
@@ -116,14 +135,16 @@ body {
 }
 
 .card {
-  padding: 12px 14px;
-  background: var(--surface-2);
-  border-radius: 8px;
+  padding: 10px 14px;
+  background: var(--card-bg);
+  border: 2.5px solid var(--pen);
+  border-radius: 14px 8px 16px 8px / 8px 16px 8px 14px;
+  box-shadow: 3px 3px 0 var(--pen);
 }
 
-.card .label { color: var(--text-secondary); font-size: 0.85rem; }
-.card .value { font-size: 1.6rem; font-weight: 650; line-height: 1.2; font-variant-numeric: tabular-nums; }
-.card .mark { display: inline-block; width: 10px; height: 10px; margin-right: 6px; border-radius: 2px; }
+.card .label { color: var(--text-secondary); font-size: 1.05rem; }
+.card .value { font: 400 2rem/1.1 "Caveat Brush", cursive; letter-spacing: 0.01em; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.card .mark { display: inline-block; width: 12px; height: 12px; margin-right: 6px; border-radius: 3px; border: 2px solid var(--pen); }
 
 .verdict {
   min-height: 3em;
@@ -134,25 +155,28 @@ body {
 .controls { display: flex; flex-wrap: wrap; gap: 8px; }
 
 button {
-  padding: 8px 14px;
-  border: 1px solid var(--grid);
-  border-radius: 8px;
-  background: var(--surface-1);
+  padding: 6px 16px;
+  border: 2.5px solid var(--pen);
+  border-radius: 16px 9px 18px 9px / 9px 18px 9px 16px;
+  background: var(--card-bg);
   color: var(--text-primary);
-  font: inherit;
-  font-size: 0.9rem;
+  font: 400 1.2rem/1.2 "Caveat Brush", "Patrick Hand", cursive;
+  letter-spacing: 0.02em;
+  box-shadow: 2px 2px 0 var(--pen);
   cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
 }
 
-button:hover { background: var(--surface-2); }
-button:focus-visible, .dot:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+button:hover { background: var(--surface-2); transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--pen); }
+button:active { transform: translate(2px, 2px); box-shadow: none; }
+button:focus-visible, .dot:focus-visible { outline: 3px dashed var(--focus); outline-offset: 3px; }
 
 .dot { cursor: grab; }
 .dot:active { cursor: grabbing; }
 
 @media (max-width: 600px) {
-  .viz svg text { font-size: 20px; }
-  .viz svg text.strong { font-size: 21px; }
+  .viz svg text { font-size: 23px; }
+  .viz svg text.strong { font-size: 25px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -167,11 +191,11 @@ button:focus-visible, .dot:focus-visible { outline: 2px solid var(--focus); outl
   width: 100%;
   margin: 6px 0;
   color: var(--text-secondary);
-  font-size: 0.9rem;
+  font-size: 1.1rem;
 }
 
-.ctrl output { color: var(--text-primary); font-variant-numeric: tabular-nums; text-align: right; }
-.ctrl input[type="range"] { width: 100%; accent-color: var(--series-1); }
+.ctrl output { color: var(--text-primary); font-family: "Caveat Brush", cursive; font-size: 1.35rem; font-variant-numeric: tabular-nums; text-align: right; }
+.ctrl input[type="range"] { width: 100%; accent-color: var(--series-2); height: 22px; }
 .controls.col { flex-direction: column; align-items: stretch; }
 
 @media (max-width: 600px) {
@@ -182,22 +206,22 @@ button:focus-visible, .dot:focus-visible { outline: 2px solid var(--focus); outl
 /* ---------- guided tour ---------- */
 .tour-tools { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; position: relative; flex: none; }
 .tour-tools > div:first-child, .tour-tools { min-width: 0; }
-.tour-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 999px; border: 0; background: var(--series-1); color: #fff; font: inherit; font-weight: 700; cursor: pointer; white-space: nowrap; box-shadow: 0 4px 14px color-mix(in srgb, var(--series-1) 35%, transparent); }
-.tour-btn:hover { filter: brightness(1.08); }
-.tour-nudge { position: relative; max-width: 220px; background: var(--surface-2); color: var(--text-primary); font-size: 0.85rem; padding: 8px 12px; border-radius: 12px; line-height: 1.4; text-align: left; animation: tour-bob 2.4s ease-in-out infinite; }
-.tour-nudge::before { content: ""; position: absolute; top: -6px; right: 28px; border: 6px solid transparent; border-top: 0; border-bottom-color: var(--surface-2); }
+.tour-btn { display: inline-flex; align-items: center; gap: 8px; padding: 6px 18px; border-radius: 16px 9px 18px 9px / 9px 18px 9px 16px; border: 2.5px solid var(--pen); background: var(--hl); color: #211e1a; font: 400 1.3rem/1.2 "Caveat Brush", cursive; letter-spacing: 0.02em; cursor: pointer; white-space: nowrap; box-shadow: 3px 3px 0 var(--pen); transform: rotate(-1.5deg); }
+.tour-btn:hover { background: var(--hl); filter: brightness(1.05); transform: rotate(0deg) translate(-1px, -1px); box-shadow: 4px 4px 0 var(--pen); }
+.tour-nudge { position: relative; max-width: 230px; background: var(--card-bg); color: var(--text-primary); border: 2.5px solid var(--pen); font: 700 1.2rem/1.2 "Caveat", cursive; padding: 6px 12px; border-radius: 14px 6px 16px 6px; text-align: left; transform: rotate(2deg); animation: tour-bob 2.4s ease-in-out infinite; }
+.tour-nudge::before { content: ""; position: absolute; top: -9px; right: 28px; width: 12px; height: 12px; background: var(--card-bg); border-left: 2.5px solid var(--pen); border-top: 2.5px solid var(--pen); transform: rotate(45deg); }
 @keyframes tour-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(3px); } }
-.tour-ring { outline: 3px solid var(--series-2) !important; outline-offset: 4px; border-radius: 10px; box-shadow: 0 0 0 8px color-mix(in srgb, var(--series-2) 18%, transparent); transition: outline-color 0.2s ease; }
-.tour-card { position: absolute; z-index: 60; background: var(--surface-1); color: var(--text-primary); border: 1px solid var(--grid); border-radius: 16px; padding: 14px 16px 12px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.18); font-size: 0.98rem; line-height: 1.55; }
+.tour-ring { outline: 3.5px dashed var(--series-2) !important; outline-offset: 5px; border-radius: 12px; box-shadow: 0 0 0 9px color-mix(in srgb, var(--hl) 40%, transparent); transition: outline-color 0.2s ease; }
+.tour-card { position: absolute; z-index: 60; background: var(--card-bg); color: var(--text-primary); border: 3px solid var(--pen); border-radius: 18px 10px 20px 10px / 10px 20px 10px 18px; padding: 14px 18px 12px; box-shadow: 5px 5px 0 var(--pen); font-size: 1.2rem; line-height: 1.4; }
 .tour-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
-.tour-step { font-size: 0.75rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--series-2); }
-.tour-x { border: 0; background: none; color: var(--text-secondary); font-size: 1rem; cursor: pointer; width: 32px; height: 32px; border-radius: 8px; }
-.tour-x:hover { background: var(--surface-2); }
-.tour-title { font-weight: 800; font-size: 1.05rem; margin-bottom: 2px; }
+.tour-step { font: 700 1.25rem/1 "Caveat", cursive; color: var(--series-2); }
+.tour-x { border: 0; background: none; box-shadow: none; color: var(--text-secondary); font: 400 1.1rem/1 sans-serif; cursor: pointer; width: 32px; height: 32px; padding: 0; border-radius: 8px; }
+.tour-x:hover { background: var(--surface-2); box-shadow: none; transform: none; }
+.tour-title { font: 400 1.6rem/1.1 "Caveat Brush", cursive; letter-spacing: 0.01em; margin-bottom: 2px; }
 .tour-text { margin: 4px 0 12px; }
 .tour-nav { display: flex; gap: 8px; flex-wrap: wrap; }
-.tour-nav button { flex: 1; min-height: 40px; border-radius: 10px; border: 1px solid var(--grid); background: var(--surface-2); color: var(--text-primary); font: inherit; font-weight: 700; cursor: pointer; padding: 6px 10px; }
+.tour-nav button { flex: 1; min-height: 42px; padding: 4px 10px; }
 .tour-nav button:disabled { opacity: 0.4; cursor: default; }
-.tour-nav .tour-next { background: var(--series-1); color: #fff; border-color: transparent; }
-.tour-nav .tour-do { flex-basis: 100%; order: -1; background: color-mix(in srgb, var(--series-2) 14%, var(--surface-1)); border-color: color-mix(in srgb, var(--series-2) 40%, transparent); }
+.tour-nav .tour-next { background: var(--hl); color: #211e1a; }
+.tour-nav .tour-do { flex-basis: 100%; order: -1; background: color-mix(in srgb, var(--series-2) 18%, var(--card-bg)); }
 @media (max-width: 600px) { .viz-head { flex-wrap: wrap; } .tour-tools { flex-direction: row; align-items: center; width: 100%; justify-content: space-between; flex-wrap: wrap; } .tour-nudge::before { display: none; } }

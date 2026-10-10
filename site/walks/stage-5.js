@@ -72,7 +72,7 @@
   }
 
   /* ------------------------------------------------------------------ 5.1 */
-  Walk.register("confidence-interval", {"title": "Confidence intervals: casting a net for the truth", "lesson": "5.1", "terms": ["Confidence interval", "Point estimate", "Margin of error", "Critical value z*", "Confidence level"], "phoneText": 1.14}, (S, A) => {
+  Walk.register("confidence-interval", {"title": "Confidence intervals: casting a net for the truth", "lesson": "5.1", "terms": ["Confidence interval", "Point estimate", "Margin of error", "Critical value z*", "Confidence level"], "phoneText": 1.1}, (S, A) => {
     const SIG = 12, N = 40, XB = 78.5, Z = 1.96, MU = 80;
     const se = SIG / Math.sqrt(N), me = Z * se, lo = XB - me, hi = XB + me;
     const r1 = S.rng(7);

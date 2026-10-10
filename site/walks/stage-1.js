@@ -584,7 +584,7 @@ Walk.register("mean", {"title": "The mean: share everything out equally", "lesso
   });
 
   /* ---------------------------------------------------------------- 1.3 standard deviation */
-  Walk.register("standard-deviation", {"title": "Standard deviation: the typical distance from the mean", "lesson": "1.3", "terms": ["Standard deviation", "Variance", "Deviation", "Degrees of freedom", "Bessel's correction"]}, (S, A) => {
+  Walk.register("standard-deviation", {"title": "Standard deviation: the typical distance from the mean", "lesson": "1.3", "terms": ["Standard deviation", "Variance", "Deviation", "Degrees of freedom", "Bessel's correction"], "phoneText": 1.28}, (S, A) => {
     const vals = [72, 85, 90, 68, 95], cols = ["blue", "orange", "green", "purple", "yellow"];
     const soft = { blue: "blueSoft", orange: "orangeSoft", green: "greenSoft", purple: "purpleSoft", yellow: "yellowSoft" };
     const n = vals.length, mean = sum(vals) / n;                       // 82
@@ -730,7 +730,7 @@ Walk.register("mean", {"title": "The mean: share everything out equally", "lesso
   });
 
   /* ---------------------------------------------------------------- 1.3 coefficient of variation */
-  Walk.register("coefficient-of-variation", {"title": "Coefficient of variation: spread relative to size", "lesson": "1.3", "terms": ["Coefficient of variation"], "phoneText": 1.18}, (S, A) => {
+  Walk.register("coefficient-of-variation", {"title": "Coefficient of variation: spread relative to size", "lesson": "1.3", "terms": ["Coefficient of variation"], "phoneText": 1.22}, (S, A) => {
     const mice = [15, 17, 18, 21, 24, 25];                               // grams
     const ele = [3400, 3700, 4000, 4100, 4300, 4500];                    // kilograms
     const mean = (a) => sum(a) / a.length;

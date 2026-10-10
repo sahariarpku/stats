@@ -231,7 +231,7 @@
   });
 
   /* ================================================================ simpsons-paradox (9.1) */
-  Walk.register("simpsons-paradox", {"title": "Simpson's paradox: when every group says A but the total says B", "lesson": "9.1", "terms": ["Simpson's paradox", "Confounder"], "phoneText": 1.18}, (S, A) => {
+  Walk.register("simpsons-paradox", {"title": "Simpson's paradox: when every group says A but the total says B", "lesson": "9.1", "terms": ["Simpson's paradox", "Confounder"], "phoneText": 1.34}, (S, A) => {
     // Kidney-stone treatments (Charig et al. 1986): successes / patients
     const D = { A: { small: [81, 87], large: [192, 263] }, B: { small: [234, 270], large: [55, 80] } };
     const rate = (k) => k[0] / k[1];
@@ -578,7 +578,7 @@
   });
 
   /* ================================================================ bayesian-updating (9.3) */
-  Walk.register("bayesian-updating", {"title": "Bayesian updating: prior × likelihood = posterior", "lesson": "9.3", "terms": ["Prior", "Likelihood", "Posterior", "Beta distribution", "Credible interval", "Conjugate prior", "Sensitivity analysis", "MCMC"], "phoneText": 1.14}, (S, A) => {
+  Walk.register("bayesian-updating", {"title": "Bayesian updating: prior × likelihood = posterior", "lesson": "9.3", "terms": ["Prior", "Likelihood", "Posterior", "Beta distribution", "Credible interval", "Conjugate prior", "Sensitivity analysis", "MCMC"]}, (S, A) => {
     const n = 40, k = 14;                                  // 14 of 40 customers bought on the new page
     const pa = 5, pb = 15;                                 // sceptical prior Beta(5, 15): mean 25%
     const qa = pa + k, qb = pb + n - k;                    // posterior Beta(19, 41)

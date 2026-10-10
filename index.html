@@ -5,23 +5,24 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Statistics from Scratch: learn statistics the easy way</title>
 <meta name="description" content="47 short, friendly lessons that teach statistics from zero, with interactive pictures, worked examples and quick checks.">
-<meta name="theme-color" content="#fbfaf7">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%232a6fdb'/%3E%3Cpath d='M8 48 C20 48 22 14 32 14 C42 14 44 48 56 48' fill='none' stroke='white' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500..700;1,9..144,500..700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<meta name="theme-color" content="#f7f0de">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M6 12 Q4 6 12 5 L52 4 Q60 5 59 13 L60 50 Q59 59 51 59 L12 60 Q5 59 5 51z' fill='%23ffdf4d' stroke='%23211e1a' stroke-width='4' stroke-linejoin='round'/%3E%3Cpath d='M10 46 C20 46 22 16 32 16 C42 16 44 46 54 46' fill='none' stroke='%232f56d9' stroke-width='5' stroke-linecap='round'/%3E%3Ccircle cx='32' cy='16' r='4' fill='%23ee5a3b' stroke='%23211e1a' stroke-width='2'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="site/app.css">
+<link rel="stylesheet" href="site/zine.css">
+<link rel="preload" href="assets/fonts/patrick-hand-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/caveat-brush-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <script>
   try { var t = localStorage.getItem("sfs-theme"); if (t) document.documentElement.setAttribute("data-theme", t); } catch (e) {}
 </script>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><filter id="zine-rough" x="-1%" y="-1%" width="102%" height="102%"><feTurbulence type="fractalNoise" baseFrequency="0.02 0.025" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3" xChannelSelector="R" yChannelSelector="G"/></filter></svg>
 <a class="skip" href="#app">Skip to content</a>
 <div class="readbar" id="readbar" aria-hidden="true"></div>
 <header class="topbar">
   <div class="topbar-in">
     <a class="brand" href="#/" aria-label="Statistics from Scratch, home">
-      <svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="16" fill="#2a6fdb"/><path d="M8 48 C20 48 22 14 32 14 C42 14 44 48 56 48" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/><circle cx="32" cy="14" r="4" fill="#ffb38f"/></svg>
+      <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M6 12 Q4 6 12 5 L52 4 Q60 5 59 13 L60 50 Q59 59 51 59 L12 60 Q5 59 5 51z" fill="#ffdf4d" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><path d="M10 46 C20 46 22 16 32 16 C42 16 44 46 54 46" fill="none" stroke="#2f56d9" stroke-width="5" stroke-linecap="round"/><circle cx="32" cy="16" r="4.5" fill="#ee5a3b" stroke="currentColor" stroke-width="2"/></svg>
       <span>Statistics from Scratch</span>
     </a>
     <nav class="nav" id="nav" aria-label="Main">

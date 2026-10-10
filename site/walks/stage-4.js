@@ -169,7 +169,7 @@
   });
 
   /* ------------------------------------------------------------------ 4.2 */
-  Walk.register("standard-error", {"title": "Standard error: how much a sample mean wobbles", "lesson": "4.2", "terms": ["Standard error (SE)", "SE of the mean", "Precision", "Standard error"], "phoneText": 1.18}, (S, A) => {
+  Walk.register("standard-error", {"title": "Standard error: how much a sample mean wobbles", "lesson": "4.2", "terms": ["Standard error (SE)", "SE of the mean", "Precision", "Standard error"], "phoneText": 1.28}, (S, A) => {
     const MU = 30, SD = 10, NS = [4, 16, 64], REPS = 25;
     const rand = S.rng(2024), jit = S.rng(99);
     const sims = NS.map((n) => Array.from({ length: REPS }, () => {
@@ -531,7 +531,7 @@
   });
 
   /* ------------------------------------------------------------------ 4.5 */
-  Walk.register("bootstrap", {"title": "The bootstrap: resample your own sample", "lesson": "4.5", "terms": ["Bootstrap sample", "Resampling", "Bootstrap SE", "Percentile interval", "B"], "phoneText": 1.14}, (S, A) => {
+  Walk.register("bootstrap", {"title": "The bootstrap: resample your own sample", "lesson": "4.5", "terms": ["Bootstrap sample", "Resampling", "Bootstrap SE", "Percentile interval", "B"]}, (S, A) => {
     const data = [62, 70, 68, 75, 65];
     const m0 = mean(data), s0 = sdS(data), seF = s0 / Math.sqrt(data.length);
     const rand = S.rng(25);

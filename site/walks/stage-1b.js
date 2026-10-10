@@ -289,7 +289,7 @@ Walk.register("skewness", {"title": "Skewness: the tail points the way", "lesson
   ];
 });
 
-Walk.register("z-score", {"title": "Z-scores: one ruler for every exam", "lesson": "1.5", "terms": ["z-score", "Standardising", "Standard normal", "Percentile (from z)"]}, (S, A) => {
+Walk.register("z-score", {"title": "Z-scores: one ruler for every exam", "lesson": "1.5", "terms": ["z-score", "Standardising", "Standard normal", "Percentile (from z)"], "phoneText": 1.28}, (S, A) => {
   const st = { name: "Statistics", x: 85, mu: 70, sd: 10, base: 190, color: "blue", soft: "blueSoft" };
   const bio = { name: "Biology", x: 78, mu: 65, sd: 6, base: 400, color: "purple", soft: "purpleSoft" };
   [st, bio].forEach((c) => { c.dev = c.x - c.mu; c.z = c.dev / c.sd; });

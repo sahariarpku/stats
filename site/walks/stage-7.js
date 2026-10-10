@@ -59,7 +59,7 @@
   const minus = (s) => String(s).replace(/^-/, "−");
 
   /* ================================================================ chi-square (7.1) */
-  Walk.register("chi-square", {"title": "Chi-square: observed versus expected counts", "lesson": "7.1", "terms": ["Observed / expected", "χ² statistic", "Contingency table", "Fisher's exact test", "McNemar's test"]}, (S, A) => {
+  Walk.register("chi-square", {"title": "Chi-square: observed versus expected counts", "lesson": "7.1", "terms": ["Observed / expected", "χ² statistic", "Contingency table", "Fisher's exact test", "McNemar's test"], "phoneText": 1.22}, (S, A) => {
     const O = [[60, 40], [45, 55]];                       // rows: video, banner; columns: bought, did not buy
     const rowT = O.map((r) => r[0] + r[1]);
     const colT = [O[0][0] + O[1][0], O[0][1] + O[1][1]];
@@ -200,7 +200,7 @@
     return { ms, gm, ssb, ssw, msb, msw, F, p, dfb: k - 1, dfw: d2, sst: ssb + ssw, groupSS: groups.map((g, i) => sum(g.map((v) => (v - ms[i]) ** 2))) };
   }
 
-  Walk.register("anova", {"title": "ANOVA: is the gap between groups bigger than the noise?", "lesson": "7.2", "terms": ["ANOVA", "SSB / SSW / SST", "MSB / MSW", "F statistic", "Omnibus test", "η² (eta squared)"], "phoneText": 1.18}, (S, A) => {
+  Walk.register("anova", {"title": "ANOVA: is the gap between groups bigger than the noise?", "lesson": "7.2", "terms": ["ANOVA", "SSB / SSW / SST", "MSB / MSW", "F statistic", "Omnibus test", "η² (eta squared)"]}, (S, A) => {
     const R = anovaOf(TEACH);
     // Same three means, but students much less consistent (scores chosen to keep every group mean unchanged).
     const NOISY = [[62, 95, 100, 75, 68], [75, 99, 83, 100, 87], [87, 54, 83, 65, 66]];
@@ -336,7 +336,7 @@
   });
 
   /* ================================================================ post-hoc (7.2) */
-  Walk.register("post-hoc", {"title": "Post-hoc tests: which groups actually differ?", "lesson": "7.2", "terms": ["Post-hoc test", "Tukey's HSD", "Bonferroni"], "phoneText": 1.18}, (S, A) => {
+  Walk.register("post-hoc", {"title": "Post-hoc tests: which groups actually differ?", "lesson": "7.2", "terms": ["Post-hoc test", "Tukey's HSD", "Bonferroni"], "phoneText": 1.34}, (S, A) => {
     const R = anovaOf(TEACH);
     const n = 5, q = 3.773;                                // q from the studentized range table: k = 3 groups, df = 12
     const hsd = q * Math.sqrt(R.msw / n);

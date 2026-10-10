@@ -1,6 +1,6 @@
 /* Stage 2 walkthroughs, part 1: basic probability (lesson 2.1) and counting (lesson 2.2). */
 
-Walk.register("probability", {"title": "Probability: favourable outcomes ÷ all outcomes", "lesson": "2.1", "terms": ["Probability", "Sample space", "Event", "Complement"]}, (S, A) => {
+Walk.register("probability", {"title": "Probability: favourable outcomes ÷ all outcomes", "lesson": "2.1", "terms": ["Probability", "Sample space", "Event", "Complement"], "phoneText": 1.34}, (S, A) => {
   const PX = S.scale(0, 1, 120, 680), PY = 370;                 // the 0-to-1 probability scale
   const DX = (f) => 160 + (f - 1) * 96, DY = 150;               // where die face f sits
   let scale, pins, dice, box, boxLbl, marks, evLbl, prob, dot, arrow, parts;

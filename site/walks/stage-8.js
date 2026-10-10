@@ -196,7 +196,7 @@ Walk.register("multiple-regression", {"title": "Multiple regression: from a line
   const pct = (p, d = 1) => (p * 100).toFixed(d) + "%";
 
   /* ------------------------------------------------------------------ 8.1 correlation */
-  Walk.register("correlation", {"title": "Correlation: do two numbers move together?", "lesson": "8.1", "terms": ["Scatter plot", "Pearson's r", "r²", "Spearman's ρ", "Outlier"]}, (S, A) => {
+  Walk.register("correlation", {"title": "Correlation: do two numbers move together?", "lesson": "8.1", "terms": ["Scatter plot", "Pearson's r", "r²", "Spearman's ρ", "Outlier"], "phoneText": 1.28}, (S, A) => {
     const F = fitLine(HOURS, SCORES);
     const prods = HOURS.map((h, i) => (h - F.mx) * (SCORES[i] - F.my));
     const plus = sum(prods.filter((p) => p > 0)), minus = sum(prods.filter((p) => p < 0));
@@ -485,7 +485,7 @@ Walk.register("multiple-regression", {"title": "Multiple regression: from a line
 
 
   /* ------------------------------------------------------------------ 8.2 regression line */
-  Walk.register("regression-line", {"title": "The regression line: least squares, slope and intercept", "lesson": "8.2", "terms": ["Regression line", "Slope (b)", "Intercept (a)", "Residual", "SSE", "s (standard error of the estimate)", "Interpolation / extrapolation"], "phoneText": 1.18}, (S, A) => {
+  Walk.register("regression-line", {"title": "The regression line: least squares, slope and intercept", "lesson": "8.2", "terms": ["Regression line", "Slope (b)", "Intercept (a)", "Residual", "SSE", "s (standard error of the estimate)", "Interpolation / extrapolation"]}, (S, A) => {
     const F = fitLine(HOURS, SCORES);
     const PX = 652;
     let fr, dots, line, sticks, squares, eq, sseT, panel = [], tri;
@@ -622,7 +622,7 @@ Walk.register("multiple-regression", {"title": "Multiple regression: from a line
   });
 
   /* ------------------------------------------------------------------ 8.2 regression to the mean */
-  Walk.register("regression-to-the-mean", {"title": "Regression to the mean: extremes drift back", "lesson": "8.2", "terms": ["Regression to the mean"], "phoneText": 1.14}, (S, A) => {
+  Walk.register("regression-to-the-mean", {"title": "Regression to the mean: extremes drift back", "lesson": "8.2", "terms": ["Regression to the mean"]}, (S, A) => {
     // Ten students, two quizzes. Top three and bottom three on Monday are the first and last three.
     const MON = [89, 85, 81, 74, 71, 69, 66, 58, 55, 52];
     const FRI = [80, 75, 79, 72, 65, 77, 66, 64, 60, 62];
@@ -737,7 +737,7 @@ Walk.register("multiple-regression", {"title": "Multiple regression: from a line
 
 
   /* ------------------------------------------------------------------ 8.3 R-squared */
-  Walk.register("r-squared", {"title": "R²: how much of the variation does the line explain?", "lesson": "8.3", "terms": ["SST, SSR, SSE", "R²", "Adjusted R²"]}, (S, A) => {
+  Walk.register("r-squared", {"title": "R²: how much of the variation does the line explain?", "lesson": "8.3", "terms": ["SST, SSR, SSE", "R²", "Adjusted R²"], "phoneText": 1.28}, (S, A) => {
     const F = fitLine(HOURS, SCORES);
     const PX = 655;
     const SHOE = [9, 7, 10, 8, 8, 11, 9, 10];   // a useless second predictor
@@ -884,7 +884,7 @@ Walk.register("multiple-regression", {"title": "Multiple regression: from a line
   });
 
   /* ------------------------------------------------------------------ 8.3 residual plots */
-  Walk.register("residual-plots", {"title": "Residual plots, leverage and two kinds of interval", "lesson": "8.3", "terms": ["Residual plot", "Heteroscedasticity", "Leverage", "Influential point", "Confidence interval (mean)", "Prediction interval"], "phoneText": 1.18}, (S, A) => {
+  Walk.register("residual-plots", {"title": "Residual plots, leverage and two kinds of interval", "lesson": "8.3", "terms": ["Residual plot", "Heteroscedasticity", "Leverage", "Influential point", "Confidence interval (mean)", "Prediction interval"]}, (S, A) => {
     const F = fitLine(HOURS, SCORES);
     const PX = 655, T6 = 2.446912;                 // t* for 95% with 6 degrees of freedom
     // A scatter with its line on top, and the residual plot underneath. Dots slide down into the residual plot.
@@ -1026,7 +1026,7 @@ Walk.register("multiple-regression", {"title": "Multiple regression: from a line
 
 
   /* ------------------------------------------------------------------ 8.4 multicollinearity */
-  Walk.register("multicollinearity", {"title": "Multicollinearity: two predictors telling the same story", "lesson": "8.4", "terms": ["Multicollinearity", "VIF", "Overfitting"], "phoneText": 1.14}, (S, A) => {
+  Walk.register("multicollinearity", {"title": "Multicollinearity: two predictors telling the same story", "lesson": "8.4", "terms": ["Multicollinearity", "VIF", "Overfitting"], "phoneText": 1.22}, (S, A) => {
     const SQFT = [1000, 1200, 1400, 1600, 1800, 2000, 2200, 2400, 2600, 2800];
     const BEDS = [2, 2, 3, 3, 4, 4, 4, 5, 5, 6];
     const PRICE = [250, 280, 310, 350, 390, 420, 450, 480, 520, 550];   // $ thousand
@@ -1177,7 +1177,7 @@ Walk.register("multiple-regression", {"title": "Multiple regression: from a line
   });
 
   /* ------------------------------------------------------------------ 8.5 logistic regression */
-  Walk.register("logistic-regression", {"title": "Logistic regression: from a line to an S-curve", "lesson": "8.5", "terms": ["Logistic regression", "Odds", "Logit", "Sigmoid", "Odds ratio", "Maximum likelihood", "Likelihood-ratio test"], "phoneText": 1.1}, (S, A) => {
+  Walk.register("logistic-regression", {"title": "Logistic regression: from a line to an S-curve", "lesson": "8.5", "terms": ["Logistic regression", "Odds", "Logit", "Sigmoid", "Odds ratio", "Maximum likelihood", "Likelihood-ratio test"]}, (S, A) => {
     const L = fitLogit(), LIN = fitLine(LOG_H, LOG_P);
     const p = (x) => sigm(L.b0 + L.b1 * x), OR = Math.exp(L.b1), x50 = -L.b0 / L.b1;
     const chi = 2 * (L.ll - L.ll0), pv = 1 - erf(Math.sqrt(chi / 2));
@@ -1328,7 +1328,7 @@ ${num(L.b0, 2)} + ${L.b1.toFixed(2)} × hours`, { size: 19, color: "purple", hid
   });
 
   /* ------------------------------------------------------------------ 8.5 confusion matrix */
-  Walk.register("confusion-matrix", {"title": "The confusion matrix: turning chances into yes or no", "lesson": "8.5", "terms": ["Confusion matrix", "Sensitivity / specificity"], "phoneText": 1.1}, (S, A) => {
+  Walk.register("confusion-matrix", {"title": "The confusion matrix: turning chances into yes or no", "lesson": "8.5", "terms": ["Confusion matrix", "Sensitivity / specificity"], "phoneText": 1.04}, (S, A) => {
     const L = fitLogit();
     const prob = LOG_H.map((h) => sigm(L.b0 + L.b1 * h));
     const hourAt = (c) => (Math.log(c / (1 - c)) - L.b0) / L.b1;      // where the S-curve reaches the cut-off

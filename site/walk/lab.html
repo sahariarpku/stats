@@ -6,6 +6,7 @@
 <title>Walkthrough lab</title>
 <link rel="icon" href="data:,">
 <link rel="stylesheet" href="../app.css">
+<link rel="stylesheet" href="../zine.css">
 <style>
   body { padding: 20px; }
   .lab { display: grid; grid-template-columns: 260px 1fr; gap: 24px; max-width: 1240px; margin: 0 auto; }
@@ -17,6 +18,7 @@
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><filter id="zine-rough" x="-1%" y="-1%" width="102%" height="102%"><feTurbulence type="fractalNoise" baseFrequency="0.02 0.025" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3" xChannelSelector="R" yChannelSelector="G"/></filter></svg>
 <div class="lab"><nav id="list"></nav><div><div id="host"></div><pre id="out" class="muted"></pre></div></div>
 <script>window.WALK_BASE = "../../";</script>
 <script src="../../assets/vendor/marked.umd.js"></script>
@@ -45,7 +47,10 @@
       const svg = host.querySelector(".wk-stage svg");
       const R = svg.getBoundingClientRect(), sc = 800 / R.width;
       const vis = (el) => { let o = 1; for (let n = el; n && n !== svg; n = n.parentNode) { const a = n.getAttribute && n.getAttribute("opacity"); if (a !== null && a !== undefined && a !== "") o *= parseFloat(a); if (n.style && n.style.display === "none") return 0; } return o; };
-      const boxes = [...svg.querySelectorAll("text")].filter((t) => vis(t) > 0.1 && t.textContent.trim()).map((t) => { const b = t.getBoundingClientRect(); return { t: t.textContent.trim().slice(0, 30), x1: (b.left - R.left) * sc, y1: (b.top - R.top) * sc, x2: (b.right - R.left) * sc, y2: (b.bottom - R.top) * sc }; });
+      const boxes = [...svg.querySelectorAll("text")].filter((t) => vis(t) > 0.1 && t.textContent.trim()).map((t) => { const b = t.getBoundingClientRect();
+        // The handwriting font reserves ~16% more line height than its letters use, so trim that empty space.
+        const trim = t.style.fontFamily.includes("mono") ? 0 : b.height * 0.08;
+        return { t: t.textContent.trim().slice(0, 30), x1: (b.left - R.left) * sc, y1: (b.top + trim - R.top) * sc, x2: (b.right - R.left) * sc, y2: (b.bottom - trim - R.top) * sc }; });
       boxes.forEach((b) => { if (b.x1 < -2 || b.y1 < -2 || b.x2 > 802 || b.y2 > 452) issues.push(`step ${k + 1}: text outside the stage: "${b.t}"`); });
       for (let i = 0; i < boxes.length; i++) for (let j = i + 1; j < boxes.length; j++) {
         const a = boxes[i], b = boxes[j];

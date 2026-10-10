@@ -337,7 +337,7 @@
   });
 
   /* ================================================================ 6.3 errors-and-power */
-  Walk.register("errors-and-power", {"title": "Errors and power: two curves, two mistakes", "lesson": "6.3", "terms": ["Type I error (α)", "Type II error (β)", "Power (1 − β)", "Effect size", "Under-powered"]}, (S, A) => {
+  Walk.register("errors-and-power", {"title": "Errors and power: two curves, two mistakes", "lesson": "6.3", "terms": ["Type I error (α)", "Type II error (β)", "Power (1 − β)", "Effect size", "Under-powered"], "phoneText": 1.34}, (S, A) => {
     const K = kit(S, A);
     const mu0 = 100, mu1 = 106, sigma = 15, za = zQ(0.95);
     const st = (n) => { const se = sigma / Math.sqrt(n), cut = mu0 + za * se, pow = 1 - Phi((cut - mu1) / se); return { n, se, cut, pow, beta: 1 - pow }; };
@@ -948,7 +948,7 @@
   });
 
   /* ================================================================ 6.8 effect-size */
-  Walk.register("effect-size", {"title": "Effect size: how big, not just how sure", "lesson": "6.8", "terms": ["Effect size", "Cohen's d", "Hedges' g", "Practical significance", "η², ω², r²"]}, (S, A) => {
+  Walk.register("effect-size", {"title": "Effect size: how big, not just how sure", "lesson": "6.8", "terms": ["Effect size", "Cohen's d", "Hedges' g", "Practical significance", "η², ω², r²"], "phoneText": 1.28}, (S, A) => {
     const K = kit(S, A);
     const sp = Math.sqrt((24 * 100 + 24 * 144) / 48), dA = 8 / sp, gA = dA * (1 - 3 / (4 * 48 - 1));
     const seD = Math.sqrt(50 / 625 + (dA * dA) / 100), dLo = dA - 1.96 * seD, dHi = dA + 1.96 * seD;
