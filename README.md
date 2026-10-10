@@ -99,6 +99,9 @@ Writing a new walkthrough or definition? See [`site/walk/AUTHORING.md`](site/wal
 
 Every lesson ends with a **Go further** block: three free places to read more, and one real open-access paper from a Social Sciences Citation Index journal that used the lesson's statistic. The sources live in `content/resources/` (see its README); `python3 scripts/check_resources.py` validates them, and every DOI was confirmed against Crossref and every journal against Clarivate's Master Journal List.
 
+
+Every interactive picture is laid out to fit one screen on a phone, an iPad or a computer (`assets/visuals.js` and `assets/visuals.css`, the "fit" layout), with no page scrolling: the chart on top, the controls below it, or beside it on wide screens. `scripts/fit_qa.js` checks all of them at several screen sizes.
+
 ## Running the code (optional)
 
 You only need Python 3. There is nothing to install.

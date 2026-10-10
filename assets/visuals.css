@@ -214,7 +214,7 @@ button:focus-visible, .dot:focus-visible { outline: 3px dashed var(--focus); out
 .tour-nudge::before { content: ""; position: absolute; top: -9px; right: 28px; width: 12px; height: 12px; background: var(--card-bg); border-left: 2px solid var(--pen); border-top: 2px solid var(--pen); transform: rotate(45deg); }
 @keyframes tour-in { from { opacity: 0; } to { opacity: 1; } }
 .tour-ring { outline: 3px dashed var(--series-2) !important; outline-offset: 5px; border-radius: 12px; }
-.tour-card { position: absolute; z-index: 60; background: var(--card-bg); color: var(--text-primary); border: 2px solid var(--pen); border-radius: 18px 10px 20px 10px / 10px 20px 10px 18px; padding: 14px 18px 12px; box-shadow: 5px 5px 0 var(--shadow-c); font-size: 1.2rem; line-height: 1.4; animation: tour-in 0.35s ease-out both; }
+.tour-card { position: fixed; z-index: 60; background: var(--card-bg); color: var(--text-primary); border: 2px solid var(--pen); border-radius: 18px 10px 20px 10px / 10px 20px 10px 18px; padding: 14px 18px 12px; box-shadow: 5px 5px 0 var(--shadow-c); font-size: 1.2rem; line-height: 1.4; animation: tour-in 0.35s ease-out both; }
 .tour-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
 .tour-step { font: 700 1.25rem/1 "Caveat", cursive; color: var(--series-2); }
 .tour-x { border: 0; background: none; box-shadow: none; color: var(--text-secondary); font: 400 1.1rem/1 sans-serif; cursor: pointer; width: 32px; height: 32px; padding: 0; border-radius: 8px; }
@@ -230,3 +230,103 @@ button:focus-visible, .dot:focus-visible { outline: 3px dashed var(--focus); out
 
 /* the site's "Still" switch (and the OS reduced-motion setting) turns every movement off */
 :root[data-motion="still"] *, :root[data-motion="still"] *::before, :root[data-motion="still"] *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+
+
+/* =====================================================================
+   One-screen layout (see the "fit" script at the end of visuals.js)
+   ===================================================================== */
+html.fit-page, html.fit-page body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
+.viz.fit { height: 100vh; height: 100dvh; max-width: 1240px; margin: 0 auto; padding: 8px 14px 10px; display: flex; flex-direction: column; gap: 6px; }
+.viz.fit .viz-head { flex: none; align-items: center; gap: 8px; }
+.viz.fit .viz-head > div:first-child { min-width: 0; }
+.viz.fit h1 { font-size: 1.8rem; line-height: 1.05; margin: 0; }
+.viz.fit .hint { margin: 3px 0 0; font-size: 1.08rem; line-height: 1.3; }
+.hint-toggle { display: none; margin: 1px 0 0; padding: 0; border: 0; background: none; box-shadow: none; color: var(--series-1); font: 700 1.15rem/1.2 "Caveat", cursive; cursor: pointer; text-decoration: underline wavy; text-underline-offset: 3px; }
+.hint-toggle:hover { background: none; transform: none; box-shadow: none; }
+@media (max-height: 820px), (max-width: 700px) {
+  .viz.fit .hint { display: none; }
+  .viz.fit .hint.open { display: block; position: fixed; z-index: 80; left: 8px; right: 8px; top: 8px; margin: 0; padding: 12px 16px; background: var(--card-bg); border: 2px solid var(--pen); border-radius: 14px 8px 16px 8px / 8px 16px 8px 14px; box-shadow: 4px 4px 0 var(--shadow-c); font-size: 1.15rem; line-height: 1.35; cursor: pointer; }
+  .hint-toggle { display: inline-block; }
+}
+
+.viz.fit .viz-body { flex: 1 1 0; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); gap: 8px; }
+.viz.fit .viz-body.no-stage { grid-template-rows: minmax(0, 1fr); }
+.viz.fit .viz-stage { min-height: 0; display: flex; flex-direction: column; gap: 6px; }
+.viz.fit .viz-stage > svg { width: 100%; height: auto; max-height: min(50dvh, 560px); flex: 0 1 auto; min-height: 0; }
+.viz.fit .viz-side { min-height: 0; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; gap: 6px; padding: 2px 3px 4px; overscroll-behavior: contain; }
+.viz.fit .viz-side > * { flex: none; }
+
+/* wide screens (laptops, iPad landscape): chart on the left, controls in a side panel */
+@media (min-width: 760px) and (min-aspect-ratio: 11/10) {
+  .viz.fit .viz-body { grid-template-columns: minmax(0, 1fr) minmax(300px, 36%); grid-template-rows: minmax(0, 1fr); gap: 14px; }
+  .viz.fit .viz-body.no-stage { grid-template-columns: minmax(0, 1fr); }
+  .viz.fit .viz-stage > svg { flex: 1 1 0; height: 100%; max-height: none; }
+  .viz.fit .viz-side .readout { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .viz.fit .hint { display: block; }
+  .hint-toggle { display: none; }
+}
+@media (min-width: 760px) and (min-aspect-ratio: 11/10) and (max-height: 720px) {
+  .viz.fit .hint { display: none; }
+  .viz.fit .hint.open { display: block; }
+  .hint-toggle { display: inline-block; }
+}
+/* compact parts */
+.viz.fit .legend { margin: 0; gap: 2px 14px; font-size: 1.02rem; line-height: 1.2; }
+.viz.fit .readout { margin: 0; grid-template-columns: repeat(auto-fit, minmax(88px, 1fr)); gap: 6px; }
+.viz.fit .card { padding: 2px 9px 3px; box-shadow: 2px 2px 0 var(--shadow-c); }
+.viz.fit .card .label { font-size: 0.98rem; line-height: 1.1; }
+.viz.fit .card .value { font-size: 1.5rem; line-height: 1.02; }
+.viz.fit .verdict { margin: 0; min-height: 0; font-size: 1.1rem; line-height: 1.3; }
+.viz.fit .controls { gap: 6px; }
+.viz.fit .controls.col { gap: 0; }
+.viz.fit .ctrl { grid-template-columns: minmax(0, 9rem) 1fr 3.8rem; gap: 8px; margin: 1px 0; font-size: 1.05rem; line-height: 1.12; }
+.viz.fit button { padding: 2px 12px; font-size: 1.15rem; box-shadow: 2px 2px 0 var(--shadow-c); }
+.viz.fit .tour-tools { flex-direction: row; align-items: center; justify-content: flex-end; gap: 6px; width: auto; flex: none; }
+.fit-page.framed #theme { display: none !important; }
+.viz.fit .viz-head { flex-wrap: nowrap; }
+.hint-toggle { white-space: nowrap; }
+.hint-legend { display: none; margin: 8px 0 0; padding-top: 8px; border-top: 2px dashed var(--grid); }
+.hint-toggle { padding: 3px 10px; border: 2px solid var(--pen); border-radius: 999px; background: var(--card-bg); box-shadow: 2px 2px 0 var(--shadow-c); text-decoration: none; font-size: 1.1rem; }
+.hint-toggle:hover { background: var(--surface-2); }
+@media (max-width: 600px) {
+  .viz.fit { padding: 6px 10px 8px; }
+  .viz.fit .tour-btn { padding: 3px 10px; font-size: 1.05rem; }
+  .viz.fit .tour-nudge { display: none; }
+  .viz.fit .tour-tools { width: auto; flex-wrap: nowrap; }
+  .hint-words { display: none; }
+  .hint-toggle { padding: 3px 9px; }
+  .viz.fit h1 { font-size: 1.3rem; }
+  .viz.fit .ctrl { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "l o" "s s"; gap: 0 8px; font-size: 1rem; line-height: 1.05; margin: 0 0 2px; }
+  .viz.fit .ctrl span { grid-area: l; }
+  .viz.fit .ctrl output { grid-area: o; }
+  .viz.fit .ctrl input[type="range"] { grid-area: s; }
+  .viz.fit .ctrl input[type="range"] { height: 20px; margin: 0; }
+  .viz.fit .viz-stage > svg { max-height: 44dvh; }
+  .viz.fit .verdict { font-size: 1.02rem; line-height: 1.22; }
+  .viz.fit .viz-body { gap: 4px; }
+  .viz.fit .viz-side { gap: 4px; }
+  .viz.fit button { padding: 1px 10px; font-size: 1.08rem; }
+  .viz.fit .readout { grid-template-columns: repeat(auto-fit, minmax(64px, 1fr)); gap: 4px; }
+  .viz.fit .card { padding: 2px 6px 3px; }
+  .viz.fit .card .value { font-size: 1.3rem; }
+  .viz.fit .card .label { font-size: 0.85rem; }
+  .viz.fit .legend { font-size: 0.95rem; }
+}
+
+/* phones: the chart keeps a readable size, the colour key lives in the info card, and the panel scrolls only if it must */
+@media (max-width: 700px) {
+  .viz.fit .viz-side .legend { display: none; }
+  .viz.fit .hint.open .hint-legend { display: flex; }
+  .viz.fit .viz-stage > svg { min-height: 190px; }
+}
+
+/* long text and long lists scroll inside their own box, so sliders and buttons always stay on screen */
+.viz.fit .viz-side .verdict { flex: 0 1 auto; min-height: 2.4em; overflow-y: auto; }
+.viz.fit #items, .viz.fit .scroll, .viz.fit .viz-side table.tally { flex: 1 1 110px; min-height: 90px; overflow: auto; }
+.viz.fit .viz-side table.tally { display: block; flex: 0 1 auto; max-height: 30dvh; }
+
+/* phones: sliders sit two to a row (each still has its label and live value above its track) */
+@media (max-width: 600px) {
+  .viz.fit .controls.col { display: grid; grid-template-columns: 1fr 1fr; column-gap: 14px; row-gap: 0; }
+  .viz.fit .controls.col .ctrl { font-size: 0.95rem; }
+}

@@ -162,6 +162,8 @@ const Viz = {
     tools.appendChild(btn);
     const theme = head.querySelector("#theme");
     if (theme) { head.insertBefore(tools, theme); tools.appendChild(theme); } else head.appendChild(tools);
+    const info = document.querySelector(".hint-toggle");
+    if (info) tools.insertBefore(info, btn);
     let i = 0, card = null, ring = null;
     const key = "viz-tour-seen:" + location.pathname.split("/").slice(-2).join("/");
     const esc = (e) => { if (e.key === "Escape") end(); };
@@ -179,9 +181,9 @@ const Viz = {
       ring = st.target ? document.querySelector(st.target) : null;
       if (ring) {
         ring.classList.add("tour-ring");
-        // Scroll only when the target is mostly off screen, and then just far enough (no smooth swooping).
+        // Only the side panel can ever scroll; bring the target into view there if it is hidden.
         const rr = ring.getBoundingClientRect();
-        if (rr.bottom < 40 || rr.top > window.innerHeight - 40) ring.scrollIntoView({ block: "nearest", behavior: "auto" });
+        if (rr.bottom < 0 || rr.top > window.innerHeight) ring.scrollIntoView({ block: "nearest", behavior: "auto" });
       }
       if (!card) {
         card = document.createElement("div");
@@ -207,28 +209,23 @@ const Viz = {
         d.textContent = "▶ " + (st.action.label || "Do it for me");
         d.addEventListener("click", () => { st.action.run(); d.textContent = "✓ Done. Watch what changed"; });
       }
-      place(true);
+      place();
       card.querySelector(".tour-next").focus({ preventScroll: true });
     }
-    function place(reveal) {
+    function place() {
       if (!card) return;
-      const vw = document.documentElement.clientWidth;
-      const w = Math.min(360, vw - 24);
+      const vw = document.documentElement.clientWidth, vh = window.innerHeight;
+      const w = Math.min(420, vw - 16);
       card.style.width = w + "px";
-      if (!ring) { card.style.left = Math.max(12, (vw - w) / 2) + "px"; card.style.top = (window.scrollY + 90) + "px"; return; }
-      const r = ring.getBoundingClientRect();
-      const ch = card.offsetHeight;
-      let top = r.bottom + window.scrollY + 12;
-      if (r.bottom + ch + 24 > window.innerHeight && r.top - ch - 12 > 0) top = r.top + window.scrollY - ch - 12;
-      if (r.height > window.innerHeight * 0.6) top = window.scrollY + Math.max(12, window.innerHeight - ch - 16);
-      card.style.top = top + "px";
-      card.style.left = Math.min(vw - w - 12, Math.max(12, r.left + r.width / 2 - w / 2)) + "px";
-      // On small screens the card can end up below the fold: bring it into view.
-      const cb = card.getBoundingClientRect();
-      if (reveal === true && (cb.bottom > window.innerHeight - 8 || cb.top < 0)) { clearTimeout(place.s); place.s = setTimeout(() => card && card.scrollIntoView({ block: "nearest", behavior: "auto" }), 450); }
+      card.style.left = Math.max(8, (vw - w) / 2) + "px";
+      // Dock the card at the top or bottom of the screen, whichever is farther from its target,
+      // so it never covers what it explains and nothing ever needs scrolling.
+      let atTop = false;
+      if (ring) { const r = ring.getBoundingClientRect(); atTop = r.top + r.height / 2 > vh * 0.55; }
+      card.style.top = atTop ? "8px" : "auto";
+      card.style.bottom = atTop ? "auto" : "8px";
     }
     window.addEventListener("resize", () => place());
-    window.addEventListener("scroll", () => { if (card && ring) { clearTimeout(place.t); place.t = setTimeout(place, 120); } }, { passive: true });
     btn.addEventListener("click", () => { try { localStorage.setItem(key, "1"); } catch (e) { /* ignore */ } nudge.remove(); show(0); });
     // A gentle nudge the first time someone opens this animation.
     const nudge = document.createElement("div");
@@ -252,3 +249,59 @@ const Viz = {
     });
   },
 };
+
+
+/* One-screen layout: every picture fits the window on phones, iPads and computers, with no page scrolling.
+   The header stays on top, the chart takes the space it needs, and everything else (legend, numbers, sliders,
+   buttons) sits below it, or beside it when the screen is wide. */
+(function () {
+  const v = document.querySelector(".viz");
+  if (!v || v.classList.contains("fit")) return;
+  const kids = [...v.children];
+  const head = kids.find((k) => k.classList.contains("viz-head"));
+  const rest = kids.filter((k) => k !== head);
+  const main = rest.find((k) => k.tagName.toLowerCase() === "svg");
+  const body = document.createElement("div");
+  body.className = "viz-body";
+  const side = document.createElement("div");
+  side.className = "viz-side";
+  if (main) {
+    const stage = document.createElement("div");
+    stage.className = "viz-stage";
+    const mi = rest.indexOf(main);
+    rest.forEach((k, i) => (i <= mi ? stage : side).appendChild(k));
+    body.appendChild(stage);
+  } else {
+    rest.forEach((k) => side.appendChild(k));
+    body.classList.add("no-stage");
+  }
+  body.appendChild(side);
+  v.appendChild(body);
+  v.classList.add("fit");
+  document.documentElement.classList.add("fit-page");
+  if (window.self !== window.top) document.documentElement.classList.add("framed"); // the website's own theme button is used instead
+  // On short screens the hint is tucked behind an info button and opens as a card on top of the picture.
+  const hint = head && head.querySelector(".hint");
+  if (hint) {
+    const t = document.createElement("button");
+    t.type = "button";
+    t.className = "hint-toggle";
+    t.innerHTML = '<span aria-hidden="true">ⓘ</span><span class="hint-words"> What am I looking at?</span>';
+    t.setAttribute("aria-label", "What am I looking at?");
+    t.setAttribute("aria-expanded", "false");
+    const close = () => { hint.classList.remove("open"); t.setAttribute("aria-expanded", "false"); };
+    t.addEventListener("click", (e) => { e.stopPropagation(); const o = hint.classList.toggle("open"); t.setAttribute("aria-expanded", String(o)); });
+    hint.addEventListener("click", close);
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
+    hint.after(t);
+    // On phones the colour key moves into the same card, so the controls get the room.
+    const legend = side.querySelector(".legend") || stageLegend(v);
+    if (legend) {
+      const copy = document.createElement("div");
+      copy.className = "hint-legend legend";
+      copy.innerHTML = legend.innerHTML;
+      hint.appendChild(copy);
+    }
+  }
+  function stageLegend(root) { return root.querySelector(".legend"); }
+})();

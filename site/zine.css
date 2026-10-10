@@ -367,3 +367,32 @@ a.chip, a.chip:hover { text-decoration: none; }
 .gf-cite { margin: 0 0 12px; padding: 10px 14px; background: var(--hl-soft); border: 2px dashed var(--pen); border-radius: 6px 14px 6px 14px; font-size: 1.02rem; line-height: 1.45; overflow-wrap: anywhere; }
 .gf-badges { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
 .gf-check { margin: 12px 0 0; font-size: 0.95rem; color: var(--ink-3); line-height: 1.4; }
+
+/* ---------- pictures fit one screen: the frame is exactly as tall as the window allows ---------- */
+.embed iframe { height: clamp(560px, calc(100vh - 118px), 900px); height: clamp(560px, calc(100dvh - 118px), 900px); }
+.play-page { max-width: 1280px; margin: 0 auto; padding: 0 14px; }
+.play-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 14px; padding: 8px 2px; }
+.play-bar .crumbs { font-size: 1.05rem; }
+.play-links { display: flex; gap: 8px; flex-wrap: wrap; }
+.play-links .btn-mini { text-decoration: none; }
+.player { margin: 0 0 14px; overflow: hidden; }
+.player iframe { display: block; width: 100%; height: calc(100vh - 150px); height: calc(100dvh - 150px); min-height: 520px; border: 0; background: var(--bg); }
+@media (max-width: 700px) {
+  body.route-play .topbar { display: none; }
+  .play-bar { flex-wrap: nowrap; gap: 8px; padding: 6px 2px; }
+  .play-bar .crumbs { display: none; }
+  .play-links { width: 100%; justify-content: space-between; flex-wrap: nowrap; }
+  .play-links .btn-mini:last-child { display: none; }
+  .play-links .btn-mini { min-height: 36px; padding: 3px 12px; font-size: 1.05rem; white-space: nowrap; }
+  .player iframe { height: calc(100dvh - 52px); min-height: 520px; }
+  .player { margin-bottom: 8px; }
+}
+@media (min-width: 701px) { .play-back { display: none; } }
+/* the embed title bar stays on one line */
+.embed-top { flex-wrap: nowrap; }
+.embed-top strong { flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 700px) {
+  .embed iframe { height: clamp(520px, calc(100dvh - 120px), 900px); }
+  .embed-top { padding: 8px 12px; }
+}
+}

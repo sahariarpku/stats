@@ -51,7 +51,7 @@
         const s = d.createElement("style");
         s.id = "sfs-embed-style";
         // no inner scrolling: the frame is sized to its content, so a swipe always scrolls the page
-        s.textContent = "#theme{display:none!important} html,body{overflow:hidden!important} body{background:transparent}";
+        s.textContent = "#theme{display:none!important} body{background:transparent}";
         d.head.appendChild(s);
       }
     } catch (e) { /* opened from disk: frames are isolated, which is fine */ }
@@ -248,7 +248,7 @@
     frame.title = anim.title;
     frame.loading = "lazy";
     frame.src = anim.path;
-    frame.addEventListener("load", () => { syncFrame(frame); fitFrame(frame); });
+    frame.addEventListener("load", () => syncFrame(frame));
     wrap.appendChild(frame);
     if (extraNote) { const p = document.createElement("p"); p.className = "muted"; p.style.cssText = "margin:0;padding:10px 16px;font-size:.9rem"; p.innerHTML = extraNote; wrap.appendChild(p); }
     return wrap;
@@ -885,12 +885,13 @@
     const a = ANIM[slug];
     if (!a) return viewMissing();
     const l = BY_ID[a.lesson];
-    setView(`<div class="wrap">
-      <div class="page-head" style="padding-bottom:10px">
-        <div class="crumbs"><a href="#/">Home</a> › <a href="#/animations">Animations</a> › ${esc(a.title)}</div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
-          <a class="btn btn-soft" href="#/lesson/${l.id}">📘 Read the lesson: ${l.id} ${esc(l.title)}</a>
-          <a class="btn btn-soft" href="${a.path}" target="_blank" rel="noopener">Open on its own ↗</a>
+    setView(`<div class="play-page">
+      <div class="play-bar">
+        <div class="crumbs"><a href="#/">Home</a> › <a href="#/animations">Playground</a> › ${esc(a.title)}</div>
+        <div class="play-links">
+          <a class="btn-mini play-back" href="#/animations">← Playground</a>
+          <a class="btn-mini" href="#/lesson/${l.id}">📘 Lesson ${l.id}</a>
+          <a class="btn-mini" href="${a.path}" target="_blank" rel="noopener">Open on its own ↗</a>
         </div>
       </div>
       <div class="card player" id="player"></div>
@@ -898,7 +899,7 @@
     const frame = document.createElement("iframe");
     frame.title = a.title;
     frame.src = a.path;
-    frame.addEventListener("load", () => { syncFrame(frame); fitFrame(frame); });
+    frame.addEventListener("load", () => syncFrame(frame));
     $("#player").appendChild(frame);
   }
 
@@ -1040,6 +1041,7 @@ The lessons are built from the StatisticsFundamentals.com teaching materials. Ev
     const h = decodeURIComponent(location.hash.replace(/^#\/?/, ""));
     const parts = h.split("/");
     window.scrollTo(0, 0);
+    document.body.classList.toggle("route-play", parts[0] === "play");
     switch (parts[0]) {
       case "": return viewHome();
       case "learn": return viewLearn();
