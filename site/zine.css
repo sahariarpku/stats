@@ -514,5 +514,6 @@ a.chip, a.chip:hover { text-decoration: none; }
 .lab-tasks { margin: 8px 0 10px; padding-left: 1.4em; font-size: 1.15rem; line-height: 1.5; }
 .lab-hint { margin: 0 0 12px; font-size: 1.1rem; }
 .lab-hint summary { cursor: pointer; font-family: var(--display); font-size: 1.3rem; color: var(--accent-ink); }
-#sol { margin-top: 14px; display: grid; gap: 10px; }
+#sol { margin-top: 14px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+#sol > * { min-width: 0; }
 #sol[hidden] { display: none; }

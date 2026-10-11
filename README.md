@@ -78,7 +78,8 @@ Each animation is one HTML file with its CSS and JavaScript shared from [`assets
 - a friendly home page and learning path with saved progress,
 - lessons with **animated walkthroughs** (narrated, step-by-step animations of every key idea, one of them in 3D with three.js), the interactive animations built in, warm-up questions and clickable quizzes,
 - every **definition** with a fuller explanation, a worked example and a dad joke (click to reveal the punchline), opened by clicking a highlighted word in any lesson,
-- a **playground** of all interactive animations, each with a "👋 Show me how" guided tour,
+- a **Playground** of 47 code labs. Each starts with a real question and answers it in Python, R, SPSS and Stata, explains every line of code, interprets the result, and ends with a similar problem to solve yourself (solution hidden until you ask). Python outputs are real (`python3 scripts/run_labs.py --write`); R, SPSS and Stata snippets are written by hand and not executed here. Notebooks (`.ipynb`) download from each lab. Authoring rules: `content/labs/README.md`,
+- **interactive pictures** (every animation, each with a "👋 Show me how" guided tour) at `#/pictures`,
 - a searchable glossary, the statistical tables, cheat sheets and search.
 
 It is fully static, so it runs anywhere with no build step:
