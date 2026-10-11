@@ -131,7 +131,7 @@
     if ((m = path.match(/^(stages\/[^/]+\/[^/]+)\/quiz\.json$/)) && BY_PATH[m[1]]) return "#/lesson/" + BY_PATH[m[1]].id + "/quiz";
     if ((m = path.match(/^stages\/(\d\d)-[^/]+\/(README\.md)?$/))) return "#/stage/" + Number(m[1]);
     if (ANIM_BY_PATH[path]) return "#/play/" + ANIM_BY_PATH[path].slug;
-    const simple = { "README.md": "#/", "": "#/", "GLOSSARY.md": "#/glossary", "ANIMATIONS.md": "#/animations", "SOURCE_NOTES.md": "#/about", "LESSON_TEMPLATE.md": "#/about", "reference/tables/": "#/tables", "reference/tables": "#/tables", "reference/t-table.md": "#/t-table" };
+    const simple = { "README.md": "#/", "": "#/", "GLOSSARY.md": "#/glossary", "ANIMATIONS.md": "#/pictures", "SOURCE_NOTES.md": "#/about", "LESSON_TEMPLATE.md": "#/about", "reference/tables/": "#/tables", "reference/tables": "#/tables", "reference/t-table.md": "#/t-table" };
     if (path in simple) return simple[path];
     return null;
   }
@@ -480,7 +480,7 @@
           <div class="hero-stats">
             <div><b>${LESSONS.length}</b><span>bite-size lessons</span></div>
             <div><b>${nWalks}</b><span>animated walkthroughs</span></div>
-            <div><b>${C.animations.length}</b><span>playgrounds</span></div>
+            <div><b>${C.animations.length}</b><span>interactive pictures</span></div>
             <div><b>${nJokes || C.glossary.length}</b><span>${nJokes ? "terms, each with a joke" : "terms explained"}</span></div>
           </div>
         </div>
@@ -527,7 +527,7 @@
         <div class="section-head"><span class="kicker">Keep these handy</span><h2>Tools</h2></div>
         <div class="extras">
           <a class="card goal" href="#/walks"><div class="ico">🎬</div><strong>Walkthroughs</strong><span>Every narrated animation, one idea each.</span></a>
-          <a class="card goal" href="#/animations"><div class="ico">🎛️</div><strong>Playground</strong><span>All ${C.animations.length} interactive pictures with guided tours.</span></a>
+          <a class="card goal" href="#/playground"><div class="ico">💻</div><strong>Playground</strong><span>Run each lesson in Python, R, SPSS or Stata, with every step explained.</span></a>
           <a class="card goal" href="#/tables"><div class="ico">🧮</div><strong>Statistical tables</strong><span>z, t, chi-square, F and more, as printable PDFs.</span></a>
           <a class="card goal" href="#/play/6.9-test-chooser"><div class="ico">🧭</div><strong>Test chooser</strong><span>A short flowchart to pick the right test.</span></a>
         </div>
@@ -594,7 +594,7 @@
     "The Problem": ["🧩", "The problem"],
     "The Concept": ["💡", "The big idea"],
     "Step by step": ["🪜", "Step by step"],
-    "Use It": ["💻", "Try it in code (optional)"],
+    "Use It": ["💻", "Try it in the Playground"],
     "Ship It": ["📄", "Your cheat sheet"],
     "Exercises": ["✏️", "Practice"],
     "Key Terms": ["📖", "Key terms"],
@@ -739,19 +739,13 @@
           (nodes[nodes.length - 1] || h).after(d);
         }
       } else if (key === "Use It") {
-        const files = Object.entries(data.code);
-        const note = document.createElement("p");
-        note.className = "muted";
-        note.innerHTML = "You never need code to learn statistics here. This part is for people who like to check the numbers on a computer.";
-        h.after(note);
-        const last = nodes[nodes.length - 1] || note;
-        files.forEach(([path, src]) => {
-          const d = document.createElement("details");
-          d.className = "code-panel";
-          d.innerHTML = `<summary>Show the Python code (${esc(path.split("/").pop())})</summary><pre><code></code></pre><p><a href="${esc(path)}" download>Download this file</a></p>`;
-          $("code", d).textContent = src;
-          last.after(d);
-        });
+        nodes.forEach((n) => n.remove());
+        if (LABS[l.id]) {
+          const c = document.createElement("div");
+          c.className = "card lab-link";
+          c.innerHTML = `<span class="ico" aria-hidden="true">💻</span><div><strong>Run this lesson's numbers yourself</strong><p>A short Python notebook that explains every step and shows what you should see, plus the same steps in R, SPSS and Stata.</p></div><a class="btn btn-primary" href="#/playground/${l.id}">Try it in the Playground →</a>`;
+          h.after(c);
+        } else h.remove();
       } else if (key === "Ship It") {
         nodes.forEach((n) => n.remove());
         const c = document.createElement("div");
@@ -863,13 +857,193 @@
     $$("table", body).forEach((t) => { const w = document.createElement("div"); w.className = "table-wrap"; t.replaceWith(w); w.appendChild(t); });
   }
 
-  function viewAnimations() {
+  /* ---------- Playground: code labs (Python, R, SPSS, Stata) ---------- */
+  const labCache = {}, labPending = {};
+  window.__labLoaded = (d) => { labCache[d.id] = d; (labPending[d.id] || []).forEach((f) => f(d)); delete labPending[d.id]; };
+  function loadLab(id) {
+    if (labCache[id]) return Promise.resolve(labCache[id]);
+    return new Promise((resolve, reject) => {
+      (labPending[id] = labPending[id] || []).push(resolve);
+      if (labPending[id].length > 1) return;
+      const sc = document.createElement("script");
+      sc.src = "site/labs/" + id.replace(".", "-") + ".js";
+      sc.onerror = () => reject(new Error("Could not load the lab for lesson " + id));
+      document.head.appendChild(sc);
+    });
+  }
+  const LABS = {};
+  (C.labs || []).forEach((l) => { LABS[l.id] = l; });
+  const LAB_LANGS = [["python", "Python", "🐍"], ["r", "R", "📊"], ["spss", "SPSS", "🟦"], ["stata", "Stata", "🟩"]];
+
+  // A tiny syntax colourer for Python and R (comments, strings, numbers, keywords, function names).
+  function highlight(code, lang) {
+    const kw = lang === "python"
+      ? new Set(["import", "from", "as", "def", "return", "for", "in", "if", "else", "elif", "while", "and", "or", "not", "True", "False", "None", "with", "lambda"])
+      : new Set(["function", "if", "else", "for", "in", "while", "TRUE", "FALSE", "NULL", "NA", "return"]);
+    const re = /(#[^\n]*)|("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*')|(\b\d+(?:\.\d+)?(?:[eE][-+]?\d+)?\b)|([A-Za-z_][A-Za-z0-9_.]*)(?=\s*\()|([A-Za-z_][A-Za-z0-9_.]*)/g;
+    let out = "", last = 0, m;
+    while ((m = re.exec(code))) {
+      out += esc(code.slice(last, m.index));
+      const t = esc(m[0]);
+      if (m[1]) out += `<span class="tk-c">${t}</span>`;
+      else if (m[2]) out += `<span class="tk-s">${t}</span>`;
+      else if (m[3]) out += `<span class="tk-n">${t}</span>`;
+      else if (m[4]) out += kw.has(m[0]) ? `<span class="tk-k">${t}</span>` : `<span class="tk-f">${t}</span>`;
+      else out += kw.has(m[0]) ? `<span class="tk-k">${t}</span>` : t;
+      last = m.index + m[0].length;
+    }
+    return out + esc(code.slice(last));
+  }
+  function codeBox(code, lang) {
+    const box = document.createElement("div");
+    box.className = "codebox";
+    box.innerHTML = `<button type="button" class="copy-btn" aria-label="Copy this code">Copy</button><pre><code>${lang === "python" || lang === "r" ? highlight(code, lang) : esc(code)}</code></pre>`;
+    $(".copy-btn", box).addEventListener("click", async (e) => {
+      const b = e.currentTarget;
+      try { await navigator.clipboard.writeText(code); b.textContent = "Copied ✓"; }
+      catch (err) { const ta = document.createElement("textarea"); ta.value = code; document.body.appendChild(ta); ta.select(); try { document.execCommand("copy"); b.textContent = "Copied ✓"; } catch (e2) { b.textContent = "Press Ctrl+C"; } ta.remove(); }
+      setTimeout(() => { b.textContent = "Copy"; }, 1600);
+    });
+    return box;
+  }
+
+  function viewPlayground() {
+    const labs = C.labs || [];
     setView(`<div class="wrap">
-      <div class="page-head"><div class="eyebrow">Learn by playing</div><h1>Playground</h1>
+      <div class="page-head"><div class="eyebrow">Code labs</div><h1>Playground</h1>
+      <p>Try every idea on real numbers. Each lesson has a short Python notebook that explains every step and shows what you should see, plus the same steps in R, SPSS and Stata.</p></div>
+      <section class="lab-setup">
+        <h2 class="lab-h">How do I run the code?</h2>
+        <div class="lab-setup-grid">
+          <div class="card"><div class="ico">☁️</div><h3>In your browser (easiest)</h3><p>Open <a href="https://colab.research.google.com/" target="_blank" rel="noopener">Google Colab</a>, choose <b>File &gt; Upload notebook</b>, and pick a notebook you downloaded from any lab. Nothing to install.</p></div>
+          <div class="card"><div class="ico">💻</div><h3>On your computer (Jupyter)</h3><p>Install <a href="https://www.python.org/downloads/" target="_blank" rel="noopener">Python</a>, then in a terminal run <code>pip install notebook numpy scipy pandas statsmodels matplotlib</code> and <code>jupyter notebook</code>. Open the file and press <b>Shift + Enter</b> on each cell.</p></div>
+          <div class="card"><div class="ico">📊</div><h3>R</h3><p>Install R and <a href="https://posit.co/download/rstudio-desktop/" target="_blank" rel="noopener">RStudio</a>, or use <a href="https://posit.cloud/" target="_blank" rel="noopener">posit.cloud</a> in the browser. Paste the R code into the Console.</p></div>
+          <div class="card"><div class="ico">🟦</div><h3>SPSS and Stata</h3><p>In SPSS choose <b>File &gt; New &gt; Syntax</b>, paste, then <b>Run &gt; All</b>. In Stata paste into the Command window or a Do-file. Both are paid programs, often free through a university.</p></div>
+        </div>
+      </section>
+      <div class="filterbar"><label class="sr-only" for="lf">Filter the labs</label><input id="lf" type="search" placeholder="Filter, e.g. t-test, regression, Bayes"></div>
+      <div id="labList"></div>
+      <p class="lab-pictures-note">Looking for the interactive pictures you can drag and poke? They sit inside each lesson, and you can browse all ${C.animations.length} of them <a href="#/pictures">here</a>.</p>
+    </div>`, "Playground", "playground");
+    const draw = (q) => {
+      const ql = q.toLowerCase();
+      $("#labList").innerHTML = C.stages.map((st) => {
+        const items = labs.filter((lb) => BY_ID[lb.id] && BY_ID[lb.id].stage === st && (!q || (BY_ID[lb.id].title + " " + lb.goal).toLowerCase().includes(ql)));
+        if (!items.length) return "";
+        return `<h2 class="section-title stage-title" style="--hue:${HUES[st.num]}"><span class="stage-dot">${st.icon}</span> Stage ${st.num}: ${esc(st.title)}</h2>
+          <div class="lab-grid">${items.map((lb) => `<a class="card lab-card" style="--hue:${HUES[st.num]}" href="#/playground/${lb.id}"><span class="lab-id">Lesson ${lb.id}</span><strong>${esc(BY_ID[lb.id].title)}</strong><span class="lab-goal">${esc(lb.goal)}</span><span class="lab-langs">${LAB_LANGS.map((x) => `<span>${x[1]}</span>`).join("")}</span></a>`).join("")}</div>`;
+      }).join("") || `<p class="muted">No lab matches that. Try another word.</p>`;
+    };
+    draw("");
+    $("#lf").addEventListener("input", (e) => draw(e.target.value.trim()));
+  }
+
+  async function viewLab(id) {
+    const l = BY_ID[id];
+    if (!l || !LABS[id]) return viewMissing();
+    setView(`<div class="wrap"><div class="loading">Loading the lab...</div></div>`, "Code lab " + id, "playground");
+    let lab;
+    try { lab = await loadLab(id); } catch (e) { setView(`<div class="wrap"><p class="muted">${esc(e.message)}</p></div>`, "Code lab", "playground"); return; }
+    if (!location.hash.endsWith("/" + id)) return;
+    const labs = C.labs, i = labs.findIndex((x) => x.id === id);
+    const prev = labs[i - 1], next = labs[i + 1];
+    let startLang = "python";
+    try { startLang = localStorage.getItem("sfs-lab-lang") || "python"; } catch (e) { /* ignore */ }
+    const r = lab.r, sp = lab.spss, st = lab.stata;
+    setView(`<div class="wrap lab-page" style="--hue:${HUES[l.stage.num]}">
+      <div class="crumbs"><a href="#/">Home</a> › <a href="#/playground">Playground</a> › Lesson ${l.id}</div>
+      <div class="lab-head">
+        <span class="eyebrow">Code lab · Lesson ${l.id}</span>
+        <h1>${esc(l.title)}</h1>
+        <p class="lab-goal-lg">${esc(lab.goal)}</p>
+        <div class="lab-actions">
+          <a class="btn btn-soft" href="#/lesson/${l.id}">📘 Read the lesson</a>
+          <a class="btn btn-primary" href="site/notebooks/${l.id}.ipynb" download>⬇ Notebook (.ipynb)</a>
+          <button class="btn btn-soft" type="button" id="dlPy">⬇ Python file</button>
+        </div>
+      </div>
+      <div class="lab-tabs" role="tablist" aria-label="Choose a program">${LAB_LANGS.map((x) => `<button type="button" role="tab" class="lab-tab" data-lang="${x[0]}" aria-selected="false"><span aria-hidden="true">${x[2]}</span> ${x[1]}</button>`).join("")}</div>
+
+      <section class="lab-panel" data-lang="python" role="tabpanel">
+        <details class="lab-how"><summary>How do I run this?</summary>
+          <ol>
+            <li><b>No install:</b> open <a href="https://colab.research.google.com/" target="_blank" rel="noopener">Google Colab</a>, choose <b>File &gt; Upload notebook</b>, pick the notebook you just downloaded, and press <b>Shift + Enter</b> on each cell.</li>
+            <li><b>On your computer:</b> install Python, run <code>pip install notebook numpy scipy pandas statsmodels matplotlib</code>, then <code>jupyter notebook</code> and open the file.</li>
+            <li><b>Just the code:</b> download the Python file and run <code>python lesson-${l.id}.py</code>, or copy the blocks below into any Python window.</li>
+          </ol></details>
+        <ol class="lab-blocks" id="labBlocks"></ol>
+        <div class="card lab-try"><h3>🎯 Try this</h3><ul>${lab.try.map((t) => `<li>${esc(t)}</li>`).join("")}</ul></div>
+      </section>
+
+      <section class="lab-panel" data-lang="r" role="tabpanel" hidden>
+        <p class="lab-intro">Open <b>RStudio</b> (or <a href="https://posit.cloud/" target="_blank" rel="noopener">posit.cloud</a> in your browser), paste this into the Console and press Enter.</p>
+        <div id="rCode"></div>
+        <div class="lab-expect"><b>You should see:</b> ${esc(r.expect)}</div>
+        <p class="lab-note">${esc(r.note)}</p>
+      </section>
+
+      <section class="lab-panel" data-lang="spss" role="tabpanel" hidden>
+        <p class="lab-intro">With the menus: <span class="lab-menu">${esc(sp.menu)}</span></p>
+        <p class="lab-intro">Or with syntax: choose <b>File &gt; New &gt; Syntax</b>, paste this, then <b>Run &gt; All</b>.</p>
+        <div id="spssCode"></div>
+        <p class="lab-note">${esc(sp.note)}</p>
+      </section>
+
+      <section class="lab-panel" data-lang="stata" role="tabpanel" hidden>
+        <p class="lab-intro">Paste this into the Command window, or into <b>File &gt; New &gt; Do-file Editor</b> and press Execute.</p>
+        <div id="stataCode"></div>
+        <p class="lab-note">${esc(st.note)}</p>
+      </section>
+
+      <p class="lab-fine">The Python output on this page was produced by running the code. The R, SPSS and Stata versions follow the same steps and should print the same numbers; small differences in the last digit or in default settings are noted beside each one.</p>
+      <div class="pn" style="margin:26px 0 40px">
+        ${prev ? `<a class="card" href="#/playground/${prev.id}"><small>← Previous lab</small>${prev.id} ${esc(BY_ID[prev.id].title)}</a>` : "<span></span>"}
+        ${next ? `<a class="card next" href="#/playground/${next.id}"><small>Next lab →</small>${next.id} ${esc(BY_ID[next.id].title)}</a>` : "<span></span>"}
+      </div>
+    </div>`, "Code lab: " + l.title, "playground");
+    const ol = $("#labBlocks");
+    lab.python.blocks.forEach((b, k) => {
+      const li = document.createElement("li");
+      li.className = "lab-block";
+      li.innerHTML = `<div class="lab-expl"><span class="lab-num">${k + 1}</span><h3>${esc(b.title)}</h3><p>${esc(b.text)}</p></div><div class="lab-code"></div>`;
+      const right = $(".lab-code", li);
+      right.appendChild(codeBox(b.code, "python"));
+      if (b.out || (b.figs && b.figs.length)) {
+        const o = document.createElement("div");
+        o.className = "lab-out";
+        o.innerHTML = `<div class="lab-out-lbl">What you will see</div>${b.out ? `<pre>${esc(b.out)}</pre>` : ""}${(b.figs || []).map((f) => `<img src="site/labs/img/${esc(f)}" alt="Figure produced by this code" loading="lazy">`).join("")}`;
+        right.appendChild(o);
+      }
+      ol.appendChild(li);
+    });
+    $("#rCode").appendChild(codeBox(r.code, "r"));
+    $("#spssCode").appendChild(codeBox(sp.syntax, "spss"));
+    $("#stataCode").appendChild(codeBox(st.code, "stata"));
+    const show = (lang) => {
+      $$(".lab-tab").forEach((t) => t.setAttribute("aria-selected", String(t.dataset.lang === lang)));
+      $$(".lab-panel").forEach((p) => { p.hidden = p.dataset.lang !== lang; });
+      try { localStorage.setItem("sfs-lab-lang", lang); } catch (e) { /* ignore */ }
+    };
+    $$(".lab-tab").forEach((t) => t.addEventListener("click", () => show(t.dataset.lang)));
+    show(LAB_LANGS.some((x) => x[0] === startLang) ? startLang : "python");
+    $("#dlPy").addEventListener("click", () => {
+      const head = `# Lesson ${l.id}: ${l.title}\n# ${lab.goal}\n# Needs: pip install numpy scipy pandas statsmodels matplotlib\n`;
+      const text = head + "\n" + lab.python.blocks.map((b) => `# --- ${b.title} ---\n${b.code}`).join("\n\n") + "\n";
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type: "text/x-python" }));
+      a.download = `lesson-${l.id}.py`;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    });
+  }
+
+  function viewPictures() {
+    setView(`<div class="wrap">
+      <div class="page-head"><div class="eyebrow">Learn by playing</div><h1>Interactive pictures</h1>
       <p>${C.animations.length} interactive pictures you can drag and poke. Each has a "👋 Show me how" guided tour, and each belongs to a lesson that explains it.</p></div>
       <div class="filterbar"><label class="sr-only" for="af">Filter animations</label><input id="af" type="search" placeholder="Filter, e.g. normal, regression, p-value"></div>
       <div class="gallery" id="gal"></div>
-    </div>`, "Animations", "animations");
+    </div>`, "Interactive pictures", "playground");
     const draw = (q) => {
       const ql = q.toLowerCase();
       $("#gal").innerHTML = C.animations.filter((a) => !q || (a.title + " " + a.hint + " " + BY_ID[a.lesson].title).toLowerCase().includes(ql)).map((a) => {
@@ -887,15 +1061,15 @@
     const l = BY_ID[a.lesson];
     setView(`<div class="play-page">
       <div class="play-bar">
-        <div class="crumbs"><a href="#/">Home</a> › <a href="#/animations">Playground</a> › ${esc(a.title)}</div>
+        <div class="crumbs"><a href="#/">Home</a> › <a href="#/pictures">Interactive pictures</a> › ${esc(a.title)}</div>
         <div class="play-links">
-          <a class="btn-mini play-back" href="#/animations">← Playground</a>
+          <a class="btn-mini play-back" href="#/pictures">← Pictures</a>
           <a class="btn-mini" href="#/lesson/${l.id}">📘 Lesson ${l.id}</a>
           <a class="btn-mini" href="${a.path}" target="_blank" rel="noopener">Open on its own ↗</a>
         </div>
       </div>
       <div class="card player" id="player"></div>
-    </div>`, a.title, slug === "6.9-test-chooser" ? "play" : "animations");
+    </div>`, a.title, slug === "6.9-test-chooser" ? "play" : "playground");
     const frame = document.createElement("iframe");
     frame.title = a.title;
     frame.src = a.path;
@@ -1048,7 +1222,9 @@ The lessons are built from the StatisticsFundamentals.com teaching materials. Ev
       case "stage": return viewStage(Number(parts[1]));
       case "lesson": return viewLesson(parts[1], parts[2]);
       case "cheat": return viewCheat(parts[1]);
-      case "animations": return viewAnimations();
+      case "playground": return parts[1] ? viewLab(parts[1]) : viewPlayground();
+      case "pictures":
+      case "animations": return viewPictures();
       case "play": return viewPlay(parts.slice(1).join("/"));
       case "glossary": return viewGlossary();
       case "walks": return viewWalks();

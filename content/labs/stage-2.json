@@ -1,0 +1,262 @@
+{
+ "2.1": {
+  "goal": "Compare the exact probability found by counting outcomes with the relative frequency from a seeded simulation, using the lesson's coins and two dice.",
+  "python": {
+   "blocks": [
+    {
+     "title": "List the sample space of two coins",
+     "text": "itertools.product writes out every sequence of two flips, just like the lesson's table. Counting the sequences with exactly one head gives the exact probability, with no guessing.",
+     "code": "from itertools import product\n\nflips = list(product('HT', repeat=2))\none_head = [f for f in flips if f.count('H') == 1]\n\nprint('sample space:', flips)\nprint('exactly one head:', one_head)\nprint(f'P(exactly one head) = {len(one_head)}/{len(flips)} = {len(one_head) / len(flips):.4f}')"
+    },
+    {
+     "title": "Count the ways to roll a 7",
+     "text": "Two dice give 6 x 6 = 36 equally likely pairs. We count the pairs that add to 7 and divide by 36. This exact value is the target the simulation should approach.",
+     "code": "pairs = list(product(range(1, 7), repeat=2))\nsevens = [p for p in pairs if sum(p) == 7]\nexact = len(sevens) / len(pairs)\n\nprint('pairs:', len(pairs))\nprint('pairs that sum to 7:', len(sevens))\nprint(f'exact P(sum = 7) = {exact:.4f}')"
+    },
+    {
+     "title": "Simulate rolling two dice",
+     "text": "A seeded generator rolls two dice again and again, so the result is the same every time you run it. The relative frequency is (times a 7 came up) divided by (rolls). Watch it settle near the exact value.",
+     "code": "import numpy as np\n\nrng = np.random.default_rng(42)\n\nfor n in [10, 100, 10_000, 1_000_000]:\n    total = rng.integers(1, 7, size=n) + rng.integers(1, 7, size=n)\n    freq = (total == 7).mean()\n    print(f'{n:>9,} rolls: relative frequency = {freq:.4f}')\n\nprint(f'exact value              = {exact:.4f}')"
+    }
+   ]
+  },
+  "r": {
+   "code": "pairs <- outer(1:6, 1:6, \"+\")      # all 36 sums\nmean(pairs == 7)                  # exact P(sum = 7)\n\nflips <- expand.grid(c(\"H\", \"T\"), c(\"H\", \"T\"))\nheads <- (flips$Var1 == \"H\") + (flips$Var2 == \"H\")\nmean(heads == 1)                  # exact P(exactly one head)\n\nset.seed(42)\nn <- 10000\nmean(sample(6, n, TRUE) + sample(6, n, TRUE) == 7)",
+   "expect": "EXACT7; 0.5; the simulated value is close to 0.1667 (for example 0.16 to 0.17)",
+   "note": "The exact numbers match Python. R's random generator differs from NumPy's, so the simulated frequency is close to 0.1667 but not identical."
+  },
+  "spss": {
+   "menu": "Transform > Compute Variable (after the data exist); Analyze > Descriptive Statistics > Descriptives",
+   "syntax": "INPUT PROGRAM.\nLOOP #a = 1 TO 6.\nLOOP #b = 1 TO 6.\nCOMPUTE die1 = #a.\nCOMPUTE die2 = #b.\nEND CASE.\nEND LOOP.\nEND LOOP.\nEND FILE.\nEND INPUT PROGRAM.\nCOMPUTE seven = (die1 + die2 = 7).\nDESCRIPTIVES VARIABLES=seven.",
+   "note": "The loops write all 36 pairs as 36 rows. A true/false test gives 1 or 0, so the mean of seven is the probability, 0.17 (0.1667). SPSS has no one-click simulation menu, so this shows the exact count only."
+  },
+  "stata": {
+   "code": "clear\nset obs 36\ngen die1 = ceil(_n/6)\ngen die2 = mod(_n - 1, 6) + 1\ngen seven = (die1 + die2 == 7)\nsummarize seven\n\nclear\nset seed 42\nset obs 10000\ngen total = ceil(6*runiform()) + ceil(6*runiform())\ngen seven = (total == 7)\nsummarize seven",
+   "note": "The first summarize gives the exact mean .1666667. The second is a simulation: close to 0.1667 but not identical to Python's, because the generators differ."
+  },
+  "try": [
+   "Change the event from sum = 7 to sum = 2. Predict the exact probability first (how many pairs?), then run it.",
+   "Change the seed 42 to 7 in the simulation. Do the small-sample frequencies change? What about the one-million-roll line?"
+  ]
+ },
+ "2.2": {
+  "goal": "Count podiums, committees and lottery tickets with factorials, permutations and combinations, and confirm the counts by listing the possibilities.",
+  "python": {
+   "blocks": [
+    {
+     "title": "Factorials",
+     "text": "n! is the number of ways to line up n different things. Python's math module has factorial built in. By convention 0! equals 1.",
+     "code": "import math\n\nfor n in [0, 1, 4, 5, 8]:\n    print(f'{n}! = {math.factorial(n)}')"
+    },
+    {
+     "title": "Permutations and combinations",
+     "text": "math.perm(n, r) counts ordered selections (a podium of 3 from 8 runners). math.comb(n, r) counts unordered ones (a 3-person committee from 10). Dividing the permutations by r! gives the combinations.",
+     "code": "print('podiums, perm(8, 3)       =', math.perm(8, 3))\nprint('committees, comb(10, 3)   =', math.comb(10, 3))\nprint('perm(10, 3) / 3!          =', math.perm(10, 3) // math.factorial(3))\nprint('poker hands, comb(52, 5)  =', math.comb(52, 5))"
+    },
+    {
+     "title": "List them to confirm",
+     "text": "For small cases we can write out every selection with itertools and count it. Choosing 3 of 5 people gives 60 ordered lists but only 10 groups, a ratio of 3! = 6.",
+     "code": "from itertools import permutations, combinations\n\npeople = ['A', 'B', 'C', 'D', 'E']\nordered = list(permutations(people, 3))\ngroups = list(combinations(people, 3))\n\nprint('ordered lists:', len(ordered), ' formula:', math.perm(5, 3))\nprint('groups:', len(groups), ' formula:', math.comb(5, 3))\nprint('first groups:', [''.join(g) for g in groups[:4]])"
+    },
+    {
+     "title": "From counting to probability",
+     "text": "One lottery ticket wins out of every possible set of 6 numbers from 49. The chance is 1 divided by the number of tickets. The all-hearts hand is (ways to pick 5 hearts) divided by (all hands).",
+     "code": "tickets = math.comb(49, 6)\nprint(f'tickets = {tickets:,}')\nprint(f'P(jackpot) = {1 / tickets:.2e}')\n\nhearts = math.comb(13, 5) / math.comb(52, 5)\nprint(f'P(5 hearts) = {math.comb(13, 5)} / {math.comb(52, 5):,} = {hearts:.4f}')"
+    }
+   ]
+  },
+  "r": {
+   "code": "factorial(4)                 # 4!\nchoose(10, 3)                # committees\nchoose(8, 3) * factorial(3)  # podiums (permutations)\nchoose(52, 5)                # poker hands\nchoose(49, 6)                # lottery tickets\n1 / choose(49, 6)\nncol(combn(5, 3))            # lists the 10 groups\nchoose(13, 5) / choose(52, 5)",
+   "expect": "24; 120; 336; 2598960; 13983816; 7.151e-08; 10; 0.0005",
+   "note": "Base R has choose() and factorial() but no permutation function, so we multiply choose(n, r) by factorial(r). Python's value for 5 hearts is 0.0005 (0.000495)."
+  },
+  "spss": {
+   "menu": "Transform > Compute Variable (use the Arithmetic functions, LNGAMMA is in the list)",
+   "syntax": "DATA LIST FREE / dummy.\nBEGIN DATA\n1\nEND DATA.\nCOMPUTE fact4 = RND(EXP(LNGAMMA(5))).\nCOMPUTE perm83 = RND(EXP(LNGAMMA(9) - LNGAMMA(6))).\nCOMPUTE comb103 = RND(EXP(LNGAMMA(11) - LNGAMMA(4) - LNGAMMA(8))).\nCOMPUTE lottery = RND(EXP(LNGAMMA(50) - LNGAMMA(7) - LNGAMMA(44))).\nFORMATS fact4 TO lottery (F10.0).\nLIST VARIABLES=fact4 perm83 comb103 lottery.",
+   "note": "SPSS has no built-in factorial or combination menu item. The closest honest route is LNGAMMA, because LNGAMMA(n + 1) is the log of n!. We turn it back with EXP and round, which gives 24, 336, 120 and 13983816."
+  },
+  "stata": {
+   "code": "display factorial(4)\ndisplay comb(10, 3)\ndisplay comb(8, 3) * factorial(3)\ndisplay comb(52, 5)\ndisplay %12.0f comb(49, 6)\ndisplay 1/comb(49, 6)\ndisplay comb(13, 5)/comb(52, 5)",
+   "note": "Stata's comb(n, k) and factorial() match Python; there is no permutation function, so podiums are comb(8, 3) times 3!. The %12.0f format stops the big lottery number from showing in scientific notation."
+  },
+  "try": [
+   "How many 4-person committees can be chosen from 10 people? Predict whether it is more or fewer than 120, then run it.",
+   "Change the 3 in permutations(people, 3) to 2. Predict both counts, then check the formulas."
+  ]
+ },
+ "2.3": {
+  "goal": "Check the addition rule (heart or king) and the multiplication rule for independent events (heads and a 6) by exact counting and by simulation.",
+  "python": {
+   "blocks": [
+    {
+     "title": "Build a deck and count",
+     "text": "We number the 52 cards 0 to 51: the first 13 numbers are hearts, and the last card in each group of 13 is a king. Counting gives the pieces of the addition rule, including the king of hearts that is counted twice.",
+     "code": "import numpy as np\n\ncards = np.arange(52)\nheart = cards // 13 == 0\nking = cards % 13 == 12\n\nprint('hearts:', heart.sum(), ' kings:', king.sum(), ' both:', (heart & king).sum())\nprint('heart or king, counted directly:', (heart | king).sum(), 'of 52')"
+    },
+    {
+     "title": "The addition rule",
+     "text": "P(A or B) = P(A) + P(B) - P(A and B). Subtracting the overlap fixes the double count, and the answer matches the direct count.",
+     "code": "p_heart = heart.mean()\np_king = king.mean()\np_both = (heart & king).mean()\n\nprint(f'P(heart) + P(king) = {p_heart + p_king:.4f}  (too big)')\nprint(f'minus overlap {p_both:.4f}   = {p_heart + p_king - p_both:.4f}')\nprint(f'direct count 16/52    = {(heart | king).mean():.4f}')"
+    },
+    {
+     "title": "Check the addition rule by simulation",
+     "text": "Now we really draw cards, one at a time with replacement, using a seeded generator. The share of draws that are a heart or a king should land close to 16/52.",
+     "code": "rng = np.random.default_rng(42)\ndraws = rng.integers(0, 52, size=200_000)\n\nsim_or = ((draws // 13 == 0) | (draws % 13 == 12)).mean()\nprint(f'simulated P(heart or king) = {sim_or:.4f}')\nprint(f'exact 16/52                = {16 / 52:.4f}')"
+    },
+    {
+     "title": "The multiplication rule",
+     "text": "A coin and a die do not affect each other, so the events are independent and P(heads and 6) = 1/2 x 1/6. We flip and roll 200,000 times and count how often both happen.",
+     "code": "coin = rng.integers(0, 2, size=200_000)\ndie = rng.integers(1, 7, size=200_000)\n\nboth = ((coin == 1) & (die == 6)).mean()\nprint(f'simulated P(heads and 6) = {both:.4f}')\nprint(f'1/2 x 1/6                = {0.5 * 1 / 6:.4f}')\nprint(f'P(heads) x P(6) in sample = {(coin == 1).mean() * (die == 6).mean():.4f}')"
+    }
+   ]
+  },
+  "r": {
+   "code": "card <- 0:51\nheart <- card %/% 13 == 0\nking  <- card %% 13 == 12\nmean(heart) + mean(king) - mean(heart & king)\nmean(heart | king)            # direct count\n\n0.5 * 1/6                      # heads and a 6\n\nset.seed(42)\nn <- 200000\nmean(sample(0:1, n, TRUE) == 1 & sample(6, n, TRUE) == 6)",
+   "expect": "0.3077 (16/52) both ways; 0.0833; simulation close to 0.0833",
+   "note": "The exact numbers match Python. R's simulated frequency for heads and a 6 is close to 0.0833 but not identical, because R and NumPy use different generators."
+  },
+  "spss": {
+   "menu": "Transform > Compute Variable; Analyze > Descriptive Statistics > Descriptives",
+   "syntax": "INPUT PROGRAM.\nLOOP #i = 0 TO 51.\nCOMPUTE card = #i.\nEND CASE.\nEND LOOP.\nEND FILE.\nEND INPUT PROGRAM.\nCOMPUTE heart = (TRUNC(card/13) = 0).\nCOMPUTE king = (MOD(card, 13) = 12).\nCOMPUTE both = (heart = 1 AND king = 1).\nCOMPUTE either = (heart = 1 OR king = 1).\nDESCRIPTIVES VARIABLES=heart king both either.",
+   "note": "Each variable is 1 or 0, so its mean is the probability: .25, .08, .02 and .31 (0.3077 for either). Check that .25 + .08 - .02 matches .31. SPSS has no quick simulation menu, so only the exact count is shown."
+  },
+  "stata": {
+   "code": "clear\nset obs 52\ngen card = _n - 1\ngen heart = floor(card/13) == 0\ngen king = mod(card, 13) == 12\ngen either = heart | king\nsummarize heart king either\ndisplay 0.5 * 1/6\n\nclear\nset seed 42\nset obs 200000\ngen win = (runiform() < 0.5) & (ceil(6*runiform()) == 6)\nsummarize win",
+   "note": "The means .25, .0769231 and .3076923 match Python. The last summarize is a simulation: close to 0.0833 but not identical to Python's."
+  },
+  "try": [
+   "Change the king to a queen of any suit and the heart to a spade. Does the overlap stay at 1 card?",
+   "Roll a die twice in the simulation and ask for two sixes. Predict the answer (1/36) before running."
+  ]
+ },
+ "2.4": {
+  "goal": "Read conditional probabilities from the lesson's table of 200 students (studied or not, passed or not) and show that P(pass given studied) is not P(studied given pass).",
+  "python": {
+   "blocks": [
+    {
+     "title": "Build the two-way table",
+     "text": "We list the 200 students as (group, result) pairs, then pandas crosstab counts them into the same table you saw in the lesson. margins=True adds the totals.",
+     "code": "import pandas as pd\n\nrows = ([('Studied', 'Passed')] * 90 + [('Studied', 'Failed')] * 10\n        + [('No study', 'Passed')] * 40 + [('No study', 'Failed')] * 60)\ndf = pd.DataFrame(rows, columns=['group', 'result'])\n\ntable = pd.crosstab(df['group'], df['result'], margins=True)\nprint(table)"
+    },
+    {
+     "title": "P(pass given studied), two ways",
+     "text": "First restrict to the Studied row and take the share who passed. Then use the formula P(A and B) / P(B). Both routes must agree.",
+     "code": "n = len(df)\nstudied = table.loc['Studied', 'All']\nboth = table.loc['Studied', 'Passed']\n\nprint(f'row method : {both} / {studied} = {both / studied:.3f}')\nprint(f'formula     : {both / n:.3f} / {studied / n:.3f} = {(both / n) / (studied / n):.3f}')"
+    },
+    {
+     "title": "The reverse question is different",
+     "text": "P(studied given pass) restricts to the Passed column instead. The numbers differ, so never swap the two. Normalising the table by row or by column shows both at once.",
+     "code": "passed = table.loc['All', 'Passed']\nprint(f'P(pass | studied) = {both / studied:.3f}')\nprint(f'P(studied | pass) = {both} / {passed} = {both / passed:.3f}')\n\nprint('\\nrow percentages (condition on the row):')\nprint(pd.crosstab(df['group'], df['result'], normalize='index').round(3))"
+    }
+   ]
+  },
+  "r": {
+   "code": "tab <- matrix(c(90, 10, 40, 60), nrow = 2, byrow = TRUE,\n              dimnames = list(c(\"Studied\", \"No study\"), c(\"Passed\", \"Failed\")))\naddmargins(tab)\ntab[1, 1] / sum(tab[1, ])         # P(pass | studied)\ntab[1, 1] / sum(tab[, 1])         # P(studied | pass)\nprop.table(tab, 1)                # row proportions",
+   "expect": "P(pass | studied) = 0.9; P(studied | pass) = 0.6923; row proportions 0.9 0.1 / 0.4 0.6",
+   "note": "prop.table(tab, 1) divides each row by its total, which is exactly conditioning on the row. Use prop.table(tab, 2) to condition on the column."
+  },
+  "spss": {
+   "menu": "Data > Weight Cases (weight by freq); Analyze > Descriptive Statistics > Crosstabs, then Cells: tick Row and Column percentages",
+   "syntax": "DATA LIST FREE / group result freq.\nBEGIN DATA\n1 1 90\n1 2 10\n2 1 40\n2 2 60\nEND DATA.\nVALUE LABELS group 1 'Studied' 2 'No study'\n  /result 1 'Passed' 2 'Failed'.\nWEIGHT BY freq.\nCROSSTABS /TABLES=group BY result\n  /CELLS=COUNT ROW COLUMN.",
+   "note": "In the table, % within group on the Studied row is 90.0% (pass given studied). % within result on the Passed column is 69.2% for Studied (studied given pass)."
+  },
+  "stata": {
+   "code": "clear\ninput group result freq\n1 1 90\n1 2 10\n2 1 40\n2 2 60\nend\nlabel define g 1 \"Studied\" 2 \"No study\"\nlabel values group g\nlabel define r 1 \"Passed\" 2 \"Failed\"\nlabel values result r\ntabulate group result [fweight = freq], row column",
+   "note": "Each cell shows the count, then the row percentage (90.00 for pass given studied), then the column percentage (69.23 for studied given pass)."
+  },
+  "try": [
+   "Find P(fail | no study) from the table, and predict how it relates to P(pass | no study) before you check.",
+   "Change 90 passers to 70 and 40 non-study passers to 60. Does P(pass | studied) still beat P(pass)?"
+  ]
+ },
+ "2.5": {
+  "goal": "Find the chance of really being sick after a positive test (1% prevalence, 99% sensitivity, 95% specificity), by Bayes' formula and by counting 10,000 people.",
+  "python": {
+   "blocks": [
+    {
+     "title": "The test's numbers",
+     "text": "These are the lesson's numbers. Sensitivity is P(positive given sick); the false alarm rate is 1 minus the specificity. Write them down once and reuse them.",
+     "code": "prevalence = 0.01      # P(sick)\nsensitivity = 0.99     # P(positive | sick)\nspecificity = 0.95     # P(negative | healthy)\nfalse_alarm = 1 - specificity\n\nprint('P(sick)                =', prevalence)\nprint('P(positive | sick)     =', sensitivity)\nprint('P(positive | healthy)  =', round(false_alarm, 2))"
+    },
+    {
+     "title": "Bayes' formula",
+     "text": "P(sick | positive) = P(positive | sick) x P(sick) / P(positive), where P(positive) adds up both ways of testing positive: sick people and healthy people with a false alarm.",
+     "code": "p_pos = sensitivity * prevalence + false_alarm * (1 - prevalence)\nppv = sensitivity * prevalence / p_pos\n\nprint(f'P(positive)         = {p_pos:.4f}')\nprint(f'P(sick | positive)  = {ppv:.4f}')"
+    },
+    {
+     "title": "Check with 10,000 people",
+     "text": "Count people instead of multiplying probabilities. Of 10,000 people, 100 are sick, and 5% of the 9,900 healthy people get a false positive. Only the positives matter for the question.",
+     "code": "people = 10_000\nsick = round(people * prevalence)\nhealthy = people - sick\n\ntrue_pos = round(sick * sensitivity)\nfalse_pos = round(healthy * false_alarm)\n\nprint('sick:', sick, ' healthy:', healthy)\nprint('true positives:', true_pos, ' false positives:', false_pos)\nprint(f'{true_pos} / {true_pos + false_pos} = {true_pos / (true_pos + false_pos):.4f}')"
+    },
+    {
+     "title": "Why the prior matters",
+     "text": "Keep the same test and change only how common the disease is. The same positive result means very different things for a rare and a common disease.",
+     "code": "for prior in [0.001, 0.01, 0.10, 0.30, 0.50]:\n    pos = sensitivity * prior + false_alarm * (1 - prior)\n    print(f'prevalence {prior:>5.1%}: P(sick | positive) = {sensitivity * prior / pos:.1%}')"
+    }
+   ]
+  },
+  "r": {
+   "code": "prev <- 0.01; sens <- 0.99; spec <- 0.95\np_pos <- sens * prev + (1 - spec) * (1 - prev)\nsens * prev / p_pos                 # Bayes' formula\n\nsick <- 10000 * prev                 # 100\ntrue_pos  <- sick * sens             # 99\nfalse_pos <- (10000 - sick) * (1 - spec)   # 495\ntrue_pos / (true_pos + false_pos)",
+   "expect": "P(positive) = 0.0594; P(sick | positive) = 0.1667 both ways (99 of 594)",
+   "note": "Both routes give 0.1667, about 16.7%, the same as Python."
+  },
+  "spss": {
+   "menu": "Transform > Compute Variable",
+   "syntax": "DATA LIST FREE / dummy.\nBEGIN DATA\n1\nEND DATA.\nCOMPUTE p_pos = 0.99*0.01 + 0.05*0.99.\nCOMPUTE ppv = 0.99*0.01 / p_pos.\nCOMPUTE true_pos = 10000*0.01*0.99.\nCOMPUTE false_pos = 10000*0.99*0.05.\nCOMPUTE ppv_counts = true_pos / (true_pos + false_pos).\nFORMATS p_pos ppv ppv_counts (F8.4).\nLIST VARIABLES=p_pos ppv true_pos false_pos ppv_counts.",
+   "note": "SPSS has no Bayes menu, so we use Compute Variable on one row. Expect 0.0594, 0.1667, 99, 495 and 0.1667."
+  },
+  "stata": {
+   "code": "display \"P(positive) = \" 0.99*0.01 + 0.05*0.99\ndisplay \"Bayes: \" 0.99*0.01 / (0.99*0.01 + 0.05*0.99)\ndisplay \"true positives: \" 10000*0.01*0.99\ndisplay \"false positives: \" 10000*0.99*0.05\ndisplay \"counts: \" 99 / (99 + 495)",
+   "note": "display works as a calculator. Stata prints .0594 and .1666667 without a leading zero; these are the same as Python's 0.0594 and 0.1667."
+  },
+  "try": [
+   "Raise the specificity to 0.99 and predict what happens to P(sick | positive) before running.",
+   "Set the prevalence to 0.10. Compare with the table in the lesson (about 68.8%)."
+  ]
+ },
+ "2.6": {
+  "goal": "Compute expected values for a die and for roulette, then watch the running average of simulated die rolls settle on 3.5 (the Law of Large Numbers).",
+  "python": {
+   "blocks": [
+    {
+     "title": "Expected value of a die",
+     "text": "E(X) is each outcome times its probability, added up. A die never shows 3.5, but 3.5 is where the average of many rolls ends up.",
+     "code": "import numpy as np\n\nx = np.arange(1, 7)\np = np.full(6, 1 / 6)\n\nprint('x * P(x):', (x * p).round(4))\nprint('E(X) =', round((x * p).sum(), 4))"
+    },
+    {
+     "title": "Is a bet worth taking?",
+     "text": "A $1 roulette bet on one number wins $35 with probability 1/38 and loses $1 otherwise. A negative expected value means a long-run loss for the player: the house edge.",
+     "code": "win, lose = 35, -1\np_win = 1 / 38\n\nev = win * p_win + lose * (1 - p_win)\nprint(f'expected gain per $1 bet = {ev:.4f}')\nprint(f'that is a loss of about {abs(ev) * 100:.1f} cents per dollar')"
+    },
+    {
+     "title": "Simulate and track the running average",
+     "text": "We roll a die 5,000 times with a seeded generator. The running average after n rolls is the cumulative total divided by n. Early values jump around, later ones stay near 3.5.",
+     "code": "rng = np.random.default_rng(42)\nrolls = rng.integers(1, 7, size=5000)\nrunning = np.cumsum(rolls) / np.arange(1, 5001)\n\nfor n in [5, 50, 500, 5000]:\n    print(f'after {n:>4} rolls: average = {running[n - 1]:.3f}')"
+    },
+    {
+     "title": "Draw the running average",
+     "text": "The line wobbles wildly at first and then flattens onto the expected value. Individual rolls stay random; the average becomes predictable.",
+     "code": "import matplotlib.pyplot as plt\n\nplt.figure(figsize=(6, 3.4))\nplt.plot(np.arange(1, 5001), running, color='#2563eb', lw=1.2)\nplt.axhline(3.5, color='#dc2626', ls='--', label='E(X) = 3.5')\nplt.xscale('log')\nplt.xlabel('number of rolls (log scale)')\nplt.ylabel('running average')\nplt.legend()\nplt.show()"
+    }
+   ]
+  },
+  "r": {
+   "code": "x <- 1:6\nsum(x * 1/6)                  # E(X) of a die\n35 * (1/38) + (-1) * (37/38)  # roulette\n\nset.seed(42)\nrolls <- sample(6, 5000, replace = TRUE)\ncumsum(rolls)[c(5, 50, 500, 5000)] / c(5, 50, 500, 5000)",
+   "expect": "3.5; -0.0526; running averages close to 3.5 by 5000 rolls (not identical to Python's)",
+   "note": "The two expected values are exact and match Python. R draws different random rolls, so its running averages are close to 3.5 but not the same as Python's."
+  },
+  "spss": {
+   "menu": "Transform > Compute Variable (expected values); Analyze > Descriptive Statistics > Descriptives (the simulated mean)",
+   "syntax": "SET SEED=42.\nINPUT PROGRAM.\nLOOP #i = 1 TO 5000.\nCOMPUTE roll = TRUNC(RV.UNIFORM(1, 7)).\nEND CASE.\nEND LOOP.\nEND FILE.\nEND INPUT PROGRAM.\nDESCRIPTIVES VARIABLES=roll.\nCOMPUTE ev_die = (1+2+3+4+5+6)/6.\nCOMPUTE roulette = 35/38 - 37/38.\nFORMATS ev_die roulette (F8.4).\nLIST VARIABLES=ev_die roulette /CASES=FROM 1 TO 1.",
+   "note": "Exact: 3.5 and -0.0526. The simulated mean of roll is close to 3.5 but not identical to Python's, and SPSS has no menu for a running-average plot."
+  },
+  "stata": {
+   "code": "display (1+2+3+4+5+6)/6\ndisplay 35/38 - 37/38\n\nclear\nset seed 42\nset obs 5000\ngen roll = ceil(6*runiform())\ngen running = sum(roll) / _n\nlist running in 5\nlist running in 5000\nsummarize roll",
+   "note": "The two display lines are exact (3.5 and -.0526316). In Stata sum() is a running total, so dividing by _n gives the running average. The simulated values are close to 3.5 but differ from Python's."
+  },
+  "try": [
+   "Change the random seed from 42 to 1. Does the early part of the curve change? Does the end?",
+   "Replace the die with a roulette bet (+35 with probability 1/38, otherwise -1) and predict where the running average heads."
+  ]
+ }
+}

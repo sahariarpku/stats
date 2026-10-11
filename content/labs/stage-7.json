@@ -1,0 +1,142 @@
+{
+ "7.1": {
+  "goal": "Test whether ad type (video or banner) is related to buying, using the lesson's 200-person table, and measure the size of the link with Cramér's V.",
+  "python": {
+   "blocks": [
+    {
+     "title": "Enter the table of counts",
+     "text": "Rows are the two ads and columns are bought or not. A chi-square test works on counts like these, never on percentages. Totals first, so you can see where the expected counts will come from.",
+     "code": "import numpy as np\nfrom scipy import stats\n\n# rows: video ad, banner ad    columns: bought, did not buy\nobserved = np.array([[60, 40],\n                     [45, 55]])\n\nprint('row totals   :', observed.sum(axis=1))\nprint('column totals:', observed.sum(axis=0))\nprint('grand total  :', observed.sum())"
+    },
+    {
+     "title": "Run the chi-square test",
+     "text": "chi2_contingency works out the expected counts (what we would see if ad type and buying were unrelated), then the chi-square statistic, degrees of freedom and p-value. correction=False gives the plain formula used in the lesson.",
+     "code": "res = stats.chi2_contingency(observed, correction=False)\n\nprint('expected counts:')\nprint(res.expected_freq)\nprint(f'chi-square = {res.statistic:.3f}')\nprint(f'df         = {res.dof}')\nprint(f'p-value    = {res.pvalue:.4f}')"
+    },
+    {
+     "title": "Check it by hand",
+     "text": "Expected = row total x column total / grand total. Each cell then adds (observed - expected)^2 / expected, and the four pieces sum to the same chi-square.",
+     "code": "rows = observed.sum(axis=1)\ncols = observed.sum(axis=0)\nn = observed.sum()\n\nexpected = np.outer(rows, cols) / n\npieces = (observed - expected) ** 2 / expected\n\nprint(pieces.round(3))\nprint(f'sum of pieces = {pieces.sum():.3f}')"
+    },
+    {
+     "title": "Measure the effect with Cramér's V",
+     "text": "A small p-value says the link is probably real, not how big it is. Cramér's V = sqrt(chi-square / (N x (k - 1))), where k is the smaller of the number of rows and columns. It runs from 0 (no link) to 1 (perfect link).",
+     "code": "chi2 = res.statistic\nk = min(observed.shape)\nv = np.sqrt(chi2 / (n * (k - 1)))\n\nprint(f'Cramer V = {v:.3f}')\nprint('bought: video', observed[0, 0] / rows[0], ' banner', observed[1, 0] / rows[1])"
+    },
+    {
+     "title": "Bonus: goodness of fit",
+     "text": "A goodness-of-fit test checks one set of counts against a claimed pattern. Here a die was rolled 120 times; chisquare assumes every face is equally likely unless you give it other expected counts.",
+     "code": "rolls = np.array([25, 17, 15, 23, 24, 16])\n\nfit = stats.chisquare(rolls)\n\nprint(f'expected per face = {rolls.sum() / 6:.0f}')\nprint(f'chi-square = {fit.statistic:.3f}, df = {len(rolls) - 1}')\nprint(f'p-value    = {fit.pvalue:.4f}')"
+    }
+   ]
+  },
+  "r": {
+   "code": "ads <- matrix(c(60, 45, 40, 55), nrow = 2,\n              dimnames = list(ad = c(\"video\", \"banner\"), bought = c(\"yes\", \"no\")))\ntest <- chisq.test(ads, correct = FALSE)\ntest\ntest$expected\nsqrt(test$statistic / (sum(ads) * (min(dim(ads)) - 1)))\nchisq.test(c(25, 17, 15, 23, 24, 16))",
+   "expect": "X-squared = 4.5113, df = 1, p-value = 0.03365; expected counts 52.5, 47.5, 52.5, 47.5; Cramer's V = 0.150; die: X-squared = 5, df = 5, p-value = 0.4159",
+   "note": "correct = FALSE turns off the Yates continuity correction that R applies to 2 by 2 tables by default, so the numbers match the lesson and the Python. R has no built-in Cramer's V, so the last line computes it by hand."
+  },
+  "spss": {
+   "menu": "Analyze > Descriptive Statistics > Crosstabs (Statistics: Chi-square, Phi and Cramer's V; Cells: Expected)",
+   "syntax": "DATA LIST FREE / ad buy count.\nBEGIN DATA\n1 1 60  1 2 40  2 1 45  2 2 55\nEND DATA.\nVALUE LABELS ad 1 'video' 2 'banner' / buy 1 'bought' 2 'did not buy'.\nWEIGHT BY count.\nCROSSTABS\n  /TABLES=ad BY buy\n  /STATISTICS=CHISQ PHI\n  /CELLS=COUNT EXPECTED.",
+   "note": "Read the Pearson Chi-Square row (SPSS also prints a continuity-corrected row for 2 by 2 tables, ignore it here). Cramer's V is in the Symmetric Measures table. WEIGHT BY count tells SPSS each row stands for that many people."
+  },
+  "stata": {
+   "code": "clear\ninput ad buy freq\n1 1 60\n1 2 40\n2 1 45\n2 2 55\nend\ntabulate ad buy [fweight = freq], chi2 V expected",
+   "note": "tabulate with chi2 gives the Pearson chi-square, df and p-value; V adds Cramer's V; expected prints the expected counts. The goodness-of-fit bonus has no one-line built-in in Stata, so it is shown only in Python and R."
+  },
+  "try": [
+   "Change the banner row to 50 and 50 (so both ads convert 50 to 60 percent) and predict what happens to chi-square and Cramer's V.",
+   "Multiply every count by 2 (400 people, same percentages). Which changes, the p-value or Cramer's V, and why?"
+  ]
+ },
+ "7.2": {
+  "goal": "Compare the exam scores of three teaching methods with a one-way ANOVA, then use Tukey's HSD to find which pairs of methods differ.",
+  "python": {
+   "blocks": [
+    {
+     "title": "Enter the three groups",
+     "text": "Five students per teaching method, the same 15 scores as the lesson. We look at each group mean first, because ANOVA asks whether those means are further apart than the spread inside each group would explain.",
+     "code": "import numpy as np\nfrom scipy import stats\nfrom statsmodels.stats.multicomp import pairwise_tukeyhsd\n\nlecture = [78, 82, 85, 79, 76]\nflipped = [88, 91, 87, 93, 85]\nproblem = [72, 68, 74, 70, 71]\n\nfor name, g in [('lecture', lecture), ('flipped', flipped), ('problem', problem)]:\n    print(f'{name:8s} mean = {np.mean(g):.1f}   sd = {np.std(g, ddof=1):.2f}')"
+    },
+    {
+     "title": "Run the one-way ANOVA",
+     "text": "f_oneway compares the spread between group means with the spread inside the groups. F near 1 means no difference; a large F with a small p-value says at least one mean differs.",
+     "code": "res = stats.f_oneway(lecture, flipped, problem)\n\nprint(f'F       = {res.statistic:.2f}')\nprint('df      = (2, 12)')\nprint(f'p-value = {res.pvalue:.7f}')"
+    },
+    {
+     "title": "Measure the effect size",
+     "text": "Eta squared is the share of all the score variation that is explained by teaching method. It is the between-group sum of squares divided by the total.",
+     "code": "scores = np.array(lecture + flipped + problem)\ngrand = scores.mean()\n\nssb = sum(len(g) * (np.mean(g) - grand) ** 2 for g in (lecture, flipped, problem))\nsst = ((scores - grand) ** 2).sum()\n\nprint(f'between SS = {ssb:.1f}, total SS = {sst:.1f}')\nprint(f'eta squared = {ssb / sst:.3f}')"
+    },
+    {
+     "title": "Find which pairs differ with Tukey",
+     "text": "A significant ANOVA only says some mean is different. Tukey's HSD compares every pair while keeping the overall false-alarm rate at 5%. In the table, reject = True means that pair differs.",
+     "code": "labels = ['lecture'] * 5 + ['flipped'] * 5 + ['problem'] * 5\n\ntukey = pairwise_tukeyhsd(scores, labels, alpha=0.05)\n\nprint(tukey.summary())"
+    }
+   ]
+  },
+  "r": {
+   "code": "score <- c(78, 82, 85, 79, 76, 88, 91, 87, 93, 85, 72, 68, 74, 70, 71)\nmethod <- factor(rep(c(\"lecture\", \"flipped\", \"problem\"), each = 5))\nfit <- aov(score ~ method)\nsummary(fit)\nTukeyHSD(fit)",
+   "expect": "method: Df 2, Sum Sq 792.1, Mean Sq 396.1, F value 42.9, Pr(>F) 3.41e-06; residuals Df 12, Sum Sq 110.8, Mean Sq 9.2; Tukey differences: lecture-flipped -8.8, problem-flipped -17.8, problem-lecture -9.0 (adjusted p 0.0017, 0.0000, 0.0014)",
+   "note": "R and the Python table both order the groups alphabetically (flipped, lecture, problem), so the differences match. summary(fit) prints the p-value as 3.41e-06, which means 0.00000341."
+  },
+  "spss": {
+   "menu": "Analyze > Compare Means > One-Way ANOVA (Post Hoc: Tukey)",
+   "syntax": "DATA LIST FREE / method score.\nBEGIN DATA\n1 78  1 82  1 85  1 79  1 76\n2 88  2 91  2 87  2 93  2 85\n3 72  3 68  3 74  3 70  3 71\nEND DATA.\nONEWAY score BY method\n  /POSTHOC=TUKEY ALPHA(0.05).",
+   "note": "Method codes: 1 lecture, 2 flipped, 3 problem-based. The ANOVA table gives F and Sig.; the Multiple Comparisons table gives each Tukey pair."
+  },
+  "stata": {
+   "code": "clear\nset obs 15\ngenerate score = real(word(\"78 82 85 79 76 88 91 87 93 85 72 68 74 70 71\", _n))\ngenerate method = ceil(_n / 5)\noneway score method\nquietly anova score method\npwcompare method, mcompare(tukey) effects",
+   "note": "oneway prints the ANOVA table with F and Prob > F. pwcompare after anova gives every pairwise difference with Tukey-adjusted p-values. Methods: 1 lecture, 2 flipped, 3 problem-based."
+  },
+  "try": [
+   "Make the three problem-based scores 80, 76, 82, 78, 79 (closer to the others) and predict what happens to F and to the Tukey table.",
+   "Change one flipped score to 60. How do the group mean, F and the p-value respond?"
+  ]
+ },
+ "7.3": {
+  "goal": "Show how rank-based tests (Mann-Whitney, Wilcoxon, Kruskal-Wallis) cope with an outlier that a t-test cannot, using the lesson's app-timing, pain and teaching data.",
+  "python": {
+   "blocks": [
+    {
+     "title": "Two groups: the t-test versus ranks",
+     "text": "Task times in seconds for a new and an old app design. The old group has one 95-second outlier. Welch's t-test uses the size of every value, so the outlier hides the pattern. Mann-Whitney only uses the order of the values.",
+     "code": "import numpy as np\nfrom scipy import stats\n\nnew = [12, 15, 11, 14, 19, 13]\nold = [18, 22, 25, 17, 30, 95]\n\nt = stats.ttest_ind(new, old, equal_var=False)\nmw = stats.mannwhitneyu(new, old, alternative='two-sided', method='exact')\n\nprint(f'Welch t-test : t = {t.statistic:.2f}, p = {t.pvalue:.3f}')\nprint(f'Mann-Whitney : U = {mw.statistic:.0f}, p = {mw.pvalue:.4f}')"
+    },
+    {
+     "title": "How strong is the Mann-Whitney effect?",
+     "text": "U counts in how many of the 36 new-versus-old pairs the new design had the larger (slower) time. Here that is only 2, so almost every pair says the new design was faster. The rank-biserial correlation turns this into a size from 0 to 1.",
+     "code": "n1, n2 = len(new), len(old)\nu = mw.statistic\n\nr = 1 - 2 * u / (n1 * n2)\n\nprint(f'new time larger in {u:.0f} of {n1 * n2} pairs')\nprint(f'old time larger in {n1 * n2 - u:.0f} of {n1 * n2} pairs')\nprint(f'rank-biserial r = {r:.2f}')"
+    },
+    {
+     "title": "Paired data: Wilcoxon signed-rank",
+     "text": "Pain scores (0 to 10) for eight patients before and after treatment. The same people are measured twice, so we test the differences. The Wilcoxon statistic is the smaller of the two rank sums (positive and negative differences).",
+     "code": "before = [7, 8, 6, 9, 7, 6, 8, 7]\nafter = [3, 1, 4, 0, 4, 7, 2, 2]\n\nw = stats.wilcoxon(before, after)\npt = stats.ttest_rel(before, after)\n\nprint(f'Wilcoxon : W = {w.statistic:.0f}, p = {w.pvalue:.4f}')\nprint(f'Paired t : t = {pt.statistic:.2f}, p = {pt.pvalue:.4f}')"
+    },
+    {
+     "title": "Three groups: Kruskal-Wallis",
+     "text": "Three teaching methods with three students each. Kruskal-Wallis is the rank version of one-way ANOVA. With groups this small the p-value is an approximation, so treat it as a guide.",
+     "code": "a = [65, 72, 68]\nb = [80, 85, 78]\nc = [55, 60, 58]\n\nkw = stats.kruskal(a, b, c)\nf = stats.f_oneway(a, b, c)\n\nprint(f'Kruskal-Wallis: H = {kw.statistic:.2f}, p = {kw.pvalue:.4f}')\nprint(f'ANOVA         : F = {f.statistic:.2f}, p = {f.pvalue:.4f}')"
+    }
+   ]
+  },
+  "r": {
+   "code": "new <- c(12, 15, 11, 14, 19, 13)\nold <- c(18, 22, 25, 17, 30, 95)\nt.test(new, old)\nwilcox.test(new, old)\nbefore <- c(7, 8, 6, 9, 7, 6, 8, 7)\nafter <- c(3, 1, 4, 0, 4, 7, 2, 2)\nwilcox.test(before, after, paired = TRUE)\nscore <- c(65, 72, 68, 80, 85, 78, 55, 60, 58)\nmethod <- factor(rep(c(\"A\", \"B\", \"C\"), each = 3))\nkruskal.test(score ~ method)",
+   "expect": "Welch t = -1.6654, df = 5.0888, p-value = 0.1557; wilcox.test W = 2, p-value = 0.008658; paired V = 35, p-value = 0.01562; Kruskal-Wallis chi-squared = 7.2, df = 2, p-value = 0.02732",
+   "note": "For the paired test R reports V = 35 (the sum of the positive ranks) while Python reports W = 1 (the smaller of the two rank sums); both give the same p-value."
+  },
+  "spss": {
+   "menu": "Analyze > Nonparametric Tests > Legacy Dialogs > 2 Independent Samples (Mann-Whitney U) and 2 Related Samples (Wilcoxon)",
+   "syntax": "DATA LIST FREE / time group.\nBEGIN DATA\n12 1  15 1  11 1  14 1  19 1  13 1  18 2  22 2  25 2  17 2  30 2  95 2\nEND DATA.\nNPAR TESTS /M-W=time BY group(1,2).\nDATA LIST FREE / before after.\nBEGIN DATA\n7 3  8 1  6 4  9 0  7 4  6 7  8 2  7 2\nEND DATA.\nNPAR TESTS /WILCOXON=before WITH after (PAIRED).",
+   "note": "Group 1 is the new design. SPSS uses a normal approximation by default, so the Mann-Whitney U is 2 with Sig. about 0.01 (the exact value is 0.0087), and the Wilcoxon table shows rank sums 35 and 1 with Sig. about 0.02 (exact 0.0156). Kruskal-Wallis is /K-W=score BY method(1,3) on a dataset like the one in the Stata tab."
+  },
+  "stata": {
+   "code": "clear\nset obs 12\ngenerate time = real(word(\"12 15 11 14 19 13 18 22 25 17 30 95\", _n))\ngenerate group = _n > 6\nranksum time, by(group)\nttest time, by(group) unequal\ngenerate before = real(word(\"7 8 6 9 7 6 8 7\", _n))\ngenerate after = real(word(\"3 1 4 0 4 7 2 2\", _n))\nsignrank before = after\ngenerate score = real(word(\"65 72 68 80 85 78 55 60 58\", _n))\ngenerate method = ceil(_n / 3) if _n <= 9\nkwallis score, by(method)",
+   "note": "ranksum is Mann-Whitney (it reports a z score and its p-value, about 0.010, and may also print the exact p-value 0.0087; group 0 is the new design). signrank is Wilcoxon (sum ranks 35 and 1) and kwallis is Kruskal-Wallis. The word() trick just enters the lesson's numbers quickly."
+  },
+  "try": [
+   "Change the 95 to 40 and then to 5000. Predict what happens to the Welch p-value and to the Mann-Whitney p-value, then check.",
+   "In the pain data, change patient 6's After score from 7 to 5. Does the Wilcoxon statistic get smaller or larger?"
+  ]
+ }
+}
