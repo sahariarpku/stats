@@ -1,0 +1,96 @@
+{
+ "4.1": [
+  {
+   "out": "population mean (mu)   = 30.05\npopulation SD (sigma)  = 15.08",
+   "figs": []
+  },
+  {
+   "out": "first five sample means: [30.09 34.36 30.63 27.59 31.43]\nnumber of sample means: 1000",
+   "figs": []
+  },
+  {
+   "out": "mean of the sample means = 29.99  (mu = 30.05)\nSD of the sample means    = 2.83\ntheory sigma / sqrt(n)    = 2.75",
+   "figs": []
+  },
+  {
+   "out": "",
+   "figs": [
+    "4.1-4.png"
+   ]
+  }
+ ],
+ "4.2": [
+  {
+   "out": "mean = 77.50\ns    = 9.09\nSE   = 3.21",
+   "figs": []
+  },
+  {
+   "out": "population SD = 14.89",
+   "figs": []
+  },
+  {
+   "out": "   n   SD of 2000 means   sigma/sqrt(n)   s/sqrt(n), one sample\n  10             4.79            4.71           4.09\n  40             2.36            2.35           2.42\n 160             1.20            1.18           1.25\n 640             0.57            0.59           0.55",
+   "figs": []
+  },
+  {
+   "out": "sample size needed: 225",
+   "figs": []
+  }
+ ],
+ "4.3": [
+  {
+   "out": "skewness of single waits = 1.89",
+   "figs": []
+  },
+  {
+   "out": "  n   skewness of means   2/sqrt(n)\n  1              1.93        2.00\n  5              0.85        0.89\n 30              0.33        0.37",
+   "figs": []
+  },
+  {
+   "out": "",
+   "figs": [
+    "4.3-3.png"
+   ]
+  },
+  {
+   "out": "SE = 1.581\nCLT answer       P(mean >= 12) = 0.103\nsimulation (20k) P(mean >= 12) = 0.110",
+   "figs": []
+  }
+ ],
+ "4.4": [
+  {
+   "out": "yes answers: 781 of 1500\nsample proportion p-hat = 0.5207",
+   "figs": []
+  },
+  {
+   "out": "mean of p-hats          = 0.5400\nSD of p-hats            = 0.0130\nsqrt(p(1-p)/n) formula  = 0.0129",
+   "figs": []
+  },
+  {
+   "out": "   n     p   SD of p-hats   formula   both n*p, n*(1-p) >= 10?\n   20  0.35        0.1053    0.1067   False\n  200  0.40        0.0345    0.0346   True\n 1500  0.54        0.0129    0.0129   True",
+   "figs": []
+  },
+  {
+   "out": "margin of error = 0.0252\nshare of polls within it = 0.951",
+   "figs": []
+  }
+ ],
+ "4.5": [
+  {
+   "out": "mean = 68.0\ns    = 4.95\nclassic SE = 2.21",
+   "figs": []
+  },
+  {
+   "out": "one resample: [68 65 65 70 65]  mean = 66.6\naverage of boot means = 68.04",
+   "figs": []
+  },
+  {
+   "out": "bootstrap SE = 1.99\n95% percentile interval = (64.4, 72.0)",
+   "figs": []
+  },
+  {
+   "out": "t-interval        = (61.9, 74.1)\nbootstrap interval = (64.4, 72.0)\nwidths: t = 12.3, bootstrap = 7.6",
+   "figs": []
+  }
+ ]
+}

@@ -22,7 +22,7 @@
   },
   "r": {
    "code": "pairs <- outer(1:6, 1:6, \"+\")      # all 36 sums\nmean(pairs == 7)                  # exact P(sum = 7)\n\nflips <- expand.grid(c(\"H\", \"T\"), c(\"H\", \"T\"))\nheads <- (flips$Var1 == \"H\") + (flips$Var2 == \"H\")\nmean(heads == 1)                  # exact P(exactly one head)\n\nset.seed(42)\nn <- 10000\nmean(sample(6, n, TRUE) + sample(6, n, TRUE) == 7)",
-   "expect": "EXACT7; 0.5; the simulated value is close to 0.1667 (for example 0.16 to 0.17)",
+   "expect": "0.1667 (6/36); 0.5; the simulated value is close to 0.1667 (for example 0.16 to 0.17)",
    "note": "The exact numbers match Python. R's random generator differs from NumPy's, so the simulated frequency is close to 0.1667 but not identical."
   },
   "spss": {
@@ -191,7 +191,7 @@
     {
      "title": "Why the prior matters",
      "text": "Keep the same test and change only how common the disease is. The same positive result means very different things for a rare and a common disease.",
-     "code": "for prior in [0.001, 0.01, 0.10, 0.30, 0.50]:\n    pos = sensitivity * prior + false_alarm * (1 - prior)\n    print(f'prevalence {prior:>5.1%}: P(sick | positive) = {sensitivity * prior / pos:.1%}')"
+     "code": "for prior in [0.001, 0.01, 0.10, 0.30, 0.50]:\n    pos = sensitivity * prior + false_alarm * (1 - prior)\n    print(f'prevalence {prior:>5.1%}: P(sick | positive) = {sensitivity * prior / pos:.2%}')"
     }
    ]
   },
@@ -206,12 +206,12 @@
    "note": "SPSS has no Bayes menu, so we use Compute Variable on one row. Expect 0.0594, 0.1667, 99, 495 and 0.1667."
   },
   "stata": {
-   "code": "display \"P(positive) = \" 0.99*0.01 + 0.05*0.99\ndisplay \"Bayes: \" 0.99*0.01 / (0.99*0.01 + 0.05*0.99)\ndisplay \"true positives: \" 10000*0.01*0.99\ndisplay \"false positives: \" 10000*0.99*0.05\ndisplay \"counts: \" 99 / (99 + 495)",
+   "code": "display \"P(positive) = \" (0.99*0.01 + 0.05*0.99)\ndisplay \"Bayes: \" (0.99*0.01 / (0.99*0.01 + 0.05*0.99))\ndisplay \"true positives: \" (10000*0.01*0.99)\ndisplay \"false positives: \" (10000*0.99*0.05)\ndisplay \"counts: \" (99 / (99 + 495))",
    "note": "display works as a calculator. Stata prints .0594 and .1666667 without a leading zero; these are the same as Python's 0.0594 and 0.1667."
   },
   "try": [
    "Raise the specificity to 0.99 and predict what happens to P(sick | positive) before running.",
-   "Set the prevalence to 0.10. Compare with the table in the lesson (about 68.8%)."
+   "Set the prevalence to 0.10. Compare with the table in the lesson (about 68.8%; the exact value is 68.75%)."
   ]
  },
  "2.6": {
