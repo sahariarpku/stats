@@ -1,0 +1,132 @@
+{
+ "9.1": {
+  "goal": "Simulate 200 people with a hidden fitness level and see that a coin-flip assignment balances it between two groups while self-selection does not, which biases the estimated effect.",
+  "python": {
+   "blocks": [
+    {
+     "title": "Create people with a hidden trait",
+     "text": "We invent 200 people. Each has a fitness score that we, as researchers, would not normally see. The outcome (say, a health score) depends on fitness and on a program that truly adds 5 points. A seed makes the simulation repeatable.",
+     "code": "import numpy as np\n\nrng = np.random.default_rng(42)\nn = 200\ntrue_effect = 5\n\nfitness = rng.normal(50, 10, n)\nnoise = rng.normal(0, 5, n)\nbase_outcome = 40 + 0.5 * fitness + noise\n\nprint(f'people = {n}, mean fitness = {fitness.mean():.1f}')"
+    },
+    {
+     "title": "Random assignment: a coin decides",
+     "text": "Each person is put in the program or the comparison group by a coin flip, so fitness plays no part. With enough people, the two groups come out alike on fitness, and on every other trait we did not even measure.",
+     "code": "random_group = rng.random(n) < 0.5\n\nprint('RANDOM ASSIGNMENT')\nprint(f'  program    : n = {random_group.sum()}, mean fitness = {fitness[random_group].mean():.1f}')\nprint(f'  comparison : n = {(~random_group).sum()}, mean fitness = {fitness[~random_group].mean():.1f}')"
+    },
+    {
+     "title": "Self-selection: people choose",
+     "text": "Now fitter people are more likely to sign up (a logistic curve turns fitness into a chance of choosing the program). The groups now differ on fitness before the program has done anything.",
+     "code": "chance = 1 / (1 + np.exp(-(fitness - 50) / 5))\nchose = rng.random(n) < chance\n\nprint('SELF-SELECTION')\nprint(f'  program    : n = {chose.sum()}, mean fitness = {fitness[chose].mean():.1f}')\nprint(f'  comparison : n = {(~chose).sum()}, mean fitness = {fitness[~chose].mean():.1f}')"
+    },
+    {
+     "title": "Compare the estimated effects",
+     "text": "The program adds exactly 5 points to whoever gets it. Randomised groups should estimate about 5. In the self-selected groups, the program group was fitter to begin with, so the simple difference over-claims.",
+     "code": "for label, group in [('random', random_group), ('self-selected', chose)]:\n    outcome = base_outcome + true_effect * group\n    diff = outcome[group].mean() - outcome[~group].mean()\n    print(f'{label:14s} estimated effect = {diff:5.1f}   (true effect = {true_effect})')"
+    }
+   ]
+  },
+  "r": {
+   "code": "set.seed(42)\nn <- 200\nfitness <- rnorm(n, 50, 10)\nbase <- 40 + 0.5 * fitness + rnorm(n, 0, 5)\nrandom <- runif(n) < 0.5\nchose <- runif(n) < plogis((fitness - 50) / 5)\ntapply(fitness, random, mean)\ntapply(fitness, chose, mean)\nmean((base + 5 * random)[random]) - mean((base + 5 * random)[!random])\nmean((base + 5 * chose)[chose]) - mean((base + 5 * chose)[!chose])",
+   "expect": "Random groups have almost the same mean fitness (a gap of a point or two at most) and the estimated effect is close to 5. The self-selected program group has clearly higher mean fitness (about 8 to 10 points) and the estimated effect is far above 5, around 10. Exact numbers differ from Python.",
+   "note": "R uses a different random number generator than Python, so the simulated numbers are close in spirit but not identical. The pattern (balanced when random, unbalanced when chosen) is the same."
+  },
+  "spss": {
+   "menu": "Transform > Compute Variable (with Random Number functions), then Analyze > Compare Means > Means",
+   "syntax": "SET SEED=42.\nINPUT PROGRAM.\nLOOP #i = 1 TO 200.\nEND CASE.\nEND LOOP.\nEND FILE.\nEND INPUT PROGRAM.\nCOMPUTE fitness = RV.NORMAL(50,10).\nCOMPUTE random = (RV.UNIFORM(0,1) < 0.5).\nCOMPUTE chose = (RV.UNIFORM(0,1) < 1/(1+EXP(-(fitness-50)/5))).\nMEANS TABLES=fitness BY random /CELLS=MEAN COUNT.\nMEANS TABLES=fitness BY chose /CELLS=MEAN COUNT.",
+   "note": "SPSS draws different random numbers from Python, so simulated numbers are close but not identical. Compare the mean fitness of the two groups in each MEANS table: nearly equal for random, clearly different for chose. The estimated-effect step is left to Python, R and Stata."
+  },
+  "stata": {
+   "code": "clear\nset seed 42\nset obs 200\ngenerate fitness = rnormal(50, 10)\ngenerate base = 40 + 0.5 * fitness + rnormal(0, 5)\ngenerate random = runiform() < 0.5\ngenerate chose = runiform() < invlogit((fitness - 50) / 5)\ntabstat fitness, by(random) statistics(mean n)\ntabstat fitness, by(chose) statistics(mean n)\ngenerate outcome_r = base + 5 * random\ngenerate outcome_c = base + 5 * chose\nttest outcome_r, by(random)\nttest outcome_c, by(chose)",
+   "note": "Stata draws different random numbers from Python, so simulated numbers are close but not identical. ttest shows mean(0) - mean(1), so the program effect appears with a negative sign (about -5 when random, a larger negative number when chosen)."
+  },
+  "try": [
+   "Change the sample size to 2000 and predict what happens to the gap in mean fitness between the random groups.",
+   "Make the choice only weakly tied to fitness by dividing (fitness - 50) by 20 instead of 5. Predict how the self-selected estimate moves relative to the true effect of 5."
+  ]
+ },
+ "9.2": {
+  "goal": "Check normality with the Shapiro-Wilk test and a normal Q-Q plot for two samples of 20 values from the lesson, one roughly normal (exam scores) and one skewed (response times).",
+  "python": {
+   "blocks": [
+    {
+     "title": "Enter the two samples",
+     "text": "Exam scores look roughly bell-shaped. Response times have a long tail of a few very slow values. A look at the mean versus the median already hints at the difference.",
+     "code": "import numpy as np\nimport matplotlib.pyplot as plt\nfrom scipy import stats\n\nexam = np.array([62, 65, 68, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 82, 83, 85, 87, 90, 94])\nresp = np.array([1.2, 1.4, 1.5, 1.7, 1.9, 2.0, 2.2, 2.3, 2.6, 2.8, 3.1, 3.5, 3.9, 4.6, 5.4, 6.8, 8.9, 12.5, 18.7, 31.2])\n\nfor name, x in [('exam scores', exam), ('response times', resp)]:\n    print(f'{name:15s} mean = {x.mean():.2f}, median = {np.median(x):.2f}')"
+    },
+    {
+     "title": "Shapiro-Wilk test of normality",
+     "text": "Shapiro-Wilk starts from the assumption that the data are normal. A small p-value (below 0.05) is evidence against normality; a large one only means we found no evidence against it.",
+     "code": "for name, x in [('exam scores', exam), ('response times', resp)]:\n    w = stats.shapiro(x)\n    p_text = f'{w.pvalue:.4f}' if w.pvalue >= 0.0001 else '< 0.0001'\n    verdict = 'no evidence against normality' if w.pvalue >= 0.05 else 'evidence of non-normality'\n    print(f'{name:15s} W = {w.statistic:.3f}, p = {p_text}  ->  {verdict}')"
+    },
+    {
+     "title": "Draw the normal Q-Q plots",
+     "text": "A Q-Q plot lines up the sorted data against what a normal sample would give. Points close to the straight line mean roughly normal; a curve that bends away, as with the response times, signals skew.",
+     "code": "plt.figure(figsize=(6, 3.4))\nplt.subplot(1, 2, 1)\nstats.probplot(exam, dist='norm', plot=plt)\nplt.title('Exam scores')\nplt.subplot(1, 2, 2)\nstats.probplot(resp, dist='norm', plot=plt)\nplt.title('Response times')\nplt.tight_layout()\nplt.show()"
+    }
+   ]
+  },
+  "r": {
+   "code": "exam <- c(62, 65, 68, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 82, 83, 85, 87, 90, 94)\nresp <- c(1.2, 1.4, 1.5, 1.7, 1.9, 2.0, 2.2, 2.3, 2.6, 2.8, 3.1, 3.5, 3.9, 4.6, 5.4, 6.8, 8.9, 12.5, 18.7, 31.2)\nshapiro.test(exam)\nshapiro.test(resp)\npar(mfrow = c(1, 2))\nqqnorm(exam, main = \"Exam scores\"); qqline(exam)\nqqnorm(resp, main = \"Response times\"); qqline(resp)",
+   "expect": "exam: W = 0.993, p-value = 0.9998 (approx); response times: W = 0.641, p-value = 8.2e-06 (below 0.0001)",
+   "note": "shapiro.test prints W and the p-value; the Q-Q plots are drawn by qqnorm plus qqline."
+  },
+  "spss": {
+   "menu": "Analyze > Descriptive Statistics > Explore (Plots: Normality plots with tests)",
+   "syntax": "DATA LIST FREE / exam resp.\nBEGIN DATA\n62 1.2  65 1.4  68 1.5  70 1.7  71 1.9  72 2.0  73 2.2  74 2.3  75 2.6  76 2.8\n77 3.1  78 3.5  79 3.9  80 4.6  82 5.4  83 6.8  85 8.9  87 12.5  90 18.7  94 31.2\nEND DATA.\nEXAMINE VARIABLES=exam resp\n  /PLOT=NPPLOT\n  /STATISTICS=NONE.",
+   "note": "The Tests of Normality table shows Shapiro-Wilk (statistic and Sig.) and also Kolmogorov-Smirnov; use the Shapiro-Wilk row. NPPLOT adds the normal Q-Q plots."
+  },
+  "stata": {
+   "code": "clear\nset obs 20\ngenerate exam = real(word(\"62 65 68 70 71 72 73 74 75 76 77 78 79 80 82 83 85 87 90 94\", _n))\ngenerate resp = real(word(\"1.2 1.4 1.5 1.7 1.9 2.0 2.2 2.3 2.6 2.8 3.1 3.5 3.9 4.6 5.4 6.8 8.9 12.5 18.7 31.2\", _n))\nswilk exam resp\nqnorm exam\nqnorm resp",
+   "note": "swilk prints W and V statistics plus a z and Prob>z; the Prob>z column is the p-value (it is a close approximation to the others, and the Shapiro-Wilk W matches). qnorm draws a normal Q-Q plot."
+  },
+  "try": [
+   "Replace the largest response time (31.2) with 6.0. Predict whether W moves toward 1 or away, then run it.",
+   "Take the logarithm of the response times (np.log) and run Shapiro-Wilk again. Does the skew go away?"
+  ]
+ },
+ "9.3": {
+  "goal": "Update a belief about a checkout page's conversion rate (14 buyers out of 40) with a Beta prior, get a 95% credible interval, and compare it with the usual confidence interval.",
+  "python": {
+   "blocks": [
+    {
+     "title": "Prior, data and posterior",
+     "text": "A Beta(a, b) prior acts like a past record of a successes and b failures. Beta(1, 1) is flat: every rate is equally plausible. After k buyers out of n, the posterior is simply Beta(a + k, b + n - k).",
+     "code": "import numpy as np\nimport matplotlib.pyplot as plt\nfrom scipy import stats\n\na, b = 1, 1\nk, n = 14, 40\n\npost_a, post_b = a + k, b + n - k\nposterior = stats.beta(post_a, post_b)\n\nprint(f'posterior = Beta({post_a}, {post_b})')\nprint(f'posterior mean = {posterior.mean():.3f}')"
+    },
+    {
+     "title": "Credible interval and a direct probability",
+     "text": "A 95% credible interval takes the middle 95% of the posterior. We can also read off the probability that the new page beats the old 25% rate, which a p-value cannot give directly.",
+     "code": "low, high = posterior.ppf([0.025, 0.975])\np_better = posterior.sf(0.25)\n\nprint(f'95% credible interval: {low:.3f} to {high:.3f}')\nprint(f'P(rate > 25%) = {p_better:.3f}')"
+    },
+    {
+     "title": "The frequentist answer for comparison",
+     "text": "The usual approach tests the null value 25% and builds a confidence interval (Wilson). The numbers look alike, but the sentences mean different things: the confidence interval is about repeating the procedure, the credible interval about this rate.",
+     "code": "from statsmodels.stats.proportion import proportion_confint\n\nci = proportion_confint(k, n, alpha=0.05, method='wilson')\nse = np.sqrt(0.25 * 0.75 / n)\nz = (k / n - 0.25) / se\n\nprint(f'Wilson 95% CI: {ci[0]:.3f} to {ci[1]:.3f}')\nprint(f'z = {z:.2f}, one-sided p = {stats.norm.sf(z):.3f}')"
+    },
+    {
+     "title": "Draw the prior and the posterior",
+     "text": "The flat prior is a level line. The data pull the belief into a peak near 0.35, and the shaded band is the 95% credible interval. The dashed line marks the old page's 25% rate.",
+     "code": "x = np.linspace(0, 1, 400)\n\nplt.figure(figsize=(6, 3.4))\nplt.plot(x, stats.beta(a, b).pdf(x), color='#7f7f7f', label='prior Beta(1, 1)')\nplt.plot(x, posterior.pdf(x), color='#1f77b4', label=f'posterior Beta({post_a}, {post_b})')\nmid = (x >= low) & (x <= high)\nplt.fill_between(x[mid], posterior.pdf(x[mid]), color='#1f77b4', alpha=0.2)\nplt.axvline(0.25, color='#d62728', linestyle='--', label='old rate 25%')\nplt.xlabel('Conversion rate')\nplt.ylabel('Density')\nplt.legend()\nplt.show()"
+    }
+   ]
+  },
+  "r": {
+   "code": "qbeta(c(0.025, 0.975), 15, 27)\n1 - pbeta(0.25, 15, 27)\n15 / (15 + 27)\nprop.test(14, 40, correct = FALSE)$conf.int\nprop.test(14, 40, p = 0.25, alternative = \"greater\", correct = FALSE)$p.value",
+   "expect": "credible interval 0.2212 0.5059; P(rate > 0.25) = 0.9334; posterior mean 0.3571; Wilson 95% CI 0.2213 0.5049; one-sided p-value = 0.0721",
+   "note": "prop.test with correct = FALSE gives the Wilson score interval and the plain z test, matching the Python. The Bayesian numbers come straight from the Beta distribution with qbeta and pbeta."
+  },
+  "spss": {
+   "menu": "SPSS has no standard menu for Bayesian proportions, so use Transform > Compute Variable with the IDF.BETA and CDF.BETA functions",
+   "syntax": "DATA LIST FREE / dummy.\nBEGIN DATA\n1\nEND DATA.\nCOMPUTE lower = IDF.BETA(0.025, 15, 27).\nCOMPUTE upper = IDF.BETA(0.975, 15, 27).\nCOMPUTE p_better = 1 - CDF.BETA(0.25, 15, 27).\nCOMPUTE z = (0.35 - 0.25) / SQRT(0.25 * 0.75 / 40).\nCOMPUTE p_onesided = 1 - CDF.NORMAL(z, 0, 1).\nFORMATS lower upper p_better z p_onesided (F8.4).\nLIST lower upper p_better z p_onesided.",
+   "note": "Bayesian analysis is not a standard menu in SPSS, so the Beta(15, 27) posterior is calculated directly (the 15 and 27 come from the flat prior plus 14 buyers and 26 non-buyers). The Wilson confidence interval is not a standard SPSS output, so only the z test is shown."
+  },
+  "stata": {
+   "code": "display \"posterior mean = \" 15 / 42\ndisplay \"lower 95% = \" invibeta(15, 27, 0.025)\ndisplay \"upper 95% = \" invibeta(15, 27, 0.975)\ndisplay \"P(rate > 0.25) = \" 1 - ibeta(15, 27, 0.25)\ncii proportions 40 14, wilson\nprtesti 40 14 0.25",
+   "note": "invibeta(a, b, p) is the inverse Beta CDF and ibeta(a, b, x) the Beta CDF. cii proportions with the wilson option gives the Wilson interval, and prtesti runs the z test (read the Ha: p > 0.25 line, p about 0.072). These commands need no data in memory."
+  },
+  "try": [
+   "Use the sceptical prior Beta(5, 15): set a, b = 5, 15 and rerun. Predict whether P(rate > 25%) goes up or down.",
+   "Use 140 buyers out of 400 (the same 35%). Predict what happens to the width of the credible interval and to the effect of the prior."
+  ]
+ }
+}

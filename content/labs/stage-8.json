@@ -163,7 +163,7 @@
   "r": {
    "code": "sqft <- c(1000, 1200, 1400, 1600, 1800, 2000, 2200, 2400, 2600, 2800)\nbedrooms <- c(2, 2, 3, 3, 4, 4, 4, 5, 5, 6)\nprice <- c(250, 280, 310, 350, 390, 420, 450, 480, 520, 550)\nsummary(lm(price ~ bedrooms))\nfit <- lm(price ~ sqft + bedrooms)\nsummary(fit)\npredict(fit, data.frame(sqft = 1500, bedrooms = 3))",
    "expect": "bedrooms alone: slope 75.6; both: Intercept 80.06, sqft 0.1668 (p < 0.0001), bedrooms 0.806 (p-value 0.872); Multiple R-squared 0.9987, Adjusted 0.9983; F-statistic 2689 on 2 and 7 DF, p-value 7.9e-11; prediction 332.6",
-   "note": "R rounds small p-values in its own way (for example 1.4e-06), but the coefficients, R-squared and F match Python."
+   "note": "The coefficients, R-squared and F match Python; R prints very small p-values in scientific notation such as 1e-05."
   },
   "spss": {
    "menu": "Analyze > Regression > Linear (Dependent: price, Independents: sqft and bedrooms)",

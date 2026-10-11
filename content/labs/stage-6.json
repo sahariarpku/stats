@@ -1,0 +1,412 @@
+{
+ "6.1": {
+  "goal": "Find out how surprising 60 heads in 100 flips would be if the coin were fair, first by simulation and then with the exact binomial test.",
+  "python": {
+   "blocks": [
+    {
+     "title": "Set up the coin result",
+     "text": "Our data: 60 heads in 100 flips. The null hypothesis says the coin is fair (chance of heads = 0.5). NumPy makes the pretend coins and SciPy gives the exact test.",
+     "code": "import numpy as np\nfrom scipy import stats\n\nflips = 100\nheads = 60\nrng = np.random.default_rng(42)   # seeded, so the result repeats\n\nprint('observed:', heads, 'heads in', flips, 'flips')"
+    },
+    {
+     "title": "Simulate a fair coin",
+     "text": "We pretend the null is true and run 100,000 experiments of 100 fair flips. The p-value is the share of experiments at least as lopsided as ours, meaning 10 or more heads away from 50 in either direction.",
+     "code": "sim = rng.binomial(n=flips, p=0.5, size=100_000)   # heads in each pretend experiment\ngap = abs(heads - 50)                              # our result is 10 away from 50\nextreme = np.abs(sim - 50) >= gap                  # too many OR too few heads\np_sim = extreme.mean()\n\nprint(f'average heads in the simulation: {sim.mean():.2f}')\nprint(f'simulated p-value = {p_sim:.4f}')"
+    },
+    {
+     "title": "Get the exact p-value",
+     "text": "binomtest adds up the exact binomial chances, so no simulation is needed. The two-sided option counts both too many and too few heads. The simulated number should land close to the exact one.",
+     "code": "result = stats.binomtest(heads, n=flips, p=0.5, alternative='two-sided')\nci = result.proportion_ci(confidence_level=0.95)\n\nprint(f'exact p-value = {result.pvalue:.4f}')\nprint(f'95% CI for the heads rate: ({ci.low:.3f}, {ci.high:.3f})')"
+    },
+    {
+     "title": "Make the decision",
+     "text": "Compare p with alpha = 0.05 and word the result carefully. The normal-curve shortcut (z = 2) gives a smaller p, which would wrongly say 'significant'. This shows why the method matters when a result sits near the cut-off.",
+     "code": "alpha = 0.05\nz = (heads - 50) / np.sqrt(flips * 0.5 * 0.5)\np_normal = 2 * stats.norm.sf(z)\n\nprint(f'normal shortcut: z = {z:.1f}, p = {p_normal:.4f}')\nprint('exact p <= alpha?', result.pvalue <= alpha)\nif result.pvalue <= alpha:\n    print('Reject H0: evidence the coin is not fair.')\nelse:\n    print('Fail to reject H0: not enough evidence the coin is unfair.')"
+    }
+   ]
+  },
+  "r": {
+   "code": "binom.test(60, 100, p = 0.5)\n\n# the simulation (random numbers, so close to but not exactly the Python value)\nset.seed(42)\nsim <- rbinom(100000, size = 100, prob = 0.5)\nmean(abs(sim - 50) >= 10)",
+   "expect": "p-value = 0.05689; 95 percent confidence interval: 0.4972 to 0.6967; sample estimate 0.6; simulated share about 0.057",
+   "note": "binom.test gives the exact two-sided p-value and a 95% interval. The simulated share changes a little with every seed, so only the exact numbers must match."
+  },
+  "spss": {
+   "menu": "Analyze > Nonparametric Tests > Legacy Dialogs > Binomial",
+   "syntax": "DATA LIST FREE / heads count.\nBEGIN DATA\n1 60\n0 40\nEND DATA.\nWEIGHT BY count.\nNPAR TESTS\n  /BINOMIAL (0.5)=heads.",
+   "note": "Code 1 = heads, 0 = tails, and WEIGHT BY count turns the two rows into 100 flips. For 100 flips SPSS may show an approximate Sig. (about 0.057) rather than the exact 0.0569, so give the exact value from Python or R in your report."
+  },
+  "stata": {
+   "code": "bitesti 100 60 0.5",
+   "note": "bitesti is the immediate form of the exact binomial test: 100 trials, 60 successes, null probability 0.5. Use the 'Two-sided' line, Pr(k <= 40 or k >= 60)."
+  },
+  "try": [
+   "Change heads to 62 and predict whether the p-value passes below 0.05, then run it.",
+   "Change flips to 1000 and heads to 600 (still 60%). Predict what happens to the p-value, then run it."
+  ]
+ },
+ "6.2": {
+  "goal": "Turn the bottling plant's z statistic into one-sided and two-sided p-values, and see what alpha = 0.05 means as a cut-off.",
+  "python": {
+   "blocks": [
+    {
+     "title": "From the data to a z statistic",
+     "text": "The plant claims bottles average 500 mL (sigma = 12 mL known). We weighed 64 bottles and got a mean of 503.6 mL. The z statistic says how many standard errors the sample mean sits from the claim.",
+     "code": "import numpy as np\nfrom scipy import stats\n\nmu0, sigma, n, xbar = 500, 12, 64, 503.6\n\nse = sigma / np.sqrt(n)\nz = (xbar - mu0) / se\n\nprint(f'standard error = {se:.2f}')\nprint(f'z = {z:.2f}')"
+    },
+    {
+     "title": "One-sided and two-sided p-values",
+     "text": "norm.sf (the 'survival function') gives the area in the right tail beyond z. The two-sided p-value counts both tails, so it is double the one-sided value. A left tail uses norm.cdf.",
+     "code": "p_right = stats.norm.sf(z)         # area beyond +z\np_left = stats.norm.cdf(z)         # area below z\np_two = 2 * stats.norm.sf(abs(z))  # both tails\n\nprint(f'right-tailed p = {p_right:.4f}')\nprint(f'left-tailed p  = {p_left:.4f}')\nprint(f'two-tailed p   = {p_two:.4f}')"
+    },
+    {
+     "title": "Alpha as a cut-off (critical values)",
+     "text": "Alpha = 0.05 is the surprise threshold. norm.ppf turns it into critical z values that cut off the rejection region. Comparing |z| with the critical value gives the same decision as comparing p with alpha.",
+     "code": "alpha = 0.05\ncrit_two = stats.norm.ppf(1 - alpha / 2)   # two-tailed cut-off\ncrit_right = stats.norm.ppf(1 - alpha)     # right-tailed cut-off\n\nprint(f'two-tailed critical z = +/-{crit_two:.3f}')\nprint(f'right-tailed critical z = {crit_right:.3f}')\nprint('p <= alpha?     ', p_two <= alpha)\nprint('|z| > critical?', abs(z) > crit_two)"
+    },
+    {
+     "title": "Draw the tail areas",
+     "text": "A picture of the p-value: the red areas are the two tails beyond +z and -z. Their combined area is the two-sided p-value, and they are tiny compared with the whole curve.",
+     "code": "import matplotlib.pyplot as plt\n\nx = np.linspace(-4, 4, 400)\nplt.figure(figsize=(6, 3.4))\nplt.plot(x, stats.norm.pdf(x), color='black')\nfor side in (x >= abs(z), x <= -abs(z)):\n    plt.fill_between(x[side], stats.norm.pdf(x[side]), color='tab:red', alpha=0.5)\nplt.axvline(crit_two, linestyle='--', color='gray')\nplt.axvline(-crit_two, linestyle='--', color='gray')\nplt.title(f'z = {z:.2f}: two-sided p = {p_two:.4f} (red); dashed = critical values')\nplt.xlabel('z')\nplt.show()"
+    }
+   ]
+  },
+  "r": {
+   "code": "xbar <- 503.6; mu0 <- 500; sigma <- 12; n <- 64\nz <- (xbar - mu0) / (sigma / sqrt(n))\nz\npnorm(z, lower.tail = FALSE)   # right-tailed p\npnorm(z)                       # left-tailed p\n2 * pnorm(-abs(z))             # two-tailed p\nqnorm(c(0.975, 0.95))          # critical values",
+   "expect": "z = 2.4; right-tailed p = 0.0082; left-tailed p = 0.9918; two-tailed p = 0.0164; critical values 1.960 and 1.645",
+   "note": "pnorm gives the area to the left, so lower.tail = FALSE gives the right tail. qnorm is the inverse and returns the critical values."
+  },
+  "spss": {
+   "menu": "Transform > Compute Variable (use the CDF.NORMAL and IDF.NORMAL functions)",
+   "syntax": "DATA LIST FREE / xbar mu0 sigma n.\nBEGIN DATA\n503.6 500 12 64\nEND DATA.\nCOMPUTE z = (xbar - mu0) / (sigma / SQRT(n)).\nCOMPUTE p_right = 1 - CDF.NORMAL(z, 0, 1).\nCOMPUTE p_left = CDF.NORMAL(z, 0, 1).\nCOMPUTE p_two = 2 * (1 - CDF.NORMAL(ABS(z), 0, 1)).\nCOMPUTE crit_two = IDF.NORMAL(0.975, 0, 1).\nCOMPUTE crit_right = IDF.NORMAL(0.95, 0, 1).\nLIST.",
+   "note": "SPSS has no menu for a z-test with known sigma, so the numbers are computed with normal-curve functions. LIST prints z, the p-values and the critical values (shown with SPSS's default 2 decimals; double-click the output to see more)."
+  },
+  "stata": {
+   "code": "display (503.6 - 500) / (12 / sqrt(64))\ndisplay 1 - normal(2.4)         // right-tailed p\ndisplay normal(2.4)             // left-tailed p\ndisplay 2 * (1 - normal(2.4))   // two-tailed p\ndisplay invnormal(0.975)        // two-tailed critical value\ndisplay invnormal(0.95)         // right-tailed critical value",
+   "note": "normal() is the area to the left of z and invnormal() is its inverse. The first line computes z = 2.4, which is then typed into the other lines."
+  },
+  "try": [
+   "Change xbar to 502 and predict z and the two-sided p-value (the lesson says p is about 0.18), then run it.",
+   "Set z = 1.80 by hand (z = 1.8) and compare the right-tailed and two-tailed p-values. Which one passes alpha = 0.05?"
+  ]
+ },
+ "6.3": {
+  "goal": "Simulate thousands of experiments to see the Type I error rate when nothing is going on and the power when a real 6-point effect exists, then check with a power calculator.",
+  "python": {
+   "blocks": [
+    {
+     "title": "Plan the experiment",
+     "text": "A teaching method may raise scores by 6 points (SD 15). We compare two groups of 36 students with a t-test at alpha = 0.05. The effect size d is the gap measured in SDs: 6 / 15 = 0.4.",
+     "code": "import numpy as np\nfrom scipy import stats\n\nrng = np.random.default_rng(42)\nn, sd, diff, alpha, reps = 36, 15, 6, 0.05, 10_000\n\nd = diff / sd\nprint(f'effect size d = {d:.2f}')"
+    },
+    {
+     "title": "Simulate when the null is true",
+     "text": "We run 10,000 pretend experiments where both groups come from the same population. The share of experiments that still reject H0 is the Type I error rate, and it should be close to alpha.",
+     "code": "def reject_rate(true_diff):\n    a = rng.normal(0, sd, size=(reps, n))\n    b = rng.normal(true_diff, sd, size=(reps, n))\n    p = stats.ttest_ind(a, b, axis=1).pvalue   # one t-test per row\n    return (p <= alpha).mean()\n\ntype1 = reject_rate(0)\nprint(f'Type I error rate (no real effect) = {type1:.3f}')"
+    },
+    {
+     "title": "Simulate when a real effect exists",
+     "text": "Now the second group truly scores 6 points higher. The share of experiments that reject H0 is the power. With only 36 per group the test misses the effect more often than it finds it.",
+     "code": "power_sim = reject_rate(diff)\n\nprint(f'simulated power = {power_sim:.3f}')\nprint(f'simulated Type II error (beta) = {1 - power_sim:.3f}')"
+    },
+    {
+     "title": "Check with statsmodels and plan the sample size",
+     "text": "TTestIndPower does the calculation exactly, without simulation. power() gives the power for n = 36 per group, and solve_power() finds the group size needed for 80% power.",
+     "code": "from statsmodels.stats.power import TTestIndPower\n\nanalysis = TTestIndPower()\npower_exact = analysis.power(effect_size=d, nobs1=n, alpha=alpha)\nn_needed = analysis.solve_power(effect_size=d, power=0.80, alpha=alpha)\n\nprint(f'exact power with {n} per group = {power_exact:.3f}')\nprint(f'n per group for 80% power = {n_needed:.2f}, so use {int(np.ceil(n_needed))}')"
+    }
+   ]
+  },
+  "r": {
+   "code": "power.t.test(n = 36, delta = 6, sd = 15)                # power for 36 per group\npower.t.test(power = 0.80, delta = 6, sd = 15)           # n per group for 80% power\n\n# simulation (random, so close to but not exactly the Python value)\nset.seed(42)\nmean(replicate(10000, t.test(rnorm(36, 0, 15), rnorm(36, 0, 15))$p.value <= 0.05))\nmean(replicate(10000, t.test(rnorm(36, 0, 15), rnorm(36, 6, 15))$p.value <= 0.05))",
+   "expect": "power = 0.3875 for n = 36 per group; n = 99.08 per group for 80% power (use 100); simulated rates about 0.05 and about 0.39",
+   "note": "power.t.test is exact for a two-sample, two-sided t-test, and n is per group. The two simulated rates change a little with every seed and will not match Python's digit for digit."
+  },
+  "spss": {
+   "menu": "Analyze > Power Analysis > Means > Independent-Samples T Test (enter power 0.80 to solve for the sample size)",
+   "syntax": "DATA LIST FREE / n delta sd.\nBEGIN DATA\n36 6 15\nEND DATA.\nCOMPUTE df = 2 * n - 2.\nCOMPUTE nc = (delta / sd) * SQRT(n / 2).\nCOMPUTE tcrit = IDF.T(0.975, df).\nCOMPUTE power = 1 - NCDF.T(tcrit, df, nc) + NCDF.T(-tcrit, df, nc).\nLIST power.",
+   "note": "The Power Analysis menu is the easy way and can also solve for n. The syntax shows the same exact power by hand, using the noncentral t distribution. SPSS has no built-in simulation here."
+  },
+  "stata": {
+   "code": "power twomeans 0 6, sd(15) n1(36) n2(36)      // power for 36 per group\npower twomeans 0 6, sd(15) power(0.80)         // sample size for 80% power",
+   "note": "power twomeans takes the two group means (0 and 6) and the common SD. Stata reports whole group sizes, so it rounds the 99.08 up to 100 per group."
+  },
+  "try": [
+   "Change n to 100 and predict how the simulated and exact power change, then run it.",
+   "Change alpha to 0.01 and predict whether the power goes up or down, then run it."
+  ]
+ },
+ "6.4": {
+  "goal": "Run a z-test for a mean (the 50 bolts) and a z-test for a proportion (184 of 200 customers satisfied), by hand and with statsmodels.",
+  "python": {
+   "blocks": [
+    {
+     "title": "A z-test for a mean, by hand",
+     "text": "A line makes 10 mm bolts with a known SD of 0.5 mm. A sample of 50 bolts averages 10.14 mm. The z statistic is the gap divided by the standard error, and the two-sided p-value comes from the normal curve.",
+     "code": "import numpy as np\nfrom scipy import stats\n\nmu0, sigma, n, xbar = 10, 0.5, 50, 10.14\n\nse = sigma / np.sqrt(n)\nz = (xbar - mu0) / se\np = 2 * stats.norm.sf(abs(z))\nci = (xbar - 1.96 * se, xbar + 1.96 * se)\n\nprint(f'z = {z:.3f}, p = {p:.4f}')\nprint(f'95% CI: ({ci[0]:.3f}, {ci[1]:.3f})')"
+    },
+    {
+     "title": "The same test with ztest()",
+     "text": "statsmodels needs raw data. We build 50 pretend bolt readings with mean 10.14 and SD 0.5, so the result matches the hand calculation. Note that ztest() estimates the SD from the data rather than using a known sigma.",
+     "code": "from statsmodels.stats.weightstats import ztest\n\nrng = np.random.default_rng(42)\nx = rng.normal(size=50)\nbolts = 10.14 + 0.5 * (x - x.mean()) / x.std(ddof=1)   # mean 10.14, SD 0.5\n\nz_stat, p_val = ztest(bolts, value=10, alternative='two-sided')\nprint(f'mean = {bolts.mean():.2f}, sd = {bolts.std(ddof=1):.2f}')\nprint(f'z = {z_stat:.3f}, p = {p_val:.4f}')"
+    },
+    {
+     "title": "A z-test for a proportion",
+     "text": "A company claims 95% satisfaction, but 184 of 200 customers are satisfied. The claim says 'at least 95%', so we test the left tail ('smaller'). We set prop_var=0.95 so the standard error uses the claimed value, as a test should.",
+     "code": "from statsmodels.stats.proportion import proportions_ztest\n\nz_prop, p_prop = proportions_ztest(count=184, nobs=200, value=0.95,\n                                   alternative='smaller', prop_var=0.95)\n\nprint(f'sample proportion = {184 / 200:.2f}')\nprint(f'z = {z_prop:.3f}')\nprint(f'left-tailed p = {p_prop:.4f}')\nprint('reject H0 at 0.05?', p_prop <= 0.05)"
+    },
+    {
+     "title": "Why the standard error matters",
+     "text": "If we leave out prop_var, statsmodels uses the observed 0.92 in the standard error. This is the classic mistake from the lesson, and it changes z and p.",
+     "code": "z_wrong, p_wrong = proportions_ztest(count=184, nobs=200, value=0.95,\n                                     alternative='smaller')\n\nprint(f'with the observed proportion: z = {z_wrong:.3f}, p = {p_wrong:.4f}')\nprint(f'with the claimed 0.95:         z = {z_prop:.3f}, p = {p_prop:.4f}')"
+    }
+   ]
+  },
+  "r": {
+   "code": "# z-test for a mean (sigma known), by hand: base R has no z.test\nz <- (10.14 - 10) / (0.5 / sqrt(50))\nz\n2 * pnorm(-abs(z))\n\n# z-test for a proportion, no continuity correction\nres <- prop.test(184, 200, p = 0.95, alternative = \"less\", correct = FALSE)\nres\n-sqrt(res$statistic)   # the z value (z squared is X-squared)",
+   "expect": "z = 1.9799, two-sided p = 0.04771; X-squared = 3.7895, df = 1, p-value = 0.02579 (z = -1.9467)",
+   "note": "prop.test reports X-squared, which is z squared. For a one-sided test its p-value equals the z-test p-value, and correct = FALSE switches off the continuity correction so it matches."
+  },
+  "spss": {
+   "menu": "Transform > Compute Variable (SPSS has no z-test menu; use the normal-curve functions)",
+   "syntax": "DATA LIST FREE / xbar mu0 sigma n x m p0.\nBEGIN DATA\n10.14 10 0.5 50 184 200 0.95\nEND DATA.\nCOMPUTE z_mean = (xbar - mu0) / (sigma / SQRT(n)).\nCOMPUTE p_mean = 2 * (1 - CDF.NORMAL(ABS(z_mean), 0, 1)).\nCOMPUTE z_prop = (x / m - p0) / SQRT(p0 * (1 - p0) / m).\nCOMPUTE p_prop = CDF.NORMAL(z_prop, 0, 1).\nLIST z_mean p_mean z_prop p_prop.",
+   "note": "The first test uses the known sigma; the second is the left-tailed proportion test using p0 in the standard error. LIST shows 2 decimals by default; widen the columns in the output table to see more."
+  },
+  "stata": {
+   "code": "display (10.14 - 10) / (0.5 / sqrt(50))\ndisplay 2 * (1 - normal(1.9799))\nprtesti 200 184 0.95, count",
+   "note": "Stata has no one-line z-test for a mean from summary numbers in older versions, so the first two lines work by hand. prtesti is the one-proportion z-test (it uses 0.95 in the standard error); read the Pr(Z < z) line for the left-tailed p-value."
+  },
+  "try": [
+   "Change the sample mean to 10.05 and predict whether the p-value gets bigger or smaller, then run it.",
+   "Change the alternative from 'smaller' to 'two-sided' in the proportion test and predict what happens to p."
+  ]
+ },
+ "6.5": {
+  "goal": "Check whether the average nitrate level in a river differs from the 3.2 mg/L guideline, using the lesson's nine readings.",
+  "python": {
+   "blocks": [
+    {
+     "title": "Enter the data",
+     "text": "Nine nitrate readings from one river, in mg/L, and the guideline value we want to compare against. NumPy holds the numbers and SciPy supplies the test.",
+     "code": "import numpy as np\nfrom scipy import stats\n\nnitrate = np.array([3.1, 4.2, 2.8, 3.9, 4.5, 3.3, 4.1, 3.7, 3.5])\nguideline = 3.2\n\nprint('readings:', len(nitrate))"
+    },
+    {
+     "title": "Describe the sample",
+     "text": "Always look at the numbers before testing them. The mean is the sample's centre, the standard deviation (ddof=1, the sample version) is its typical spread, and the standard error says how much a mean of 9 readings wobbles.",
+     "code": "mean = nitrate.mean()\nsd = nitrate.std(ddof=1)\nse = sd / np.sqrt(len(nitrate))\n\nprint(f'mean = {mean:.3f}')\nprint(f'sd   = {sd:.3f}')\nprint(f'se   = {se:.3f}')"
+    },
+    {
+     "title": "Run the one-sample t-test",
+     "text": "ttest_1samp asks: if the true average were exactly 3.2, how surprising is a sample mean this far away? It returns the t statistic (distance in standard errors) and the two-sided p-value.",
+     "code": "result = stats.ttest_1samp(nitrate, popmean=guideline)\n\nprint(f't  = {result.statistic:.3f}')\nprint(f'df = {len(nitrate) - 1}')\nprint(f'p  = {result.pvalue:.4f}')"
+    },
+    {
+     "title": "Add a confidence interval",
+     "text": "A 95% interval shows the range of true averages that fit the data. The guideline sits outside it, which agrees with the small p-value.",
+     "code": "ci = result.confidence_interval(confidence_level=0.95)\n\nprint(f'95% CI: ({ci.low:.3f}, {ci.high:.3f})')\nprint('guideline inside the interval?', ci.low <= guideline <= ci.high)"
+    }
+   ]
+  },
+  "r": {
+   "code": "nitrate <- c(3.1, 4.2, 2.8, 3.9, 4.5, 3.3, 4.1, 3.7, 3.5)\nt.test(nitrate, mu = 3.2)",
+   "expect": "t = 2.5866, df = 8, p-value = 0.03226; 95 percent confidence interval: 3.252 to 4.104; sample mean 3.678",
+   "note": "t.test prints the t statistic, degrees of freedom, p-value and the 95% confidence interval together."
+  },
+  "spss": {
+   "menu": "Analyze > Compare Means > One-Sample T Test",
+   "syntax": "DATA LIST FREE / nitrate.\nBEGIN DATA\n3.1 4.2 2.8 3.9 4.5 3.3 4.1 3.7 3.5\nEND DATA.\nT-TEST\n  /TESTVAL=3.2\n  /VARIABLES=nitrate\n  /CRITERIA=CI(.95).",
+   "note": "In the One-Sample Test table read t, df and Sig. (2-tailed); the confidence interval is for the difference from 3.2."
+  },
+  "stata": {
+   "code": "clear\ninput nitrate\n3.1\n4.2\n2.8\n3.9\n4.5\n3.3\n4.1\n3.7\n3.5\nend\nttest nitrate == 3.2",
+   "note": "ttest reports the mean, its 95% confidence interval, t, degrees of freedom and the two-sided p-value (the middle Pr(|T| > |t|) line)."
+  },
+  "try": [
+   "Change the guideline to 3.5 and predict whether the p-value gets bigger or smaller, then run it.",
+   "Add one very high reading (say 9.0) to the data. What happens to the mean, the standard error and the p-value?"
+  ]
+ },
+ "6.6": {
+  "goal": "Compare exam scores of 30 students who studied with music and 30 who studied in silence, with Welch's and the pooled two-sample t-test.",
+  "python": {
+   "blocks": [
+    {
+     "title": "Enter the two groups",
+     "text": "The scores below are built to match the lesson: music averages 74 (SD 8), silence averages 79 (SD 7), 30 students each. Different students are in each group, so the groups are independent.",
+     "code": "import numpy as np\nfrom scipy import stats\n\nmusic = np.array([77.91, 82.44, 77.77, 62.24, 83.23, 78.87, 69.52, 80.15, 78.09, 77.42, 74.9, 79.82, 67.63, 73.08, 70.05, 80.32, 75.01, 71.85, 67.2, 72.18, 74.71, 72.01, 86.93, 84.2, 48.86, 56.67, 72.97, 70.62, 76.66, 76.69])\nsilence = np.array([72.97, 64.46, 82.5, 83.47, 76.26, 80.89, 90.07, 85.63, 83.21, 83.08, 72.47, 84.97, 67.1, 76.11, 75.39, 66.56, 77.62, 89.61, 76.05, 70.12, 77.75, 84.22, 79.7, 78.36, 68.74, 81.8, 81.7, 87.55, 88.56, 83.08])\n\nfor name, g in [('music', music), ('silence', silence)]:\n    print(f'{name}: n = {len(g)}, mean = {g.mean():.2f}, sd = {g.std(ddof=1):.2f}')"
+    },
+    {
+     "title": "Welch's t-test (the safe default)",
+     "text": "equal_var=False gives Welch's test, which does not assume the two groups have the same spread. The degrees of freedom are not a whole number because they are adjusted for the unequal spreads.",
+     "code": "welch = stats.ttest_ind(music, silence, equal_var=False)\n\nprint(f't  = {welch.statistic:.3f}')\nprint(f'df = {welch.df:.1f}')\nprint(f'p  = {welch.pvalue:.4f}')"
+    },
+    {
+     "title": "The pooled t-test",
+     "text": "equal_var=True blends the two variances into one. Here the group sizes are equal and the spreads are similar, so the two tests agree closely. They would not agree if the smaller group were also the noisier one.",
+     "code": "pooled = stats.ttest_ind(music, silence, equal_var=True)\n\nprint(f't  = {pooled.statistic:.3f}')\nprint(f'df = {pooled.df:.0f}')\nprint(f'p  = {pooled.pvalue:.4f}')"
+    },
+    {
+     "title": "Confidence interval for the difference",
+     "text": "The test says whether the gap is real, and the interval says how big it might be. It is for music minus silence, so a fully negative interval means music scores are lower.",
+     "code": "ci = welch.confidence_interval(confidence_level=0.95)\ndiff = music.mean() - silence.mean()\n\nprint(f'difference (music - silence) = {diff:.2f}')\nprint(f'95% CI: ({ci.low:.2f}, {ci.high:.2f})')\nprint('interval contains 0?', ci.low <= 0 <= ci.high)"
+    }
+   ]
+  },
+  "r": {
+   "code": "music <- c(77.91, 82.44, 77.77, 62.24, 83.23, 78.87, 69.52, 80.15, 78.09, 77.42, 74.9, 79.82, 67.63, 73.08, 70.05, 80.32, 75.01, 71.85, 67.2, 72.18, 74.71, 72.01, 86.93, 84.2, 48.86, 56.67, 72.97, 70.62, 76.66, 76.69)\nsilence <- c(72.97, 64.46, 82.5, 83.47, 76.26, 80.89, 90.07, 85.63, 83.21, 83.08, 72.47, 84.97, 67.1, 76.11, 75.39, 66.56, 77.62, 89.61, 76.05, 70.12, 77.75, 84.22, 79.7, 78.36, 68.74, 81.8, 81.7, 87.55, 88.56, 83.08)\n\nt.test(music, silence)                    # Welch (the R default)\nt.test(music, silence, var.equal = TRUE)  # pooled",
+   "expect": "Welch: t = -2.5762, df = 56.997, p-value = 0.01261, 95% CI -8.886 to -1.114; pooled: t = -2.5762, df = 58, p-value = 0.01256, 95% CI -8.885 to -1.115",
+   "note": "R's t.test uses Welch's test by default, so you must add var.equal = TRUE to get the pooled version. Both outputs also print the 95% confidence interval for the difference."
+  },
+  "spss": {
+   "menu": "Analyze > Compare Means > Independent-Samples T Test",
+   "syntax": "DATA LIST FREE / group score.\nBEGIN DATA\n1 77.91 1 82.44 1 77.77 1 62.24 1 83.23 1 78.87 1 69.52 1 80.15 1 78.09 1 77.42\n1 74.9 1 79.82 1 67.63 1 73.08 1 70.05 1 80.32 1 75.01 1 71.85 1 67.2 1 72.18\n1 74.71 1 72.01 1 86.93 1 84.2 1 48.86 1 56.67 1 72.97 1 70.62 1 76.66 1 76.69\n2 72.97 2 64.46 2 82.5 2 83.47 2 76.26 2 80.89 2 90.07 2 85.63 2 83.21 2 83.08\n2 72.47 2 84.97 2 67.1 2 76.11 2 75.39 2 66.56 2 77.62 2 89.61 2 76.05 2 70.12\n2 77.75 2 84.22 2 79.7 2 78.36 2 68.74 2 81.8 2 81.7 2 87.55 2 88.56 2 83.08\nEND DATA.\nT-TEST GROUPS=group(1 2)\n  /VARIABLES=score\n  /CRITERIA=CI(.95).",
+   "note": "SPSS prints both tests in one table: the 'Equal variances assumed' row is the pooled test and 'Equal variances not assumed' is Welch. Group 1 = music, group 2 = silence."
+  },
+  "stata": {
+   "code": "ttesti 30 74 8 30 79 7              // pooled (Stata's default)\nttesti 30 74 8 30 79 7, unequal     // Welch-type test, same df as R and Python",
+   "note": "ttesti runs the test from group size, mean and SD, so no data entry is needed (with raw data use: ttest score, by(group) and add unequal). Stata is pooled unless you add unequal. The lesson's rounded 74, 8, 79, 7 give t = -2.576, and Python's built data differ only in the 4th digit."
+  },
+  "try": [
+   "Change the silence mean to 77 (edit the data by subtracting 2 from every silence score) and predict what happens to p.",
+   "Cut each group to its first 10 scores (music[:10], silence[:10]) and predict whether the result stays significant."
+  ]
+ },
+ "6.7": {
+  "goal": "Test whether a drug lowers blood pressure in the lesson's 8 patients measured before and after, with a paired t-test.",
+  "python": {
+   "blocks": [
+    {
+     "title": "Enter the paired data",
+     "text": "Each patient appears in both lists, in the same order, so each 'after' belongs to a particular 'before'. The difference for each patient is their own change, and the lesson says every single one improved.",
+     "code": "import numpy as np\nfrom scipy import stats\n\nbefore = np.array([142, 138, 155, 129, 147, 161, 133, 145])\nafter = np.array([135, 134, 148, 126, 139, 152, 130, 137])\ndiff = before - after\n\nprint('differences:', diff)\nprint(f'mean difference = {diff.mean():.3f}')\nprint(f'sd of differences = {diff.std(ddof=1):.3f}')"
+    },
+    {
+     "title": "Run the paired t-test",
+     "text": "ttest_rel compares before and after pair by pair. A positive t means the 'before' values were higher. We also add a 95% confidence interval for the average drop.",
+     "code": "paired = stats.ttest_rel(before, after)\nci = paired.confidence_interval(confidence_level=0.95)\n\nprint(f't  = {paired.statistic:.3f}')\nprint(f'df = {paired.df}')\nprint(f'p  = {paired.pvalue:.4f}')\nprint(f'95% CI for the drop: ({ci.low:.2f}, {ci.high:.2f})')"
+    },
+    {
+     "title": "Same result as a one-sample test",
+     "text": "A paired t-test is just a one-sample t-test on the differences, testing whether their mean is 0. The numbers come out exactly the same.",
+     "code": "one_sample = stats.ttest_1samp(diff, popmean=0)\n\nprint(f't  = {one_sample.statistic:.3f}')\nprint(f'p  = {one_sample.pvalue:.4f}')\nprint('same t as the paired test?', np.isclose(one_sample.statistic, paired.statistic))"
+    },
+    {
+     "title": "What the wrong test says",
+     "text": "If we ignore the pairing and treat the 16 numbers as two independent groups, the big differences between patients swamp the 6 mmHg drop. The result is far less convincing.",
+     "code": "wrong = stats.ttest_ind(before, after, equal_var=False)\n\nprint(f'independent test: t = {wrong.statistic:.2f}, p = {wrong.pvalue:.3f}')\nprint(f'paired test:      t = {paired.statistic:.2f}, p = {paired.pvalue:.4f}')"
+    }
+   ]
+  },
+  "r": {
+   "code": "before <- c(142, 138, 155, 129, 147, 161, 133, 145)\nafter  <- c(135, 134, 148, 126, 139, 152, 130, 137)\n\nt.test(before, after, paired = TRUE)\nt.test(before - after, mu = 0)    # same thing: one-sample test on the differences",
+   "expect": "t = 7.1692, df = 7, p-value = 0.0001823; 95 percent confidence interval: 4.105 to 8.145; mean difference 6.125",
+   "note": "paired = TRUE keeps the two vectors in matching order. Both calls give the same t, df, p-value and confidence interval."
+  },
+  "spss": {
+   "menu": "Analyze > Compare Means > Paired-Samples T Test",
+   "syntax": "DATA LIST FREE / before after.\nBEGIN DATA\n142 135 138 134 155 148 129 126\n147 139 161 152 133 130 145 137\nEND DATA.\nT-TEST PAIRS=before WITH after (PAIRED)\n  /CRITERIA=CI(.95).",
+   "note": "In the Paired Samples Test table, the mean is before minus after (6.125). Read t, df and Sig. (2-tailed) from the same row."
+  },
+  "stata": {
+   "code": "clear\ninput before after\n142 135\n138 134\n155 148\n129 126\n147 139\n161 152\n133 130\n145 137\nend\nttest before == after",
+   "note": "With two variables joined by ==, ttest does a paired test by default. Read the difference row and the two-sided Pr(|T| > |t|) value."
+  },
+  "try": [
+   "Change the last 'after' value from 137 to 145 and predict what happens to t and p, then run it.",
+   "Shuffle the order of the 'after' list (break the pairing) and run the paired test again. What happens?"
+  ]
+ },
+ "6.8": {
+  "goal": "Compute Cohen's d for the memory-training study by hand, then see a huge sample make a tiny effect significant while d stays tiny.",
+  "python": {
+   "blocks": [
+    {
+     "title": "Enter the two groups",
+     "text": "The memory-training study from the lesson: 25 people trained, 25 controls. The scores below are built to match the lesson (trained: mean 78, SD 10; control: mean 70, SD 12).",
+     "code": "import numpy as np\nfrom scipy import stats\n\ntrained = np.array([95.69, 56.78, 81.95, 73.61, 74.58, 76.59, 61.32, 76.45, 71.09, 106.54, 80.32, 75.43, 76.03, 72.76, 69.48, 75.11, 82.49, 76.39, 86.52, 76.72, 78.62, 91.5, 83.03, 74.14, 76.87])\ncontrol = np.array([62.92, 68.16, 88.37, 77.33, 52.05, 70.03, 63.23, 71.72, 52.41, 72.74, 72.67, 87.4, 73.57, 75.7, 53.68, 94.84, 49.03, 82.19, 66.46, 60.41, 62.87, 62.7, 74.26, 68.88, 86.38])\n\nfor name, g in [('trained', trained), ('control', control)]:\n    print(f'{name}: n = {len(g)}, mean = {g.mean():.2f}, sd = {g.std(ddof=1):.2f}')"
+    },
+    {
+     "title": "Cohen's d by hand",
+     "text": "Cohen's d is the gap between the means measured in pooled standard deviations. The pooled SD is a weighted average of the two group SDs, so d does not depend on the sample size.",
+     "code": "n1, n2 = len(trained), len(control)\ns1, s2 = trained.std(ddof=1), control.std(ddof=1)\n\nsp = np.sqrt(((n1 - 1) * s1**2 + (n2 - 1) * s2**2) / (n1 + n2 - 2))\nd = (trained.mean() - control.mean()) / sp\ng = d * (1 - 3 / (4 * (n1 + n2 - 2) - 1))   # Hedges' g, a small-sample correction\n\nprint(f'pooled SD = {sp:.3f}')\nprint(f\"Cohen's d = {d:.3f}\")\nprint(f\"Hedges' g = {g:.3f}\")"
+    },
+    {
+     "title": "Add the p-value",
+     "text": "The t-test says whether the gap could be chance, while d says how big it is. Report both. (This is the pooled test; the lesson's Welch version gives the same p to three decimals.)",
+     "code": "res = stats.ttest_ind(trained, control)\n\nprint(f't = {res.statistic:.3f}, df = {res.df:.0f}, p = {res.pvalue:.4f}')"
+    },
+    {
+     "title": "Tiny effect, huge sample",
+     "text": "ttest_ind_from_stats runs the t-test from summary numbers. Compare three studies: a huge sample with a trivial gap, the memory study, and a tiny sample with a big gap. The p-values and d tell different stories.",
+     "code": "def study(label, diff, sd, n):\n    res = stats.ttest_ind_from_stats(diff, sd, n, 0, sd, n)   # pooled test\n    print(f'{label:<14} d = {diff / sd:.3f}  t = {res.statistic:.2f}  p = {res.pvalue:.4f}')\n\nstudy('huge sample', 0.2, 15, 50000)\nstudy('memory study', 8, sp, 25)\nstudy('tiny sample', 15, 15, 4)"
+    }
+   ]
+  },
+  "r": {
+   "code": "trained <- c(95.69, 56.78, 81.95, 73.61, 74.58, 76.59, 61.32, 76.45, 71.09, 106.54, 80.32, 75.43, 76.03, 72.76, 69.48, 75.11, 82.49, 76.39, 86.52, 76.72, 78.62, 91.5, 83.03, 74.14, 76.87)\ncontrol <- c(62.92, 68.16, 88.37, 77.33, 52.05, 70.03, 63.23, 71.72, 52.41, 72.74, 72.67, 87.4, 73.57, 75.7, 53.68, 94.84, 49.03, 82.19, 66.46, 60.41, 62.87, 62.7, 74.26, 68.88, 86.38)\nsp <- sqrt((24 * var(trained) + 24 * var(control)) / 48)\n(mean(trained) - mean(control)) / sp          # Cohen's d\nt.test(trained, control, var.equal = TRUE)\n\nstudy <- function(diff, sd, n) {\n  t <- diff / sqrt(2 * sd^2 / n)\n  c(d = diff / sd, t = t, p = 2 * pt(-abs(t), 2 * n - 2))\n}\nstudy(0.2, 15, 50000)\nstudy(15, 15, 4)",
+   "expect": "d = 0.7243; t = 2.5609, df = 48, p-value = 0.01364; huge sample: d = 0.0133, t = 2.108, p = 0.03502; tiny sample: d = 1, t = 1.414, p = 0.2070",
+   "note": "Base R has no Cohen's d command, so it is computed from the pooled SD. The helper function reproduces the huge-sample and tiny-sample studies (the memory study's t and p appear in the t.test output)."
+  },
+  "spss": {
+   "menu": "Analyze > Compare Means > Independent-Samples T Test (version 27 and later also prints an effect-size table with Cohen's d)",
+   "syntax": "DATA LIST FREE / label n diff sd.\nBEGIN DATA\n1 50000 0.2 15\n2 25 8 11.0454\n3 4 15 15\nEND DATA.\nCOMPUTE d = diff / sd.\nCOMPUTE t = diff / SQRT(2 * sd**2 / n).\nCOMPUTE p = 2 * CDF.T(-ABS(t), 2 * n - 2).\nLIST label d t p.",
+   "note": "With raw data in two groups, the menu route above gives the t-test (and d in newer versions). The syntax shows the by-hand version for the three studies: 1 = huge sample, 2 = memory study, 3 = tiny sample. The pooled SD of the memory study (11.0454) comes from the lesson."
+  },
+  "stata": {
+   "code": "esizei 25 78 10 25 70 12, cohensd      // Cohen's d from summary numbers\nttesti 25 78 10 25 70 12\nesizei 50000 0.2 15 50000 0 15, cohensd\nttesti 50000 0.2 15 50000 0 15",
+   "note": "esizei takes each group's size, mean and SD and prints Cohen's d; ttesti runs the pooled t-test. With raw data use esize twosample score, by(group) cohensd."
+  },
+  "try": [
+   "Change the huge sample size from 50,000 to 500 and predict what happens to p and to d.",
+   "In the tiny-sample study, raise n from 4 to 40 and predict which of d and p changes, then run it."
+  ]
+ },
+ "6.9": {
+  "goal": "Compare incomes (in thousands) in two cities with 12 people each: check the t-test assumptions, then run both the t-test and the Mann-Whitney test and decide which to trust.",
+  "python": {
+   "blocks": [
+    {
+     "title": "Enter and look at the data",
+     "text": "Skewed incomes in two cities, 12 people each. Always look first: each city has one very large income, which pulls its mean far above its median.",
+     "code": "import numpy as np\nfrom scipy import stats\nimport matplotlib.pyplot as plt\n\ncity_a = np.array([33.6, 26.6, 17.6, 64.6, 18.0, 23.9, 23.5, 23.2, 212.7, 39.8, 61.7, 59.1])\ncity_b = np.array([150.9, 42.3, 50.8, 36.2, 65.9, 95.3, 137.2, 45.7, 301.4, 50.7, 88.5, 63.9])\n\nfor name, g in [('A', city_a), ('B', city_b)]:\n    print(f'city {name}: mean = {g.mean():.1f}, median = {np.median(g):.1f}, sd = {g.std(ddof=1):.1f}')\n\nplt.figure(figsize=(6, 3.4))\nplt.boxplot([city_a, city_b], tick_labels=['City A', 'City B'])\nplt.ylabel('income (thousands)')\nplt.show()"
+    },
+    {
+     "title": "Check normality with Shapiro-Wilk",
+     "text": "Shapiro-Wilk asks whether the data look like a sample from a normal curve. A p-value below 0.05 is evidence against normality. With only 12 per group, a normal-looking result would also not prove normality.",
+     "code": "for name, g in [('A', city_a), ('B', city_b)]:\n    w = stats.shapiro(g)\n    verdict = 'not normal' if w.pvalue < 0.05 else 'no clear problem'\n    print(f'city {name}: W = {w.statistic:.3f}, p = {w.pvalue:.4f} ({verdict})')"
+    },
+    {
+     "title": "Check equal spread with Levene",
+     "text": "Levene's test asks whether the two groups have the same spread. We use the mean-centred version so it matches SPSS and Stata (SciPy's default centres on the median). A small p-value would mean unequal spreads.",
+     "code": "lev = stats.levene(city_a, city_b, center='mean')\n\nprint(f'Levene: statistic = {lev.statistic:.3f}, p = {lev.pvalue:.4f}')\nprint('spreads look equal?', lev.pvalue >= 0.05)"
+    },
+    {
+     "title": "Run the t-test and Mann-Whitney",
+     "text": "Welch's t-test compares means and is pulled around by the big incomes. The Mann-Whitney test uses ranks, so extreme values count only as 'the highest'. method='exact' gives an exact p-value when there are no ties.",
+     "code": "t_res = stats.ttest_ind(city_a, city_b, equal_var=False)\nu_res = stats.mannwhitneyu(city_a, city_b, method='exact', alternative='two-sided')\n\nprint(f'Welch t-test:   t = {t_res.statistic:.3f}, p = {t_res.pvalue:.4f}')\nprint(f'Mann-Whitney:   U = {u_res.statistic:.1f}, p = {u_res.pvalue:.4f}')"
+    },
+    {
+     "title": "Decide which to trust",
+     "text": "Both groups failed the normality check and n is small, so the rank-based test is the safer choice here. The two tests disagree at alpha = 0.05, which is a warning that outliers matter. Say which test you chose and why, before looking at p.",
+     "code": "alpha = 0.05\nprint('t-test significant?      ', t_res.pvalue <= alpha)\nprint('Mann-Whitney significant?', u_res.pvalue <= alpha)\nprint()\nprint('Small, skewed samples: trust the Mann-Whitney result.')"
+    }
+   ]
+  },
+  "r": {
+   "code": "a <- c(33.6, 26.6, 17.6, 64.6, 18, 23.9, 23.5, 23.2, 212.7, 39.8, 61.7, 59.1)\nb <- c(150.9, 42.3, 50.8, 36.2, 65.9, 95.3, 137.2, 45.7, 301.4, 50.7, 88.5, 63.9)\nshapiro.test(a); shapiro.test(b)\n\nincome <- c(a, b); city <- factor(rep(c(\"A\", \"B\"), each = 12))\ndev <- abs(income - ave(income, city))   # Levene = ANOVA on distances from the group mean\nanova(lm(dev ~ city))\n\nt.test(a, b)          # Welch\nwilcox.test(a, b)     # Mann-Whitney (W equals U)",
+   "expect": "Shapiro: A W = 0.6009, p-value = 0.0001092; B W = 0.7352, p-value = 0.001881; Levene F = 0.9306, Pr(>F) = 0.3452; Welch t = -1.6385, df = 19.972, p-value = 0.117; Mann-Whitney W = 28, p-value = 0.01004",
+   "note": "Base R has no Levene test, so the ANOVA on distances from each group mean reproduces it (its F equals Levene's statistic). Python's U and R's W are the same number, and both give the exact p-value when there are no ties."
+  },
+  "spss": {
+   "menu": "Analyze > Descriptive Statistics > Explore (Plots > Normality plots with tests); Analyze > Compare Means > Independent-Samples T Test; Analyze > Nonparametric Tests > Legacy Dialogs > 2 Independent Samples",
+   "syntax": "DATA LIST FREE / city income.\nBEGIN DATA\n1 33.6 1 26.6 1 17.6 1 64.6 1 18 1 23.9\n1 23.5 1 23.2 1 212.7 1 39.8 1 61.7 1 59.1\n2 150.9 2 42.3 2 50.8 2 36.2 2 65.9 2 95.3\n2 137.2 2 45.7 2 301.4 2 50.7 2 88.5 2 63.9\nEND DATA.\nEXAMINE VARIABLES=income BY city\n  /PLOT=NPPLOT.\nT-TEST GROUPS=city(1 2)\n  /VARIABLES=income.\nNPAR TESTS\n  /M-W=income BY city(1 2).",
+   "note": "EXAMINE prints the Shapiro-Wilk test per city. The t-test table includes Levene's test (mean-based, matching Python above) and both t rows; read the 'not assumed' row for Welch. In the Mann-Whitney table use the Exact Sig. (2-tailed) line."
+  },
+  "stata": {
+   "code": "clear\nset obs 24\ngenerate city = 1 + (_n > 12)\ngenerate income = real(word(\"33.6 26.6 17.6 64.6 18 23.9 23.5 23.2 212.7 39.8 61.7 59.1 150.9 42.3 50.8 36.2 65.9 95.3 137.2 45.7 301.4 50.7 88.5 63.9\", _n))\nswilk income if city == 1\nswilk income if city == 2\nrobvar income, by(city)\nttest income, by(city) unequal\nranksum income, by(city)",
+   "note": "word() picks the nth number from the text so the 24 values fit in one line. robvar prints three versions of Levene's test; use W0 (mean-based). Stata's ttest is pooled unless you add unequal. ranksum reports a z-based p, and an exact p-value too for small samples."
+  },
+  "try": [
+   "Change the largest income in city A (212.7) to 40 and predict how the t-test and Mann-Whitney p-values move.",
+   "Add 100 to every value in city B (city_b + 100) and predict whether both tests become clearly significant."
+  ]
+ }
+}

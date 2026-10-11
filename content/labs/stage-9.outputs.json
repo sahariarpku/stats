@@ -1,0 +1,56 @@
+{
+ "9.1": [
+  {
+   "out": "people = 200, mean fitness = 49.7",
+   "figs": []
+  },
+  {
+   "out": "RANDOM ASSIGNMENT\n  program    : n = 95, mean fitness = 49.0\n  comparison : n = 105, mean fitness = 50.3",
+   "figs": []
+  },
+  {
+   "out": "SELF-SELECTION\n  program    : n = 98, mean fitness = 54.6\n  comparison : n = 102, mean fitness = 45.0",
+   "figs": []
+  },
+  {
+   "out": "random         estimated effect =   4.5   (true effect = 5)\nself-selected  estimated effect =  10.7   (true effect = 5)",
+   "figs": []
+  }
+ ],
+ "9.2": [
+  {
+   "out": "exam scores     mean = 77.05, median = 76.50\nresponse times  mean = 5.91, median = 2.95",
+   "figs": []
+  },
+  {
+   "out": "exam scores     W = 0.993, p = 0.9998  ->  no evidence against normality\nresponse times  W = 0.641, p = < 0.0001  ->  evidence of non-normality",
+   "figs": []
+  },
+  {
+   "out": "",
+   "figs": [
+    "9.2-3.png"
+   ]
+  }
+ ],
+ "9.3": [
+  {
+   "out": "posterior = Beta(15, 27)\nposterior mean = 0.357",
+   "figs": []
+  },
+  {
+   "out": "95% credible interval: 0.221 to 0.506\nP(rate > 25%) = 0.933",
+   "figs": []
+  },
+  {
+   "out": "Wilson 95% CI: 0.221 to 0.505\nz = 1.46, one-sided p = 0.072",
+   "figs": []
+  },
+  {
+   "out": "",
+   "figs": [
+    "9.3-4.png"
+   ]
+  }
+ ]
+}
