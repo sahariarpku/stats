@@ -1,0 +1,98 @@
+{
+ "8.1": [
+  {
+   "out": "",
+   "figs": [
+    "8.1-1.png"
+   ]
+  },
+  {
+   "out": "r       = 0.907\nr squared = 0.822\np-value = 0.0019\ndf      = 6",
+   "figs": []
+  },
+  {
+   "out": "rho     = 0.929\np-value = 0.0009",
+   "figs": []
+  },
+  {
+   "out": "r = 0.91: the two variables rise together.\nThat does NOT prove that extra hours caused extra points.\nSomething else (motivation, prior skill) could drive both.",
+   "figs": []
+  }
+ ],
+ "8.2": [
+  {
+   "out": "students: 8\nmean hours = 4.5  mean score = 65.0",
+   "figs": []
+  },
+  {
+   "out": "slope     = 3.952\nintercept = 47.214\nr         = 0.907\np-value   = 0.0019\nstd error of slope = 0.750",
+   "figs": []
+  },
+  {
+   "out": "predicted score for 6.5 hours = 72.9\nat the mean hours (4.5) the line gives 65.0",
+   "figs": []
+  },
+  {
+   "out": "",
+   "figs": [
+    "8.2-4.png"
+   ]
+  }
+ ],
+ "8.3": [
+  {
+   "out": "Intercept    47.214\nhours         3.952\ndtype: float64",
+   "figs": []
+  },
+  {
+   "out": "R squared          = 0.822\nadjusted R squared = 0.793\nresidual std error = 4.86 points\nSSE = 141.9",
+   "figs": []
+  },
+  {
+   "out": " hours  score  fitted  residual\n     1     48   51.17     -3.17\n     2     62   55.12      6.88\n     3     55   59.07     -4.07\n     4     66   63.02      2.98\n     5     63   66.98     -3.98\n     6     74   70.93      3.07\n     7     70   74.88     -4.88\n     8     82   78.83      3.17\nsum of residuals = 0.000000",
+   "figs": []
+  },
+  {
+   "out": "",
+   "figs": [
+    "8.3-4.png"
+   ]
+  }
+ ],
+ "8.4": [
+  {
+   "out": "           sqft  bedrooms  price\nsqft      1.000     0.976  0.999\nbedrooms  0.976     1.000  0.975\nprice     0.999     0.975  1.000",
+   "figs": []
+  },
+  {
+   "out": "bedrooms alone: 75.6 thousand per bedroom\nR squared = 0.952",
+   "figs": []
+  },
+  {
+   "out": "Intercept    80.0645\nsqft          0.1668\nbedrooms      0.8065\ndtype: float64\n\nIntercept    0.0000\nsqft         0.0000\nbedrooms     0.8717\ndtype: float64",
+   "figs": []
+  },
+  {
+   "out": "R squared          = 0.9987\nadjusted R squared = 0.9983\noverall F = 2688.9, p = 7.92e-11\npredicted price, 1500 sqft, 3 bed = 332.6",
+   "figs": []
+  }
+ ],
+ "8.5": [
+  {
+   "out": "students passed: 10 of 20",
+   "figs": []
+  },
+  {
+   "out": "Intercept   -4.2542\nhours        1.4487\ndtype: float64\n\nIntercept    0.0213\nhours        0.0164\ndtype: float64\nlog-likelihood = -7.7461",
+   "figs": []
+  },
+  {
+   "out": "odds ratio per hour = 4.26\n95% CI: (1.30, 13.90)\nprobability of passing after 3 hours = 0.523",
+   "figs": []
+  },
+  {
+   "out": "actually passed  0  1\npredicted            \n0                8  2\n1                2  8\naccuracy = 0.80",
+   "figs": []
+  }
+ ]
+}

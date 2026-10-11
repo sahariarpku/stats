@@ -1,0 +1,96 @@
+{
+ "1.1": [
+  {
+   "out": "mean   = 49.7\nmedian = 50.0",
+   "figs": []
+  },
+  {
+   "out": "mean   49.7 -> 64.7\nmedian 50.0 -> 51.0\nmean moved by 15.0, median by 1.0",
+   "figs": []
+  },
+  {
+   "out": "mean   = 173.5\nmedian = 49.5",
+   "figs": []
+  },
+  {
+   "out": "shoe sizes mode : [9]\ntied example    : [2, 3]\ncolours mode    : ['blue']",
+   "figs": []
+  }
+ ],
+ "1.2": [
+  {
+   "out": "n = 10\nmin, max = 8 90\nrange = 82",
+   "figs": []
+  },
+  {
+   "out": "Q1, median, Q3 = 15.0 24.5 38.0\nIQR = 23.0",
+   "figs": []
+  },
+  {
+   "out": "fences: -19.5 and 72.5\noutliers: [90]\nNumPy default Q1, Q3 = [15.75 36.25] (a different, also valid, method)",
+   "figs": []
+  },
+  {
+   "out": "",
+   "figs": [
+    "1.2-4.png"
+   ]
+  }
+ ],
+ "1.3": [
+  {
+   "out": "mean = 82.0  deviations = [-10.   3.   8. -14.  13.]  sum = 0.0\nsum of squares = 538.0\nsample variance = 134.5, sample sd = 11.60",
+   "figs": []
+  },
+  {
+   "out": "sample     variance = 134.5, sd = 11.60\npopulation variance = 107.6, sd = 10.37",
+   "figs": []
+  },
+  {
+   "out": "np.std(score)     = 10.37 (population)\npd.Series.std()   = 11.6 (sample)",
+   "figs": []
+  },
+  {
+   "out": "means: 50.0 50.0\nsd of A: 0.0\nsd of B: 31.62  (variance 1000)",
+   "figs": []
+  }
+ ],
+ "1.4": [
+  {
+   "out": "mean   = 65.7\nmedian = 65.5",
+   "figs": []
+  },
+  {
+   "out": "40 to 49: 2\n50 to 59: 4\n60 to 69: 7\n70 to 79: 5\n80 to 89: 1\n90 to 99: 1\ntotal = 20",
+   "figs": []
+  },
+  {
+   "out": "skew, default formula   = 0.486\nskew, sample-corrected   = 0.527\nmirrored (left-skewed)   = -0.527",
+   "figs": []
+  },
+  {
+   "out": "",
+   "figs": [
+    "1.4-4.png"
+   ]
+  }
+ ],
+ "1.5": [
+  {
+   "out": "Statistics: z = 1.50\nBiology:    z = 2.17\nMaya did better, relative to her class, in Biology",
+   "figs": []
+  },
+  {
+   "out": "z (ddof=1): [-0.86  0.26  0.69 -1.21  1.12]\nz (default ddof=0): [-0.96  0.29  0.77 -1.35  1.25]",
+   "figs": []
+  },
+  {
+   "out": "mean of z = 0.00\nsd of z   = 1.00\nsame order as the scores? True",
+   "figs": []
+  },
+  {
+   "out": "IQ with z = 2: 130\nshare below z = 1.5: 0.933\nshare below z = 2.17: 0.985",
+   "figs": []
+  }
+ ]
+}

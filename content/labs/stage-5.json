@@ -82,7 +82,7 @@
    "note": "Explore's Descriptives table shows the 95% Confidence Interval for Mean (3.25 to 4.10). IDF.T(0.975, df) gives the t critical value."
   },
   "stata": {
-   "code": "clear\ninput nitrate\n3.1\n4.2\n2.8\n3.9\n4.5\n3.3\n4.1\n3.7\n3.5\nend\nci means nitrate\ndisplay invttail(4, 0.025) \" \" invttail(9, 0.025) \" \" invttail(29, 0.025)  invnormal(0.975)",
+   "code": "clear\ninput nitrate\n3.1\n4.2\n2.8\n3.9\n4.5\n3.3\n4.1\n3.7\n3.5\nend\nci means nitrate\ndisplay invttail(4, 0.025) \" \" invttail(9, 0.025) \" \" invttail(29, 0.025) \" \" invnormal(0.975)",
    "note": "ci means gives the 95% t-interval. invttail(df, 0.025) is the upper-tail t critical value, which equals Python's stats.t.ppf(0.975, df)."
   },
   "try": [

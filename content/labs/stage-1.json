@@ -1,0 +1,227 @@
+{
+ "1.1": {
+  "goal": "Use the coffee shop's salaries to see one outlier drag the mean but barely move the median, and find the mode.",
+  "python": {
+   "blocks": [
+    {
+     "title": "Mean and median of nine salaries",
+     "text": "The lesson's nine coffee shop salaries, in thousands of dollars. The mean is the balance point and the median is the middle value of the sorted list.",
+     "code": "import numpy as np\nimport statistics\n\nsalary = np.array([38, 42, 45, 47, 50, 52, 55, 58, 60])\n\nprint(f'mean   = {salary.mean():.1f}')\nprint(f'median = {np.median(salary):.1f}')"
+    },
+    {
+     "title": "The owner joins the staff list",
+     "text": "Add the owner's 200 and compare. Nobody else got a raise, yet the mean jumps by 15 while the median moves by 1. The median only looks at position in the sorted list.",
+     "code": "with_owner = np.append(salary, 200)\n\nprint(f'mean   {salary.mean():.1f} -> {with_owner.mean():.1f}')\nprint(f'median {np.median(salary):.1f} -> {np.median(with_owner):.1f}')\nprint(f'mean moved by {with_owner.mean() - salary.mean():.1f}, median by {np.median(with_owner) - np.median(salary):.1f}')"
+    },
+    {
+     "title": "When the mean describes nobody",
+     "text": "The lesson's small company: six salaries in thousands of dollars, with the founder at 800. The mean of 173.5 matches no employee. The median, 49.5, is a fair picture of a typical one.",
+     "code": "company = np.array([42, 45, 48, 51, 55, 800])\n\nprint(f'mean   = {company.mean():.1f}')\nprint(f'median = {np.median(company):.1f}')"
+    },
+    {
+     "title": "The mode: the most common value",
+     "text": "statistics.multimode returns every value tied for most frequent, so it also shows when there are two modes. It is the only one of the three that works for categories such as colours.",
+     "code": "shoes = [7, 8, 8, 9, 9, 9, 10]\nties = [1, 2, 2, 3, 3]\ncolours = ['red', 'blue', 'blue', 'green']\n\nprint('shoe sizes mode :', statistics.multimode(shoes))\nprint('tied example    :', statistics.multimode(ties))\nprint('colours mode    :', statistics.multimode(colours))"
+    }
+   ]
+  },
+  "r": {
+   "code": "salary <- c(38, 42, 45, 47, 50, 52, 55, 58, 60)\nmean(salary); median(salary)\nwith_owner <- c(salary, 200)\nmean(with_owner); median(with_owner)\nshoes <- c(7, 8, 8, 9, 9, 9, 10)\ntable(shoes)\nnames(which.max(table(shoes)))",
+   "expect": "nine salaries: mean 49.67, median 50; with the owner: mean 64.7, median 51; shoe sizes: 9 appears 3 times, mode 9",
+   "note": "Base R has no function for the statistical mode (mode() means something else), so we read the largest count from table()."
+  },
+  "spss": {
+   "menu": "Analyze > Descriptive Statistics > Frequencies > Statistics",
+   "syntax": "DATA LIST FREE / salary.\nBEGIN DATA\n38 42 45 47 50 52 55 58 60 200\nEND DATA.\nFREQUENCIES VARIABLES=salary\n  /FORMAT=NOTABLE\n  /STATISTICS=MEAN MEDIAN MODE.\nTEMPORARY.\nSELECT IF (salary < 100).\nFREQUENCIES VARIABLES=salary\n  /FORMAT=NOTABLE\n  /STATISTICS=MEAN MEDIAN MODE.",
+   "note": "The first table has the owner (mean 64.7, median 51), the second leaves the owner out (mean 49.67, median 50). Every salary here is different, so SPSS shows the smallest value as the mode with a footnote saying several modes exist."
+  },
+  "stata": {
+   "code": "clear\nset obs 10\ngenerate salary = real(word(\"38 42 45 47 50 52 55 58 60 200\", _n))\ngenerate shoe = real(word(\"7 8 8 9 9 9 10 . . .\", _n))\nsummarize salary, detail\nsummarize salary if salary < 100, detail\ntabulate shoe",
+   "note": "In each summarize, detail table the 50% row is the median. Stata has no mode menu, so tabulate shoe lists the counts and you read the biggest one (9, three times)."
+  },
+  "try": [
+   "Change the owner's 200 to 2000 and predict which of the mean and median moves, then run it.",
+   "Add the value 60 to the nine salaries and look at multimode. What changes?"
+  ]
+ },
+ "1.2": {
+  "goal": "Find the range, quartiles, IQR and outlier fences for the lesson's ten waiting times and draw one box plot.",
+  "python": {
+   "blocks": [
+    {
+     "title": "Waiting times and the range",
+     "text": "The lesson's nine waiting times in minutes plus one patient who waited 90. The range is the largest minus the smallest value, so it only uses two numbers.",
+     "code": "import numpy as np\nimport matplotlib.pyplot as plt\n\nwait = np.array([8, 12, 15, 18, 22, 27, 31, 38, 45, 90])\n\nprint('n =', len(wait))\nprint('min, max =', wait.min(), wait.max())\nprint('range =', wait.max() - wait.min())"
+    },
+    {
+     "title": "Quartiles and IQR, by the lesson's recipe",
+     "text": "With 10 values, split the sorted data into a lower half and an upper half of 5. Q1 and Q3 are the medians of those halves. The IQR is the width of the middle 50%.",
+     "code": "lower, upper = wait[:5], wait[5:]\nq1, q2, q3 = np.median(lower), np.median(wait), np.median(upper)\niqr = q3 - q1\n\nprint('Q1, median, Q3 =', q1, q2, q3)\nprint('IQR =', iqr)"
+    },
+    {
+     "title": "Fences and outliers",
+     "text": "Tukey's rule marks anything below Q1 - 1.5 x IQR or above Q3 + 1.5 x IQR as an outlier. Flagged does not mean wrong: it means look at it.",
+     "code": "lower_fence = q1 - 1.5 * iqr\nupper_fence = q3 + 1.5 * iqr\n\nprint('fences:', lower_fence, 'and', upper_fence)\nprint('outliers:', wait[(wait < lower_fence) | (wait > upper_fence)])\n\nsoftware = np.percentile(wait, [25, 75])\nprint('NumPy default Q1, Q3 =', software, '(a different, also valid, method)')"
+    },
+    {
+     "title": "Draw the box plot",
+     "text": "The box runs from Q1 to Q3 with a line at the median. Whiskers stop at the most extreme values inside the fences, and the dot at 90 is the outlier. Matplotlib uses NumPy's quartile method, so its box edges are 15.75 and 36.25.",
+     "code": "plt.figure(figsize=(6, 3.4))\nplt.boxplot(wait, vert=False)\nplt.xlabel('waiting time (minutes)')\nplt.yticks([])\nplt.title('Waiting times with one long wait')\nplt.show()"
+    }
+   ]
+  },
+  "r": {
+   "code": "wait <- c(8, 12, 15, 18, 22, 27, 31, 38, 45, 90)\ndiff(range(wait))\nfivenum(wait)\nquantile(wait, c(0.25, 0.75))\nIQR(wait)\nboxplot(wait, horizontal = TRUE)",
+   "expect": "range 82; fivenum 8, 15, 24.5, 38, 90; quantile 25% 15.75, 75% 36.25; IQR 20.5; the box plot shows 90 as an outlier",
+   "note": "fivenum() uses the lesson's hand recipe (Q1 = 15, Q3 = 38). quantile() and IQR() use R's default method, which equals NumPy's default (15.75 and 36.25, IQR 20.5). boxplot() draws the hand-recipe box."
+  },
+  "spss": {
+   "menu": "Analyze > Descriptive Statistics > Explore",
+   "syntax": "DATA LIST FREE / wait.\nBEGIN DATA\n8  12  15  18  22  27  31  38  45  90\nEND DATA.\nEXAMINE VARIABLES=wait\n  /PLOT=BOXPLOT\n  /STATISTICS=DESCRIPTIVES\n  /PERCENTILES(25,50,75).",
+   "note": "The Percentiles table has two rows: Tukey's Hinges (the lesson's recipe: 15, 24.5, 38) and Weighted Average (another valid method, a little different). SPSS box plots mark 90 as an outlier."
+  },
+  "stata": {
+   "code": "clear\nset obs 10\ngenerate wait = real(word(\"8  12  15  18  22  27  31  38  45  90\", _n))\nsummarize wait, detail\ndisplay r(p75) - r(p25)\ngraph hbox wait",
+   "note": "The word() line is a compact way to type the data. summarize, detail lists p25 = 15, p50 = 24.5 and p75 = 38 (the same as the lesson's recipe for these data), so the display line prints the IQR of 23. graph hbox draws the box plot."
+  },
+  "try": [
+   "Change 90 to 50 and predict whether it is still an outlier. Compute the fences, then run it.",
+   "Remove the 90 and compare the range and the IQR. Which one changed more?"
+  ]
+ },
+ "1.3": {
+  "goal": "Compute variance and standard deviation for the lesson's five quiz scores by hand and with NumPy, and see the population versus sample difference.",
+  "python": {
+   "blocks": [
+    {
+     "title": "By hand: the six steps",
+     "text": "Follow the lesson: find the mean, the deviations, square them, add them up (the sum of squares), divide by n - 1 and take the square root. The raw deviations always add to zero.",
+     "code": "import numpy as np\n\nscore = np.array([72, 85, 90, 68, 95])\n\nmean = score.sum() / len(score)\ndev = score - mean\nss = (dev ** 2).sum()\nvar = ss / (len(score) - 1)\n\nprint('mean =', mean, ' deviations =', dev, ' sum =', dev.sum())\nprint('sum of squares =', ss)\nprint(f'sample variance = {var:.1f}, sample sd = {np.sqrt(var):.2f}')"
+    },
+    {
+     "title": "The same with NumPy: ddof 0 or 1",
+     "text": "NumPy lets you choose the divisor with ddof (delta degrees of freedom). ddof=1 divides by n - 1 (a sample), ddof=0 divides by n (a whole population).",
+     "code": "print(f'sample     variance = {score.var(ddof=1):.1f}, sd = {score.std(ddof=1):.2f}')\nprint(f'population variance = {score.var(ddof=0):.1f}, sd = {score.std(ddof=0):.2f}')"
+    },
+    {
+     "title": "A trap: NumPy and pandas differ",
+     "text": "np.std defaults to ddof=0 but pandas .std() defaults to ddof=1. Always say which one you mean. R, SPSS and Stata all use the sample version (n - 1) by default.",
+     "code": "import pandas as pd\n\ns = pd.Series(score)\nprint('np.std(score)     =', round(np.std(score), 2), '(population)')\nprint('pd.Series.std()   =', round(s.std(), 2), '(sample)')"
+    },
+    {
+     "title": "Same mean, different spread",
+     "text": "Dataset A is perfectly steady and B swings widely, yet both have mean 50. The standard deviation tells them apart. Here B is treated as a whole population (divide by N).",
+     "code": "A = np.array([50, 50, 50, 50])\nB = np.array([10, 30, 70, 90])\n\nprint('means:', A.mean(), B.mean())\nprint('sd of A:', A.std(ddof=0))\nprint(f'sd of B: {B.std(ddof=0):.2f}  (variance {B.var(ddof=0):.0f})')"
+    }
+   ]
+  },
+  "r": {
+   "code": "score <- c(72, 85, 90, 68, 95)\nmean(score)\nvar(score)\nsd(score)\n# population version: divide by n instead of n - 1\nvar(score) * (length(score) - 1) / length(score)\nsqrt(var(score) * (length(score) - 1) / length(score))",
+   "expect": "mean 82; var 134.5; sd 11.59741 (11.6); population variance 107.6, population sd 10.37",
+   "note": "var() and sd() in R are the sample versions (divide by n - 1), the same as ddof=1. R has no built-in population version, so we rescale."
+  },
+  "spss": {
+   "menu": "Analyze > Descriptive Statistics > Descriptives > Options",
+   "syntax": "DATA LIST FREE / score.\nBEGIN DATA\n72  85  90  68  95\nEND DATA.\nDESCRIPTIVES VARIABLES=score\n  /STATISTICS=MEAN STDDEV VARIANCE.",
+   "note": "SPSS always reports the sample standard deviation and variance (n - 1): 11.597 and 134.500. It has no option for the population version."
+  },
+  "stata": {
+   "code": "clear\ninput score\n72\n85\n90\n68\n95\nend\nsummarize score, detail\ndisplay r(Var) * (r(N) - 1) / r(N)",
+   "note": "summarize reports the sample variance 134.5 and Std. Dev. 11.597 (n - 1). The display line rescales the variance to the population version, 107.6."
+  },
+  "try": [
+   "Add a sixth score of 20 and predict whether the standard deviation goes up or down, then run it.",
+   "Add 10 to every score. Predict the new mean and standard deviation, then check."
+  ]
+ },
+ "1.4": {
+  "goal": "Use the lesson's 20 exam scores to tally a histogram, compare mean and median, and measure skewness.",
+  "python": {
+   "blocks": [
+    {
+     "title": "Mean versus median",
+     "text": "The lesson's 20 exam scores. When the mean sits above the median, a tail is pulling it to the right, which hints at right skew.",
+     "code": "import numpy as np\nfrom scipy import stats\nimport matplotlib.pyplot as plt\n\nscores = np.array([42, 48, 51, 55, 57, 58, 61, 62, 63, 65, 66, 67, 68, 70, 72, 73, 75, 79, 84, 98])\n\nprint(f'mean   = {scores.mean():.1f}')\nprint(f'median = {np.median(scores):.1f}')"
+    },
+    {
+     "title": "Tally the bins",
+     "text": "np.histogram counts how many scores fall in each bin. Bins of width 10 starting at 40 match the lesson. A bin includes its lower edge, and the counts must add up to 20.",
+     "code": "edges = np.arange(40, 101, 10)\ncounts, _ = np.histogram(scores, bins=edges)\n\nfor lo, c in zip(edges[:-1], counts):\n    print(f'{lo} to {lo + 9}: {c}')\nprint('total =', counts.sum())"
+    },
+    {
+     "title": "A number for skewness",
+     "text": "stats.skew measures lopsidedness. The default (bias=True) is the plain population formula. bias=False applies the small-sample correction that Excel and SPSS use, and that the lesson quotes (0.53). A positive value means a longer right tail, and mirroring the data flips the sign.",
+     "code": "print(f'skew, default formula   = {stats.skew(scores):.3f}')\nprint(f'skew, sample-corrected   = {stats.skew(scores, bias=False):.3f}')\nmirror = 100 - scores\nprint(f'mirrored (left-skewed)   = {stats.skew(mirror, bias=False):.3f}')"
+    },
+    {
+     "title": "Draw the histogram",
+     "text": "The bars touch because the scores sit on one number line. The long tail on the right (84 and 98) is easy to see. The dashed line marks the mean and the solid line the median.",
+     "code": "plt.figure(figsize=(6, 3.4))\nplt.hist(scores, bins=edges, edgecolor='white')\nplt.axvline(scores.mean(), linestyle='--', color='black', label='mean')\nplt.axvline(np.median(scores), color='black', label='median')\nplt.xlabel('exam score')\nplt.ylabel('number of students')\nplt.legend()\nplt.show()"
+    }
+   ]
+  },
+  "r": {
+   "code": "x <- c(42, 48, 51, 55, 57, 58, 61, 62, 63, 65, 66, 67, 68, 70, 72, 73, 75, 79, 84, 98)\nmean(x); median(x)\nhist(x, breaks = seq(40, 100, by = 10), right = FALSE)\nn <- length(x); m <- mean(x)\ng1 <- (sum((x - m)^3) / n) / (sum((x - m)^2) / n)^1.5\ng1\ng1 * sqrt(n * (n - 1)) / (n - 2)",
+   "expect": "mean 65.7; median 65.5; skewness g1 0.486, sample-corrected G1 0.527; histogram bar heights 2, 4, 7, 5, 1, 1",
+   "note": "Base R has no skewness function, so the formula is written out. The first value matches Python's default (0.486) and the second matches bias=False (0.527)."
+  },
+  "spss": {
+   "menu": "Analyze > Descriptive Statistics > Frequencies > Statistics and Charts",
+   "syntax": "DATA LIST FREE / score.\nBEGIN DATA\n42  48  51  55  57  58  61  62  63  65  66  67  68  70  72  73  75  79  84  98\nEND DATA.\nFREQUENCIES VARIABLES=score\n  /FORMAT=NOTABLE\n  /STATISTICS=MEAN MEDIAN SKEWNESS SESKEWNESS\n  /HISTOGRAM.",
+   "note": "SPSS reports the sample-corrected skewness, 0.527, the same as bias=False. Its histogram picks its own bin widths, so it will not look exactly like the 10-point bins."
+  },
+  "stata": {
+   "code": "clear\nset obs 20\ngenerate score = real(word(\"42  48  51  55  57  58  61  62  63  65  66  67  68  70  72  73  75  79  84  98\", _n))\nsummarize score, detail\ndisplay r(skewness) * sqrt(r(N) * (r(N) - 1)) / (r(N) - 2)\nhistogram score, width(10) start(40) frequency",
+   "note": "summarize, detail prints Skewness 0.486, the same as Python's default. The display line applies the small-sample correction to get 0.527. histogram draws 10-point bins from 40."
+  },
+  "try": [
+   "Change the bin edges to np.arange(40, 101, 20) and describe how the picture changes.",
+   "Replace 98 with 78 and predict what happens to the mean, the median and the skewness."
+  ]
+ },
+ "1.5": {
+  "goal": "Use z-scores to compare Maya's Statistics and Biology marks, and standardise the lesson's five quiz scores.",
+  "python": {
+   "blocks": [
+    {
+     "title": "Compare Maya's two exams",
+     "text": "A z-score is (score - class mean) divided by class SD: how many standard deviations above or below average. Raw marks of 85 and 78 cannot be compared, but z-scores can.",
+     "code": "import numpy as np\nfrom scipy import stats\n\nz_stat = (85 - 70) / 10\nz_bio = (78 - 65) / 6\n\nprint(f'Statistics: z = {z_stat:.2f}')\nprint(f'Biology:    z = {z_bio:.2f}')\nprint('Maya did better, relative to her class, in', 'Biology' if z_bio > z_stat else 'Statistics')"
+    },
+    {
+     "title": "Standardise a whole data set",
+     "text": "stats.zscore does every value at once. It divides by the population SD unless you set ddof=1, which gives the lesson's sample-SD values (-0.86, 0.26 ...).",
+     "code": "score = np.array([72, 85, 90, 68, 95])\n\nz = stats.zscore(score, ddof=1)\nprint('z (ddof=1):', z.round(2))\nprint('z (default ddof=0):', stats.zscore(score).round(2))"
+    },
+    {
+     "title": "Mean 0 and SD 1",
+     "text": "Standardised data always have mean 0 and standard deviation 1. The shape and the ranking do not change, only the scale.",
+     "code": "print(f'mean of z = {abs(z.mean()):.2f}')\nprint(f'sd of z   = {z.std(ddof=1):.2f}')\nprint('same order as the scores?', (np.argsort(z) == np.argsort(score)).all())"
+    },
+    {
+     "title": "Back to raw scores and percentiles",
+     "text": "Reverse the formula with x = mean + z x SD. For bell-shaped data, norm.cdf turns a z-score into the share of values below it. Only trust that if the histogram is roughly bell-shaped.",
+     "code": "print('IQ with z = 2:', 100 + 2 * 15)\nprint(f'share below z = 1.5: {stats.norm.cdf(1.5):.3f}')\nprint(f'share below z = 2.17: {stats.norm.cdf(z_bio):.3f}')"
+    }
+   ]
+  },
+  "r": {
+   "code": "score <- c(%s)\nscale(score)[, 1]\n(85 - 70) / 10\n(78 - 65) / 6\npnorm(1.5)",
+   "expect": "z for the five scores: -0.86, 0.26, 0.69, -1.21, 1.12; Maya z = 1.5 (Statistics) and 2.17 (Biology); pnorm(1.5) = 0.9332",
+   "note": "scale() divides by the sample SD, the same as ddof=1. It returns a matrix, so [, 1] pulls out the plain vector."
+  },
+  "spss": {
+   "menu": "Analyze > Descriptive Statistics > Descriptives, then tick 'Save standardized values as variables'",
+   "syntax": "DATA LIST FREE / score.\nBEGIN DATA\n72  85  90  68  95\nEND DATA.\nDESCRIPTIVES VARIABLES=score\n  /SAVE.\nLIST VARIABLES=score Zscore.",
+   "note": "/SAVE adds a new variable named Zscore using the sample SD, so the values are -0.86, 0.26, 0.69, -1.21 and 1.12. LIST prints the scores next to them."
+  },
+  "stata": {
+   "code": "clear\ninput score\n72\n85\n90\n68\n95\nend\negen z = std(score)\nlist score z\ndisplay (85 - 70) / 10\ndisplay (78 - 65) / 6",
+   "note": "egen std() uses the sample SD (n - 1), so z matches the lesson. The two display lines are Maya's z-scores, 1.5 and 2.1667."
+  },
+  "try": [
+   "Change the Statistics mark from 85 to 88 and predict whether Maya's Statistics z-score passes her Biology z-score.",
+   "Add the value 150 to the five scores. Predict how that changes the z-score of 95, then run it."
+  ]
+ }
+}

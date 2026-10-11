@@ -27,13 +27,13 @@
   },
   "r": {
    "code": "hours <- c(1, 2, 3, 4, 5, 6, 7, 8)\nscore <- c(48, 62, 55, 66, 63, 74, 70, 82)\nplot(hours, score)\ncor.test(hours, score)\ncor.test(hours, score, method = \"spearman\")",
-   "expect": "t = 5.2757, df = 6, p-value = 0.001872; 95 percent CI 0.5 to 0.98; cor 0.9066; Spearman S = 12, p-value = 0.02181, rho 0.857",
-   "note": "cor.test gives Pearson's r by default and also a confidence interval. For Spearman with 8 values R reports an exact p-value, which can differ a little from the approximate p-value in Python."
+   "expect": "t = 5.267, df = 6, p-value = 0.001889; 95 percent CI 0.5597 to 0.9832; cor 0.9067; Spearman S = 6, p-value = 0.002232, rho 0.9286",
+   "note": "cor.test gives Pearson's r by default and also a confidence interval. For Spearman with 8 values R reports an exact p-value, (0.0022), while Python and SPSS use an approximate p-value (0.0009); rho itself is identical."
   },
   "spss": {
    "menu": "Analyze > Correlate > Bivariate (tick Pearson and Spearman); Graphs > Chart Builder > Scatter/Dot",
    "syntax": "DATA LIST FREE / hours score.\nBEGIN DATA\n1 48  2 62  3 55  4 66  5 63  6 74  7 70  8 82\nEND DATA.\nGRAPH /SCATTERPLOT(BIVAR)=hours WITH score.\nCORRELATIONS /VARIABLES=hours score.\nNONPAR CORR /VARIABLES=hours score /PRINT=SPEARMAN TWOTAIL.",
-   "note": "CORRELATIONS gives Pearson's r with its two-tailed Sig.; NONPAR CORR with SPEARMAN gives rho. SPSS uses an approximate p-value for Spearman."
+   "note": "CORRELATIONS gives Pearson's r with its two-tailed Sig.; NONPAR CORR with SPEARMAN gives rho. SPSS and Stata also use an approximate p-value for Spearman (about 0.001), so it is smaller than R's exact 0.0022."
   },
   "stata": {
    "code": "clear\nset obs 8\ngenerate hours = _n\ngenerate score = real(word(\"48 62 55 66 63 74 70 82\", _n))\nscatter score hours\npwcorr hours score, sig\nspearman hours score",
@@ -72,7 +72,7 @@
   },
   "r": {
    "code": "hours <- c(1, 2, 3, 4, 5, 6, 7, 8)\nscore <- c(48, 62, 55, 66, 63, 74, 70, 82)\nfit <- lm(score ~ hours)\nsummary(fit)\npredict(fit, data.frame(hours = 6.5))",
-   "expect": "Intercept 47.2143, hours (slope) 3.9524, Std. Error 0.7491, t value 5.276, Pr(>|t|) 0.00187; Multiple R-squared 0.8225; prediction at 6.5 hours = 72.9",
+   "expect": "Intercept 47.2143, hours (slope) 3.9524, Std. Error 0.7504, t value 5.267, Pr(>|t|) 0.00189; Multiple R-squared 0.8222; prediction at 6.5 hours = 72.9",
    "note": "summary(lm) prints the coefficients table; the p-value for hours is the same as the p-value from linregress."
   },
   "spss": {
@@ -117,7 +117,7 @@
   },
   "r": {
    "code": "hours <- c(1, 2, 3, 4, 5, 6, 7, 8)\nscore <- c(48, 62, 55, 66, 63, 74, 70, 82)\nfit <- lm(score ~ hours)\nsummary(fit)\nround(residuals(fit), 2)\nplot(fitted(fit), residuals(fit)); abline(h = 0)",
-   "expect": "Multiple R-squared: 0.8225, Adjusted R-squared: 0.7929; Residual standard error: 4.863 on 6 degrees of freedom; residuals -3.17 6.88 -4.07 2.98 -3.98 3.07 -4.88 3.17",
+   "expect": "Multiple R-squared: 0.8222, Adjusted R-squared: 0.7925; Residual standard error: 4.863 on 6 degrees of freedom; residuals -3.17 6.88 -4.07 2.98 -3.98 3.07 -4.88 3.17",
    "note": "summary(lm) shows both R-squared values and the residual standard error together."
   },
   "spss": {
@@ -162,8 +162,8 @@
   },
   "r": {
    "code": "sqft <- c(1000, 1200, 1400, 1600, 1800, 2000, 2200, 2400, 2600, 2800)\nbedrooms <- c(2, 2, 3, 3, 4, 4, 4, 5, 5, 6)\nprice <- c(250, 280, 310, 350, 390, 420, 450, 480, 520, 550)\nsummary(lm(price ~ bedrooms))\nfit <- lm(price ~ sqft + bedrooms)\nsummary(fit)\npredict(fit, data.frame(sqft = 1500, bedrooms = 3))",
-   "expect": "bedrooms alone: slope 75.6; both: Intercept 80.06, sqft 0.1668 (p < 0.0001), bedrooms 0.806 (p-value 0.872); Multiple R-squared 0.9987, Adjusted 0.9983; F-statistic 2689 on 2 and 7 DF; prediction 332.6",
-   "note": "Values are printed with more digits than this, and R shows very small p-values as '<2e-16' style numbers; the signs and sizes match Python."
+   "expect": "bedrooms alone: slope 75.6; both: Intercept 80.06, sqft 0.1668 (p < 0.0001), bedrooms 0.806 (p-value 0.872); Multiple R-squared 0.9987, Adjusted 0.9983; F-statistic 2689 on 2 and 7 DF, p-value 7.9e-11; prediction 332.6",
+   "note": "R rounds small p-values in its own way (for example 1.4e-06), but the coefficients, R-squared and F match Python."
   },
   "spss": {
    "menu": "Analyze > Regression > Linear (Dependent: price, Independents: sqft and bedrooms)",
@@ -217,7 +217,7 @@
   },
   "stata": {
    "code": "clear\nset obs 20\ngenerate hours = real(word(\"0.5 0.75 1 1.25 1.5 1.75 2 2.25 2.5 2.75 3 3.25 3.5 4 4.25 4.5 4.75 5 5.5 6\", _n))\ngenerate passed = real(word(\"0 0 0 0 0 1 0 0 0 1 0 1 1 0 1 1 1 1 1 1\", _n))\nlogit passed hours\nlogistic passed hours\nestat classification\nmargins, at(hours = 3)",
-   "note": "logit shows the coefficients on the log-odds scale; logistic shows odds ratios; estat classification gives the confusion matrix at a 0.5 cut-off; margins gives the predicted probability at 3 hours (the odds-ratio table itself is fine to read from logistic)."
+   "note": "logit shows the coefficients on the log-odds scale; logistic shows odds ratios with confidence intervals; estat classification gives the confusion matrix at a 0.5 cut-off; margins gives the predicted probability at 3 hours."
   },
   "try": [
    "Predict the probability of passing after 1 hour and after 5 hours, then check with model.predict.",
