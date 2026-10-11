@@ -1,0 +1,227 @@
+{
+ "8.1": {
+  "goal": "Measure how strongly study hours and exam scores move together for the lesson's eight students, with Pearson's r, Spearman's rho and a scatter plot.",
+  "python": {
+   "blocks": [
+    {
+     "title": "Enter the data and look at it",
+     "text": "Eight students: hours studied and exam score. Always draw the scatter plot before trusting a correlation number, because the plot shows the pattern, outliers and curves that one number hides.",
+     "code": "import numpy as np\nimport matplotlib.pyplot as plt\nfrom scipy import stats\n\nhours = np.array([1, 2, 3, 4, 5, 6, 7, 8])\nscore = np.array([48, 62, 55, 66, 63, 74, 70, 82])\n\nplt.figure(figsize=(6, 3.4))\nplt.scatter(hours, score, color='#1f77b4')\nplt.xlabel('Hours studied')\nplt.ylabel('Exam score')\nplt.title('Study hours and exam score')\nplt.show()"
+    },
+    {
+     "title": "Pearson's r",
+     "text": "pearsonr measures the strength of a straight-line link from -1 to +1. It also returns a p-value for the test that the true correlation is 0, which uses the t distribution with n - 2 degrees of freedom.",
+     "code": "res = stats.pearsonr(hours, score)\n\nprint(f'r       = {res.statistic:.3f}')\nprint(f'r squared = {res.statistic ** 2:.3f}')\nprint(f'p-value = {res.pvalue:.4f}')\nprint('df      =', len(hours) - 2)"
+    },
+    {
+     "title": "Spearman's rho (the rank version)",
+     "text": "Spearman replaces each value by its rank and then correlates the ranks. It catches any steadily rising or falling pattern, curved or not, and is less bothered by outliers.",
+     "code": "sp = stats.spearmanr(hours, score)\n\nprint(f'rho     = {sp.statistic:.3f}')\nprint(f'p-value = {sp.pvalue:.4f}')"
+    },
+    {
+     "title": "Correlation is not causation",
+     "text": "A strong r tells us hours and score rise together. It cannot tell us that studying causes the higher scores: keen, well-prepared students may both study more and score higher. Only a well-designed experiment can settle cause.",
+     "code": "print(f'r = {res.statistic:.2f}: the two variables rise together.')\nprint('That does NOT prove that extra hours caused extra points.')\nprint('Something else (motivation, prior skill) could drive both.')"
+    }
+   ]
+  },
+  "r": {
+   "code": "hours <- c(1, 2, 3, 4, 5, 6, 7, 8)\nscore <- c(48, 62, 55, 66, 63, 74, 70, 82)\nplot(hours, score)\ncor.test(hours, score)\ncor.test(hours, score, method = \"spearman\")",
+   "expect": "t = 5.2757, df = 6, p-value = 0.001872; 95 percent CI 0.5 to 0.98; cor 0.9066; Spearman S = 12, p-value = 0.02181, rho 0.857",
+   "note": "cor.test gives Pearson's r by default and also a confidence interval. For Spearman with 8 values R reports an exact p-value, which can differ a little from the approximate p-value in Python."
+  },
+  "spss": {
+   "menu": "Analyze > Correlate > Bivariate (tick Pearson and Spearman); Graphs > Chart Builder > Scatter/Dot",
+   "syntax": "DATA LIST FREE / hours score.\nBEGIN DATA\n1 48  2 62  3 55  4 66  5 63  6 74  7 70  8 82\nEND DATA.\nGRAPH /SCATTERPLOT(BIVAR)=hours WITH score.\nCORRELATIONS /VARIABLES=hours score.\nNONPAR CORR /VARIABLES=hours score /PRINT=SPEARMAN TWOTAIL.",
+   "note": "CORRELATIONS gives Pearson's r with its two-tailed Sig.; NONPAR CORR with SPEARMAN gives rho. SPSS uses an approximate p-value for Spearman."
+  },
+  "stata": {
+   "code": "clear\nset obs 8\ngenerate hours = _n\ngenerate score = real(word(\"48 62 55 66 63 74 70 82\", _n))\nscatter score hours\npwcorr hours score, sig\nspearman hours score",
+   "note": "pwcorr prints Pearson's r with its p-value (sig); spearman prints rho and its p-value. scatter draws the plot."
+  },
+  "try": [
+   "Change the last score from 82 to 40 and predict what happens to r. Does Spearman's rho move as much?",
+   "Put the scores in reverse order (82 first). Predict the sign of r, then check."
+  ]
+ },
+ "8.2": {
+  "goal": "Fit the least-squares line that predicts exam score from study hours (the lesson's eight students) and use it to predict the score for 6.5 hours.",
+  "python": {
+   "blocks": [
+    {
+     "title": "Enter the data",
+     "text": "Hours studied (x) is the predictor and the exam score (y) is what we want to predict. Same eight students as in the correlation lesson.",
+     "code": "import numpy as np\nimport matplotlib.pyplot as plt\nfrom scipy import stats\n\nhours = np.array([1, 2, 3, 4, 5, 6, 7, 8])\nscore = np.array([48, 62, 55, 66, 63, 74, 70, 82])\n\nprint('students:', len(hours))\nprint('mean hours =', hours.mean(), ' mean score =', score.mean())"
+    },
+    {
+     "title": "Fit the line with linregress",
+     "text": "linregress finds the slope and intercept that make the squared vertical misses as small as possible. The slope is the typical gain in score for one extra hour. Its p-value tests whether the true slope is 0.",
+     "code": "fit = stats.linregress(hours, score)\n\nprint(f'slope     = {fit.slope:.3f}')\nprint(f'intercept = {fit.intercept:.3f}')\nprint(f'r         = {fit.rvalue:.3f}')\nprint(f'p-value   = {fit.pvalue:.4f}')\nprint(f'std error of slope = {fit.stderr:.3f}')"
+    },
+    {
+     "title": "Predict a new value",
+     "text": "To predict, put a new x into the line: score = intercept + slope x hours. 6.5 hours is inside the 1 to 8 hours we measured, so this is safe interpolation. Predicting for 20 hours would be extrapolation and should not be trusted.",
+     "code": "new_hours = 6.5\npredicted = fit.intercept + fit.slope * new_hours\n\nprint(f'predicted score for {new_hours} hours = {predicted:.1f}')\nprint(f'at the mean hours (4.5) the line gives {fit.intercept + fit.slope * 4.5:.1f}')"
+    },
+    {
+     "title": "Draw the data and the line",
+     "text": "The line should run through the middle of the points, passing through the point of means. The new prediction is marked with a star.",
+     "code": "x_line = np.array([0.5, 8.5])\n\nplt.figure(figsize=(6, 3.4))\nplt.scatter(hours, score, color='#1f77b4', label='students')\nplt.plot(x_line, fit.intercept + fit.slope * x_line, color='#d62728', label='fitted line')\nplt.scatter([new_hours], [predicted], marker='*', s=160, color='#2ca02c', label='prediction')\nplt.xlabel('Hours studied')\nplt.ylabel('Exam score')\nplt.legend()\nplt.show()"
+    }
+   ]
+  },
+  "r": {
+   "code": "hours <- c(1, 2, 3, 4, 5, 6, 7, 8)\nscore <- c(48, 62, 55, 66, 63, 74, 70, 82)\nfit <- lm(score ~ hours)\nsummary(fit)\npredict(fit, data.frame(hours = 6.5))",
+   "expect": "Intercept 47.2143, hours (slope) 3.9524, Std. Error 0.7491, t value 5.276, Pr(>|t|) 0.00187; Multiple R-squared 0.8225; prediction at 6.5 hours = 72.9",
+   "note": "summary(lm) prints the coefficients table; the p-value for hours is the same as the p-value from linregress."
+  },
+  "spss": {
+   "menu": "Analyze > Regression > Linear (Dependent: score, Independent: hours)",
+   "syntax": "DATA LIST FREE / hours score.\nBEGIN DATA\n1 48  2 62  3 55  4 66  5 63  6 74  7 70  8 82\nEND DATA.\nREGRESSION\n  /STATISTICS COEFF R ANOVA\n  /DEPENDENT score\n  /METHOD=ENTER hours.",
+   "note": "In the Coefficients table, the (Constant) B is the intercept and the hours B is the slope. To predict 6.5 hours, plug it into the line by hand (47.21 + 3.952 x 6.5)."
+  },
+  "stata": {
+   "code": "clear\nset obs 8\ngenerate hours = _n\ngenerate score = real(word(\"48 62 55 66 63 74 70 82\", _n))\nregress score hours\ndisplay _b[_cons] + _b[hours] * 6.5\ntwoway (scatter score hours) (lfit score hours)",
+   "note": "regress prints the coefficients table (hours is the slope, _cons the intercept); display computes the prediction for 6.5 hours. twoway draws the scatter with the fitted line."
+  },
+  "try": [
+   "Predict the score for 20 hours. Is the answer believable? Why is this called extrapolation?",
+   "Change the first score from 48 to 30. Predict which of slope and intercept moves more, then run it."
+  ]
+ },
+ "8.3": {
+  "goal": "Measure how good the study-hours line is with R squared and adjusted R squared, and use the residuals to check the fit, for the lesson's eight students.",
+  "python": {
+   "blocks": [
+    {
+     "title": "Fit the model with statsmodels",
+     "text": "We fit the same line as in Lesson 8.2, but with statsmodels' formula interface, which gives the full summary. The formula 'score ~ hours' reads as 'score explained by hours'.",
+     "code": "import numpy as np\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport statsmodels.formula.api as smf\n\ndf = pd.DataFrame({'hours': [1, 2, 3, 4, 5, 6, 7, 8],\n                   'score': [48, 62, 55, 66, 63, 74, 70, 82]})\n\nmodel = smf.ols('score ~ hours', data=df).fit()\n\nprint(model.params.round(3))"
+    },
+    {
+     "title": "R squared and adjusted R squared",
+     "text": "R squared is the share of the score variation that the line explains (0 to 1). Adjusted R squared is slightly lower: it charges a small penalty for each predictor, so it is fairer when comparing models.",
+     "code": "print(f'R squared          = {model.rsquared:.3f}')\nprint(f'adjusted R squared = {model.rsquared_adj:.3f}')\nprint(f'residual std error = {np.sqrt(model.scale):.2f} points')\n\nsse = (model.resid ** 2).sum()\nprint(f'SSE = {sse:.1f}')"
+    },
+    {
+     "title": "Look at the residuals",
+     "text": "A residual is what the line missed: actual minus predicted. Residuals should add up to about zero, and no student should be missed by a wildly larger amount than the rest.",
+     "code": "df['fitted'] = model.fittedvalues\ndf['residual'] = model.resid\n\nprint(df.round(2).to_string(index=False))\nprint(f'sum of residuals = {df.residual.sum():.6f}')"
+    },
+    {
+     "title": "Plot residuals against fitted values",
+     "text": "If a straight line suits the data, the points scatter randomly around zero with no curve and no funnel shape. A visible pattern would warn us that the model is missing something.",
+     "code": "plt.figure(figsize=(6, 3.4))\nplt.scatter(df.fitted, df.residual, color='#1f77b4')\nplt.axhline(0, color='#d62728', linestyle='--')\nplt.xlabel('Fitted score')\nplt.ylabel('Residual')\nplt.title('Residuals versus fitted values')\nplt.show()"
+    }
+   ]
+  },
+  "r": {
+   "code": "hours <- c(1, 2, 3, 4, 5, 6, 7, 8)\nscore <- c(48, 62, 55, 66, 63, 74, 70, 82)\nfit <- lm(score ~ hours)\nsummary(fit)\nround(residuals(fit), 2)\nplot(fitted(fit), residuals(fit)); abline(h = 0)",
+   "expect": "Multiple R-squared: 0.8225, Adjusted R-squared: 0.7929; Residual standard error: 4.863 on 6 degrees of freedom; residuals -3.17 6.88 -4.07 2.98 -3.98 3.07 -4.88 3.17",
+   "note": "summary(lm) shows both R-squared values and the residual standard error together."
+  },
+  "spss": {
+   "menu": "Analyze > Regression > Linear (Save: Residuals and Predicted values; Plots: *ZRESID on Y, *ZPRED on X)",
+   "syntax": "DATA LIST FREE / hours score.\nBEGIN DATA\n1 48  2 62  3 55  4 66  5 63  6 74  7 70  8 82\nEND DATA.\nREGRESSION\n  /STATISTICS COEFF R ANOVA\n  /DEPENDENT score\n  /METHOD=ENTER hours\n  /SCATTERPLOT=(*ZRESID ,*ZPRED)\n  /SAVE PRED RESID.",
+   "note": "The Model Summary table has R Square, Adjusted R Square and Std. Error of the Estimate. SAVE adds PRE_1 and RES_1 columns to the data. The plot uses standardized residuals, so its axis units differ from Python's, but the shape is the same."
+  },
+  "stata": {
+   "code": "clear\nset obs 8\ngenerate hours = _n\ngenerate score = real(word(\"48 62 55 66 63 74 70 82\", _n))\nregress score hours\npredict fitted, xb\npredict resid, residuals\nlist hours score fitted resid\nrvfplot, yline(0)",
+   "note": "regress prints R-squared, Adj R-squared and Root MSE (the residual standard error). predict creates the fitted values and residuals; rvfplot draws residuals versus fitted."
+  },
+  "try": [
+   "Change the last score from 82 to 60. Predict what happens to R squared and to the biggest residual, then run it.",
+   "Look at the residual plot. Which student is missed most, and in which direction?"
+  ]
+ },
+ "8.4": {
+  "goal": "Predict house price from square feet and bedrooms together, and see why the bedrooms effect disappears once size is held fixed, using the lesson's ten houses.",
+  "python": {
+   "blocks": [
+    {
+     "title": "Enter the ten houses",
+     "text": "Square feet, bedrooms and price (in thousands of dollars). Bigger houses tend to have more bedrooms, so the two predictors are tangled together. That is the whole point of this lab.",
+     "code": "import pandas as pd\nimport statsmodels.formula.api as smf\n\ndf = pd.DataFrame({\n    'sqft': [1000, 1200, 1400, 1600, 1800, 2000, 2200, 2400, 2600, 2800],\n    'bedrooms': [2, 2, 3, 3, 4, 4, 4, 5, 5, 6],\n    'price': [250, 280, 310, 350, 390, 420, 450, 480, 520, 550]})\n\nprint(df.corr().round(3))"
+    },
+    {
+     "title": "Bedrooms alone",
+     "text": "On its own, bedrooms seems to matter a lot: each extra bedroom goes with a large jump in price. But bedrooms may just be standing in for size.",
+     "code": "alone = smf.ols('price ~ bedrooms', data=df).fit()\n\nprint(f'bedrooms alone: {alone.params[\"bedrooms\"]:.1f} thousand per bedroom')\nprint(f'R squared = {alone.rsquared:.3f}')"
+    },
+    {
+     "title": "Both predictors together",
+     "text": "Adding sqft to the formula with + fits one model with two predictors. Each coefficient is the change in price for one more unit of that predictor while the other is held fixed.",
+     "code": "both = smf.ols('price ~ sqft + bedrooms', data=df).fit()\n\nprint(both.params.round(4))\nprint()\nprint(both.pvalues.round(4))"
+    },
+    {
+     "title": "Read the fit and what 'held fixed' means",
+     "text": "The sqft coefficient compares two houses with the same number of bedrooms and different sizes. The bedrooms coefficient compares houses of the same size with different bedrooms. R squared says how much of the price variation the pair explains.",
+     "code": "print(f'R squared          = {both.rsquared:.4f}')\nprint(f'adjusted R squared = {both.rsquared_adj:.4f}')\nprint(f'overall F = {both.fvalue:.1f}, p = {both.f_pvalue:.2e}')\n\nnew = pd.DataFrame({'sqft': [1500], 'bedrooms': [3]})\nprint(f'predicted price, 1500 sqft, 3 bed = {both.predict(new)[0]:.1f}')"
+    }
+   ]
+  },
+  "r": {
+   "code": "sqft <- c(1000, 1200, 1400, 1600, 1800, 2000, 2200, 2400, 2600, 2800)\nbedrooms <- c(2, 2, 3, 3, 4, 4, 4, 5, 5, 6)\nprice <- c(250, 280, 310, 350, 390, 420, 450, 480, 520, 550)\nsummary(lm(price ~ bedrooms))\nfit <- lm(price ~ sqft + bedrooms)\nsummary(fit)\npredict(fit, data.frame(sqft = 1500, bedrooms = 3))",
+   "expect": "bedrooms alone: slope 75.6; both: Intercept 80.06, sqft 0.1668 (p < 0.0001), bedrooms 0.806 (p-value 0.872); Multiple R-squared 0.9987, Adjusted 0.9983; F-statistic 2689 on 2 and 7 DF; prediction 332.6",
+   "note": "Values are printed with more digits than this, and R shows very small p-values as '<2e-16' style numbers; the signs and sizes match Python."
+  },
+  "spss": {
+   "menu": "Analyze > Regression > Linear (Dependent: price, Independents: sqft and bedrooms)",
+   "syntax": "DATA LIST FREE / sqft bedrooms price.\nBEGIN DATA\n1000 2 250  1200 2 280  1400 3 310  1600 3 350  1800 4 390\n2000 4 420  2200 4 450  2400 5 480  2600 5 520  2800 6 550\nEND DATA.\nREGRESSION\n  /STATISTICS COEFF R ANOVA\n  /DEPENDENT price\n  /METHOD=ENTER sqft bedrooms.",
+   "note": "Read B and Sig. in the Coefficients table, R Square and Adjusted R Square in the Model Summary, and F in the ANOVA table."
+  },
+  "stata": {
+   "code": "clear\nset obs 10\ngenerate sqft = 800 + 200 * _n\ngenerate bedrooms = real(word(\"2 2 3 3 4 4 4 5 5 6\", _n))\ngenerate price = real(word(\"250 280 310 350 390 420 450 480 520 550\", _n))\nregress price bedrooms\nregress price sqft bedrooms\ndisplay _b[_cons] + _b[sqft] * 1500 + _b[bedrooms] * 3",
+   "note": "The second regress prints the coefficients, p-values, R-squared, Adj R-squared and the overall F. sqft is built as 800 + 200 x row number, which gives 1000 to 2800 as in the lesson."
+  },
+  "try": [
+   "Predict the price of a 1,500 sq ft house with 5 bedrooms, then compare with 3 bedrooms. How different are they, and why so small?",
+   "Drop sqft from the formula and refit with only bedrooms. How does the bedrooms coefficient change?"
+  ]
+ },
+ "8.5": {
+  "goal": "Predict pass or fail from study hours with logistic regression for the lesson's 20 students: coefficients, odds ratio, predicted probability and a confusion matrix.",
+  "python": {
+   "blocks": [
+    {
+     "title": "Enter the pass/fail data",
+     "text": "Hours studied for 20 students and whether each passed (1) or failed (0). An outcome that is only yes or no needs logistic regression, not a straight line.",
+     "code": "import numpy as np\nimport pandas as pd\nimport statsmodels.formula.api as smf\n\nhours = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75,\n         3, 3.25, 3.5, 4, 4.25, 4.5, 4.75, 5, 5.5, 6]\npassed = [0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1]\ndf = pd.DataFrame({'hours': hours, 'passed': passed})\n\nprint('students passed:', df.passed.sum(), 'of', len(df))"
+    },
+    {
+     "title": "Fit the logistic regression",
+     "text": "logit models the log-odds of passing as a straight line in hours. The coefficients are on the log-odds scale: the slope is how much the log-odds rise for one extra hour.",
+     "code": "model = smf.logit('passed ~ hours', data=df).fit(disp=0)\n\nprint(model.params.round(4))\nprint()\nprint(model.pvalues.round(4))\nprint(f'log-likelihood = {model.llf:.4f}')"
+    },
+    {
+     "title": "Odds ratios and a predicted probability",
+     "text": "Exponentiating a coefficient turns it into an odds ratio: the factor by which the odds of passing are multiplied for each extra hour. Putting a number of hours through the model gives the probability of passing.",
+     "code": "odds_ratio = np.exp(model.params['hours'])\nci = np.exp(model.conf_int().loc['hours'])\n\nprint(f'odds ratio per hour = {odds_ratio:.2f}')\nprint(f'95% CI: ({ci[0]:.2f}, {ci[1]:.2f})')\n\np3 = model.predict(pd.DataFrame({'hours': [3]}))[0]\nprint(f'probability of passing after 3 hours = {p3:.3f}')"
+    },
+    {
+     "title": "Confusion matrix at a 0.5 cut-off",
+     "text": "To turn probabilities into yes/no predictions, predict 'pass' when the probability is 0.5 or more. The matrix counts correct and wrong predictions in each group.",
+     "code": "prob = model.predict(df)\npred = (prob >= 0.5).astype(int)\n\ntable = pd.crosstab(pred, df.passed, rownames=['predicted'], colnames=['actually passed'])\nprint(table)\nprint(f'accuracy = {(pred == df.passed).mean():.2f}')"
+    }
+   ]
+  },
+  "r": {
+   "code": "hours <- c(0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.25, 3.5, 4, 4.25, 4.5, 4.75, 5, 5.5, 6)\npassed <- c(0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1)\nfit <- glm(passed ~ hours, family = binomial)\nsummary(fit)\nexp(coef(fit))\npredict(fit, data.frame(hours = 3), type = \"response\")\ntable(predicted = fitted(fit) >= 0.5, actual = passed)",
+   "expect": "Intercept -4.2540, hours 1.4487 (Std. Error 0.6037, z value 2.400, Pr(>|z|) 0.0164); odds ratio exp(hours) = 4.26; probability at 3 hours = 0.523; table: predicted FALSE/TRUE rows with 8, 2 / 2, 8",
+   "note": "glm with family = binomial is logistic regression. R's table shows FALSE (predicted fail) and TRUE (predicted pass) as rows and the actual 0 and 1 as columns."
+  },
+  "spss": {
+   "menu": "Analyze > Regression > Binary Logistic (Dependent: passed, Covariate: hours; Options: CI for Exp(B))",
+   "syntax": "DATA LIST FREE / hours passed.\nBEGIN DATA\n0.5 0  0.75 0  1 0  1.25 0  1.5 0  1.75 1  2 0  2.25 0  2.5 0  2.75 1\n3 0  3.25 1  3.5 1  4 0  4.25 1  4.5 1  4.75 1  5 1  5.5 1  6 1\nEND DATA.\nLOGISTIC REGRESSION VARIABLES passed\n  /METHOD=ENTER hours\n  /PRINT=CI(95)\n  /CRITERIA=CUT(0.5).",
+   "note": "The Variables in the Equation table gives B (the log-odds slope), Wald, Sig. and Exp(B) (the odds ratio, with its 95% CI). The Classification Table at cut value 0.500 is the confusion matrix. SPSS shows a Wald chi-square (z squared) rather than z."
+  },
+  "stata": {
+   "code": "clear\nset obs 20\ngenerate hours = real(word(\"0.5 0.75 1 1.25 1.5 1.75 2 2.25 2.5 2.75 3 3.25 3.5 4 4.25 4.5 4.75 5 5.5 6\", _n))\ngenerate passed = real(word(\"0 0 0 0 0 1 0 0 0 1 0 1 1 0 1 1 1 1 1 1\", _n))\nlogit passed hours\nlogistic passed hours\nestat classification\nmargins, at(hours = 3)",
+   "note": "logit shows the coefficients on the log-odds scale; logistic shows odds ratios; estat classification gives the confusion matrix at a 0.5 cut-off; margins gives the predicted probability at 3 hours (the odds-ratio table itself is fine to read from logistic)."
+  },
+  "try": [
+   "Predict the probability of passing after 1 hour and after 5 hours, then check with model.predict.",
+   "Change the cut-off from 0.5 to 0.3. Predict whether the number of false alarms (predicted pass, actually failed) goes up or down."
+  ]
+ }
+}

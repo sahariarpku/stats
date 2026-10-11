@@ -1,0 +1,92 @@
+{
+ "3.1": {
+  "goal": "Build the probability distribution (PMF) of the sum of two dice as a table, find its mean and variance from the PMF, and check them by simulation.",
+  "python": {
+   "blocks": [
+    {
+     "title": "The PMF as a table",
+     "text": "We count how many of the 36 equally likely pairs give each sum, then divide by 36. A pandas table keeps the values, the counts and the probabilities side by side.",
+     "code": "import numpy as np\nimport pandas as pd\nfrom itertools import product\n\nsums = [a + b for a, b in product(range(1, 7), repeat=2)]\npmf = pd.Series(sums).value_counts().sort_index() / 36\n\ntable = pd.DataFrame({'ways': (pmf * 36).astype(int), 'P(X = x)': pmf.round(4)})\ntable.index.name = 'sum x'\nprint(table.to_string())"
+    },
+    {
+     "title": "Check it is a valid PMF and add the CDF",
+     "text": "A valid PMF has probabilities between 0 and 1 that add to exactly 1. The running total (cumsum) is the CDF, which answers 'at most' questions at once.",
+     "code": "print('total probability:', round(pmf.sum(), 10))\n\ncdf = pmf.cumsum()\nprint(f'P(X <= 4)  = {cdf[4]:.4f}')\nprint(f'P(X >= 10) = {1 - cdf[9]:.4f}')"
+    },
+    {
+     "title": "Mean and variance from the PMF",
+     "text": "The mean is the sum of x times P(x). The variance is the sum of (x minus the mean) squared times P(x). These describe the whole population of possible rolls, so there is no n - 1 here.",
+     "code": "x = pmf.index.to_numpy()\np = pmf.to_numpy()\n\nmean = (x * p).sum()\nvar = ((x - mean) ** 2 * p).sum()\n\nprint(f'mean     = {mean:.4f}')\nprint(f'variance = {var:.4f}')\nprint(f'sd       = {var ** 0.5:.4f}')"
+    },
+    {
+     "title": "Check by simulation",
+     "text": "Roll two dice 100,000 times with a seeded generator. The simulated mean and variance should sit close to the exact ones. ddof=0 matches the population formula above.",
+     "code": "rng = np.random.default_rng(42)\nrolls = rng.integers(1, 7, size=100_000) + rng.integers(1, 7, size=100_000)\n\nprint(f'simulated mean     = {rolls.mean():.4f}')\nprint(f'simulated variance = {rolls.var(ddof=0):.4f}')\nprint(f'simulated P(X = 7) = {(rolls == 7).mean():.4f}  (exact {pmf[7]:.4f})')"
+    }
+   ]
+  },
+  "r": {
+   "code": "s <- as.vector(outer(1:6, 1:6, \"+\"))\npmf <- table(s) / 36\nx <- as.numeric(names(pmf))\nround(pmf, 4)\nmu <- sum(x * pmf)\nmu\nsum((x - mu)^2 * pmf)\nsqrt(sum((x - mu)^2 * pmf))\n\nset.seed(42)\nrolls <- sample(6, 1e5, TRUE) + sample(6, 1e5, TRUE)\nc(mean(rolls), mean((rolls - mean(rolls))^2))",
+   "expect": "mean 7; variance 5.8333; sd 2.4152; P(X = 7) = 0.1667; the simulated mean and variance are close to 7 and 5.83",
+   "note": "These are the population formulas, matching Python. R's var() would divide by n - 1, so for the simulation we square the gaps ourselves. Simulated values are close, not identical."
+  },
+  "spss": {
+   "menu": "Analyze > Descriptive Statistics > Frequencies (Statistics: Mean, Variance)",
+   "syntax": "INPUT PROGRAM.\nLOOP #a = 1 TO 6.\nLOOP #b = 1 TO 6.\nCOMPUTE total = #a + #b.\nEND CASE.\nEND LOOP.\nEND LOOP.\nEND FILE.\nEND INPUT PROGRAM.\nFREQUENCIES VARIABLES=total\n  /STATISTICS=MEAN VARIANCE STDDEV.",
+   "note": "The Percent column is the PMF (for example 16.7 for a sum of 7) and Cumulative Percent is the CDF. The mean is 7.00. SPSS divides by n - 1 = 35, so it reports variance 6.000; multiply by 35/36 to get the population value 5.8333."
+  },
+  "stata": {
+   "code": "clear\nset obs 36\ngen total = ceil(_n/6) + mod(_n - 1, 6) + 1\ntabulate total\nsummarize total\ndisplay r(Var) * 35/36\n\nclear\nset seed 42\nset obs 100000\ngen rolls = ceil(6*runiform()) + ceil(6*runiform())\nsummarize rolls",
+   "note": "tabulate gives the PMF as the Percent column and Cum. as the CDF. summarize uses n - 1, so r(Var) is 6; times 35/36 gives the population variance 5.8333. The simulation is close to 7 but not identical to Python's."
+  },
+  "try": [
+   "Change the dice to 8-sided ones (range(1, 9) and 64 pairs). Predict the new mean before you run it.",
+   "Use one die instead of two. Predict the mean (3.5) and whether the variance is bigger or smaller than 5.83."
+  ]
+ },
+ "3.2": {
+  "goal": "Use the binomial distribution for the lesson's drug that works for 70% of patients (10 patients): exactly, at most and at least, plus mean, SD and a simulation check.",
+  "python": {
+   "blocks": [
+    {
+     "title": "Exactly 7 respond",
+     "text": "binom.pmf(k, n, p) gives P(X = k), one bar of the distribution. We also compute the lesson's formula C(n, k) x p^k x (1 - p)^(n - k) by hand to see that they agree.",
+     "code": "import math\nimport numpy as np\nfrom scipy.stats import binom\n\nn, p = 10, 0.7\n\nby_hand = math.comb(n, 7) * p**7 * (1 - p)**3\nprint(f'formula   : {by_hand:.4f}')\nprint(f'binom.pmf : {binom.pmf(7, n, p):.4f}')"
+    },
+    {
+     "title": "At most, more than, at least",
+     "text": "cdf(k) is P(X <= k), 'at most k'. sf(k) is the survival function P(X > k), 'more than k'. So 'at least 9' is sf(8), which is the same as 1 minus cdf(8).",
+     "code": "print(f'P(X <= 6)  at most 6      = {binom.cdf(6, n, p):.4f}')\nprint(f'P(X > 8)   more than 8      = {binom.sf(8, n, p):.4f}')\nprint(f'P(X >= 9)  at least 9       = {1 - binom.cdf(8, n, p):.4f}')\nprint(f'P(9) + P(10) added by hand  = {binom.pmf(9, n, p) + binom.pmf(10, n, p):.4f}')"
+    },
+    {
+     "title": "Mean and standard deviation",
+     "text": "The shortcuts are mean = n x p and SD = square root of n x p x (1 - p). SciPy's stats method returns the same values from the distribution itself.",
+     "code": "print(f'mean = n*p = {n * p:.1f}')\nprint(f'variance   = {n * p * (1 - p):.2f}')\nprint(f'SD         = {math.sqrt(n * p * (1 - p)):.3f}')\n\nm, v = binom.stats(n, p)\nprint(f'scipy      : mean {float(m):.1f}, variance {float(v):.2f}')"
+    },
+    {
+     "title": "Check by simulation",
+     "text": "Run the 10-patient trial 100,000 times with a seeded generator and count how many responders each trial has. The simulated shares should be close to the exact probabilities.",
+     "code": "rng = np.random.default_rng(42)\nresponders = rng.binomial(n, p, size=100_000)\n\nprint(f'simulated P(X = 7)  = {(responders == 7).mean():.4f}  (exact {binom.pmf(7, n, p):.4f})')\nprint(f'simulated P(X >= 9) = {(responders >= 9).mean():.4f}  (exact {binom.sf(8, n, p):.4f})')\nprint(f'simulated mean {responders.mean():.3f}, SD {responders.std():.3f}')"
+    }
+   ]
+  },
+  "r": {
+   "code": "n <- 10; p <- 0.7\ndbinom(7, n, p)                       # exactly 7\npbinom(6, n, p)                       # at most 6\npbinom(8, n, p, lower.tail = FALSE)   # more than 8 = at least 9\nn * p\nsqrt(n * p * (1 - p))\n\nset.seed(42)\nx <- rbinom(100000, n, p)\nmean(x == 7)",
+   "expect": "P(X = 7) = 0.2668; P(X <= 6) = 0.3504; P(X >= 9) = 0.1493; mean 7; sd 1.449; simulated P(X = 7) close to 0.2668",
+   "note": "dbinom, pbinom and rbinom are R's pmf, cdf and random draws. lower.tail = FALSE gives the survival probability P(X > k). The simulation is close to the exact value, not identical to Python's."
+  },
+  "spss": {
+   "menu": "Transform > Compute Variable (Function group: PDF & Noncentral PDF, CDF & Noncentral CDF, Random Numbers)",
+   "syntax": "DATA LIST FREE / dummy.\nBEGIN DATA\n1\nEND DATA.\nCOMPUTE exact7 = PDF.BINOM(7, 10, 0.7).\nCOMPUTE atmost6 = CDF.BINOM(6, 10, 0.7).\nCOMPUTE atleast9 = 1 - CDF.BINOM(8, 10, 0.7).\nCOMPUTE mean_x = 10 * 0.7.\nCOMPUTE sd_x = SQRT(10 * 0.7 * 0.3).\nFORMATS exact7 atmost6 atleast9 sd_x (F8.4).\nLIST VARIABLES=exact7 atmost6 atleast9 mean_x sd_x.",
+   "note": "PDF.BINOM(k, n, p) is the pmf and CDF.BINOM(k, n, p) is P(X <= k). For a simulation use COMPUTE x = RV.BINOM(10, 0.7) on many cases; the result is close to, not identical to, Python's."
+  },
+  "stata": {
+   "code": "display binomialp(10, 7, 0.7)\ndisplay binomial(10, 6, 0.7)\ndisplay binomialtail(10, 9, 0.7)\ndisplay 10 * 0.7\ndisplay sqrt(10 * 0.7 * 0.3)\n\nclear\nset seed 42\nset obs 100000\ngen x = rbinomial(10, 0.7)\ngen is7 = (x == 7)\nsummarize is7",
+   "note": "In Stata binomialp(n, k, p) is P(X = k), binomial(n, k, p) is P(X <= k) and binomialtail(n, k, p) is P(X >= k), so 'at least 9' uses k = 9. The simulated mean of is7 is close to 0.2668, not identical to Python's."
+  },
+  "try": [
+   "Change p to 0.5 and predict where the most likely count moves, then print binom.pmf for k = 0 to 10.",
+   "A coin is flipped 100 times and gives 62 heads. Compute binom.sf(61, 100, 0.5) and compare with the lesson's 0.0105."
+  ]
+ }
+}

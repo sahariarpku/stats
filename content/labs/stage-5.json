@@ -1,0 +1,140 @@
+{
+ "5.1": {
+  "goal": "Build a 95% z-interval for a mean when sigma is known, then simulate thousands of intervals to see about 95% catch the true mean.",
+  "python": {
+   "blocks": [
+    {
+     "title": "The z-interval by formula",
+     "text": "The lesson's exam: sigma = 12 is known, n = 40 and the sample mean is 78.5. Three steps: standard error, margin of error (z* times SE), then the interval.",
+     "code": "import numpy as np\nfrom scipy import stats\n\nsigma, n, xbar = 12, 40, 78.5\nz = stats.norm.ppf(0.975)\nse = sigma / np.sqrt(n)\nme = z * se\n\nprint(f'z* = {z:.3f}, SE = {se:.3f}, margin = {me:.2f}')\nprint(f'95% CI = ({xbar - me:.2f}, {xbar + me:.2f})')"
+    },
+    {
+     "title": "Confidence level changes the width",
+     "text": "Being more confident means casting a wider net. We repeat the calculation for 90%, 95% and 99%, using the matching z*.",
+     "code": "for level in (0.90, 0.95, 0.99):\n    z = stats.norm.ppf(1 - (1 - level) / 2)\n    me = z * se\n    print(f'{level:.0%}: z* = {z:.3f}, margin = {me:.2f}, ({xbar - me:.2f}, {xbar + me:.2f})')"
+    },
+    {
+     "title": "Sample size changes the width",
+     "text": "At 95%, quadrupling n halves the margin of error, the 1 over square root of n rule again.",
+     "code": "for n_try in (10, 40, 160, 640):\n    margin = 1.96 * sigma / np.sqrt(n_try)\n    print(f'n = {n_try:3d}: margin = {margin:.2f}')"
+    },
+    {
+     "title": "Does it really catch the truth?",
+     "text": "Make the truth known: a normal population with mean 78.5 and SD 12. Draw 10,000 samples of 40, build a 95% interval from each, and count how many contain 78.5.",
+     "code": "rng = np.random.default_rng(1)\ntrue_mean = 78.5\nmeans = rng.normal(true_mean, sigma, size=(10_000, 40)).mean(axis=1)\nme = 1.96 * sigma / np.sqrt(40)\ncaught = (means - me <= true_mean) & (true_mean <= means + me)\n\nprint(f'intervals that caught the true mean: {caught.mean():.1%}')\nprint('intervals that missed:', (~caught).sum(), 'of 10000')"
+    }
+   ]
+  },
+  "r": {
+   "code": "sigma <- 12; n <- 40; xbar <- 78.5\nz <- qnorm(0.975)\nme <- z * sigma / sqrt(n)\nc(z, me, xbar - me, xbar + me)\nset.seed(1)\nmeans <- replicate(10000, mean(rnorm(40, 78.5, 12)))\nmean(abs(means - 78.5) <= me)",
+   "expect": "z = 1.960, margin = 3.72, interval 74.78 to 82.22; coverage close to 0.95 (Python: 95.0%)",
+   "note": "Base R has no z-interval command, so we use qnorm and the formula. The coverage figure is simulated, so it is close to 95% but not identical to Python's."
+  },
+  "spss": {
+   "menu": "Transform > Compute Variable (use IDF.NORMAL in the function list)",
+   "syntax": "DATA LIST FREE / sigma n xbar.\nBEGIN DATA\n12 40 78.5\nEND DATA.\nCOMPUTE z = IDF.NORMAL(0.975, 0, 1).\nCOMPUTE se = sigma / SQRT(n).\nCOMPUTE me = z * se.\nCOMPUTE lower = xbar - me.\nCOMPUTE upper = xbar + me.\nLIST VARIABLES=z se me lower upper.",
+   "note": "SPSS has no menu for a known-sigma interval, so we compute it from the formula; IDF.NORMAL(0.975, 0, 1) gives z* = 1.960. The coverage simulation is not repeated here."
+  },
+  "stata": {
+   "code": "scalar z = invnormal(0.975)\nscalar se = 12 / sqrt(40)\nscalar me = z * se\ndisplay \"z* = \" z\ndisplay \"SE = \" se\ndisplay \"margin = \" me\ndisplay \"95% CI = (\" (78.5 - me) \", \" (78.5 + me) \")\"",
+   "note": "Stata's own interval commands assume sigma is unknown (t-based), so the known-sigma interval is built from invnormal() and the formula. It matches Python's 74.78 to 82.22."
+  },
+  "try": [
+   "Change the confidence level to 99% in the first block and predict whether the interval gets wider or narrower.",
+   "Change sigma to 6 and predict what happens to the margin of error.",
+   "In the simulation, use a z* of 1.645 (a 90% interval) in place of 1.96. What share of intervals should catch the truth now?"
+  ]
+ },
+ "5.2": {
+  "goal": "Build a t-interval for a mean from nine nitrate readings, and see how the t critical value compares with z for small and larger samples.",
+  "python": {
+   "blocks": [
+    {
+     "title": "The sample",
+     "text": "The lesson's nine nitrate readings (mg/L). Because sigma is unknown we use the sample SD s, and the standard error is s / sqrt(n).",
+     "code": "import numpy as np\nfrom scipy import stats\n\nnitrate = np.array([3.1, 4.2, 2.8, 3.9, 4.5, 3.3, 4.1, 3.7, 3.5])\nn = len(nitrate)\nmean = nitrate.mean()\nse = nitrate.std(ddof=1) / np.sqrt(n)\n\nprint(f'mean = {mean:.3f}, s = {nitrate.std(ddof=1):.3f}, SE = {se:.3f}')"
+    },
+    {
+     "title": "The t-interval in one line",
+     "text": "stats.t.interval takes the confidence level, the degrees of freedom (n minus 1), the centre and the standard error, and returns the lower and upper limits.",
+     "code": "low, high = stats.t.interval(0.95, df=n - 1, loc=mean, scale=se)\n\nprint(f'df = {n - 1}')\nprint(f'95% CI (t) = ({low:.2f}, {high:.2f}) mg/L')"
+    },
+    {
+     "title": "Check it by hand, and compare with z",
+     "text": "The interval is mean plus or minus t* times SE. Using z* = 1.96 by mistake gives a narrower interval that claims too much certainty.",
+     "code": "t_star = stats.t.ppf(0.975, df=n - 1)\nz_star = stats.norm.ppf(0.975)\n\nprint(f't* = {t_star:.3f}, margin = {t_star * se:.3f}')\nprint(f'by hand: ({mean - t_star * se:.2f}, {mean + t_star * se:.2f})')\nprint(f'with z*: ({mean - z_star * se:.2f}, {mean + z_star * se:.2f})  too narrow')"
+    },
+    {
+     "title": "t versus z for different sample sizes",
+     "text": "The t critical value is larger for small samples, because s is a shaky estimate of sigma. As n grows, t* shrinks towards z* = 1.960.",
+     "code": "print('  n   df   t*      z*')\nfor k in (5, 10, 30):\n    print(f'{k:3d}  {k - 1:3d}  {stats.t.ppf(0.975, k - 1):.3f}  {stats.norm.ppf(0.975):.3f}')"
+    }
+   ]
+  },
+  "r": {
+   "code": "nitrate <- c(3.1, 4.2, 2.8, 3.9, 4.5, 3.3, 4.1, 3.7, 3.5)\nt.test(nitrate)$conf.int\nqt(0.975, df = 8)\nqt(0.975, df = c(4, 9, 29))\nqnorm(0.975)",
+   "expect": "conf.int 3.252 to 4.104; qt df = 8: 2.306; qt for df 4, 9, 29: 2.776 2.262 2.045; qnorm 1.960",
+   "note": "t.test(x) tests against 0 by default, but we only use its conf.int, which is the 95% t-interval for the mean."
+  },
+  "spss": {
+   "menu": "Analyze > Descriptive Statistics > Explore (Statistics button: Descriptives, 95% confidence interval for the mean); critical values from Transform > Compute Variable with IDF.T",
+   "syntax": "DATA LIST FREE / nitrate.\nBEGIN DATA\n3.1 4.2 2.8 3.9 4.5 3.3 4.1 3.7 3.5\nEND DATA.\nEXAMINE VARIABLES=nitrate\n  /PLOT=NONE\n  /STATISTICS=DESCRIPTIVES\n  /CINTERVAL 95.\nCOMPUTE t5 = IDF.T(0.975, 4).\nCOMPUTE t10 = IDF.T(0.975, 9).\nCOMPUTE t30 = IDF.T(0.975, 29).\nCOMPUTE z = IDF.NORMAL(0.975, 0, 1).\nLIST VARIABLES=t5 t10 t30 z /CASES=FROM 1 TO 1.",
+   "note": "Explore's Descriptives table shows the 95% Confidence Interval for Mean (3.25 to 4.10). IDF.T(0.975, df) gives the t critical value."
+  },
+  "stata": {
+   "code": "clear\ninput nitrate\n3.1\n4.2\n2.8\n3.9\n4.5\n3.3\n4.1\n3.7\n3.5\nend\nci means nitrate\ndisplay invttail(4, 0.025) \" \" invttail(9, 0.025) \" \" invttail(29, 0.025)  invnormal(0.975)",
+   "note": "ci means gives the 95% t-interval. invttail(df, 0.025) is the upper-tail t critical value, which equals Python's stats.t.ppf(0.975, df)."
+  },
+  "try": [
+   "Change the level to 0.99 in stats.t.interval and predict whether the interval gets wider or narrower.",
+   "Add k = 100 and k = 1000 to the loop and watch t* approach 1.960.",
+   "Add one extreme reading of 9.0 to the data. What happens to the width of the interval?"
+  ]
+ },
+ "5.3": {
+  "goal": "Build 95% confidence intervals for a proportion with the Wald and Wilson methods, and see why Wilson is safer for small samples.",
+  "python": {
+   "blocks": [
+    {
+     "title": "A healthy poll: 476 of 850",
+     "text": "The lesson's poll. statsmodels' proportion_confint takes the count of successes, the sample size, and a method: 'normal' is the classic Wald interval, 'wilson' is the Wilson score interval.",
+     "code": "from statsmodels.stats.proportion import proportion_confint\n\nx, n = 476, 850\nprint(f'p-hat = {x / n:.3f}')\nfor method in ('normal', 'wilson'):\n    low, high = proportion_confint(x, n, alpha=0.05, method=method)\n    print(f'{method:7s}: ({low:.4f}, {high:.4f})')"
+    },
+    {
+     "title": "A small sample: 3 of 20",
+     "text": "Now only 3 of 20 patients had a complication. n times p-hat is just 3, below the rule of 10, so the Wald interval is not trustworthy here. The raw Wald formula gives a lower limit below 0 (about -0.006), which is impossible, so statsmodels cuts it off at 0.",
+     "code": "x, n = 3, 20\nprint(f'p-hat = {x / n:.2f}')\nfor method in ('normal', 'wilson'):\n    low, high = proportion_confint(x, n, alpha=0.05, method=method)\n    print(f'{method:7s}: ({low:.3f}, {high:.3f})')"
+    },
+    {
+     "title": "No events at all: 0 of 20",
+     "text": "With zero events, Wald collapses to (0, 0), which claims we are certain the rate is zero after only 20 patients. Wilson gives a sensible upper limit.",
+     "code": "for method in ('normal', 'wilson'):\n    low, high = proportion_confint(0, 20, alpha=0.05, method=method)\n    print(f'{method:7s}: ({low:.3f}, {high:.3f})')"
+    },
+    {
+     "title": "Coverage test",
+     "text": "Suppose the true rate is exactly 10% and n = 20. We simulate 20,000 samples, build both intervals each time and count how often they contain 10%. A good 95% interval should be close to 95%.",
+     "code": "import numpy as np\n\nrng = np.random.default_rng(3)\ncounts = rng.binomial(20, 0.10, size=20_000)\nfor method in ('normal', 'wilson'):\n    low, high = proportion_confint(counts, 20, alpha=0.05, method=method)\n    covered = (low <= 0.10) & (0.10 <= high)\n    print(f'{method:7s}: covers the true 10% in {covered.mean():.1%} of samples')"
+    }
+   ]
+  },
+  "r": {
+   "code": "x <- 3; n <- 20; phat <- x / n\nme <- 1.96 * sqrt(phat * (1 - phat) / n)\nc(phat - me, phat + me)\nprop.test(x, n, correct = FALSE)$conf.int\nbinom.test(x, n)$conf.int\nprop.test(476, 850, correct = FALSE)$conf.int",
+   "expect": "Wald by hand (-0.006, 0.306), the same upper limit as Python; prop.test Wilson (0.0524, 0.3604); binom.test exact (0.0321, 0.3789); poll 476/850 Wilson (0.5264, 0.5930)",
+   "note": "prop.test with correct = FALSE gives the Wilson score interval (the default correct = TRUE adds a continuity correction and differs slightly). binom.test gives the exact interval. R has no built-in Wald interval, so the first lines compute it."
+  },
+  "spss": {
+   "menu": "Transform > Compute Variable (SPSS menus offer exact and Jeffreys intervals under Analyze > Nonparametric Tests > One Sample, but not Wald or Wilson)",
+   "syntax": "DATA LIST FREE / x n.\nBEGIN DATA\n3 20\nEND DATA.\nCOMPUTE phat = x / n.\nCOMPUTE z = IDF.NORMAL(0.975, 0, 1).\nCOMPUTE wlo = phat - z * SQRT(phat * (1 - phat) / n).\nCOMPUTE whi = phat + z * SQRT(phat * (1 - phat) / n).\nCOMPUTE ctr = (phat + z**2 / (2 * n)) / (1 + z**2 / n).\nCOMPUTE half = z * SQRT(phat * (1 - phat) / n + z**2 / (4 * n**2)) / (1 + z**2 / n).\nCOMPUTE slo = ctr - half.\nCOMPUTE shi = ctr + half.\nLIST VARIABLES=wlo whi slo shi.",
+   "note": "Both intervals are written out as formulas, so they match Python: Wald (-0.006, 0.306; Python shows 0.000 because it cuts at 0) and Wilson (0.052, 0.360). For the poll, change the data line to 476 850."
+  },
+  "stata": {
+   "code": "cii proportions 20 3, wald\ncii proportions 20 3, wilson\ncii proportions 20 3, exact\ncii proportions 850 476, wald\ncii proportions 850 476, wilson",
+   "note": "cii proportions takes the sample size first, then the number of successes. Wald may be shown as it is (even below 0 for 3 of 20), and Wilson matches Python."
+  },
+  "try": [
+   "Change 3 of 20 to 6 of 40 (the same p-hat) and predict how the gap between Wald and Wilson changes.",
+   "Try 1 of 20 and look at the Wald lower limit.",
+   "In the coverage test, change the true rate to 0.5 and see whether Wald does better."
+  ]
+ }
+}

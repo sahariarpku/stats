@@ -108,7 +108,7 @@
     {
      "title": "Three histograms",
      "text": "The same story as a picture. With n = 1 we see the skewed population itself. With n = 5 the shape is already more balanced, and with n = 30 it looks close to a bell.",
-     "code": "fig, axes = plt.subplots(1, 3, figsize=(6, 3.4), sharex=True)\nfor ax, n in zip(axes, (1, 5, 30)):\n    ax.hist(sample_means(n), bins=30, color='steelblue', edgecolor='white')\n    ax.set_title(f'n = {n}')\n    ax.set_yticks([])\naxes[1].set_xlabel('sample mean (minutes)')\nplt.tight_layout()\nplt.show()"
+     "code": "fig, axes = plt.subplots(1, 3, figsize=(6, 3.4), sharex=True)\nfor ax, n in zip(axes, (1, 5, 30)):\n    ax.hist(sample_means(n), bins=np.linspace(0, 40, 41), color='steelblue', edgecolor='white')\n    ax.set_title(f'n = {n}')\n    ax.set_yticks([])\naxes[1].set_xlabel('sample mean (minutes)')\nplt.tight_layout()\nplt.show()"
     },
     {
      "title": "Use the bell curve",

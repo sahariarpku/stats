@@ -1,0 +1,38 @@
+{
+ "3.1": [
+  {
+   "out": "       ways  P(X = x)\nsum x                \n2         1    0.0278\n3         2    0.0556\n4         3    0.0833\n5         4    0.1111\n6         5    0.1389\n7         6    0.1667\n8         5    0.1389\n9         4    0.1111\n10        3    0.0833\n11        2    0.0556\n12        1    0.0278",
+   "figs": []
+  },
+  {
+   "out": "total probability: 1.0\nP(X <= 4)  = 0.1667\nP(X >= 10) = 0.1667",
+   "figs": []
+  },
+  {
+   "out": "mean     = 7.0000\nvariance = 5.8333\nsd       = 2.4152",
+   "figs": []
+  },
+  {
+   "out": "simulated mean     = 7.0055\nsimulated variance = 5.7999\nsimulated P(X = 7) = 0.1688  (exact 0.1667)",
+   "figs": []
+  }
+ ],
+ "3.2": [
+  {
+   "out": "formula   : 0.2668\nbinom.pmf : 0.2668",
+   "figs": []
+  },
+  {
+   "out": "P(X <= 6)  at most 6      = 0.3504\nP(X > 8)   more than 8      = 0.1493\nP(X >= 9)  at least 9       = 0.1493\nP(9) + P(10) added by hand  = 0.1493",
+   "figs": []
+  },
+  {
+   "out": "mean = n*p = 7.0\nvariance   = 2.10\nSD         = 1.449\nscipy      : mean 7.0, variance 2.10",
+   "figs": []
+  },
+  {
+   "out": "simulated P(X = 7)  = 0.2679  (exact 0.2668)\nsimulated P(X >= 9) = 0.1485  (exact 0.1493)\nsimulated mean 6.997, SD 1.450",
+   "figs": []
+  }
+ ]
+}

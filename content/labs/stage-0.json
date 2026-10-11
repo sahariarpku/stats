@@ -1,0 +1,137 @@
+{
+ "0.1": {
+  "goal": "Summarise one class's 30 test scores two ways: describe the class you have, then infer a plausible range for the wider group.",
+  "python": {
+   "blocks": [
+    {
+     "title": "Enter the 30 test scores",
+     "text": "The teacher's 30 end-of-term scores, held in a NumPy array. The mean is 74 and the standard deviation about 12.3, as in the lesson.",
+     "code": "import numpy as np\nfrom scipy import stats\n\nscores = np.array([41,57,61,62,62,62,65,65,68,68,70,72,72,73,73,75,75,76,77,77,78,79,80,84,86,86,88,95,95,98])\n\nprint('students:', len(scores))\nprint('lowest to highest:', scores.min(), 'to', scores.max())"
+    },
+    {
+     "title": "Describe: summarise what we have",
+     "text": "Descriptive statistics only talk about these 30 students. The mean and median give the centre, and the standard deviation (ddof=1, the sample version) gives the typical distance from the average.",
+     "code": "mean = scores.mean()\nmedian = np.median(scores)\nsd = scores.std(ddof=1)\n\nprint(f'mean   = {mean:.1f}')\nprint(f'median = {median:.1f}')\nprint(f'sd     = {sd:.1f}')\nprint(f'about 2/3 of scores lie within {mean - sd:.1f} to {mean + sd:.1f}')"
+    },
+    {
+     "title": "Infer: a 95% confidence interval",
+     "text": "Now treat the 30 students as a sample from a bigger group. stats.t.interval gives a range of plausible values for that group's true mean. The standard error (sd divided by the square root of n) says how much a mean of 30 scores wobbles.",
+     "code": "n = len(scores)\nse = sd / np.sqrt(n)\n\nlow, high = stats.t.interval(0.95, df=n - 1, loc=mean, scale=se)\n\nprint(f'standard error = {se:.2f}')\nprint(f'95% CI for the true mean: ({low:.1f}, {high:.1f})')"
+    },
+    {
+     "title": "What each one tells you",
+     "text": "The describing numbers are exact facts about these 30 scores. The interval is an estimate about people we did not test, and it comes with stated uncertainty. That is the whole difference between the two branches.",
+     "code": "print('DESCRIBE: this class averaged', round(mean, 1), 'with a typical spread of', round(sd, 1))\nprint('INFER: a wider group of similar students probably averages between', round(low, 1), 'and', round(high, 1))\nprint('Is the interval narrower than the spread of scores?', (high - low) < 2 * sd)"
+    }
+   ]
+  },
+  "r": {
+   "code": "scores <- c(41,57,61,62,62,62,65,65,68,68,70,72,72,73,73,75,75,76,77,77,78,79,80,84,86,86,88,95,95,98)\nmean(scores)\nmedian(scores)\nsd(scores)\nt.test(scores)$conf.int",
+   "expect": "mean 74; median 74; sd 12.29; 95 percent confidence interval: 69.41 to 78.59",
+   "note": "sd() in R is the sample version (divides by n - 1), the same as ddof=1. t.test(scores) is used here only to get the 95% interval for the mean."
+  },
+  "spss": {
+   "menu": "Analyze > Descriptive Statistics > Explore",
+   "syntax": "DATA LIST FREE / score.\nBEGIN DATA\n41 57 61 62 62 62 65 65 68 68 70 72 72 73 73 75 75 76 77 77 78 79 80 84 86 86 88 95 95 98\nEND DATA.\nEXAMINE VARIABLES=score\n  /PLOT=NONE\n  /STATISTICS=DESCRIPTIVES\n  /CINTERVAL 95.",
+   "note": "The Descriptives table shows the mean with its 95% confidence interval, the median, the standard deviation, the minimum and the maximum together."
+  },
+  "stata": {
+   "code": "clear\nset obs 30\ngenerate score = real(word(\"41 57 61 62 62 62 65 65 68 68 70 72 72 73 73 75 75 76 77 77 78 79 80 84 86 86 88 95 95 98\", _n))\nsummarize score, detail\nci means score",
+   "note": "The word() line is a compact way to type 30 numbers. summarize, detail gives the mean, median (the 50% row) and standard deviation (sample version). ci means gives the mean with its 95% confidence interval."
+  },
+  "try": [
+   "Make the sample smaller by keeping only the first 10 scores. Predict whether the 95% interval gets wider or narrower, then run it.",
+   "Change 0.95 to 0.99 in stats.t.interval. Predict what happens to the width of the interval."
+  ]
+ },
+ "0.2": {
+  "goal": "Build a small student table with a nominal, an ordinal, a discrete and a continuous column, and see which summaries make sense for each.",
+  "python": {
+   "blocks": [
+    {
+     "title": "Build a table with four kinds of data",
+     "text": "One column per type: eye colour (nominal), grade level (ordinal, so we tell pandas the order), siblings (discrete, counted) and height (continuous, measured). The dtypes show how pandas stores each one.",
+     "code": "import pandas as pd\n\ndf = pd.DataFrame({\n    'eye': ['brown','blue','brown','green','brown','blue','hazel','brown','green','blue'],\n    'grade': ['Sophomore','Senior','Freshman','Junior','Sophomore','Senior','Freshman','Sophomore','Junior','Senior'],\n    'siblings': [1, 0, 2, 3, 1, 1, 0, 2, 4, 1],\n    'height_cm': [172.4, 165.1, 180.3, 158.9, 175.6, 169.8, 162.2, 177.0, 171.3, 183.5],\n})\ndf['eye'] = df['eye'].astype('category')\ndf['grade'] = pd.Categorical(df['grade'],\n    categories=['Freshman','Sophomore','Junior','Senior'], ordered=True)\nprint(df.dtypes)"
+    },
+    {
+     "title": "Count the categories",
+     "text": "For categories the natural summary is a count (or a percentage), not an average. value_counts does it. With sort=False the ordinal column stays in its natural order, from Freshman to Senior.",
+     "code": "print(df['eye'].value_counts())\nprint()\nprint(df['grade'].value_counts(sort=False))\nprint()\nprint('share Junior or above:', (df['grade'] >= 'Junior').mean())"
+    },
+    {
+     "title": "Describe the numbers",
+     "text": "Counts and measurements are real amounts, so mean, standard deviation and quartiles all make sense. describe gives them in one table.",
+     "code": "print(df[['siblings', 'height_cm']].describe().round(2))"
+    },
+    {
+     "title": "Why averaging a category makes no sense",
+     "text": "Pandas refuses to average a category. If you force it by turning grades into codes 1 to 4, you get a number like 2.6 that is not a grade, and it pretends the gaps between grades are equal. For an ordinal column use counts, the maximum or a share instead.",
+     "code": "for col in ['eye', 'grade']:\n    try:\n        df[col].mean()\n    except TypeError:\n        print(f'mean of {col}: not allowed (TypeError)')\n\ncodes = df['grade'].cat.codes + 1\nprint('mean of grade codes:', codes.mean(), '(is that a grade? no)')\nprint('highest grade present:', df['grade'].max())"
+    }
+   ]
+  },
+  "r": {
+   "code": "eye <- factor(c('brown','blue','brown','green','brown','blue','hazel','brown','green','blue'))\ngrade <- factor(c('Sophomore','Senior','Freshman','Junior','Sophomore','Senior','Freshman','Sophomore','Junior','Senior'),\n  levels = c('Freshman','Sophomore','Junior','Senior'), ordered = TRUE)\nsiblings <- c(1, 0, 2, 3, 1, 1, 0, 2, 4, 1)\nheight_cm <- c(172.4, 165.1, 180.3, 158.9, 175.6, 169.8, 162.2, 177.0, 171.3, 183.5)\ntable(eye)\ntable(grade)\nsummary(siblings)\nsummary(height_cm)\nmean(eye)",
+   "expect": "eye: blue 3, brown 4, green 2, hazel 1; grade: Freshman 2, Sophomore 3, Junior 2, Senior 3; siblings mean 1.5; height_cm mean 171.61; mean(eye) gives NA with a warning",
+   "note": "R lists the eye colours alphabetically, while pandas lists them by size. mean(eye) returns NA with a warning, R's way of refusing to average a category."
+  },
+  "spss": {
+   "menu": "Analyze > Descriptive Statistics > Frequencies (categories) and Descriptives (numbers)",
+   "syntax": "DATA LIST FREE / eye (A6) grade siblings height.\nBEGIN DATA\nbrown 2 1 172.4 blue 4 0 165.1 brown 1 2 180.3 green 3 3 158.9 brown 2 1 175.6\nblue 4 1 169.8 hazel 1 0 162.2 brown 2 2 177.0 green 3 4 171.3 blue 4 1 183.5\nEND DATA.\nVALUE LABELS grade 1 'Freshman' 2 'Sophomore' 3 'Junior' 4 'Senior'.\nVARIABLE LEVEL eye (NOMINAL) /grade (ORDINAL) /siblings height (SCALE).\nFREQUENCIES VARIABLES=eye grade.\nDESCRIPTIVES VARIABLES=siblings height.",
+   "note": "SPSS stores grade as codes 1 to 4 with labels. VARIABLE LEVEL tells SPSS each column's measurement level; use Frequencies for the two categories and Descriptives for the two numbers."
+  },
+  "stata": {
+   "code": "clear\nset obs 10\ngenerate eye = word(\"brown blue brown green brown blue hazel brown green blue\", _n)\ngenerate grade = real(word(\"2 4 1 3 2 4 1 2 3 4\", _n))\ngenerate siblings = real(word(\"1 0 2 3 1 1 0 2 4 1\", _n))\ngenerate height = real(word(\"172.4 165.1 180.3 158.9 175.6 169.8 162.2 177.0 171.3 183.5\", _n))\nlabel define g 1 \"Freshman\" 2 \"Sophomore\" 3 \"Junior\" 4 \"Senior\"\nlabel values grade g\ntabulate eye\ntabulate grade\nsummarize siblings height",
+   "note": "Stata keeps the ordinal grade as codes 1 to 4 with value labels. tabulate counts categories, and summarize is for numbers only."
+  },
+  "try": [
+   "Add a new column 'satisfaction' with the ordered categories Poor, OK, Good and ask for its value_counts. Which summary would you report?",
+   "Change one height to 250.0 and run describe again. Which numbers move, and which do not?"
+  ]
+ },
+ "0.3": {
+  "goal": "See that a sample statistic wanders around the fixed population parameter, that bigger samples wander less, and that a biased sample does not.",
+  "python": {
+   "blocks": [
+    {
+     "title": "The lesson's ten shops",
+     "text": "Here the population is small enough to see: monthly sales of 10 shops. The population mean (a parameter) is fixed. Each sample of 3 shops gives a different sample mean (a statistic). The population SD divides by N (ddof=0), the sample SD by n - 1 (ddof=1).",
+     "code": "import numpy as np\n\nshops = np.array([12, 15, 9, 22, 18, 7, 25, 14, 20, 11])\nmu = shops.mean()\nprint(f'population mean (mu) = {mu:.2f}, sigma = {shops.std(ddof=0):.3f}')\n\nsamples = {'A': shops[[0, 3, 5]], 'B': shops[[6, 4, 1]], 'C': shops[[2, 9, 7]]}\nfor name, s in samples.items():\n    print(f'sample {name}: {s}  x-bar = {s.mean():.2f}  gap = {s.mean() - mu:+.2f}')\nprint(f'sample A sd = {samples[\"A\"].std(ddof=1):.3f}')"
+    },
+    {
+     "title": "A bigger, seeded population",
+     "text": "Now a population of 10,000 weekly study times in hours, made with a fixed seed so everyone gets the same numbers. We pretend not to know its mean and compute it once: this is the parameter.",
+     "code": "rng = np.random.default_rng(42)\npopulation = rng.normal(loc=14, scale=4, size=10_000).round(1)\n\nmu = population.mean()\nprint('population size N =', len(population))\nprint(f'population mean mu = {mu:.3f}')"
+    },
+    {
+     "title": "Sampling error shrinks as n grows",
+     "text": "For each sample size we draw one random sample and show its gap from mu. Then we repeat the draw 300 times to see the typical gap. Bigger samples miss by less. The gap never vanishes completely: that is sampling error, and it is normal.",
+     "code": "for n in [10, 50, 250, 1000]:\n    one = rng.choice(population, size=n, replace=False).mean()\n    many = [rng.choice(population, size=n, replace=False).mean() for _ in range(300)]\n    typical = np.mean(np.abs(np.array(many) - mu))\n    print(f'n = {n:4d}: one sample mean = {one:6.2f}, typical gap over 300 samples = {typical:.3f}')"
+    },
+    {
+     "title": "A biased sample does not get better",
+     "text": "Suppose we only ask the 1,000 heaviest studiers (say, people we meet in the library). Even with a large sample the mean stays far from mu, because the method is tilted. A bigger sample cannot fix bias.",
+     "code": "top = np.sort(population)[-1000:]\n\nfor n in [10, 100, 1000]:\n    m = rng.choice(top, size=n, replace=False).mean()\n    print(f'biased sample n = {n:4d}: mean = {m:.2f}, gap from mu = {m - mu:+.2f}')"
+    }
+   ]
+  },
+  "r": {
+   "code": "shops <- c(12, 15, 9, 22, 18, 7, 25, 14, 20, 11)\nmean(shops)\nsqrt(mean((shops - mean(shops))^2))\nA <- shops[c(1, 4, 6)]\nmean(A)\nsd(A)\nmean(shops[c(7, 5, 2)])\nmean(shops[c(3, 10, 8)])",
+   "expect": "mu 15.3; population sigma 5.551; sample A mean 13.67, sd 7.638; sample B mean 19.33; sample C mean 11.33",
+   "note": "R, SPSS and Stata have no population SD command, so R uses the formula directly. Random draws would differ from Python's because each program has its own random numbers, so we use the lesson's fixed samples."
+  },
+  "spss": {
+   "menu": "Analyze > Descriptive Statistics > Descriptives",
+   "syntax": "DATA LIST FREE / sales inA.\nBEGIN DATA\n12 1 15 0 9 0 22 1 18 0\n7 1 25 0 14 0 20 0 11 0\nEND DATA.\nDESCRIPTIVES VARIABLES=sales.\nTEMPORARY.\nSELECT IF (inA = 1).\nDESCRIPTIVES VARIABLES=sales.",
+   "note": "The first table shows mu = 15.3 for all 10 shops. The second, for sample A only, shows x-bar = 13.67 and SD 7.638. SPSS always gives the sample SD (n - 1), so for all 10 shops it shows 5.851, not the population 5.551."
+  },
+  "stata": {
+   "code": "clear\nset obs 10\ngenerate sales = real(word(\"12 15 9 22 18 7 25 14 20 11\", _n))\ngenerate inA = inlist(_n, 1, 4, 6)\nsummarize sales\nsummarize sales if inA == 1",
+   "note": "The first summarize gives mu = 15.3 for all shops, the second gives x-bar = 13.67 and SD 7.638 for sample A. Stata's SD is always the sample version, so for all 10 shops it shows 5.851."
+  },
+  "try": [
+   "Change the seed from 42 to 7 and rerun. Which numbers change, and does the pattern (gap shrinking with n) stay the same?",
+   "In the biased block, take the top 3,000 values instead of the top 1,000. Predict whether the gap gets smaller or bigger."
+  ]
+ }
+}

@@ -1,0 +1,56 @@
+{
+ "0.1": [
+  {
+   "out": "students: 30\nlowest to highest: 41 to 98",
+   "figs": []
+  },
+  {
+   "out": "mean   = 74.0\nmedian = 74.0\nsd     = 12.3\nabout 2/3 of scores lie within 61.7 to 86.3",
+   "figs": []
+  },
+  {
+   "out": "standard error = 2.24\n95% CI for the true mean: (69.4, 78.6)",
+   "figs": []
+  },
+  {
+   "out": "DESCRIBE: this class averaged 74.0 with a typical spread of 12.3\nINFER: a wider group of similar students probably averages between 69.4 and 78.6\nIs the interval narrower than the spread of scores? True",
+   "figs": []
+  }
+ ],
+ "0.2": [
+  {
+   "out": "eye          category\ngrade        category\nsiblings        int64\nheight_cm     float64\ndtype: object",
+   "figs": []
+  },
+  {
+   "out": "eye\nbrown    4\nblue     3\ngreen    2\nhazel    1\nName: count, dtype: int64\n\ngrade\nFreshman     2\nSophomore    3\nJunior       2\nSenior       3\nName: count, dtype: int64\n\nshare Junior or above: 0.5",
+   "figs": []
+  },
+  {
+   "out": "       siblings  height_cm\ncount     10.00      10.00\nmean       1.50     171.61\nstd        1.27       7.88\nmin        0.00     158.90\n25%        1.00     166.28\n50%        1.00     171.85\n75%        2.00     176.65\nmax        4.00     183.50",
+   "figs": []
+  },
+  {
+   "out": "mean of eye: not allowed (TypeError)\nmean of grade: not allowed (TypeError)\nmean of grade codes: 2.6 (is that a grade? no)\nhighest grade present: Senior",
+   "figs": []
+  }
+ ],
+ "0.3": [
+  {
+   "out": "population mean (mu) = 15.30, sigma = 5.551\nsample A: [12 22  7]  x-bar = 13.67  gap = -1.63\nsample B: [25 18 15]  x-bar = 19.33  gap = +4.03\nsample C: [ 9 11 14]  x-bar = 11.33  gap = -3.97\nsample A sd = 7.638",
+   "figs": []
+  },
+  {
+   "out": "population size N = 10000\npopulation mean mu = 13.959",
+   "figs": []
+  },
+  {
+   "out": "n =   10: one sample mean =  12.40, typical gap over 300 samples = 1.066\nn =   50: one sample mean =  14.58, typical gap over 300 samples = 0.473\nn =  250: one sample mean =  14.04, typical gap over 300 samples = 0.203\nn = 1000: one sample mean =  13.80, typical gap over 300 samples = 0.098",
+   "figs": []
+  },
+  {
+   "out": "biased sample n =   10: mean = 21.05, gap from mu = +7.09\nbiased sample n =  100: mean = 20.79, gap from mu = +6.83\nbiased sample n = 1000: mean = 21.05, gap from mu = +7.09",
+   "figs": []
+  }
+ ]
+}
