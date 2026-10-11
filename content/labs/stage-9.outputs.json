@@ -1,56 +1,74 @@
 {
- "9.1": [
-  {
-   "out": "people = 200, mean fitness = 49.7",
-   "figs": []
-  },
-  {
-   "out": "RANDOM ASSIGNMENT\n  program    : n = 95, mean fitness = 49.0\n  comparison : n = 105, mean fitness = 50.3",
-   "figs": []
-  },
-  {
-   "out": "SELF-SELECTION\n  program    : n = 98, mean fitness = 54.6\n  comparison : n = 102, mean fitness = 45.0",
-   "figs": []
-  },
-  {
-   "out": "random         estimated effect =   4.5   (true effect = 5)\nself-selected  estimated effect =  10.7   (true effect = 5)",
+ "9.1": {
+  "blocks": [
+   {
+    "out": "people = 200, mean fitness = 49.7",
+    "figs": []
+   },
+   {
+    "out": "RANDOM ASSIGNMENT\n  program    : n = 95, mean fitness = 49.0\n  comparison : n = 105, mean fitness = 50.3",
+    "figs": []
+   },
+   {
+    "out": "SELF-SELECTION\n  program    : n = 98, mean fitness = 54.6\n  comparison : n = 102, mean fitness = 45.0",
+    "figs": []
+   },
+   {
+    "out": "random         estimated effect =   4.5   (true effect = 5)\nself-selected  estimated effect =  10.7   (true effect = 5)",
+    "figs": []
+   }
+  ],
+  "solution": {
+   "out": "coin flip    motivation gap =  -0.6   estimated effect =   2.8\nself-chosen  motivation gap =  11.9   estimated effect =  10.2",
    "figs": []
   }
- ],
- "9.2": [
-  {
-   "out": "exam scores     mean = 77.05, median = 76.50\nresponse times  mean = 5.91, median = 2.95",
+ },
+ "9.2": {
+  "blocks": [
+   {
+    "out": "exam scores     mean = 77.05, median = 76.50\nresponse times  mean = 5.91, median = 2.95",
+    "figs": []
+   },
+   {
+    "out": "exam scores     W = 0.993, p = 0.9998  ->  no evidence against normality\nresponse times  W = 0.641, p = < 0.0001  ->  evidence of non-normality",
+    "figs": []
+   },
+   {
+    "out": "",
+    "figs": [
+     "9.2-3.png"
+    ]
+   }
+  ],
+  "solution": {
+   "out": "heights     W = 0.993, p = 0.9999, mean = 169.3, median = 169.0\nincome      W = 0.639, p = 0.0001, mean = 60.4, median = 34.0\nlog income  W = 0.864, p = 0.0272, mean = 3.8, median = 3.5",
    "figs": []
-  },
-  {
-   "out": "exam scores     W = 0.993, p = 0.9998  ->  no evidence against normality\nresponse times  W = 0.641, p = < 0.0001  ->  evidence of non-normality",
-   "figs": []
-  },
-  {
-   "out": "",
-   "figs": [
-    "9.2-3.png"
-   ]
   }
- ],
- "9.3": [
-  {
-   "out": "posterior = Beta(15, 27)\nposterior mean = 0.357",
+ },
+ "9.3": {
+  "blocks": [
+   {
+    "out": "posterior = Beta(15, 27)\nposterior mean = 0.357",
+    "figs": []
+   },
+   {
+    "out": "95% credible interval: 0.221 to 0.506\nP(rate > 25%) = 0.933",
+    "figs": []
+   },
+   {
+    "out": "Wilson 95% CI: 0.221 to 0.505\nz = 1.46, one-sided p = 0.072",
+    "figs": []
+   },
+   {
+    "out": "",
+    "figs": [
+     "9.3-4.png"
+    ]
+   }
+  ],
+  "solution": {
+   "out": "prior Beta(1,1): posterior mean 0.312, 95% interval 0.167 to 0.480, P(rate > 0.2) = 0.925\nprior Beta(2,8): posterior mean 0.275, 95% interval 0.150 to 0.421, P(rate > 0.2) = 0.859",
    "figs": []
-  },
-  {
-   "out": "95% credible interval: 0.221 to 0.506\nP(rate > 25%) = 0.933",
-   "figs": []
-  },
-  {
-   "out": "Wilson 95% CI: 0.221 to 0.505\nz = 1.46, one-sided p = 0.072",
-   "figs": []
-  },
-  {
-   "out": "",
-   "figs": [
-    "9.3-4.png"
-   ]
   }
- ]
+ }
 }

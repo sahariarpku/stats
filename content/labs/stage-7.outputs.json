@@ -1,60 +1,78 @@
 {
- "7.1": [
-  {
-   "out": "row totals   : [100 100]\ncolumn totals: [105  95]\ngrand total  : 200",
-   "figs": []
-  },
-  {
-   "out": "expected counts:\n[[52.5 47.5]\n [52.5 47.5]]\nchi-square = 4.511\ndf         = 1\np-value    = 0.0337",
-   "figs": []
-  },
-  {
-   "out": "[[1.071 1.184]\n [1.071 1.184]]\nsum of pieces = 4.511",
-   "figs": []
-  },
-  {
-   "out": "Cramer V = 0.150\nbought: video 0.6  banner 0.45",
-   "figs": []
-  },
-  {
-   "out": "expected per face = 20\nchi-square = 5.000, df = 5\np-value    = 0.4159",
-   "figs": []
-  }
- ],
- "7.2": [
-  {
-   "out": "lecture  mean = 80.0   sd = 3.54\nflipped  mean = 88.8   sd = 3.19\nproblem  mean = 71.0   sd = 2.24",
-   "figs": []
-  },
-  {
-   "out": "F       = 42.90\ndf      = (2, 12)\np-value = 0.0000034",
-   "figs": []
-  },
-  {
-   "out": "between SS = 792.1, total SS = 902.9\neta squared = 0.877",
-   "figs": []
-  },
-  {
-   "out": "  Multiple Comparison of Means - Tukey HSD, FWER=0.05   \n========================================================\n group1  group2 meandiff p-adj   lower    upper   reject\n--------------------------------------------------------\nflipped lecture     -8.8 0.0017 -13.9271  -3.6729   True\nflipped problem    -17.8    0.0 -22.9271 -12.6729   True\nlecture problem     -9.0 0.0014 -14.1271  -3.8729   True\n--------------------------------------------------------",
+ "7.1": {
+  "blocks": [
+   {
+    "out": "row totals   : [100 100]\ncolumn totals: [105  95]\ngrand total  : 200",
+    "figs": []
+   },
+   {
+    "out": "expected counts:\n[[52.5 47.5]\n [52.5 47.5]]\nchi-square = 4.511\ndf         = 1\np-value    = 0.0337",
+    "figs": []
+   },
+   {
+    "out": "[[1.071 1.184]\n [1.071 1.184]]\nsum of pieces = 4.511",
+    "figs": []
+   },
+   {
+    "out": "Cramer V = 0.150\nbought: video 0.6  banner 0.45",
+    "figs": []
+   },
+   {
+    "out": "expected per face = 20\nchi-square = 5.000, df = 5\np-value    = 0.4159",
+    "figs": []
+   }
+  ],
+  "solution": {
+   "out": "expected: [[64.0, 36.0], [64.0, 36.0]]\nchi-square = 3.125, df = 1, p = 0.0771\nCramer V = 0.125\nattend rates: [0.7  0.58]",
    "figs": []
   }
- ],
- "7.3": [
-  {
-   "out": "Welch t-test : t = -1.67, p = 0.156\nMann-Whitney : U = 2, p = 0.0087",
-   "figs": []
-  },
-  {
-   "out": "new time larger in 2 of 36 pairs\nold time larger in 34 of 36 pairs\nrank-biserial r = 0.89",
-   "figs": []
-  },
-  {
-   "out": "Wilcoxon : W = 1, p = 0.0156\nPaired t : t = 3.97, p = 0.0054",
-   "figs": []
-  },
-  {
-   "out": "Kruskal-Wallis: H = 7.20, p = 0.0273\nANOVA         : F = 38.78, p = 0.0004",
+ },
+ "7.2": {
+  "blocks": [
+   {
+    "out": "lecture  mean = 80.0   sd = 3.54\nflipped  mean = 88.8   sd = 3.19\nproblem  mean = 71.0   sd = 2.24",
+    "figs": []
+   },
+   {
+    "out": "F       = 42.90\ndf      = (2, 12)\np-value = 0.0000034",
+    "figs": []
+   },
+   {
+    "out": "between SS = 792.1, total SS = 902.9\neta squared = 0.877",
+    "figs": []
+   },
+   {
+    "out": "  Multiple Comparison of Means - Tukey HSD, FWER=0.05   \n========================================================\n group1  group2 meandiff p-adj   lower    upper   reject\n--------------------------------------------------------\nflipped lecture     -8.8 0.0017 -13.9271  -3.6729   True\nflipped problem    -17.8    0.0 -22.9271 -12.6729   True\nlecture problem     -9.0 0.0014 -14.1271  -3.8729   True\n--------------------------------------------------------",
+    "figs": []
+   }
+  ],
+  "solution": {
+   "out": "F = 22.29, p = 0.000032\nmeans: [21.5, 28.5, 23.5]\nMultiple Comparison of Means - Tukey HSD, FWER=0.05 \n====================================================\ngroup1 group2 meandiff p-adj   lower   upper  reject\n----------------------------------------------------\n     A      B      7.0    0.0  4.1944  9.8056   True\n     A      C      2.0 0.1871 -0.8056  4.8056  False\n     B      C     -5.0 0.0009 -7.8056 -2.1944   True\n----------------------------------------------------\neta squared = 0.748",
    "figs": []
   }
- ]
+ },
+ "7.3": {
+  "blocks": [
+   {
+    "out": "Welch t-test : t = -1.67, p = 0.156\nMann-Whitney : U = 2, p = 0.0087",
+    "figs": []
+   },
+   {
+    "out": "new time larger in 2 of 36 pairs\nold time larger in 34 of 36 pairs\nrank-biserial r = 0.89",
+    "figs": []
+   },
+   {
+    "out": "Wilcoxon : W = 1, p = 0.0156\nPaired t : t = 3.97, p = 0.0054",
+    "figs": []
+   },
+   {
+    "out": "Kruskal-Wallis: H = 7.20, p = 0.0273\nANOVA         : F = 38.78, p = 0.0004",
+    "figs": []
+   }
+  ],
+  "solution": {
+   "out": "Welch t = -1.45, p = 0.196\nMann-Whitney U = 0, p = 0.00058\npairs where fast was larger: 0 of 49\nrank-biserial r = 1.00\nmeans 33.6 64.1\nmedians 33.0 44.0",
+   "figs": []
+  }
+ }
 }

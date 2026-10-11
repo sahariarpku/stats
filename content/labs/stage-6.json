@@ -733,142 +733,395 @@
  },
  "6.7": {
   "goal": "Test whether a drug lowers blood pressure in the lesson's 8 patients measured before and after, with a paired t-test.",
+  "question": "A clinic measures the blood pressure of 8 patients before and after they start a new drug. Every patient's reading went down, yet the patients differ a lot from one another (readings from 129 to 161). Is the average drop of about 6 mmHg real evidence that blood pressure changed, or could it be chance?",
   "python": {
    "blocks": [
     {
      "title": "Enter the paired data",
-     "text": "Each patient appears in both lists, in the same order, so each 'after' belongs to a particular 'before'. The difference for each patient is their own change, and the lesson says every single one improved.",
-     "code": "import numpy as np\nfrom scipy import stats\n\nbefore = np.array([142, 138, 155, 129, 147, 161, 133, 145])\nafter = np.array([135, 134, 148, 126, 139, 152, 130, 137])\ndiff = before - after\n\nprint('differences:', diff)\nprint(f'mean difference = {diff.mean():.3f}')\nprint(f'sd of differences = {diff.std(ddof=1):.3f}')"
+     "text": "H0: the average change in blood pressure is 0. H1: the average change is not 0. Each patient appears in both lists in the same order, so each 'after' belongs to one 'before'. Each patient's difference is their own change.",
+     "code": "import numpy as np\nfrom scipy import stats\n\nbefore = np.array([142, 138, 155, 129, 147, 161, 133, 145])\nafter = np.array([135, 134, 148, 126, 139, 152, 130, 137])\ndiff = before - after\n\nprint('differences:', diff)\nprint(f'mean difference = {diff.mean():.3f}')\nprint(f'sd of differences = {diff.std(ddof=1):.3f}')",
+     "explain": [
+      "Load NumPy for arrays and arithmetic, under the short name np.",
+      "Load SciPy's statistics tools; the paired t-test lives in stats.",
+      "Store the 8 'before' readings. The order matters: patient 1 is first in both lists.",
+      "Store the 8 'after' readings in the same patient order, so the pairs line up.",
+      "Subtract to get each patient's own change. The paired test works on these differences, not on the two lists.",
+      "Print the 8 differences to check that they all look sensible.",
+      "Print the average drop, the centre of the differences.",
+      "Print the SD of the differences (ddof=1): how much the drops vary from patient to patient."
+     ],
+     "meaning": "Every difference is positive (7, 4, 7, 3, 8, 9, 3, 8), so all eight patients improved. The average drop is 6.125 mmHg and the drops vary by only 2.416. The drops are steady even though the patients' blood pressures differ widely. That steadiness is what the paired test uses."
     },
     {
      "title": "Run the paired t-test",
      "text": "ttest_rel compares before and after pair by pair. A positive t means the 'before' values were higher. We also add a 95% confidence interval for the average drop.",
-     "code": "paired = stats.ttest_rel(before, after)\nci = paired.confidence_interval(confidence_level=0.95)\n\nprint(f't  = {paired.statistic:.3f}')\nprint(f'df = {paired.df}')\nprint(f'p  = {paired.pvalue:.4f}')\nprint(f'95% CI for the drop: ({ci.low:.2f}, {ci.high:.2f})')"
+     "code": "paired = stats.ttest_rel(before, after)\nci = paired.confidence_interval(confidence_level=0.95)\n\nprint(f't  = {paired.statistic:.3f}')\nprint(f'df = {paired.df}')\nprint(f'p  = {paired.pvalue:.4f}')\nprint(f'95% CI for the drop: ({ci.low:.2f}, {ci.high:.2f})')",
+     "explain": [
+      "ttest_rel is the paired t-test: it tests whether the mean of before-minus-after differences is 0.",
+      "Ask the result for a 95% confidence interval for the average drop.",
+      "Print t, the average drop measured in standard errors. Positive means 'before' was higher.",
+      "Print the degrees of freedom: 8 pairs minus 1 = 7.",
+      "Print the two-sided p-value to 4 decimals.",
+      "Print the interval for the true average drop, rounded to 2 decimals."
+     ],
+     "meaning": "t = 7.169 with df = 7 and p of about 0.0002. If the drug changed nothing, an average change this large would almost never occur, so we reject H0. The 95% interval says the true average drop is plausibly 4.10 to 8.15 mmHg. The p-value alone would not tell us how large that is."
     },
     {
      "title": "Same result as a one-sample test",
      "text": "A paired t-test is just a one-sample t-test on the differences, testing whether their mean is 0. The numbers come out exactly the same.",
-     "code": "one_sample = stats.ttest_1samp(diff, popmean=0)\n\nprint(f't  = {one_sample.statistic:.3f}')\nprint(f'p  = {one_sample.pvalue:.4f}')\nprint('same t as the paired test?', np.isclose(one_sample.statistic, paired.statistic))"
+     "code": "one_sample = stats.ttest_1samp(diff, popmean=0)\n\nprint(f't  = {one_sample.statistic:.3f}')\nprint(f'p  = {one_sample.pvalue:.4f}')\nprint('same t as the paired test?', np.isclose(one_sample.statistic, paired.statistic))",
+     "explain": [
+      "Run an ordinary one-sample t-test on the differences, testing whether their mean is 0.",
+      "Print t from this version of the test.",
+      "Print p from this version of the test.",
+      "Check the two t values match. np.isclose compares numbers while ignoring tiny rounding noise."
+     ],
+     "meaning": "The one-sample test on the differences gives t = 7.169, the same as the paired test, and the check prints True. A paired t-test is simply a one-sample t-test on the differences, which is why paired designs behave like single-sample problems."
     },
     {
      "title": "What the wrong test says",
      "text": "If we ignore the pairing and treat the 16 numbers as two independent groups, the big differences between patients swamp the 6 mmHg drop. The result is far less convincing.",
-     "code": "wrong = stats.ttest_ind(before, after, equal_var=False)\n\nprint(f'independent test: t = {wrong.statistic:.2f}, p = {wrong.pvalue:.3f}')\nprint(f'paired test:      t = {paired.statistic:.2f}, p = {paired.pvalue:.4f}')"
+     "code": "wrong = stats.ttest_ind(before, after, equal_var=False)\n\nprint(f'independent test: t = {wrong.statistic:.2f}, p = {wrong.pvalue:.3f}')\nprint(f'paired test:      t = {paired.statistic:.2f}, p = {paired.pvalue:.4f}')",
+     "explain": [
+      "Deliberately use the WRONG test: treat before and after as two independent groups of 8 people.",
+      "Print the independent test's t and p, to see what ignoring the pairing does.",
+      "Print the correct paired result next to it for comparison."
+     ],
+     "meaning": "Treating the readings as independent gives t = 1.25 and p = 0.231, which is not significant. The paired test gives t = 7.17 and p = 0.0002. Same numbers, opposite conclusions. Differences between patients swamp the 6 mmHg drop unless the pairing is used. Choose the test from how the data were collected."
     }
    ]
   },
   "r": {
    "code": "before <- c(142, 138, 155, 129, 147, 161, 133, 145)\nafter  <- c(135, 134, 148, 126, 139, 152, 130, 137)\n\nt.test(before, after, paired = TRUE)\nt.test(before - after, mu = 0)    # same thing: one-sample test on the differences",
+   "explain": [
+    "Store the 'before' readings for the 8 patients.",
+    "Store the 'after' readings in the same patient order, so pairs match.",
+    "paired = TRUE makes t.test work on before minus after pair by pair. It prints t, df, p and a 95% interval.",
+    "The same test as a one-sample test on the differences against 0; it gives the same numbers, which shows what 'paired' means."
+   ],
    "expect": "t = 7.1692, df = 7, p-value = 0.0001823; 95 percent confidence interval: 4.105 to 8.145; mean difference 6.125",
+   "read": "Look at t = 7.1692, df = 7, p-value = 0.0001823: far below 0.05, so reject H0. The 95 percent confidence interval, 4.105 to 8.145, is the plausible size of the average drop, and the mean difference is 6.125. The second call repeats the same numbers.",
    "note": "paired = TRUE keeps the two vectors in matching order. Both calls give the same t, df, p-value and confidence interval."
   },
   "spss": {
    "menu": "Analyze > Compare Means > Paired-Samples T Test",
    "syntax": "DATA LIST FREE / before after.\nBEGIN DATA\n142 135 138 134 155 148 129 126\n147 139 161 152 133 130 145 137\nEND DATA.\nT-TEST PAIRS=before WITH after (PAIRED)\n  /CRITERIA=CI(.95).",
+   "explain": [
+    "Define two variables, before and after, read in free format.",
+    "Marks the start of the typed-in data.",
+    "First four patients: before and after pairs read in order (142 135, 138 134, 155 148, 129 126).",
+    "Last four patients: 147 139, 161 152, 133 130, 145 137.",
+    "Marks the end of the data.",
+    "T-TEST PAIRS=before WITH after (PAIRED) runs the paired t-test, comparing each patient's before with their own after.",
+    "/CRITERIA=CI(.95) asks for a 95% confidence interval. The period ends the command."
+   ],
+   "read": "In the Paired Samples Test table the Mean is 6.125 (before minus after). Read t = 7.169, df = 7 and Sig. (2-tailed) = 0.000 (really 0.0002). The 95% interval 4.105 to 8.145 is for the average drop. We reject H0.",
    "note": "In the Paired Samples Test table, the mean is before minus after (6.125). Read t, df and Sig. (2-tailed) from the same row."
   },
   "stata": {
    "code": "clear\ninput before after\n142 135\n138 134\n155 148\n129 126\n147 139\n161 152\n133 130\n145 137\nend\nttest before == after",
+   "explain": [
+    "clear removes any data in memory so we start fresh.",
+    "input starts typing data directly; before and after are the two variables, one patient per line.",
+    "Patient 1: before 142, after 135.",
+    "Patient 2: before 138, after 134.",
+    "Patient 3: before 155, after 148.",
+    "Patient 4: before 129, after 126.",
+    "Patient 5: before 147, after 139.",
+    "Patient 6: before 161, after 152.",
+    "Patient 7: before 133, after 130.",
+    "Patient 8: before 145, after 137.",
+    "end finishes data entry.",
+    "ttest before == after runs the paired t-test of the two variables, patient by patient."
+   ],
+   "read": "In the output look at the diff row: mean 6.125 with its 95% interval (4.105 to 8.145). Then t = 7.1692 with 7 degrees of freedom and the middle line Pr(|T| > |t|) = 0.0002, the two-sided p-value. Below 0.05, so reject H0.",
    "note": "With two variables joined by ==, ttest does a paired test by default. Read the difference row and the two-sided Pr(|T| > |t|) value."
   },
-  "try": [
-   "Change the last 'after' value from 137 to 145 and predict what happens to t and p, then run it.",
-   "Shuffle the order of the 'after' list (break the pairing) and run the paired test again. What happens?"
-  ]
+  "conclusion": "On average, blood pressure fell by 6.1 mmHg after the drug (paired t = 7.169, df = 7, p = 0.0002; 95% CI 4.10 to 8.15), and every patient improved. Caution: with no control group we cannot say the drug caused the drop (rest, time or being measured may also matter), and eight patients is a small sample.",
+  "practice": {
+   "scenario": "A company runs a step challenge. It records the average daily steps of 10 employees in the month before the challenge and in the month during it. Did the challenge change average steps? Use a paired t-test, and compare with what the wrong (independent) test would say.",
+   "data": "before = [9024, 7900, 9000, 10157, 6986, 8304, 7305, 8190, 6219, 7131]\nafter = [9445, 8759, 9958, 10128, 7168, 9063, 7008, 8505, 6680, 8133]",
+   "tasks": [
+    "Compute each employee's change (after minus before), then the mean and SD of the changes.",
+    "Run the paired t-test and report t, df and p.",
+    "Give the 95% confidence interval for the average change.",
+    "Run the independent (Welch) test on the same numbers and explain why it disagrees."
+   ],
+   "hint": "Use stats.ttest_rel(after, before) for the paired test and .confidence_interval(0.95). The independent version is stats.ttest_ind(after, before, equal_var=False).",
+   "solution": {
+    "code": "import numpy as np\nfrom scipy import stats\n\nbefore = np.array([9024, 7900, 9000, 10157, 6986, 8304, 7305, 8190, 6219, 7131])\nafter = np.array([9445, 8759, 9958, 10128, 7168, 9063, 7008, 8505, 6680, 8133])\ngain = after - before\nres = stats.ttest_rel(after, before)\nci = res.confidence_interval(0.95)\nprint('changes:', gain)\nprint(f'mean change = {gain.mean():.1f}, sd = {gain.std(ddof=1):.1f}')\nprint(f'paired t = {res.statistic:.3f}, df = {res.df}, p = {res.pvalue:.4f}')\nprint(f'95% CI: ({ci.low:.0f}, {ci.high:.0f})')\nind = stats.ttest_ind(after, before, equal_var=False)\nprint(f'wrong independent test: t = {ind.statistic:.2f}, p = {ind.pvalue:.3f}')",
+    "answer": "Steps rose by 463.1 on average (SD of changes 434.9). The paired test gives t = 3.367, df = 9, p = 0.0083, and the 95% interval is 152 to 774 extra steps a day, so we reject H0. The independent test gives t = 0.87, p = 0.398 because the large differences between people hide the gain. Caution: with no control group we cannot say the challenge caused the rise."
+   }
+  }
  },
  "6.8": {
   "goal": "Compute Cohen's d for the memory-training study by hand, then see a huge sample make a tiny effect significant while d stays tiny.",
+  "question": "A school tests a memory-training program with 25 trained students and 25 untrained students on the same memory test. The trained group averages 78 and the control group 70, and the t-test is significant. The principal asks a harder question: how BIG is the improvement in a way that does not depend on the sample size, and would a tiny improvement also look 'significant' in a very large study?",
   "python": {
    "blocks": [
     {
      "title": "Enter the two groups",
-     "text": "The memory-training study from the lesson: 25 people trained, 25 controls. The scores below are built to match the lesson (trained: mean 78, SD 10; control: mean 70, SD 12).",
-     "code": "import numpy as np\nfrom scipy import stats\n\ntrained = np.array([95.69, 56.78, 81.95, 73.61, 74.58, 76.59, 61.32, 76.45, 71.09, 106.54, 80.32, 75.43, 76.03, 72.76, 69.48, 75.11, 82.49, 76.39, 86.52, 76.72, 78.62, 91.5, 83.03, 74.14, 76.87])\ncontrol = np.array([62.92, 68.16, 88.37, 77.33, 52.05, 70.03, 63.23, 71.72, 52.41, 72.74, 72.67, 87.4, 73.57, 75.7, 53.68, 94.84, 49.03, 82.19, 66.46, 60.41, 62.87, 62.7, 74.26, 68.88, 86.38])\n\nfor name, g in [('trained', trained), ('control', control)]:\n    print(f'{name}: n = {len(g)}, mean = {g.mean():.2f}, sd = {g.std(ddof=1):.2f}')"
+     "text": "H0: the true average memory scores of trained and control students are equal. H1: they differ. The scores below are built to match the lesson: trained mean 78 (SD 10), control mean 70 (SD 12), 25 students per group.",
+     "code": "import numpy as np\nfrom scipy import stats\n\ntrained = np.array([95.69, 56.78, 81.95, 73.61, 74.58, 76.59, 61.32, 76.45, 71.09, 106.54, 80.32, 75.43, 76.03, 72.76, 69.48, 75.11, 82.49, 76.39, 86.52, 76.72, 78.62, 91.5, 83.03, 74.14, 76.87])\ncontrol = np.array([62.92, 68.16, 88.37, 77.33, 52.05, 70.03, 63.23, 71.72, 52.41, 72.74, 72.67, 87.4, 73.57, 75.7, 53.68, 94.84, 49.03, 82.19, 66.46, 60.41, 62.87, 62.7, 74.26, 68.88, 86.38])\n\nfor name, g in [('trained', trained), ('control', control)]:\n    print(f'{name}: n = {len(g)}, mean = {g.mean():.2f}, sd = {g.std(ddof=1):.2f}')",
+     "explain": [
+      "Load NumPy for arrays and square roots, under the short name np.",
+      "Load SciPy's statistics tools for the t-test.",
+      "Store the 25 scores of the trained students.",
+      "Store the 25 scores of the control students.",
+      "Loop over both groups with their names, so one piece of code describes each group.",
+      "Print each group's size, mean and sample SD (ddof=1). We always look at the numbers before testing them."
+     ],
+     "meaning": "The trained group averages 78.00 (SD 10.00) and the control group 70.00 (SD 12.00), with 25 students each. The raw gap is 8 points, but 8 points means little until we know how spread out scores are. That is what Cohen's d measures."
     },
     {
      "title": "Cohen's d by hand",
      "text": "Cohen's d is the gap between the means measured in pooled standard deviations. The pooled SD is a weighted average of the two group SDs, so d does not depend on the sample size.",
-     "code": "n1, n2 = len(trained), len(control)\ns1, s2 = trained.std(ddof=1), control.std(ddof=1)\n\nsp = np.sqrt(((n1 - 1) * s1**2 + (n2 - 1) * s2**2) / (n1 + n2 - 2))\nd = (trained.mean() - control.mean()) / sp\ng = d * (1 - 3 / (4 * (n1 + n2 - 2) - 1))   # Hedges' g, a small-sample correction\n\nprint(f'pooled SD = {sp:.3f}')\nprint(f\"Cohen's d = {d:.3f}\")\nprint(f\"Hedges' g = {g:.3f}\")"
+     "code": "n1, n2 = len(trained), len(control)\ns1, s2 = trained.std(ddof=1), control.std(ddof=1)\n\nsp = np.sqrt(((n1 - 1) * s1**2 + (n2 - 1) * s2**2) / (n1 + n2 - 2))\nd = (trained.mean() - control.mean()) / sp\ng = d * (1 - 3 / (4 * (n1 + n2 - 2) - 1))   # Hedges' g, a small-sample correction\n\nprint(f'pooled SD = {sp:.3f}')\nprint(f\"Cohen's d = {d:.3f}\")\nprint(f\"Hedges' g = {g:.3f}\")",
+     "explain": [
+      "Store the two group sizes so the formulas below stay short.",
+      "Store the two sample SDs; the pooled SD will blend them.",
+      "The pooled SD: a weighted average of the two group variances (weights n - 1), then a square root. It is the typical spread in either group.",
+      "Cohen's d: the gap between the means divided by the pooled SD. It says how many standard deviations apart the groups are.",
+      "Hedges' g shrinks d slightly to correct a small-sample bias. For small groups it is a little more honest.",
+      "Print the pooled SD.",
+      "Print Cohen's d to 3 decimals.",
+      "Print Hedges' g to 3 decimals."
+     ],
+     "meaning": "The pooled SD is 11.045, so the 8-point gap is d = 0.724 pooled SDs: a medium-to-large effect by the usual benchmarks (0.2 small, 0.5 medium, 0.8 large). Hedges' g is slightly smaller, 0.713. Unlike a p-value, d does not grow just because we collect more students."
     },
     {
      "title": "Add the p-value",
      "text": "The t-test says whether the gap could be chance, while d says how big it is. Report both. (This is the pooled test; the lesson's Welch version gives the same p to three decimals.)",
-     "code": "res = stats.ttest_ind(trained, control)\n\nprint(f't = {res.statistic:.3f}, df = {res.df:.0f}, p = {res.pvalue:.4f}')"
+     "code": "res = stats.ttest_ind(trained, control)\n\nprint(f't = {res.statistic:.3f}, df = {res.df:.0f}, p = {res.pvalue:.4f}')",
+     "explain": [
+      "Run the pooled two-sample t-test to ask whether a gap this big could be chance.",
+      "Print t, df and the p-value together, so we can report significance next to the effect size."
+     ],
+     "meaning": "t = 2.561, df = 48, p = 0.0136. If the program did nothing, a gap this large would appear about 1.4% of the time, so it is statistically significant at 0.05. The p-value says the gap is probably not zero; d = 0.724 says it is a sizeable gap. Always report both."
     },
     {
      "title": "Tiny effect, huge sample",
      "text": "ttest_ind_from_stats runs the t-test from summary numbers. Compare three studies: a huge sample with a trivial gap, the memory study, and a tiny sample with a big gap. The p-values and d tell different stories.",
-     "code": "def study(label, diff, sd, n):\n    res = stats.ttest_ind_from_stats(diff, sd, n, 0, sd, n)   # pooled test\n    print(f'{label:<14} d = {diff / sd:.3f}  t = {res.statistic:.2f}  p = {res.pvalue:.4f}')\n\nstudy('huge sample', 0.2, 15, 50000)\nstudy('memory study', 8, sp, 25)\nstudy('tiny sample', 15, 15, 4)"
+     "code": "def study(label, diff, sd, n):\n    res = stats.ttest_ind_from_stats(diff, sd, n, 0, sd, n)   # pooled test\n    print(f'{label:<14} d = {diff / sd:.3f}  t = {res.statistic:.2f}  p = {res.pvalue:.4f}')\n\nstudy('huge sample', 0.2, 15, 50000)\nstudy('memory study', 8, sp, 25)\nstudy('tiny sample', 15, 15, 4)",
+     "explain": [
+      "Define a helper that runs a t-test from summary numbers and prints d, t and p for a study.",
+      "ttest_ind_from_stats needs only mean, SD and size of each group. Group 2 has mean 0, so the first mean is the gap.",
+      "Print a one-line summary: d is diff / sd, then the test's t and p.",
+      "Study 1: a trivial 0.2-point gap, SD 15, but 50,000 people per group.",
+      "Study 2: our memory study, an 8-point gap with the pooled SD and 25 per group.",
+      "Study 3: a big 15-point gap (d = 1) but only 4 people per group."
+     ],
+     "meaning": "The huge study has d = 0.013, trivially small, yet p = 0.0350 because 50,000 people can detect almost anything. The tiny study has d = 1.000, a big effect, yet p = 0.2070, not significant, because 4 people cannot. Our memory study sits in between. p reflects sample size; d does not. Significance is not importance."
     }
    ]
   },
   "r": {
    "code": "trained <- c(95.69, 56.78, 81.95, 73.61, 74.58, 76.59, 61.32, 76.45, 71.09, 106.54, 80.32, 75.43, 76.03, 72.76, 69.48, 75.11, 82.49, 76.39, 86.52, 76.72, 78.62, 91.5, 83.03, 74.14, 76.87)\ncontrol <- c(62.92, 68.16, 88.37, 77.33, 52.05, 70.03, 63.23, 71.72, 52.41, 72.74, 72.67, 87.4, 73.57, 75.7, 53.68, 94.84, 49.03, 82.19, 66.46, 60.41, 62.87, 62.7, 74.26, 68.88, 86.38)\nsp <- sqrt((24 * var(trained) + 24 * var(control)) / 48)\n(mean(trained) - mean(control)) / sp          # Cohen's d\nt.test(trained, control, var.equal = TRUE)\n\nstudy <- function(diff, sd, n) {\n  t <- diff / sqrt(2 * sd^2 / n)\n  c(d = diff / sd, t = t, p = 2 * pt(-abs(t), 2 * n - 2))\n}\nstudy(0.2, 15, 50000)\nstudy(15, 15, 4)",
+   "explain": [
+    "Store the 25 trained scores.",
+    "Store the 25 control scores.",
+    "The pooled SD, from the two variances weighted by n - 1 = 24 each and divided by the total df, 48.",
+    "Cohen's d: the difference in means divided by the pooled SD. Base R has no ready-made function for it.",
+    "Pooled two-sample t-test (var.equal = TRUE) for the memory study; it prints t, df and p.",
+    "Define a small function that turns a gap, an SD and a group size into d, t and a two-sided p-value, for the other two studies.",
+    "Inside it: t is the gap divided by its standard error, sqrt(2 sd^2 / n).",
+    "Return d, t and p as one vector; p is twice the area below -|t| on a t curve with 2n - 2 df.",
+    "Close the function with a brace.",
+    "Study 1: a gap of 0.2, SD 15, 50,000 people per group.",
+    "Study 3: a gap of 15, SD 15, only 4 people per group."
+   ],
    "expect": "d = 0.7243; t = 2.5609, df = 48, p-value = 0.01364; huge sample: d = 0.0133, t = 2.108, p = 0.03502; tiny sample: d = 1, t = 1.414, p = 0.2070",
+   "read": "The d line should print 0.7243 and t.test shows t = 2.5609, df = 48, p-value = 0.01364. The huge study gives d = 0.0133 with p = 0.03502 (significant but trivial), the tiny one d = 1 with p = 0.2070 (large but not significant).",
    "note": "Base R has no Cohen's d command, so it is computed from the pooled SD. The helper function reproduces the huge-sample and tiny-sample studies (the memory study's t and p appear in the t.test output)."
   },
   "spss": {
    "menu": "Analyze > Compare Means > Independent-Samples T Test (version 27 and later also prints an effect-size table with Cohen's d)",
    "syntax": "DATA LIST FREE / label n diff sd.\nBEGIN DATA\n1 50000 0.2 15\n2 25 8 11.0454\n3 4 15 15\nEND DATA.\nCOMPUTE d = diff / sd.\nCOMPUTE t = diff / SQRT(2 * sd**2 / n).\nCOMPUTE p = 2 * CDF.T(-ABS(t), 2 * n - 2).\nLIST label d t p.",
+   "explain": [
+    "Define four variables: a label for each study, the group size n, the mean gap diff and the SD.",
+    "Marks the start of the typed-in data.",
+    "Study 1, the huge sample: 50,000 per group, gap 0.2, SD 15.",
+    "Study 2, the memory study: 25 per group, gap 8, pooled SD 11.0454.",
+    "Study 3, the tiny sample: 4 per group, gap 15, SD 15.",
+    "Marks the end of the data.",
+    "Cohen's d for each study: the gap divided by the SD.",
+    "The t statistic: the gap divided by its standard error, SQRT(2 sd^2 / n).",
+    "Two-sided p-value from a t curve with 2n - 2 degrees of freedom (CDF.T gives the area to the left).",
+    "LIST prints the study label, d, t and p side by side."
+   ],
+   "read": "LIST shows d, t and p for each study (SPSS shows 2 decimals by default): study 1 d = 0.01, t = 2.11, p = 0.04; study 2 d = 0.72, t = 2.56, p = 0.01; study 3 d = 1.00, t = 1.41, p = 0.21. Small d can be significant, and large d can be non-significant.",
    "note": "With raw data in two groups, the menu route above gives the t-test (and d in newer versions). The syntax shows the by-hand version for the three studies: 1 = huge sample, 2 = memory study, 3 = tiny sample. The pooled SD of the memory study (11.0454) comes from the lesson."
   },
   "stata": {
    "code": "esizei 25 78 10 25 70 12, cohensd      // Cohen's d from summary numbers\nttesti 25 78 10 25 70 12\nesizei 50000 0.2 15 50000 0 15, cohensd\nttesti 50000 0.2 15 50000 0 15",
+   "explain": [
+    "esizei computes Cohen's d from summary numbers: group size, mean and SD for each group (here 25, 78, 10 and 25, 70, 12).",
+    "ttesti runs the pooled t-test from the same summary numbers.",
+    "The same effect-size command for the huge sample: 50,000 per group, means 0.2 and 0, both SD 15.",
+    "The matching t-test for the huge sample."
+   ],
+   "read": "For the memory study find Cohen's d of about 0.72 in the esizei table and t = 2.56 with p = 0.0136 from ttesti (using the lesson's rounded numbers). For the huge sample d is about 0.013 while the two-sided p is 0.035: significant, but trivial.",
    "note": "esizei takes each group's size, mean and SD and prints Cohen's d; ttesti runs the pooled t-test. With raw data use esize twosample score, by(group) cohensd."
   },
-  "try": [
-   "Change the huge sample size from 50,000 to 500 and predict what happens to p and to d.",
-   "In the tiny-sample study, raise n from 4 to 40 and predict which of d and p changes, then run it."
-  ]
+  "conclusion": "The memory training raised scores by 8 points, which is d = 0.72 pooled SDs (Hedges' g 0.71) and statistically significant (t = 2.561, p = 0.0136). Caution: p and d answer different questions. The same p can come from a huge sample with a trivial effect (d = 0.013 gave p = 0.035) or be missed by a tiny sample with a big one, so always report the effect size too.",
+  "practice": {
+   "scenario": "Two maths classes of 40 students each take the same test. Class 1 used a new practice app and Class 2 did not. Compute Cohen's d for the difference, run the pooled t-test, and then check what a tiny gap (0.5 points, SD 10) would give with 20,000 students per group.",
+   "data": "g1 = [79, 69, 68, 69, 87, 68, 69, 76, 71, 70, 61, 72, 68, 84, 79, 72, 79, 69, 83, 72, 78, 59, 75, 55, 52, 69, 63, 74, 94, 64, 66, 74, 77, 70, 70, 79, 77, 62, 71, 72]\ng2 = [55, 69, 57, 76, 68, 67, 60, 65, 46, 55, 70, 45, 74, 49, 74, 58, 74, 67, 51, 78, 80, 65, 63, 64, 56, 77, 61, 65, 58, 60, 53, 79, 64, 76, 66, 59, 63, 60, 66, 62]",
+   "tasks": [
+    "Find each class's mean and the pooled SD (the groups are equal in size).",
+    "Compute Cohen's d and say whether it is small, medium or large.",
+    "Run the pooled t-test and report t and p.",
+    "Use ttest_ind_from_stats for a 0.5-point gap with SD 10 and 20,000 per group, and compare its d and p."
+   ],
+   "hint": "With equal group sizes the pooled SD is sqrt((var1 + var2) / 2) using ddof=1. Then d = (mean1 - mean2) / pooled SD. For task 4, ttest_ind_from_stats(0.5, 10, 20000, 0, 10, 20000).",
+   "solution": {
+    "code": "import numpy as np\nfrom scipy import stats\n\ng1 = np.array([79, 69, 68, 69, 87, 68, 69, 76, 71, 70, 61, 72, 68, 84, 79, 72, 79, 69, 83, 72, 78, 59, 75, 55, 52, 69, 63, 74, 94, 64, 66, 74, 77, 70, 70, 79, 77, 62, 71, 72])\ng2 = np.array([55, 69, 57, 76, 68, 67, 60, 65, 46, 55, 70, 45, 74, 49, 74, 58, 74, 67, 51, 78, 80, 65, 63, 64, 56, 77, 61, 65, 58, 60, 53, 79, 64, 76, 66, 59, 63, 60, 66, 62])\nsp = np.sqrt((g1.var(ddof=1) + g2.var(ddof=1)) / 2)\nd = (g1.mean() - g2.mean()) / sp\nres = stats.ttest_ind(g1, g2)\nprint(f'means: {g1.mean():.2f} and {g2.mean():.2f}, pooled SD = {sp:.2f}')\nprint(f\"Cohen's d = {d:.3f}\")\nprint(f't = {res.statistic:.3f}, p = {res.pvalue:.6f}')\nbig = stats.ttest_ind_from_stats(0.5, 10, 20000, 0, 10, 20000)\nprint(f'huge-sample study: d = 0.05, p = {big.pvalue:.1e}')",
+    "answer": "The means are 71.65 and 63.88 with a pooled SD of 8.64, so d = 0.900, a large effect (0.8 or more). The t-test gives t = 4.023 and p = 0.000132, so the app group really scored higher. The huge study has only d = 0.05 but p is about 5.7e-07, also tiny. Equal p-values can hide very different effects, so report d next to p."
+   }
+  }
  },
  "6.9": {
   "goal": "Compare incomes (in thousands) in two cities with 12 people each: check the t-test assumptions, then run both the t-test and the Mann-Whitney test and decide which to trust.",
+  "question": "A researcher wants to know whether household incomes differ between two cities. She samples 12 households in each (incomes in thousands). City B looks richer, but each sample contains one very large income. Which test should we trust, and is there really a difference in typical income?",
   "python": {
    "blocks": [
     {
      "title": "Enter and look at the data",
-     "text": "Skewed incomes in two cities, 12 people each. Always look first: each city has one very large income, which pulls its mean far above its median.",
-     "code": "import numpy as np\nfrom scipy import stats\nimport matplotlib.pyplot as plt\n\ncity_a = np.array([33.6, 26.6, 17.6, 64.6, 18.0, 23.9, 23.5, 23.2, 212.7, 39.8, 61.7, 59.1])\ncity_b = np.array([150.9, 42.3, 50.8, 36.2, 65.9, 95.3, 137.2, 45.7, 301.4, 50.7, 88.5, 63.9])\n\nfor name, g in [('A', city_a), ('B', city_b)]:\n    print(f'city {name}: mean = {g.mean():.1f}, median = {np.median(g):.1f}, sd = {g.std(ddof=1):.1f}')\n\nplt.figure(figsize=(6, 3.4))\nplt.boxplot([city_a, city_b], tick_labels=['City A', 'City B'])\nplt.ylabel('income (thousands)')\nplt.show()"
+     "text": "H0: incomes in the two cities are distributed the same way. H1: incomes tend to be higher in one city. Always look first: each city has one very large income, which pulls its mean far above its median.",
+     "code": "import numpy as np\nfrom scipy import stats\nimport matplotlib.pyplot as plt\n\ncity_a = np.array([33.6, 26.6, 17.6, 64.6, 18.0, 23.9, 23.5, 23.2, 212.7, 39.8, 61.7, 59.1])\ncity_b = np.array([150.9, 42.3, 50.8, 36.2, 65.9, 95.3, 137.2, 45.7, 301.4, 50.7, 88.5, 63.9])\n\nfor name, g in [('A', city_a), ('B', city_b)]:\n    print(f'city {name}: mean = {g.mean():.1f}, median = {np.median(g):.1f}, sd = {g.std(ddof=1):.1f}')\n\nplt.figure(figsize=(6, 3.4))\nplt.boxplot([city_a, city_b], tick_labels=['City A', 'City B'])\nplt.ylabel('income (thousands)')\nplt.show()",
+     "explain": [
+      "Load NumPy for arrays and the median, under the short name np.",
+      "Load SciPy's statistics tools: the normality, equal-spread, t and Mann-Whitney tests.",
+      "Load matplotlib's plotting tools as plt; we use one picture here because skew is easier to see than to compute.",
+      "Store the 12 incomes of City A, in thousands.",
+      "Store the 12 incomes of City B in the same way.",
+      "Loop over both cities so one block of code describes each of them.",
+      "Print mean, median and SD. A mean far above the median is a sign of skew caused by a few large values.",
+      "Start a new, small figure so it fits on the page.",
+      "Draw side-by-side boxplots: the box is the middle half of the data and dots beyond the whiskers are unusual values.",
+      "Label the vertical axis so the reader knows the units.",
+      "Show the figure."
+     ],
+     "meaning": "City A has mean 50.4 but median 30.1; City B has mean 94.1 and median 64.9. In each city the mean is well above the median because of one huge income, so the data are skewed. The boxplot shows that long upper tail. Means are easily pulled around by such values."
     },
     {
      "title": "Check normality with Shapiro-Wilk",
      "text": "Shapiro-Wilk asks whether the data look like a sample from a normal curve. A p-value below 0.05 is evidence against normality. With only 12 per group, a normal-looking result would also not prove normality.",
-     "code": "for name, g in [('A', city_a), ('B', city_b)]:\n    w = stats.shapiro(g)\n    verdict = 'not normal' if w.pvalue < 0.05 else 'no clear problem'\n    print(f'city {name}: W = {w.statistic:.3f}, p = {w.pvalue:.4f} ({verdict})')"
+     "code": "for name, g in [('A', city_a), ('B', city_b)]:\n    w = stats.shapiro(g)\n    verdict = 'not normal' if w.pvalue < 0.05 else 'no clear problem'\n    print(f'city {name}: W = {w.statistic:.3f}, p = {w.pvalue:.4f} ({verdict})')",
+     "explain": [
+      "Loop over the two cities to test each one the same way.",
+      "Shapiro-Wilk tests whether the data look like a sample from a normal curve. The null is 'normal', so a small p-value is evidence against normality.",
+      "Turn the p-value into a short verdict using alpha = 0.05.",
+      "Print W (1 means perfectly normal-looking), the p-value and the verdict for each city."
+     ],
+     "meaning": "City A: W = 0.601, p = 0.0001. City B: W = 0.735, p = 0.0019. Both are far below 0.05, so both samples are clearly not normal. This matches the boxplot. A normal-looking result with only 12 values would not have proved normality either, because these tests are weak in small samples."
     },
     {
      "title": "Check equal spread with Levene",
      "text": "Levene's test asks whether the two groups have the same spread. We use the mean-centred version so it matches SPSS and Stata (SciPy's default centres on the median). A small p-value would mean unequal spreads.",
-     "code": "lev = stats.levene(city_a, city_b, center='mean')\n\nprint(f'Levene: statistic = {lev.statistic:.3f}, p = {lev.pvalue:.4f}')\nprint('spreads look equal?', lev.pvalue >= 0.05)"
+     "code": "lev = stats.levene(city_a, city_b, center='mean')\n\nprint(f'Levene: statistic = {lev.statistic:.3f}, p = {lev.pvalue:.4f}')\nprint('spreads look equal?', lev.pvalue >= 0.05)",
+     "explain": [
+      "Levene's test asks whether the two groups have the same spread. center='mean' matches SPSS and Stata; SciPy's default centres on the median.",
+      "Print the test statistic and its p-value.",
+      "Print True if p is at least 0.05, meaning there is no clear evidence that the spreads differ."
+     ],
+     "meaning": "Levene's statistic is 0.931 with p = 0.3452, well above 0.05, so there is no clear evidence that the spreads differ (printed True). Equal spread is one assumption the pooled t-test needs, but normality failed above, so spread alone does not rescue the t-test. Not finding a difference in spread does not prove the spreads are equal."
     },
     {
      "title": "Run the t-test and Mann-Whitney",
      "text": "Welch's t-test compares means and is pulled around by the big incomes. The Mann-Whitney test uses ranks, so extreme values count only as 'the highest'. method='exact' gives an exact p-value when there are no ties.",
-     "code": "t_res = stats.ttest_ind(city_a, city_b, equal_var=False)\nu_res = stats.mannwhitneyu(city_a, city_b, method='exact', alternative='two-sided')\n\nprint(f'Welch t-test:   t = {t_res.statistic:.3f}, p = {t_res.pvalue:.4f}')\nprint(f'Mann-Whitney:   U = {u_res.statistic:.1f}, p = {u_res.pvalue:.4f}')"
+     "code": "t_res = stats.ttest_ind(city_a, city_b, equal_var=False)\nu_res = stats.mannwhitneyu(city_a, city_b, method='exact', alternative='two-sided')\n\nprint(f'Welch t-test:   t = {t_res.statistic:.3f}, p = {t_res.pvalue:.4f}')\nprint(f'Mann-Whitney:   U = {u_res.statistic:.1f}, p = {u_res.pvalue:.4f}')",
+     "explain": [
+      "Welch's t-test compares means without assuming equal spreads. equal_var=False requests it.",
+      "Mann-Whitney U compares ranks, so a huge income only counts as 'the highest'. method='exact' gives an exact p-value when there are no ties.",
+      "Print Welch's t and p.",
+      "Print the Mann-Whitney U and p."
+     ],
+     "meaning": "Welch's t-test gives t = -1.638 and p = 0.1170, so no significant difference in means. The Mann-Whitney test gives U = 28.0 and p = 0.0100, which is significant. Same data, opposite conclusions: the two huge incomes inflate the spread of means and hide a difference that ranks can see."
     },
     {
      "title": "Decide which to trust",
      "text": "Both groups failed the normality check and n is small, so the rank-based test is the safer choice here. The two tests disagree at alpha = 0.05, which is a warning that outliers matter. Say which test you chose and why, before looking at p.",
-     "code": "alpha = 0.05\nprint('t-test significant?      ', t_res.pvalue <= alpha)\nprint('Mann-Whitney significant?', u_res.pvalue <= alpha)\nprint()\nprint('Small, skewed samples: trust the Mann-Whitney result.')"
+     "code": "alpha = 0.05\nprint('t-test significant?      ', t_res.pvalue <= alpha)\nprint('Mann-Whitney significant?', u_res.pvalue <= alpha)\nprint()\nprint('Small, skewed samples: trust the Mann-Whitney result.')",
+     "explain": [
+      "Fix the surprise threshold, alpha = 0.05, before comparing the decisions.",
+      "Print True or False for whether the t-test reached significance.",
+      "Print True or False for whether the Mann-Whitney test reached significance.",
+      "Print an empty line to separate the results from the recommendation.",
+      "State which test to trust and why: small, skewed samples fail the t-test's normality assumption."
+     ],
+     "meaning": "The t-test is not significant (False) and Mann-Whitney is (True). We trust Mann-Whitney because the normality checks failed and n is small, and we decided this from the data's shape, not from the p-values. Choosing the test that gives p < 0.05 after the fact would be cheating."
     }
    ]
   },
   "r": {
    "code": "a <- c(33.6, 26.6, 17.6, 64.6, 18, 23.9, 23.5, 23.2, 212.7, 39.8, 61.7, 59.1)\nb <- c(150.9, 42.3, 50.8, 36.2, 65.9, 95.3, 137.2, 45.7, 301.4, 50.7, 88.5, 63.9)\nshapiro.test(a); shapiro.test(b)\n\nincome <- c(a, b); city <- factor(rep(c(\"A\", \"B\"), each = 12))\ndev <- abs(income - ave(income, city))   # Levene = ANOVA on distances from the group mean\nanova(lm(dev ~ city))\n\nt.test(a, b)          # Welch\nwilcox.test(a, b)     # Mann-Whitney (W equals U)",
+   "explain": [
+    "Store City A's 12 incomes in a vector.",
+    "Store City B's 12 incomes in a vector.",
+    "Shapiro-Wilk normality test for each city; semicolons put two commands on one line.",
+    "Stack both cities in one vector with a matching city label (factor) for each value.",
+    "Distance of each value from its own city's mean; Levene's test is an ANOVA on these distances.",
+    "anova(lm(...)) tests whether the average distance differs by city; its F is Levene's statistic.",
+    "Welch's t-test (R's default for two samples).",
+    "wilcox.test on two vectors is the Mann-Whitney test; R calls its statistic W (the same number as U)."
+   ],
    "expect": "Shapiro: A W = 0.6009, p-value = 0.0001092; B W = 0.7352, p-value = 0.001881; Levene F = 0.9306, Pr(>F) = 0.3452; Welch t = -1.6385, df = 19.972, p-value = 0.117; Mann-Whitney W = 28, p-value = 0.01004",
+   "read": "Both Shapiro p-values (0.0001092 and 0.001881) are below 0.05: not normal. Levene's F = 0.9306 has p = 0.3452: no clear difference in spread. Welch gives p-value = 0.117 (not significant) while wilcox.test gives W = 28, p-value = 0.01004 (significant). Trust the rank test.",
    "note": "Base R has no Levene test, so the ANOVA on distances from each group mean reproduces it (its F equals Levene's statistic). Python's U and R's W are the same number, and both give the exact p-value when there are no ties."
   },
   "spss": {
    "menu": "Analyze > Descriptive Statistics > Explore (Plots > Normality plots with tests); Analyze > Compare Means > Independent-Samples T Test; Analyze > Nonparametric Tests > Legacy Dialogs > 2 Independent Samples",
    "syntax": "DATA LIST FREE / city income.\nBEGIN DATA\n1 33.6 1 26.6 1 17.6 1 64.6 1 18 1 23.9\n1 23.5 1 23.2 1 212.7 1 39.8 1 61.7 1 59.1\n2 150.9 2 42.3 2 50.8 2 36.2 2 65.9 2 95.3\n2 137.2 2 45.7 2 301.4 2 50.7 2 88.5 2 63.9\nEND DATA.\nEXAMINE VARIABLES=income BY city\n  /PLOT=NPPLOT.\nT-TEST GROUPS=city(1 2)\n  /VARIABLES=income.\nNPAR TESTS\n  /M-W=income BY city(1 2).",
+   "explain": [
+    "Define two variables, city (1 or 2) and income, read in free format.",
+    "Marks the start of the typed-in data.",
+    "City 1 incomes, first six: each pair is the city code then the income.",
+    "City 1 incomes, last six.",
+    "City 2 incomes, first six.",
+    "City 2 incomes, last six.",
+    "Marks the end of the data.",
+    "EXAMINE gives descriptives and normality tests for income, separately for each city.",
+    "/PLOT=NPPLOT requests the normality plots and the Shapiro-Wilk test.",
+    "T-TEST GROUPS=city(1 2) compares the two cities with a t-test and also prints Levene's test.",
+    "/VARIABLES=income names the outcome variable.",
+    "NPAR TESTS opens SPSS's nonparametric tests.",
+    "/M-W=income BY city(1 2) runs the Mann-Whitney U test comparing city 1 with city 2."
+   ],
+   "read": "In Tests of Normality, Shapiro-Wilk Sig. is about 0.000 and 0.002 (not normal). In the t-test table Levene's Sig. is 0.345; read the 'not assumed' row for Welch (Sig. about 0.117). In Mann-Whitney, use Exact Sig. (2-tailed), about 0.010.",
    "note": "EXAMINE prints the Shapiro-Wilk test per city. The t-test table includes Levene's test (mean-based, matching Python above) and both t rows; read the 'not assumed' row for Welch. In the Mann-Whitney table use the Exact Sig. (2-tailed) line."
   },
   "stata": {
    "code": "clear\nset obs 24\ngenerate city = 1 + (_n > 12)\ngenerate income = real(word(\"33.6 26.6 17.6 64.6 18 23.9 23.5 23.2 212.7 39.8 61.7 59.1 150.9 42.3 50.8 36.2 65.9 95.3 137.2 45.7 301.4 50.7 88.5 63.9\", _n))\nswilk income if city == 1\nswilk income if city == 2\nrobvar income, by(city)\nttest income, by(city) unequal\nranksum income, by(city)",
+   "explain": [
+    "clear removes any data in memory so we start fresh.",
+    "set obs 24 creates an empty data set with 24 rows (12 per city).",
+    "generate city: rows 1 to 12 get 1 and rows 13 to 24 get 2 (_n is the row number).",
+    "generate income: word() picks the nth number from the text and real() turns it into a number, so all 24 incomes fit on one line.",
+    "swilk is the Shapiro-Wilk normality test, here for City 1.",
+    "The same normality test for City 2.",
+    "robvar tests equal spread and prints three versions of Levene's test; use W0 (mean-based).",
+    "ttest with by(city) compares the cities; unequal asks for Welch's test.",
+    "ranksum is the Mann-Whitney test, comparing the ranks in the two cities."
+   ],
+   "read": "swilk shows Prob>z of about 0.0001 and 0.002 (not normal). In robvar read W0 = 0.9306 with Pr > F = 0.345. ttest, unequal gives a two-sided p of about 0.117. ranksum gives a z-based p of about 0.010 (and an exact p of 0.0100 for small samples). Trust the rank test.",
    "note": "word() picks the nth number from the text so the 24 values fit in one line. robvar prints three versions of Levene's test; use W0 (mean-based). Stata's ttest is pooled unless you add unequal. ranksum reports a z-based p, and an exact p-value too for small samples."
   },
-  "try": [
-   "Change the largest income in city A (212.7) to 40 and predict how the t-test and Mann-Whitney p-values move.",
-   "Add 100 to every value in city B (city_b + 100) and predict whether both tests become clearly significant."
-  ]
+  "conclusion": "Typical income is higher in City B (median 64.9 against 30.1). Because both samples are clearly skewed (Shapiro p = 0.0001 and 0.0019) and small, we trust the Mann-Whitney test: U = 28, p = 0.0100. Welch's t-test (p = 0.117) is thrown off by the huge incomes. Caution: pick the test from the checks before seeing p, and with 12 households per city the checks themselves are weak.",
+  "practice": {
+   "scenario": "A consumer group compares the repair bills (in dollars) charged by two garages for the same fault. Each garage billed 12 customers. The bills are skewed by a few expensive jobs. Check normality and equal spread, then run both Welch's t-test and the Mann-Whitney test, and say which you trust.",
+   "data": "g1 = [211, 123, 163, 559, 175, 144, 290, 495, 118, 220, 178, 101]\ng2 = [567, 360, 381, 232, 480, 264, 335, 188, 176, 813, 269, 435]",
+   "tasks": [
+    "Compare the medians and run Shapiro-Wilk for each garage.",
+    "Run Levene's test (center='mean') for equal spread.",
+    "Run Welch's t-test and the exact Mann-Whitney test.",
+    "Say which test you trust and why, and what a significant result would mean."
+   ],
+   "hint": "Reuse the lab's code: stats.shapiro for each garage, stats.levene(..., center='mean'), stats.ttest_ind(..., equal_var=False) and stats.mannwhitneyu(..., method='exact').",
+   "solution": {
+    "code": "import numpy as np\nfrom scipy import stats\n\ng1 = np.array([211, 123, 163, 559, 175, 144, 290, 495, 118, 220, 178, 101])\ng2 = np.array([567, 360, 381, 232, 480, 264, 335, 188, 176, 813, 269, 435])\nprint('medians:', np.median(g1), np.median(g2))\nfor name, g in [('G1', g1), ('G2', g2)]:\n    print(name, 'Shapiro p =', round(stats.shapiro(g).pvalue, 4))\nprint('Levene p =', round(stats.levene(g1, g2, center='mean').pvalue, 4))\nt = stats.ttest_ind(g1, g2, equal_var=False)\nu = stats.mannwhitneyu(g1, g2, method='exact')\nprint(f'Welch p = {t.pvalue:.4f}, t = {t.statistic:.3f}')\nprint(f'Mann-Whitney U = {u.statistic}, p = {u.pvalue:.4f}')",
+    "answer": "Medians are 176.5 and 347.5. Shapiro p is 0.0049 for G1 (not normal) and 0.1447 for G2; Levene p = 0.5683 (no clear difference in spread). Welch gives t = -2.122, p = 0.0459 and Mann-Whitney U = 30.0, p = 0.0145. Both are below 0.05, but G1 is skewed and n is small, so trust Mann-Whitney: garage 2 tends to bill more. That cannot say why."
+   }
+  }
  }
 }

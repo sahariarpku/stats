@@ -1,132 +1,381 @@
 {
  "9.1": {
   "goal": "Simulate 200 people with a hidden fitness level and see that a coin-flip assignment balances it between two groups while self-selection does not, which biases the estimated effect.",
+  "question": "A city health office wants to know whether its new fitness programme really improves people's health scores. It could let residents sign up if they like, or it could flip a coin to decide who gets in. To see which design can be trusted, we invent 200 people, give the programme a true effect of +5 points that we know, and check which design gets close to 5.",
   "python": {
    "blocks": [
     {
      "title": "Create people with a hidden trait",
      "text": "We invent 200 people. Each has a fitness score that we, as researchers, would not normally see. The outcome (say, a health score) depends on fitness and on a program that truly adds 5 points. A seed makes the simulation repeatable.",
-     "code": "import numpy as np\n\nrng = np.random.default_rng(42)\nn = 200\ntrue_effect = 5\n\nfitness = rng.normal(50, 10, n)\nnoise = rng.normal(0, 5, n)\nbase_outcome = 40 + 0.5 * fitness + noise\n\nprint(f'people = {n}, mean fitness = {fitness.mean():.1f}')"
+     "code": "import numpy as np\n\nrng = np.random.default_rng(42)\nn = 200\ntrue_effect = 5\n\nfitness = rng.normal(50, 10, n)\nnoise = rng.normal(0, 5, n)\nbase_outcome = 40 + 0.5 * fitness + noise\n\nprint(f'people = {n}, mean fitness = {fitness.mean():.1f}')",
+     "explain": [
+      "Load NumPy, the library for numbers and random draws.",
+      "Create a random number generator with a fixed seed (42), so every run gives the same 'random' people and the lab is repeatable.",
+      "The number of people in our invented study.",
+      "The programme's true effect, which we set ourselves at +5 points. In real life nobody knows this.",
+      "Give each person a hidden fitness level, drawn from a normal curve with mean 50 and SD 10.",
+      "Draw random noise (SD 5) for everything else that affects health, such as luck and genes.",
+      "Health score without the programme: it depends on fitness (0.5 points per fitness point) plus noise.",
+      "Print the number of people and their mean fitness as a check that the simulation worked."
+     ],
+     "meaning": "We made 200 people with a mean fitness of 49.7. Fitness is hidden in real studies, but here we know it. It raises the health score, so any group that is fitter at the start will also look healthier, whether or not the programme works."
     },
     {
      "title": "Random assignment: a coin decides",
      "text": "Each person is put in the program or the comparison group by a coin flip, so fitness plays no part. With enough people, the two groups come out alike on fitness, and on every other trait we did not even measure.",
-     "code": "random_group = rng.random(n) < 0.5\n\nprint('RANDOM ASSIGNMENT')\nprint(f'  program    : n = {random_group.sum()}, mean fitness = {fitness[random_group].mean():.1f}')\nprint(f'  comparison : n = {(~random_group).sum()}, mean fitness = {fitness[~random_group].mean():.1f}')"
+     "code": "random_group = rng.random(n) < 0.5\n\nprint('RANDOM ASSIGNMENT')\nprint(f'  program    : n = {random_group.sum()}, mean fitness = {fitness[random_group].mean():.1f}')\nprint(f'  comparison : n = {(~random_group).sum()}, mean fitness = {fitness[~random_group].mean():.1f}')",
+     "explain": [
+      "Flip a fair coin for every person: draw a random number between 0 and 1, and put the person in the programme if it is below 0.5.",
+      "Print a heading so the output is labelled.",
+      "Show the programme group's size and its mean fitness. ~ is the 'not' operator and means the comparison group on the next line.",
+      "Show the comparison group's size and mean fitness. If the coin worked, the two means should be close."
+     ],
+     "meaning": "The coin put 95 people in the programme and 105 in the comparison group. Their mean fitness is 49.0 and 50.3, only 1.3 apart, so the groups are alike. Randomisation also balances traits we did not measure, which is its great strength."
     },
     {
      "title": "Self-selection: people choose",
      "text": "Now fitter people are more likely to sign up (a logistic curve turns fitness into a chance of choosing the program). The groups now differ on fitness before the program has done anything.",
-     "code": "chance = 1 / (1 + np.exp(-(fitness - 50) / 5))\nchose = rng.random(n) < chance\n\nprint('SELF-SELECTION')\nprint(f'  program    : n = {chose.sum()}, mean fitness = {fitness[chose].mean():.1f}')\nprint(f'  comparison : n = {(~chose).sum()}, mean fitness = {fitness[~chose].mean():.1f}')"
+     "code": "chance = 1 / (1 + np.exp(-(fitness - 50) / 5))\nchose = rng.random(n) < chance\n\nprint('SELF-SELECTION')\nprint(f'  program    : n = {chose.sum()}, mean fitness = {fitness[chose].mean():.1f}')\nprint(f'  comparison : n = {(~chose).sum()}, mean fitness = {fitness[~chose].mean():.1f}')",
+     "explain": [
+      "Make the chance of signing up rise with fitness. The logistic curve turns fitness into a probability between 0 and 1.",
+      "Let each person choose: they join if a random number falls below their own chance. Fitter people join more often.",
+      "Print a heading so the output is labelled.",
+      "Show the self-selected programme group's size and mean fitness.",
+      "Show the comparison group's size and mean fitness. Now the groups should differ before the programme has done anything."
+     ],
+     "meaning": "When people choose, 98 joined and 102 did not, but the programme group is much fitter: 54.6 against 45.0, a gap of 9.6 points. The groups were different before the programme started, which is confounding."
     },
     {
      "title": "Compare the estimated effects",
      "text": "The program adds exactly 5 points to whoever gets it. Randomised groups should estimate about 5. In the self-selected groups, the program group was fitter to begin with, so the simple difference over-claims.",
-     "code": "for label, group in [('random', random_group), ('self-selected', chose)]:\n    outcome = base_outcome + true_effect * group\n    diff = outcome[group].mean() - outcome[~group].mean()\n    print(f'{label:14s} estimated effect = {diff:5.1f}   (true effect = {true_effect})')"
+     "code": "for label, group in [('random', random_group), ('self-selected', chose)]:\n    outcome = base_outcome + true_effect * group\n    diff = outcome[group].mean() - outcome[~group].mean()\n    print(f'{label:14s} estimated effect = {diff:5.1f}   (true effect = {true_effect})')",
+     "explain": [
+      "Loop over both designs, each as a name and a True/False list saying who was in the programme.",
+      "Each person's outcome is their base score plus 5 points if they were in the programme (True counts as 1).",
+      "The estimated effect is the programme group's mean outcome minus the comparison group's. This is what a simple study would report.",
+      "Print the estimate beside the true effect of 5, so we can see how close each design gets."
+     ],
+     "meaning": "The programme truly adds 5 points. Random assignment estimates 4.5, close to the truth (the gap from 5 is just chance). Self-selection estimates 10.7, more than double, because the fitter people who joined would have scored higher anyway. The design, not the maths, caused the bias."
     }
    ]
   },
   "r": {
    "code": "set.seed(42)\nn <- 200\nfitness <- rnorm(n, 50, 10)\nbase <- 40 + 0.5 * fitness + rnorm(n, 0, 5)\nrandom <- runif(n) < 0.5\nchose <- runif(n) < plogis((fitness - 50) / 5)\ntapply(fitness, random, mean)\ntapply(fitness, chose, mean)\nmean((base + 5 * random)[random]) - mean((base + 5 * random)[!random])\nmean((base + 5 * chose)[chose]) - mean((base + 5 * chose)[!chose])",
    "expect": "Random groups have almost the same mean fitness (a gap of a point or two at most) and the estimated effect is close to 5. The self-selected program group has clearly higher mean fitness (about 8 to 10 points) and the estimated effect is far above 5, around 10. Exact numbers differ from Python.",
-   "note": "R uses a different random number generator than Python, so the simulated numbers are close in spirit but not identical. The pattern (balanced when random, unbalanced when chosen) is the same."
+   "note": "R uses a different random number generator than Python, so the simulated numbers are close in spirit but not identical. The pattern (balanced when random, unbalanced when chosen) is the same.",
+   "explain": [
+    "Fix the random number generator so every run gives the same numbers.",
+    "The number of people in our invented study.",
+    "Give each person a hidden fitness level from a normal curve with mean 50 and SD 10.",
+    "Health score without the programme: 40 plus 0.5 x fitness plus random noise with SD 5.",
+    "Coin flip for each person: runif gives a random number from 0 to 1, and TRUE (in the programme) means it fell below 0.5.",
+    "Self-selection: plogis turns fitness into a chance between 0 and 1, and fitter people are more likely to join.",
+    "Mean fitness in each group made by the coin. FALSE is the comparison group and TRUE the programme group.",
+    "The same group means for the self-selected groups. This time the two means should differ clearly.",
+    "Estimated effect with random groups: outcome is base + 5 for those in the programme, then programme mean minus comparison mean.",
+    "The same estimate for the self-selected groups, to compare with the true effect of 5."
+   ],
+   "read": "The first tapply shows nearly equal mean fitness in the FALSE and TRUE groups (a point or two apart), and the first estimate is near 5. The second tapply shows clearly higher fitness in the TRUE group (about 8 to 10 points), and the second estimate is far above 5 (around 10). Exact numbers differ from Python."
   },
   "spss": {
    "menu": "Transform > Compute Variable (with Random Number functions), then Analyze > Compare Means > Means",
    "syntax": "SET SEED=42.\nINPUT PROGRAM.\nLOOP #i = 1 TO 200.\nEND CASE.\nEND LOOP.\nEND FILE.\nEND INPUT PROGRAM.\nCOMPUTE fitness = RV.NORMAL(50,10).\nCOMPUTE random = (RV.UNIFORM(0,1) < 0.5).\nCOMPUTE chose = (RV.UNIFORM(0,1) < 1/(1+EXP(-(fitness-50)/5))).\nMEANS TABLES=fitness BY random /CELLS=MEAN COUNT.\nMEANS TABLES=fitness BY chose /CELLS=MEAN COUNT.",
-   "note": "SPSS draws different random numbers from Python, so simulated numbers are close but not identical. Compare the mean fitness of the two groups in each MEANS table: nearly equal for random, clearly different for chose. The estimated-effect step is left to Python, R and Stata."
+   "note": "SPSS draws different random numbers from Python, so simulated numbers are close but not identical. Compare the mean fitness of the two groups in each MEANS table: nearly equal for random, clearly different for chose. The estimated-effect step is left to Python, R and Stata.",
+   "explain": [
+    "Fix the random number generator so a rerun gives the same numbers.",
+    "Start a block that creates data from nothing, since we are simulating people.",
+    "Repeat the steps below 200 times, once per person. #i is a temporary counter.",
+    "Each time round, add one new empty row (one person) to the data.",
+    "End the repeating block.",
+    "Tell SPSS there are no more rows.",
+    "End the block. We now have 200 empty rows to fill.",
+    "Give each person a hidden fitness level from a normal curve with mean 50 and SD 10.",
+    "Coin flip: 1 (in the programme) if a random number from 0 to 1 falls below 0.5, otherwise 0.",
+    "Self-selection: the chance of joining rises with fitness, using the logistic formula, and each person joins if a random number falls below it.",
+    "Mean fitness and group size for the coin-flip groups. They should be almost equal.",
+    "Mean fitness and group size for the self-selected groups. They should differ clearly."
+   ],
+   "read": "In the first MEANS table the two groups have nearly equal mean fitness. In the second the group with chose = 1 (joined) has clearly higher mean fitness than chose = 0. Exact numbers differ from Python."
   },
   "stata": {
    "code": "clear\nset seed 42\nset obs 200\ngenerate fitness = rnormal(50, 10)\ngenerate base = 40 + 0.5 * fitness + rnormal(0, 5)\ngenerate random = runiform() < 0.5\ngenerate chose = runiform() < invlogit((fitness - 50) / 5)\ntabstat fitness, by(random) statistics(mean n)\ntabstat fitness, by(chose) statistics(mean n)\ngenerate outcome_r = base + 5 * random\ngenerate outcome_c = base + 5 * chose\nttest outcome_r, by(random)\nttest outcome_c, by(chose)",
-   "note": "Stata draws different random numbers from Python, so simulated numbers are close but not identical. ttest shows mean(0) - mean(1), so the program effect appears with a negative sign (about -5 when random, a larger negative number when chosen)."
+   "note": "Stata draws different random numbers from Python, so simulated numbers are close but not identical. ttest shows mean(0) - mean(1), so the program effect appears with a negative sign (about -5 when random, a larger negative number when chosen).",
+   "explain": [
+    "Clear any data in memory.",
+    "Fix the random number generator so a rerun gives the same numbers.",
+    "Create 200 empty rows, one per person.",
+    "Give each person a hidden fitness level from a normal curve with mean 50 and SD 10.",
+    "Health score without the programme: 40 plus 0.5 x fitness plus random noise with SD 5.",
+    "Coin flip: random is 1 (in the programme) if a random number from 0 to 1 is below 0.5, otherwise 0.",
+    "Self-selection: invlogit turns fitness into a chance of joining between 0 and 1, and fitter people join more often.",
+    "Mean fitness and number of people in each coin-flip group. They should be nearly equal.",
+    "Mean fitness and number of people in each self-selected group. They should differ clearly.",
+    "Outcome for the coin-flip design: base score plus the true +5 for those in the programme.",
+    "Outcome for the self-selected design, built the same way.",
+    "t-test of the outcome between the coin-flip groups. The estimated effect is the difference in means.",
+    "The same test for the self-selected groups. The difference should be much larger than 5."
+   ],
+   "read": "The first tabstat shows nearly equal mean fitness; the second shows clearly higher fitness for chose = 1. In the ttest tables, 'diff' is mean(0) - mean(1), so the programme effect appears as a negative number: about -5 for random groups and a larger negative number (around -10) for self-selected groups."
   },
-  "try": [
-   "Change the sample size to 2000 and predict what happens to the gap in mean fitness between the random groups.",
-   "Make the choice only weakly tied to fitness by dividing (fitness - 50) by 20 instead of 5. Predict how the self-selected estimate moves relative to the true effect of 5."
-  ]
+  "conclusion": "Random assignment gave an estimate of 4.5, close to the true +5, because a coin flip balanced fitness between the groups (49.0 against 50.3). Letting people choose gave 10.7, more than double, because fitter people joined and would have scored higher anyway. Caution: this is a simulation with one hidden trait, and random assignment works best with many people (here 200), not guaranteed with few.",
+  "practice": {
+   "scenario": "A school offers a free tutoring programme that truly adds 3 points to a test score. Students may join if they wish, and the more motivated join more often. Simulate 400 students and see how well a coin flip and self-selection recover the true +3.",
+   "data": "No data to paste. Simulate: rng = np.random.default_rng(7); n = 400; motivation ~ Normal(50, 10); base score = 60 + 0.6 x motivation + Normal(0, 6); chance of joining = 1 / (1 + exp(-(motivation - 50) / 4)).",
+   "tasks": [
+    "Simulate the students and assign them by a coin flip (probability 0.5).",
+    "Let students choose, using the chance of joining above.",
+    "For each design, find the gap in mean motivation and the estimated programme effect (true effect +3).",
+    "Which design can you trust, and why?"
+   ],
+   "hint": "Copy the lab's structure: draw the trait, build the base outcome, create two True/False group lists, then compare group means for the trait and for outcome = base + 3 x group.",
+   "solution": {
+    "code": "import numpy as np\n\nrng = np.random.default_rng(7)\nn = 400\nmotivation = rng.normal(50, 10, n)\nbase = 60 + 0.6 * motivation + rng.normal(0, 6, n)\ncoin = rng.random(n) < 0.5\nchose = rng.random(n) < 1 / (1 + np.exp(-(motivation - 50) / 4))\nfor label, g in [('coin flip', coin), ('self-chosen', chose)]:\n    y = base + 3 * g\n    gap = motivation[g].mean() - motivation[~g].mean()\n    print(f'{label:12s} motivation gap = {gap:5.1f}   estimated effect = {y[g].mean() - y[~g].mean():5.1f}')",
+    "answer": "With the coin flip the groups differ by only -0.6 in motivation and the estimated effect is 2.8, close to the true +3. With self-selection the programme group is 11.9 points more motivated and the estimate is 10.2, more than three times the truth. Only the randomised design can be trusted to estimate the effect, because it balances motivation (and every unmeasured trait) between the groups."
+   }
+  }
  },
  "9.2": {
   "goal": "Check normality with the Shapiro-Wilk test and a normal Q-Q plot for two samples of 20 values from the lesson, one roughly normal (exam scores) and one skewed (response times).",
+  "question": "Two researchers each have 20 measurements and want to run a t-test, which assumes the data come from something close to a normal (bell) curve. One has exam scores; the other has response times in seconds. Is the normal assumption believable for each sample, and how can we tell by both a test and a picture?",
   "python": {
    "blocks": [
     {
      "title": "Enter the two samples",
      "text": "Exam scores look roughly bell-shaped. Response times have a long tail of a few very slow values. A look at the mean versus the median already hints at the difference.",
-     "code": "import numpy as np\nimport matplotlib.pyplot as plt\nfrom scipy import stats\n\nexam = np.array([62, 65, 68, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 82, 83, 85, 87, 90, 94])\nresp = np.array([1.2, 1.4, 1.5, 1.7, 1.9, 2.0, 2.2, 2.3, 2.6, 2.8, 3.1, 3.5, 3.9, 4.6, 5.4, 6.8, 8.9, 12.5, 18.7, 31.2])\n\nfor name, x in [('exam scores', exam), ('response times', resp)]:\n    print(f'{name:15s} mean = {x.mean():.2f}, median = {np.median(x):.2f}')"
+     "code": "import numpy as np\nimport matplotlib.pyplot as plt\nfrom scipy import stats\n\nexam = np.array([62, 65, 68, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 82, 83, 85, 87, 90, 94])\nresp = np.array([1.2, 1.4, 1.5, 1.7, 1.9, 2.0, 2.2, 2.3, 2.6, 2.8, 3.1, 3.5, 3.9, 4.6, 5.4, 6.8, 8.9, 12.5, 18.7, 31.2])\n\nfor name, x in [('exam scores', exam), ('response times', resp)]:\n    print(f'{name:15s} mean = {x.mean():.2f}, median = {np.median(x):.2f}')",
+     "explain": [
+      "Load NumPy, the library for arrays of numbers.",
+      "Load matplotlib's plotting tools as plt, for the Q-Q plots.",
+      "Load SciPy's statistics tools, which contain the Shapiro-Wilk test and the Q-Q plot.",
+      "Store the 20 exam scores as an array.",
+      "Store the 20 response times in seconds. A few are far larger than the rest.",
+      "Loop over both samples, each paired with a name, so we write the summary only once.",
+      "Print the mean and median of each. For a bell-shaped sample they are close; a big gap hints at skew."
+     ],
+     "meaning": "Exam scores have a mean of 77.05 and a median of 76.50, almost the same, as in a symmetric bell shape. Response times have a mean of 5.91 but a median of only 2.95: a few very slow responses drag the mean up, a sign of right skew."
     },
     {
      "title": "Shapiro-Wilk test of normality",
      "text": "Shapiro-Wilk starts from the assumption that the data are normal. A small p-value (below 0.05) is evidence against normality; a large one only means we found no evidence against it.",
-     "code": "for name, x in [('exam scores', exam), ('response times', resp)]:\n    w = stats.shapiro(x)\n    p_text = f'{w.pvalue:.4f}' if w.pvalue >= 0.0001 else '< 0.0001'\n    verdict = 'no evidence against normality' if w.pvalue >= 0.05 else 'evidence of non-normality'\n    print(f'{name:15s} W = {w.statistic:.3f}, p = {p_text}  ->  {verdict}')"
+     "code": "for name, x in [('exam scores', exam), ('response times', resp)]:\n    w = stats.shapiro(x)\n    p_text = f'{w.pvalue:.4f}' if w.pvalue >= 0.0001 else '< 0.0001'\n    verdict = 'no evidence against normality' if w.pvalue >= 0.05 else 'evidence of non-normality'\n    print(f'{name:15s} W = {w.statistic:.3f}, p = {p_text}  ->  {verdict}')",
+     "explain": [
+      "Loop over the same two samples.",
+      "shapiro runs the Shapiro-Wilk test of normality and returns W (near 1 means close to normal) and a p-value.",
+      "Format the p-value for printing, and write '< 0.0001' when it is too small to show with 4 decimals.",
+      "Read the verdict from the p-value: below 0.05 is evidence against normality; above is no evidence against it.",
+      "Print the name, W, the p-value and the verdict on one line."
+     ],
+     "meaning": "Exam scores: W = 0.993, p = 0.9998. There is no evidence against normality (that is not proof of normality, just no sign of trouble). Response times: W = 0.641, p < 0.0001, strong evidence that they are not normal. The two samples are clearly different."
     },
     {
      "title": "Draw the normal Q-Q plots",
      "text": "A Q-Q plot lines up the sorted data against what a normal sample would give. Points close to the straight line mean roughly normal; a curve that bends away, as with the response times, signals skew.",
-     "code": "plt.figure(figsize=(6, 3.4))\nplt.subplot(1, 2, 1)\nstats.probplot(exam, dist='norm', plot=plt)\nplt.title('Exam scores')\nplt.subplot(1, 2, 2)\nstats.probplot(resp, dist='norm', plot=plt)\nplt.title('Response times')\nplt.tight_layout()\nplt.show()"
+     "code": "plt.figure(figsize=(6, 3.4))\nplt.subplot(1, 2, 1)\nstats.probplot(exam, dist='norm', plot=plt)\nplt.title('Exam scores')\nplt.subplot(1, 2, 2)\nstats.probplot(resp, dist='norm', plot=plt)\nplt.title('Response times')\nplt.tight_layout()\nplt.show()",
+     "explain": [
+      "Start a new figure that fits the page.",
+      "Make the first of two side-by-side panels (1 row, 2 columns).",
+      "Draw the exam scores' normal Q-Q plot: sorted data against what a normal sample would give, plus a reference line.",
+      "Title the left panel.",
+      "Switch to the second panel.",
+      "Draw the same Q-Q plot for the response times.",
+      "Title the right panel.",
+      "Tidy the spacing so the panels do not overlap.",
+      "Show the figure."
+     ],
+     "meaning": "On the left the exam-score dots hug the straight line, so they look roughly normal. On the right the response times bend away, with the largest values far above the line. That upward bend is the signature of a long right tail (skew). The picture and the test agree."
     }
    ]
   },
   "r": {
    "code": "exam <- c(62, 65, 68, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 82, 83, 85, 87, 90, 94)\nresp <- c(1.2, 1.4, 1.5, 1.7, 1.9, 2.0, 2.2, 2.3, 2.6, 2.8, 3.1, 3.5, 3.9, 4.6, 5.4, 6.8, 8.9, 12.5, 18.7, 31.2)\nshapiro.test(exam)\nshapiro.test(resp)\npar(mfrow = c(1, 2))\nqqnorm(exam, main = \"Exam scores\"); qqline(exam)\nqqnorm(resp, main = \"Response times\"); qqline(resp)",
    "expect": "exam: W = 0.993, p-value = 0.9998 (approx); response times: W = 0.641, p-value = 8.2e-06 (below 0.0001)",
-   "note": "shapiro.test prints W and the p-value; the Q-Q plots are drawn by qqnorm plus qqline."
+   "note": "shapiro.test prints W and the p-value; the Q-Q plots are drawn by qqnorm plus qqline.",
+   "explain": [
+    "Store the 20 exam scores.",
+    "Store the 20 response times in seconds.",
+    "shapiro.test runs the Shapiro-Wilk test of normality on the exam scores.",
+    "Run the same test on the response times.",
+    "Set up the plot window with 1 row and 2 columns of panels.",
+    "Q-Q plot of exam scores; qqline adds the reference line. The semicolon lets both commands share a line.",
+    "Q-Q plot of response times with its reference line."
+   ],
+   "read": "The first test gives W = 0.993 and p-value about 0.9998: no evidence against normality. The second gives W = 0.641 and a tiny p-value of about 8e-06: strong evidence of non-normality. In the Q-Q plots the exam scores sit on the line and the response times curve away."
   },
   "spss": {
    "menu": "Analyze > Descriptive Statistics > Explore (Plots: Normality plots with tests)",
    "syntax": "DATA LIST FREE / exam resp.\nBEGIN DATA\n62 1.2  65 1.4  68 1.5  70 1.7  71 1.9  72 2.0  73 2.2  74 2.3  75 2.6  76 2.8\n77 3.1  78 3.5  79 3.9  80 4.6  82 5.4  83 6.8  85 8.9  87 12.5  90 18.7  94 31.2\nEND DATA.\nEXAMINE VARIABLES=exam resp\n  /PLOT=NPPLOT\n  /STATISTICS=NONE.",
-   "note": "The Tests of Normality table shows Shapiro-Wilk (statistic and Sig.) and also Kolmogorov-Smirnov; use the Shapiro-Wilk row. NPPLOT adds the normal Q-Q plots."
+   "note": "The Tests of Normality table shows Shapiro-Wilk (statistic and Sig.) and also Kolmogorov-Smirnov; use the Shapiro-Wilk row. NPPLOT adds the normal Q-Q plots.",
+   "explain": [
+    "Declare the two variables to read in free format: exam and resp.",
+    "Marks the start of the data typed into the syntax.",
+    "The first ten students, each as an exam score then a response time.",
+    "The last ten, in the same layout.",
+    "Marks the end of the data.",
+    "EXAMINE explores the variables exam and resp.",
+    "NPPLOT requests normal Q-Q plots and the tests of normality.",
+    "STATISTICS=NONE switches off the other summary tables so only the normality output remains."
+   ],
+   "read": "In Tests of Normality use the Shapiro-Wilk columns: exam has Statistic .993 and Sig. .9998 (no evidence against normality); resp has Statistic .641 and Sig. .000 (strong evidence against). The Normal Q-Q Plots show the same: exam on the line, resp curving away."
   },
   "stata": {
    "code": "clear\nset obs 20\ngenerate exam = real(word(\"62 65 68 70 71 72 73 74 75 76 77 78 79 80 82 83 85 87 90 94\", _n))\ngenerate resp = real(word(\"1.2 1.4 1.5 1.7 1.9 2.0 2.2 2.3 2.6 2.8 3.1 3.5 3.9 4.6 5.4 6.8 8.9 12.5 18.7 31.2\", _n))\nswilk exam resp\nqnorm exam\nqnorm resp",
-   "note": "swilk prints W and V statistics plus a z and Prob>z; the Prob>z column is the p-value (it is a close approximation to the others, and the Shapiro-Wilk W matches). qnorm draws a normal Q-Q plot."
+   "note": "swilk prints W and V statistics plus a z and Prob>z; the Prob>z column is the p-value (it is a close approximation to the others, and the Shapiro-Wilk W matches). qnorm draws a normal Q-Q plot.",
+   "explain": [
+    "Clear any old data from memory.",
+    "Create 20 empty rows.",
+    "Fill the exam scores. word() picks the n-th number from the quoted list and real() turns it into a number.",
+    "Fill the response times the same way.",
+    "swilk runs the Shapiro-Wilk test of normality on both variables.",
+    "qnorm draws the normal Q-Q plot for exam.",
+    "qnorm draws the normal Q-Q plot for resp."
+   ],
+   "read": "In the swilk table read W and the Prob>z column: exam has W = 0.993 and Prob>z near 0.9 (no evidence against normality); resp has W = 0.641 and Prob>z near 0.00001 (strong evidence against). In the qnorm plots exam follows the line and resp curves away."
   },
-  "try": [
-   "Replace the largest response time (31.2) with 6.0. Predict whether W moves toward 1 or away, then run it.",
-   "Take the logarithm of the response times (np.log) and run Shapiro-Wilk again. Does the skew go away?"
-  ]
+  "conclusion": "The exam scores look normal enough for a t-test (Shapiro-Wilk p = 0.9998, dots on the Q-Q line). The response times do not: W = 0.641, p < 0.0001, a long right tail, and mean 5.91 against median 2.95. For response times try a transformation or a rank-based test. Caution: with only 20 values the tests have little power, so also look at the plots.",
+  "practice": {
+   "scenario": "An economist has two samples of 15 values each: adult heights in centimetres and monthly incomes in thousands of dollars. Which one looks normal? If a sample is skewed, does taking the logarithm fix it?",
+   "data": "heights = [158, 161, 163, 164, 166, 167, 168, 169, 170, 171, 173, 174, 176, 178, 181]\nincome = [21, 23, 24, 26, 27, 29, 31, 34, 38, 45, 52, 66, 90, 140, 260]",
+   "tasks": [
+    "Run Shapiro-Wilk on heights and on income and report W and p.",
+    "Compare the mean and the median of each.",
+    "Run Shapiro-Wilk on the logarithm of income. Is it fixed?"
+   ],
+   "hint": "Use stats.shapiro on each sample and on np.log(income). A mean far above the median hints at right skew.",
+   "solution": {
+    "code": "import numpy as np\nfrom scipy import stats\n\nheights = np.array([158, 161, 163, 164, 166, 167, 168, 169, 170, 171, 173, 174, 176, 178, 181])\nincome = np.array([21, 23, 24, 26, 27, 29, 31, 34, 38, 45, 52, 66, 90, 140, 260])\nfor name, x in [('heights', heights), ('income', income), ('log income', np.log(income))]:\n    w = stats.shapiro(x)\n    print(f'{name:11s} W = {w.statistic:.3f}, p = {w.pvalue:.4f}, mean = {x.mean():.1f}, median = {np.median(x):.1f}')",
+    "answer": "Heights: W = 0.993, p = 0.9999, mean 169.3 and median 169.0, so they look normal. Income: W = 0.639, p = 0.0001, mean 60.4 against median 34.0, strongly right-skewed. After taking logs, W rises to 0.864 and p = 0.0272, much better but still below 0.05, so the log helps but does not fully fix this extreme skew. A rank-based test may be safer."
+   }
+  }
  },
  "9.3": {
   "goal": "Update a belief about a checkout page's conversion rate (14 buyers out of 40) with a Beta prior, get a 95% credible interval, and compare it with the usual confidence interval.",
+  "question": "An online shop shows its new checkout page to 40 customers and 14 buy (35%). The old page converted 25% of customers. Is the new page really better, or did 40 customers just happen to buy a bit more? We answer it the Bayesian way, with a probability for the true rate, and compare it with the usual frequentist answer.",
   "python": {
    "blocks": [
     {
      "title": "Prior, data and posterior",
      "text": "A Beta(a, b) prior acts like a past record of a successes and b failures. Beta(1, 1) is flat: every rate is equally plausible. After k buyers out of n, the posterior is simply Beta(a + k, b + n - k).",
-     "code": "import numpy as np\nimport matplotlib.pyplot as plt\nfrom scipy import stats\n\na, b = 1, 1\nk, n = 14, 40\n\npost_a, post_b = a + k, b + n - k\nposterior = stats.beta(post_a, post_b)\n\nprint(f'posterior = Beta({post_a}, {post_b})')\nprint(f'posterior mean = {posterior.mean():.3f}')"
+     "code": "import numpy as np\nimport matplotlib.pyplot as plt\nfrom scipy import stats\n\na, b = 1, 1\nk, n = 14, 40\n\npost_a, post_b = a + k, b + n - k\nposterior = stats.beta(post_a, post_b)\n\nprint(f'posterior = Beta({post_a}, {post_b})')\nprint(f'posterior mean = {posterior.mean():.3f}')",
+     "explain": [
+      "Load NumPy, used later for a square root.",
+      "Load matplotlib's plotting tools as plt, for the final picture.",
+      "Load SciPy's statistics tools, which hold the Beta distribution.",
+      "The prior Beta(1, 1): a flat starting belief, as if we had seen 1 success and 1 failure. Every rate from 0 to 1 is equally plausible.",
+      "The data: 14 buyers (k) out of 40 customers (n).",
+      "Bayesian update: the posterior is Beta(prior successes + k, prior failures + non-buyers). We just add the counts.",
+      "Create the posterior Beta distribution as an object we can ask questions of.",
+      "Print the posterior's two numbers, 15 and 27.",
+      "Print the posterior mean, our best single estimate of the true conversion rate."
+     ],
+     "meaning": "Starting from a flat prior, the data turn it into Beta(15, 27). Its mean is 0.357, a touch above the observed 35%, because the prior adds one pretend success and one pretend failure. The posterior is our updated belief about the true conversion rate."
     },
     {
      "title": "Credible interval and a direct probability",
      "text": "A 95% credible interval takes the middle 95% of the posterior. We can also read off the probability that the new page beats the old 25% rate, which a p-value cannot give directly.",
-     "code": "low, high = posterior.ppf([0.025, 0.975])\np_better = posterior.sf(0.25)\n\nprint(f'95% credible interval: {low:.3f} to {high:.3f}')\nprint(f'P(rate > 25%) = {p_better:.3f}')"
+     "code": "low, high = posterior.ppf([0.025, 0.975])\np_better = posterior.sf(0.25)\n\nprint(f'95% credible interval: {low:.3f} to {high:.3f}')\nprint(f'P(rate > 25%) = {p_better:.3f}')",
+     "explain": [
+      "ppf finds the points that cut off 2.5% on each side, giving the middle 95% of the posterior: the 95% credible interval.",
+      "sf (survival function) gives the posterior probability that the true rate is above 0.25. A p-value cannot say this directly.",
+      "Print the credible interval.",
+      "Print the probability that the new page beats the old 25%."
+     ],
+     "meaning": "The 95% credible interval runs from 0.221 to 0.506: given this data and prior, there is a 95% probability that the true rate is in that range. And there is a 93.3% probability that the true rate is above the old 25%. That is a direct answer to 'is the new page better?'"
     },
     {
      "title": "The frequentist answer for comparison",
      "text": "The usual approach tests the null value 25% and builds a confidence interval (Wilson). The numbers look alike, but the sentences mean different things: the confidence interval is about repeating the procedure, the credible interval about this rate.",
-     "code": "from statsmodels.stats.proportion import proportion_confint\n\nci = proportion_confint(k, n, alpha=0.05, method='wilson')\nse = np.sqrt(0.25 * 0.75 / n)\nz = (k / n - 0.25) / se\n\nprint(f'Wilson 95% CI: {ci[0]:.3f} to {ci[1]:.3f}')\nprint(f'z = {z:.2f}, one-sided p = {stats.norm.sf(z):.3f}')"
+     "code": "from statsmodels.stats.proportion import proportion_confint\n\nci = proportion_confint(k, n, alpha=0.05, method='wilson')\nse = np.sqrt(0.25 * 0.75 / n)\nz = (k / n - 0.25) / se\n\nprint(f'Wilson 95% CI: {ci[0]:.3f} to {ci[1]:.3f}')\nprint(f'z = {z:.2f}, one-sided p = {stats.norm.sf(z):.3f}')",
+     "explain": [
+      "Load the function that builds a Wilson confidence interval for a proportion.",
+      "The Wilson 95% confidence interval for 14 out of 40, the frequentist range of plausible rates.",
+      "The standard error of a proportion if the true rate were the old 25%, the null value.",
+      "The z statistic: how many standard errors the observed 35% sits above 25%.",
+      "Print the Wilson confidence interval.",
+      "Print z and the one-sided p-value: the chance of a result this high if the true rate were only 25%."
+     ],
+     "meaning": "The Wilson interval (0.221 to 0.505) is nearly the same as the credible interval, but it means something different: it describes how the procedure behaves over repeated samples. The z test gives z = 1.46 and a one-sided p = 0.072, not below 0.05, so we cannot reject 25%. That 0.072 is not the probability that the page is no better."
     },
     {
      "title": "Draw the prior and the posterior",
      "text": "The flat prior is a level line. The data pull the belief into a peak near 0.35, and the shaded band is the 95% credible interval. The dashed line marks the old page's 25% rate.",
-     "code": "x = np.linspace(0, 1, 400)\n\nplt.figure(figsize=(6, 3.4))\nplt.plot(x, stats.beta(a, b).pdf(x), color='#7f7f7f', label='prior Beta(1, 1)')\nplt.plot(x, posterior.pdf(x), color='#1f77b4', label=f'posterior Beta({post_a}, {post_b})')\nmid = (x >= low) & (x <= high)\nplt.fill_between(x[mid], posterior.pdf(x[mid]), color='#1f77b4', alpha=0.2)\nplt.axvline(0.25, color='#d62728', linestyle='--', label='old rate 25%')\nplt.xlabel('Conversion rate')\nplt.ylabel('Density')\nplt.legend()\nplt.show()"
+     "code": "x = np.linspace(0, 1, 400)\n\nplt.figure(figsize=(6, 3.4))\nplt.plot(x, stats.beta(a, b).pdf(x), color='#7f7f7f', label='prior Beta(1, 1)')\nplt.plot(x, posterior.pdf(x), color='#1f77b4', label=f'posterior Beta({post_a}, {post_b})')\nmid = (x >= low) & (x <= high)\nplt.fill_between(x[mid], posterior.pdf(x[mid]), color='#1f77b4', alpha=0.2)\nplt.axvline(0.25, color='#d62728', linestyle='--', label='old rate 25%')\nplt.xlabel('Conversion rate')\nplt.ylabel('Density')\nplt.legend()\nplt.show()",
+     "explain": [
+      "Make 400 evenly spaced rates from 0 to 1 to draw the curves on.",
+      "Start a new figure that fits the page.",
+      "Draw the flat prior as a grey line.",
+      "Draw the posterior in blue; the label includes its two numbers.",
+      "Pick out the rates inside the 95% credible interval.",
+      "Shade the area under the posterior over those rates, the credible interval.",
+      "Draw a dashed red line at the old page's 25% rate.",
+      "Label the horizontal axis.",
+      "Label the vertical axis.",
+      "Add the legend that names the curves.",
+      "Show the figure."
+     ],
+     "meaning": "The grey flat prior is a level line. The data pull the belief into a blue peak near 0.35, and the shaded band is the 95% credible interval. Most of the shaded area lies to the right of the dashed 25% line, which is why the probability that the rate is above 25% is high (0.933)."
     }
    ]
   },
   "r": {
    "code": "qbeta(c(0.025, 0.975), 15, 27)\n1 - pbeta(0.25, 15, 27)\n15 / (15 + 27)\nprop.test(14, 40, correct = FALSE)$conf.int\nprop.test(14, 40, p = 0.25, alternative = \"greater\", correct = FALSE)$p.value",
    "expect": "credible interval 0.2212 0.5059; P(rate > 0.25) = 0.9334; posterior mean 0.3571; Wilson 95% CI 0.2213 0.5049; one-sided p-value = 0.0721",
-   "note": "prop.test with correct = FALSE gives the Wilson score interval and the plain z test, matching the Python. The Bayesian numbers come straight from the Beta distribution with qbeta and pbeta."
+   "note": "prop.test with correct = FALSE gives the Wilson score interval and the plain z test, matching the Python. The Bayesian numbers come straight from the Beta distribution with qbeta and pbeta.",
+   "explain": [
+    "qbeta finds the 2.5% and 97.5% points of the Beta(15, 27) posterior, the 95% credible interval.",
+    "pbeta gives the posterior probability below 0.25; subtracting from 1 gives P(rate > 0.25).",
+    "The posterior mean of a Beta(a, b) is a / (a + b) = 15 / 42.",
+    "prop.test gives a Wilson-type confidence interval; correct = FALSE turns off the continuity correction.",
+    "A one-sided z test of the null rate 0.25; alternative = \"greater\" tests whether the true rate is above it, and $p.value extracts the p-value."
+   ],
+   "read": "The first line gives the credible interval 0.2212 to 0.5059. The second gives P(rate > 0.25) = 0.9334. The third gives the posterior mean 0.3571. The fourth gives the Wilson interval 0.2213 to 0.5049. The last gives the one-sided p-value 0.0721, not below 0.05."
   },
   "spss": {
    "menu": "SPSS has no standard menu for Bayesian proportions, so use Transform > Compute Variable with the IDF.BETA and CDF.BETA functions",
    "syntax": "DATA LIST FREE / dummy.\nBEGIN DATA\n1\nEND DATA.\nCOMPUTE lower = IDF.BETA(0.025, 15, 27).\nCOMPUTE upper = IDF.BETA(0.975, 15, 27).\nCOMPUTE p_better = 1 - CDF.BETA(0.25, 15, 27).\nCOMPUTE z = (0.35 - 0.25) / SQRT(0.25 * 0.75 / 40).\nCOMPUTE p_onesided = 1 - CDF.NORMAL(z, 0, 1).\nFORMATS lower upper p_better z p_onesided (F8.4).\nLIST lower upper p_better z p_onesided.",
-   "note": "Bayesian analysis is not a standard menu in SPSS, so the Beta(15, 27) posterior is calculated directly (the 15 and 27 come from the flat prior plus 14 buyers and 26 non-buyers). The Wilson confidence interval is not a standard SPSS output, so only the z test is shown."
+   "note": "Bayesian analysis is not a standard menu in SPSS, so the Beta(15, 27) posterior is calculated directly (the 15 and 27 come from the flat prior plus 14 buyers and 26 non-buyers). The Wilson confidence interval is not a standard SPSS output, so only the z test is shown.",
+   "explain": [
+    "Create a data file with one dummy variable, because SPSS needs a case to compute on.",
+    "Marks the start of the data typed into the syntax.",
+    "A single row with the value 1.",
+    "Marks the end of the data.",
+    "Lower end of the 95% credible interval: the 2.5% point of Beta(15, 27). IDF.BETA is the inverse Beta CDF.",
+    "Upper end of the credible interval: the 97.5% point.",
+    "P(rate > 0.25) is 1 minus the Beta CDF at 0.25.",
+    "The z statistic for the frequentist test: (0.35 - 0.25) / the standard error at the old rate.",
+    "One-sided p-value: 1 minus the normal CDF at z.",
+    "Show each result with 4 decimals.",
+    "Print the results."
+   ],
+   "read": "LIST shows lower .2212, upper .5059, p_better .9334, z 1.4606 and p_onesided .0721. So the credible interval is 0.221 to 0.506, there is a 93% posterior probability that the rate exceeds 25%, and the frequentist one-sided p is 0.072."
   },
   "stata": {
    "code": "display \"posterior mean = \" 15 / 42\ndisplay \"lower 95% = \" invibeta(15, 27, 0.025)\ndisplay \"upper 95% = \" invibeta(15, 27, 0.975)\ndisplay \"P(rate > 0.25) = \" 1 - ibeta(15, 27, 0.25)\ncii proportions 40 14, wilson\nprtesti 40 14 0.25",
-   "note": "invibeta(a, b, p) is the inverse Beta CDF and ibeta(a, b, x) the Beta CDF. cii proportions with the wilson option gives the Wilson interval, and prtesti runs the z test (read the Ha: p > 0.25 line, p about 0.072). These commands need no data in memory."
+   "note": "invibeta(a, b, p) is the inverse Beta CDF and ibeta(a, b, x) the Beta CDF. cii proportions with the wilson option gives the Wilson interval, and prtesti runs the z test (read the Ha: p > 0.25 line, p about 0.072). These commands need no data in memory.",
+   "explain": [
+    "Display the posterior mean 15 / 42, the best single estimate of the rate.",
+    "invibeta is the inverse Beta CDF; this is the 2.5% point, the lower end of the 95% credible interval.",
+    "The 97.5% point, the upper end of the credible interval.",
+    "ibeta is the Beta CDF, so 1 minus it is the posterior probability that the rate is above 0.25.",
+    "cii proportions gives a confidence interval from 40 trials and 14 successes; wilson picks the Wilson method.",
+    "prtesti runs a one-sample z test of 14 out of 40 against the null rate 0.25."
+   ],
+   "read": "The first four lines show .3571, .2212, .5059 and .9334. cii gives a Wilson interval of about .2213 to .5049. In prtesti, read the line Ha: p > 0.25: z = 1.4606 and Pr(Z > z) = 0.0721."
   },
-  "try": [
-   "Use the sceptical prior Beta(5, 15): set a, b = 5, 15 and rerun. Predict whether P(rate > 25%) goes up or down.",
-   "Use 140 buyers out of 400 (the same 35%). Predict what happens to the width of the credible interval and to the effect of the prior."
-  ]
+  "conclusion": "Given 14 buyers out of 40 and a flat prior, the true conversion rate is probably between 22% and 51% (95% credible interval), and there is about a 93% probability that it beats the old 25%. The usual z test gives p = 0.072, which does not reach 0.05. Caution: 40 customers is a small sample, and the answer depends on the prior, so we should collect more data.",
+  "practice": {
+   "scenario": "A marketing team tests a new email subject line on 30 subscribers and 9 click. The old subject line was clicked 20% of the time. Use a flat Beta(1, 1) prior and then a sceptical Beta(2, 8) prior that reflects the old 20% rate. How do the answers differ?",
+   "data": "k, n = 9, 30   # clicks and subscribers\npriors = [(1, 1), (2, 8)]   # (a, b) for the flat and sceptical priors\nold_rate = 0.2",
+   "tasks": [
+    "For each prior, find the posterior Beta distribution and its mean.",
+    "Find the 95% credible interval.",
+    "Find the probability that the true click rate is above 0.2.",
+    "How much does the prior matter with 30 subscribers?"
+   ],
+   "hint": "The posterior is Beta(a + k, b + n - k). Use stats.beta(...).ppf([0.025, 0.975]) for the interval and .sf(0.2) for P(rate > 0.2).",
+   "solution": {
+    "code": "from scipy import stats\n\nk, n = 9, 30\nfor a, b in [(1, 1), (2, 8)]:\n    post = stats.beta(a + k, b + n - k)\n    lo, hi = post.ppf([0.025, 0.975])\n    print(f'prior Beta({a},{b}): posterior mean {post.mean():.3f}, 95% interval {lo:.3f} to {hi:.3f}, P(rate > 0.2) = {post.sf(0.2):.3f}')",
+    "answer": "With the flat prior the posterior is Beta(10, 22): mean 0.312, 95% credible interval 0.167 to 0.480, and P(rate > 0.2) = 0.925. With the sceptical Beta(2, 8) prior the mean is 0.275, the interval 0.150 to 0.421 and P(rate > 0.2) = 0.859. The prior pulls the answer toward 20%. With 30 subscribers it matters noticeably, though both priors say the new line is probably better than 20%."
+   }
+  }
  }
 }

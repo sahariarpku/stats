@@ -1,172 +1,226 @@
 {
- "6.1": [
-  {
-   "out": "observed: 60 heads in 100 flips",
-   "figs": []
-  },
-  {
-   "out": "average heads in the simulation: 50.02\nsimulated p-value = 0.0571",
-   "figs": []
-  },
-  {
-   "out": "exact p-value = 0.0569\n95% CI for the heads rate: (0.497, 0.697)",
-   "figs": []
-  },
-  {
-   "out": "normal shortcut: z = 2.0, p = 0.0455\nexact p <= alpha? False\nFail to reject H0: not enough evidence the coin is unfair.",
-   "figs": []
-  }
- ],
- "6.2": [
-  {
-   "out": "standard error = 1.50\nz = 2.40",
-   "figs": []
-  },
-  {
-   "out": "right-tailed p = 0.0082\nleft-tailed p  = 0.9918\ntwo-tailed p   = 0.0164",
-   "figs": []
-  },
-  {
-   "out": "two-tailed critical z = +/-1.960\nright-tailed critical z = 1.645\np <= alpha?      True\n|z| > critical? True",
-   "figs": []
-  },
-  {
-   "out": "",
-   "figs": [
-    "6.2-4.png"
-   ]
-  }
- ],
- "6.3": [
-  {
-   "out": "effect size d = 0.40",
-   "figs": []
-  },
-  {
-   "out": "Type I error rate (no real effect) = 0.049",
-   "figs": []
-  },
-  {
-   "out": "simulated power = 0.387\nsimulated Type II error (beta) = 0.613",
-   "figs": []
-  },
-  {
-   "out": "exact power with 36 per group = 0.388\nn per group for 80% power = 99.08, so use 100",
+ "6.1": {
+  "blocks": [
+   {
+    "out": "observed: 60 heads in 100 flips",
+    "figs": []
+   },
+   {
+    "out": "average heads in the simulation: 50.02\nsimulated p-value = 0.0571",
+    "figs": []
+   },
+   {
+    "out": "exact p-value = 0.0569\n95% CI for the heads rate: (0.497, 0.697)",
+    "figs": []
+   },
+   {
+    "out": "normal shortcut: z = 2.0, p = 0.0455\nexact p <= alpha? False\nFail to reject H0: not enough evidence the coin is unfair.",
+    "figs": []
+   }
+  ],
+  "solution": {
+   "out": "50 seeds, 33 germinated, rate = 0.66\nexact p = 0.0201\nsimulated p = 0.0200\nreject H0 at 0.05? True",
    "figs": []
   }
- ],
- "6.4": [
-  {
-   "out": "z = 1.980, p = 0.0477\n95% CI: (10.001, 10.279)",
-   "figs": []
-  },
-  {
-   "out": "mean = 10.14, sd = 0.50\nz = 1.980, p = 0.0477",
-   "figs": []
-  },
-  {
-   "out": "sample proportion = 0.92\nz = -1.947\nleft-tailed p = 0.0258\nreject H0 at 0.05? True",
-   "figs": []
-  },
-  {
-   "out": "with the observed proportion: z = -1.564, p = 0.0589\nwith the claimed 0.95:         z = -1.947, p = 0.0258",
-   "figs": []
-  }
- ],
- "6.5": [
-  {
-   "out": "readings: 9",
-   "figs": []
-  },
-  {
-   "out": "mean = 3.678\nsd   = 0.554\nse   = 0.185",
-   "figs": []
-  },
-  {
-   "out": "t  = 2.587\ndf = 8\np  = 0.0323",
-   "figs": []
-  },
-  {
-   "out": "95% CI: (3.252, 4.104)\nguideline inside the interval? False",
+ },
+ "6.2": {
+  "blocks": [
+   {
+    "out": "standard error = 1.50\nz = 2.40",
+    "figs": []
+   },
+   {
+    "out": "right-tailed p = 0.0082\nleft-tailed p  = 0.9918\ntwo-tailed p   = 0.0164",
+    "figs": []
+   },
+   {
+    "out": "two-tailed critical z = +/-1.960\nright-tailed critical z = 1.645\np <= alpha?      True\n|z| > critical? True",
+    "figs": []
+   },
+   {
+    "out": "",
+    "figs": [
+     "6.2-4.png"
+    ]
+   }
+  ],
+  "solution": {
+   "out": "mean = 11.304, z = -4.350\nleft-tailed p = 6.8e-06\ntwo-tailed p  = 1.4e-05\ncritical z (left, alpha 0.05) = -1.645\nreject H0? True",
    "figs": []
   }
- ],
- "6.6": [
-  {
-   "out": "music: n = 30, mean = 74.00, sd = 8.00\nsilence: n = 30, mean = 79.00, sd = 7.00",
-   "figs": []
-  },
-  {
-   "out": "t  = -2.576\ndf = 57.0\np  = 0.0126",
-   "figs": []
-  },
-  {
-   "out": "t  = -2.576\ndf = 58\np  = 0.0126",
-   "figs": []
-  },
-  {
-   "out": "difference (music - silence) = -5.00\n95% CI: (-8.89, -1.11)\ninterval contains 0? False",
-   "figs": []
-  }
- ],
- "6.7": [
-  {
-   "out": "differences: [7 4 7 3 8 9 3 8]\nmean difference = 6.125\nsd of differences = 2.416",
-   "figs": []
-  },
-  {
-   "out": "t  = 7.169\ndf = 7\np  = 0.0002\n95% CI for the drop: (4.10, 8.15)",
-   "figs": []
-  },
-  {
-   "out": "t  = 7.169\np  = 0.0002\nsame t as the paired test? True",
-   "figs": []
-  },
-  {
-   "out": "independent test: t = 1.25, p = 0.231\npaired test:      t = 7.17, p = 0.0002",
+ },
+ "6.3": {
+  "blocks": [
+   {
+    "out": "effect size d = 0.40",
+    "figs": []
+   },
+   {
+    "out": "Type I error rate (no real effect) = 0.049",
+    "figs": []
+   },
+   {
+    "out": "simulated power = 0.387\nsimulated Type II error (beta) = 0.613",
+    "figs": []
+   },
+   {
+    "out": "exact power with 36 per group = 0.388\nn per group for 80% power = 99.08, so use 100",
+    "figs": []
+   }
+  ],
+  "solution": {
+   "out": "effect size d = 0.30\npower with 40 per group = 0.263\nn per group for 80% power = 175.4, so use 176\nsimulated power = 0.264",
    "figs": []
   }
- ],
- "6.8": [
-  {
-   "out": "trained: n = 25, mean = 78.00, sd = 10.00\ncontrol: n = 25, mean = 70.00, sd = 12.00",
-   "figs": []
-  },
-  {
-   "out": "pooled SD = 11.045\nCohen's d = 0.724\nHedges' g = 0.713",
-   "figs": []
-  },
-  {
-   "out": "t = 2.561, df = 48, p = 0.0136",
-   "figs": []
-  },
-  {
-   "out": "huge sample    d = 0.013  t = 2.11  p = 0.0350\nmemory study   d = 0.724  t = 2.56  p = 0.0136\ntiny sample    d = 1.000  t = 1.41  p = 0.2070",
-   "figs": []
-  }
- ],
- "6.9": [
-  {
-   "out": "city A: mean = 50.4, median = 30.1, sd = 53.9\ncity B: mean = 94.1, median = 64.9, sd = 75.0",
-   "figs": [
-    "6.9-1.png"
-   ]
-  },
-  {
-   "out": "city A: W = 0.601, p = 0.0001 (not normal)\ncity B: W = 0.735, p = 0.0019 (not normal)",
-   "figs": []
-  },
-  {
-   "out": "Levene: statistic = 0.931, p = 0.3452\nspreads look equal? True",
-   "figs": []
-  },
-  {
-   "out": "Welch t-test:   t = -1.638, p = 0.1170\nMann-Whitney:   U = 28.0, p = 0.0100",
-   "figs": []
-  },
-  {
-   "out": "t-test significant?       False\nMann-Whitney significant? True\n\nSmall, skewed samples: trust the Mann-Whitney result.",
+ },
+ "6.4": {
+  "blocks": [
+   {
+    "out": "z = 1.980, p = 0.0477\n95% CI: (10.001, 10.279)",
+    "figs": []
+   },
+   {
+    "out": "mean = 10.14, sd = 0.50\nz = 1.980, p = 0.0477",
+    "figs": []
+   },
+   {
+    "out": "sample proportion = 0.92\nz = -1.947\nleft-tailed p = 0.0258\nreject H0 at 0.05? True",
+    "figs": []
+   },
+   {
+    "out": "with the observed proportion: z = -1.564, p = 0.0589\nwith the claimed 0.95:         z = -1.947, p = 0.0258",
+    "figs": []
+   }
+  ],
+  "solution": {
+   "out": "sample proportion = 0.140\nconditions: 15.0 135.0\nz = 1.633, right-tailed p = 0.0512\ntwo-sided p = 0.1025\nreject H0 at 0.05? False",
    "figs": []
   }
- ]
+ },
+ "6.5": {
+  "blocks": [
+   {
+    "out": "readings: 9",
+    "figs": []
+   },
+   {
+    "out": "mean = 3.678\nsd   = 0.554\nse   = 0.185",
+    "figs": []
+   },
+   {
+    "out": "t  = 2.587\ndf = 8\np  = 0.0323",
+    "figs": []
+   },
+   {
+    "out": "95% CI: (3.252, 4.104)\nguideline inside the interval? False",
+    "figs": []
+   }
+  ],
+  "solution": {
+   "out": "mean = 438.67, sd = 8.74\nt = -4.097, df = 9, p = 0.00269\n95% CI: (432.41, 444.93)",
+   "figs": []
+  }
+ },
+ "6.6": {
+  "blocks": [
+   {
+    "out": "music: n = 30, mean = 74.00, sd = 8.00\nsilence: n = 30, mean = 79.00, sd = 7.00",
+    "figs": []
+   },
+   {
+    "out": "t  = -2.576\ndf = 57.0\np  = 0.0126",
+    "figs": []
+   },
+   {
+    "out": "t  = -2.576\ndf = 58\np  = 0.0126",
+    "figs": []
+   },
+   {
+    "out": "difference (music - silence) = -5.00\n95% CI: (-8.89, -1.11)\ninterval contains 0? False",
+    "figs": []
+   }
+  ],
+  "solution": {
+   "out": "courier A: mean = 31.85, sd = 4.55\ncourier B: mean = 27.74, sd = 9.43\nWelch: t = 1.241, df = 13.0, p = 0.2366\ndiff (A - B) = 4.11, 95% CI (-3.05, 11.27)\npooled p = 0.2305",
+   "figs": []
+  }
+ },
+ "6.7": {
+  "blocks": [
+   {
+    "out": "differences: [7 4 7 3 8 9 3 8]\nmean difference = 6.125\nsd of differences = 2.416",
+    "figs": []
+   },
+   {
+    "out": "t  = 7.169\ndf = 7\np  = 0.0002\n95% CI for the drop: (4.10, 8.15)",
+    "figs": []
+   },
+   {
+    "out": "t  = 7.169\np  = 0.0002\nsame t as the paired test? True",
+    "figs": []
+   },
+   {
+    "out": "independent test: t = 1.25, p = 0.231\npaired test:      t = 7.17, p = 0.0002",
+    "figs": []
+   }
+  ],
+  "solution": {
+   "out": "changes: [ 421  859  958  -29  182  759 -297  315  461 1002]\nmean change = 463.1, sd = 434.9\npaired t = 3.367, df = 9, p = 0.0083\n95% CI: (152, 774)\nwrong independent test: t = 0.87, p = 0.398",
+   "figs": []
+  }
+ },
+ "6.8": {
+  "blocks": [
+   {
+    "out": "trained: n = 25, mean = 78.00, sd = 10.00\ncontrol: n = 25, mean = 70.00, sd = 12.00",
+    "figs": []
+   },
+   {
+    "out": "pooled SD = 11.045\nCohen's d = 0.724\nHedges' g = 0.713",
+    "figs": []
+   },
+   {
+    "out": "t = 2.561, df = 48, p = 0.0136",
+    "figs": []
+   },
+   {
+    "out": "huge sample    d = 0.013  t = 2.11  p = 0.0350\nmemory study   d = 0.724  t = 2.56  p = 0.0136\ntiny sample    d = 1.000  t = 1.41  p = 0.2070",
+    "figs": []
+   }
+  ],
+  "solution": {
+   "out": "means: 71.65 and 63.88, pooled SD = 8.64\nCohen's d = 0.900\nt = 4.023, p = 0.000132\nhuge-sample study: d = 0.05, p = 5.8e-07",
+   "figs": []
+  }
+ },
+ "6.9": {
+  "blocks": [
+   {
+    "out": "city A: mean = 50.4, median = 30.1, sd = 53.9\ncity B: mean = 94.1, median = 64.9, sd = 75.0",
+    "figs": [
+     "6.9-1.png"
+    ]
+   },
+   {
+    "out": "city A: W = 0.601, p = 0.0001 (not normal)\ncity B: W = 0.735, p = 0.0019 (not normal)",
+    "figs": []
+   },
+   {
+    "out": "Levene: statistic = 0.931, p = 0.3452\nspreads look equal? True",
+    "figs": []
+   },
+   {
+    "out": "Welch t-test:   t = -1.638, p = 0.1170\nMann-Whitney:   U = 28.0, p = 0.0100",
+    "figs": []
+   },
+   {
+    "out": "t-test significant?       False\nMann-Whitney significant? True\n\nSmall, skewed samples: trust the Mann-Whitney result.",
+    "figs": []
+   }
+  ],
+  "solution": {
+   "out": "medians: 176.5 347.5\nG1 Shapiro p = 0.0049\nG2 Shapiro p = 0.1447\nLevene p = 0.5683\nWelch p = 0.0459, t = -2.122\nMann-Whitney U = 30.0, p = 0.0145",
+   "figs": []
+  }
+ }
 }
