@@ -1,56 +1,74 @@
 {
- "5.1": [
-  {
-   "out": "z* = 1.960, SE = 1.897, margin = 3.72\n95% CI = (74.78, 82.22)",
-   "figs": []
-  },
-  {
-   "out": "90%: z* = 1.645, margin = 3.12, (75.38, 81.62)\n95%: z* = 1.960, margin = 3.72, (74.78, 82.22)\n99%: z* = 2.576, margin = 4.89, (73.61, 83.39)",
-   "figs": []
-  },
-  {
-   "out": "n =  10: margin = 7.44\nn =  40: margin = 3.72\nn = 160: margin = 1.86\nn = 640: margin = 0.93",
-   "figs": []
-  },
-  {
-   "out": "intervals that caught the true mean: 95.0%\nintervals that missed: 503 of 10000",
-   "figs": []
-  }
- ],
- "5.2": [
-  {
-   "out": "mean = 3.678, s = 0.554, SE = 0.185",
-   "figs": []
-  },
-  {
-   "out": "df = 8\n95% CI (t) = (3.25, 4.10) mg/L",
-   "figs": []
-  },
-  {
-   "out": "t* = 2.306, margin = 0.426\nby hand: (3.25, 4.10)\nwith z*: (3.32, 4.04)  too narrow",
-   "figs": []
-  },
-  {
-   "out": "  n   df   t*      z*\n  5    4  2.776  1.960\n 10    9  2.262  1.960\n 30   29  2.045  1.960",
+ "5.1": {
+  "blocks": [
+   {
+    "out": "z* = 1.960, SE = 1.897, margin = 3.72\n95% CI = (74.78, 82.22)",
+    "figs": []
+   },
+   {
+    "out": "90%: z* = 1.645, margin = 3.12, (75.38, 81.62)\n95%: z* = 1.960, margin = 3.72, (74.78, 82.22)\n99%: z* = 2.576, margin = 4.89, (73.61, 83.39)",
+    "figs": []
+   },
+   {
+    "out": "n =  10: margin = 7.44\nn =  40: margin = 3.72\nn = 160: margin = 1.86\nn = 640: margin = 0.93",
+    "figs": []
+   },
+   {
+    "out": "intervals that caught the true mean: 95.0%\nintervals that missed: 503 of 10000",
+    "figs": []
+   }
+  ],
+  "solution": {
+   "out": "95%: z* = 1.960, margin = 0.122, (12.18, 12.42)\n99%: z* = 2.576, margin = 0.161, (12.14, 12.46)\nn for a 95% margin of 0.05: 385",
    "figs": []
   }
- ],
- "5.3": [
-  {
-   "out": "p-hat = 0.560\nnormal : (0.5266, 0.5934)\nwilson : (0.5264, 0.5930)",
-   "figs": []
-  },
-  {
-   "out": "p-hat = 0.15\nnormal : (0.000, 0.306)\nwilson : (0.052, 0.360)",
-   "figs": []
-  },
-  {
-   "out": "normal : (0.000, 0.000)\nwilson : (0.000, 0.161)",
-   "figs": []
-  },
-  {
-   "out": "normal : covers the true 10% in 87.5% of samples\nwilson : covers the true 10% in 95.7% of samples",
+ },
+ "5.2": {
+  "blocks": [
+   {
+    "out": "mean = 3.678, s = 0.554, SE = 0.185",
+    "figs": []
+   },
+   {
+    "out": "df = 8\n95% CI (t) = (3.25, 4.10) mg/L",
+    "figs": []
+   },
+   {
+    "out": "t* = 2.306, margin = 0.426\nby hand: (3.25, 4.10)\nwith z*: (3.32, 4.04)  too narrow",
+    "figs": []
+   },
+   {
+    "out": "  n   df   t*      z*\n  5    4  2.776  1.960\n 10    9  2.262  1.960\n 30   29  2.045  1.960",
+    "figs": []
+   }
+  ],
+  "solution": {
+   "out": "mean = 30.62, s = 1.93, SE = 0.557\n95% CI: (29.39, 31.84)\n99% CI: (28.89, 32.35)\nt* (95%, df=11) = 2.201",
    "figs": []
   }
- ]
+ },
+ "5.3": {
+  "blocks": [
+   {
+    "out": "p-hat = 0.560\nnormal : (0.5266, 0.5934)\nwilson : (0.5264, 0.5930)",
+    "figs": []
+   },
+   {
+    "out": "p-hat = 0.15\nnormal : (0.000, 0.306)\nwilson : (0.052, 0.360)",
+    "figs": []
+   },
+   {
+    "out": "normal : (0.000, 0.000)\nwilson : (0.000, 0.161)",
+    "figs": []
+   },
+   {
+    "out": "normal : covers the true 10% in 87.5% of samples\nwilson : covers the true 10% in 95.7% of samples",
+    "figs": []
+   }
+  ],
+  "solution": {
+   "out": "6 of 40: p-hat = 0.150\n   normal  (0.039, 0.261)\n   wilson  (0.071, 0.291)\n0 of 25: p-hat = 0.000\n   normal  (0.000, 0.000)\n   wilson  (0.000, 0.133)\n180 of 400: p-hat = 0.450\n   normal  (0.401, 0.499)\n   wilson  (0.402, 0.499)",
+   "figs": []
+  }
+ }
 }

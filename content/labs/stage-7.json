@@ -1,142 +1,402 @@
 {
  "7.1": {
   "goal": "Test whether ad type (video or banner) is related to buying, using the lesson's 200-person table, and measure the size of the link with Cramér's V.",
+  "question": "A marketing analyst at an online shop must choose which ad to run next month. She showed a video ad to 100 visitors and a banner ad to 100 others, and noted who bought: 60 of the video group and 45 of the banner group. Is ad type really related to buying, or could a 15-point gap like this appear by chance alone?",
   "python": {
    "blocks": [
     {
      "title": "Enter the table of counts",
      "text": "Rows are the two ads and columns are bought or not. A chi-square test works on counts like these, never on percentages. Totals first, so you can see where the expected counts will come from.",
-     "code": "import numpy as np\nfrom scipy import stats\n\n# rows: video ad, banner ad    columns: bought, did not buy\nobserved = np.array([[60, 40],\n                     [45, 55]])\n\nprint('row totals   :', observed.sum(axis=1))\nprint('column totals:', observed.sum(axis=0))\nprint('grand total  :', observed.sum())"
+     "code": "import numpy as np\nfrom scipy import stats\n\n# rows: video ad, banner ad    columns: bought, did not buy\nobserved = np.array([[60, 40],\n                     [45, 55]])\n\nprint('row totals   :', observed.sum(axis=1))\nprint('column totals:', observed.sum(axis=0))\nprint('grand total  :', observed.sum())",
+     "explain": [
+      "Load NumPy, the library for arrays of numbers, under the short name np.",
+      "Load SciPy's statistics tools, which hold the chi-square test we need.",
+      "A comment that says which row and column is which, so the table stays readable later.",
+      "Store the counts as a 2 by 2 array. This first row is the video ad: 60 bought, 40 did not.",
+      "The second row is the banner ad. Chi-square works on counts like these, never on percentages.",
+      "Add across each row (axis=1) to get the group sizes. We expect 100 and 100.",
+      "Add down each column (axis=0) to see how many bought (105) and did not buy (95) overall.",
+      "The grand total is the number of people. We need it to work out the expected counts."
+     ],
+     "meaning": "Each ad was shown to 100 people, and 105 of the 200 bought. If ad type did not matter, each group would have about 52 or 53 buyers. The real counts are 60 and 45, so there is a gap to explain."
     },
     {
      "title": "Run the chi-square test",
      "text": "chi2_contingency works out the expected counts (what we would see if ad type and buying were unrelated), then the chi-square statistic, degrees of freedom and p-value. correction=False gives the plain formula used in the lesson.",
-     "code": "res = stats.chi2_contingency(observed, correction=False)\n\nprint('expected counts:')\nprint(res.expected_freq)\nprint(f'chi-square = {res.statistic:.3f}')\nprint(f'df         = {res.dof}')\nprint(f'p-value    = {res.pvalue:.4f}')"
+     "code": "res = stats.chi2_contingency(observed, correction=False)\n\nprint('expected counts:')\nprint(res.expected_freq)\nprint(f'chi-square = {res.statistic:.3f}')\nprint(f'df         = {res.dof}')\nprint(f'p-value    = {res.pvalue:.4f}')",
+     "explain": [
+      "Run the test of independence. correction=False uses the plain formula from the lesson, and the result holds everything we print.",
+      "Print a heading so the numbers below are labelled.",
+      "Expected counts are what each cell would hold if ad type had no link to buying.",
+      "The chi-square statistic adds up how far the real counts sit from the expected ones.",
+      "Degrees of freedom, (rows - 1) x (columns - 1), tell us which chi-square curve to compare with.",
+      "The p-value is how often a gap this big would appear if the ad type made no difference."
+     ],
+     "meaning": "If ad type had no link to buying, each ad would have 52.5 buyers and 47.5 non-buyers. Chi-square = 4.511 with 1 df gives p = 0.0337. That is below 0.05, so a gap this big would be unusual by luck alone. We have evidence of a link."
     },
     {
      "title": "Check it by hand",
      "text": "Expected = row total x column total / grand total. Each cell then adds (observed - expected)^2 / expected, and the four pieces sum to the same chi-square.",
-     "code": "rows = observed.sum(axis=1)\ncols = observed.sum(axis=0)\nn = observed.sum()\n\nexpected = np.outer(rows, cols) / n\npieces = (observed - expected) ** 2 / expected\n\nprint(pieces.round(3))\nprint(f'sum of pieces = {pieces.sum():.3f}')"
+     "code": "rows = observed.sum(axis=1)\ncols = observed.sum(axis=0)\nn = observed.sum()\n\nexpected = np.outer(rows, cols) / n\npieces = (observed - expected) ** 2 / expected\n\nprint(pieces.round(3))\nprint(f'sum of pieces = {pieces.sum():.3f}')",
+     "explain": [
+      "Row totals again, because the hand calculation starts from them.",
+      "Column totals, the other ingredient of every expected count.",
+      "The grand total n, the number of people in the table.",
+      "Expected count = row total x column total / n. np.outer multiplies every row total by every column total.",
+      "For each cell compute (observed - expected) squared, divided by expected. Dividing makes a gap matter more when little was expected.",
+      "Show the four pieces, rounded to 3 decimals, to see which cells contribute most.",
+      "Their sum is the chi-square statistic, which should match scipy's answer."
+     ],
+     "meaning": "Every cell is 7.5 away from its expected count, but the pieces are 1.071 (buyers) and 1.184 (non-buyers), because a gap counts for more where fewer were expected. The four pieces add to 4.511, the same chi-square as scipy gave."
     },
     {
      "title": "Measure the effect with Cramér's V",
      "text": "A small p-value says the link is probably real, not how big it is. Cramér's V = sqrt(chi-square / (N x (k - 1))), where k is the smaller of the number of rows and columns. It runs from 0 (no link) to 1 (perfect link).",
-     "code": "chi2 = res.statistic\nk = min(observed.shape)\nv = np.sqrt(chi2 / (n * (k - 1)))\n\nprint(f'Cramer V = {v:.3f}')\nprint('bought: video', observed[0, 0] / rows[0], ' banner', observed[1, 0] / rows[1])"
+     "code": "chi2 = res.statistic\nk = min(observed.shape)\nv = np.sqrt(chi2 / (n * (k - 1)))\n\nprint(f'Cramer V = {v:.3f}')\nprint('bought: video', observed[0, 0] / rows[0], ' banner', observed[1, 0] / rows[1])",
+     "explain": [
+      "Take the chi-square value from the test result so we can reuse it.",
+      "k is the smaller of the number of rows and columns. Here it is 2.",
+      "Cramer's V = square root of chi-square / (n x (k - 1)). Dividing by n removes the effect of sample size.",
+      "Print V to three decimals. 0 means no link and 1 means a perfect link.",
+      "Print the buying rate in each group (bought / group size) so the size of the gap is visible in plain terms."
+     ],
+     "meaning": "V = 0.150 is a small effect (roughly 0.1 small, 0.3 medium, 0.5 large). In plain words, 60% of the video group bought against 45% of the banner group. The p-value says the link is probably real; V says it is modest, not huge."
     },
     {
      "title": "Bonus: goodness of fit",
      "text": "A goodness-of-fit test checks one set of counts against a claimed pattern. Here a die was rolled 120 times; chisquare assumes every face is equally likely unless you give it other expected counts.",
-     "code": "rolls = np.array([25, 17, 15, 23, 24, 16])\n\nfit = stats.chisquare(rolls)\n\nprint(f'expected per face = {rolls.sum() / 6:.0f}')\nprint(f'chi-square = {fit.statistic:.3f}, df = {len(rolls) - 1}')\nprint(f'p-value    = {fit.pvalue:.4f}')"
+     "code": "rolls = np.array([25, 17, 15, 23, 24, 16])\n\nfit = stats.chisquare(rolls)\n\nprint(f'expected per face = {rolls.sum() / 6:.0f}')\nprint(f'chi-square = {fit.statistic:.3f}, df = {len(rolls) - 1}')\nprint(f'p-value    = {fit.pvalue:.4f}')",
+     "explain": [
+      "Store how many times each of the six faces came up in 120 rolls of a die.",
+      "chisquare is the goodness-of-fit test. With no expected counts given, it assumes all six faces are equally likely.",
+      "The expected count per face is the total rolls divided by 6.",
+      "Print the statistic and its degrees of freedom, which are the number of categories minus 1.",
+      "Print the p-value: how surprising these counts would be if the die were fair."
+     ],
+     "meaning": "A fair die would show each face 20 times in 120 rolls. Chi-square = 5.000 with 5 df gives p = 0.4159, far above 0.05. Counts like 25 and 15 are ordinary luck, so we have no evidence against a fair die. That is not proof it is fair."
     }
    ]
   },
   "r": {
    "code": "ads <- matrix(c(60, 45, 40, 55), nrow = 2,\n              dimnames = list(ad = c(\"video\", \"banner\"), bought = c(\"yes\", \"no\")))\ntest <- chisq.test(ads, correct = FALSE)\ntest\ntest$expected\nsqrt(test$statistic / (sum(ads) * (min(dim(ads)) - 1)))\nchisq.test(c(25, 17, 15, 23, 24, 16))",
    "expect": "X-squared = 4.5113, df = 1, p-value = 0.03365; expected counts 52.5, 47.5, 52.5, 47.5; Cramer's V = 0.150; die: X-squared = 5, df = 5, p-value = 0.4159",
-   "note": "correct = FALSE turns off the Yates continuity correction that R applies to 2 by 2 tables by default, so the numbers match the lesson and the Python. R has no built-in Cramer's V, so the last line computes it by hand."
+   "note": "correct = FALSE turns off the Yates continuity correction that R applies to 2 by 2 tables by default, so the numbers match the lesson and the Python. R has no built-in Cramer's V, so the last line computes it by hand.",
+   "explain": [
+    "Build the 2 by 2 table. c() lists the counts column by column: bought (60, 45) first, then did not buy (40, 55).",
+    "dimnames names the rows and columns so the printed table is easy to read.",
+    "chisq.test runs the test. correct = FALSE turns off Yates' correction so R matches the lesson and the Python.",
+    "Typing the name test prints the result: X-squared, df and the p-value.",
+    "test$expected prints the expected counts, what we would see if ad and buying were unrelated.",
+    "R has no built-in Cramer's V, so we compute it: square root of chi-square / (n x (k - 1)).",
+    "Given a plain vector of counts, chisq.test does the goodness-of-fit test, assuming equal chances for each face."
+   ],
+   "read": "Look for X-squared = 4.5113, df = 1, p-value = 0.03365 in the first output: below 0.05, so ad type and buying look related. The expected counts are 52.5 and 47.5. The V line shows 0.150 (a small effect). The die test gives p = 0.4159, so no evidence of a loaded die."
   },
   "spss": {
    "menu": "Analyze > Descriptive Statistics > Crosstabs (Statistics: Chi-square, Phi and Cramer's V; Cells: Expected)",
    "syntax": "DATA LIST FREE / ad buy count.\nBEGIN DATA\n1 1 60  1 2 40  2 1 45  2 2 55\nEND DATA.\nVALUE LABELS ad 1 'video' 2 'banner' / buy 1 'bought' 2 'did not buy'.\nWEIGHT BY count.\nCROSSTABS\n  /TABLES=ad BY buy\n  /STATISTICS=CHISQ PHI\n  /CELLS=COUNT EXPECTED.",
-   "note": "Read the Pearson Chi-Square row (SPSS also prints a continuity-corrected row for 2 by 2 tables, ignore it here). Cramer's V is in the Symmetric Measures table. WEIGHT BY count tells SPSS each row stands for that many people."
+   "note": "Read the Pearson Chi-Square row (SPSS also prints a continuity-corrected row for 2 by 2 tables, ignore it here). Cramer's V is in the Symmetric Measures table. WEIGHT BY count tells SPSS each row stands for that many people.",
+   "explain": [
+    "Declare three variables to read in free format: the ad group, whether the person bought, and how many people that row stands for.",
+    "Marks the start of the data typed directly into the syntax.",
+    "Four rows of three numbers: ad code, buy code, count. For example 1 1 60 means video ad, bought, 60 people.",
+    "Marks the end of the inline data.",
+    "Give words to the codes so the output shows video and banner instead of 1 and 2.",
+    "Tell SPSS that each row counts as that many people, so it analyses 200 people, not 4 rows.",
+    "CROSSTABS builds a table of counts for two categorical variables.",
+    "Put ad in the rows and buy in the columns.",
+    "Ask for the chi-square test (CHISQ) and the measures of association PHI, which includes Cramer's V.",
+    "Show the observed count and the expected count in each cell. The full stop ends the command."
+   ],
+   "read": "In Chi-Square Tests, read the Pearson Chi-Square row: value 4.511, df 1, Asymp. Sig. (2-sided) 0.034. Below 0.05, so ad type and buying are related. The Symmetric Measures table gives Cramer's V = 0.150, a small effect. The Crosstabulation shows expected counts of 52.5 and 47.5."
   },
   "stata": {
    "code": "clear\ninput ad buy freq\n1 1 60\n1 2 40\n2 1 45\n2 2 55\nend\ntabulate ad buy [fweight = freq], chi2 V expected",
-   "note": "tabulate with chi2 gives the Pearson chi-square, df and p-value; V adds Cramer's V; expected prints the expected counts. The goodness-of-fit bonus has no one-line built-in in Stata, so it is shown only in Python and R."
+   "note": "tabulate with chi2 gives the Pearson chi-square, df and p-value; V adds Cramer's V; expected prints the expected counts. The goodness-of-fit bonus has no one-line built-in in Stata, so it is shown only in Python and R.",
+   "explain": [
+    "Clear any data already in memory so we start fresh.",
+    "Start typing data directly. Each row will hold three numbers: ad, buy and freq (the count).",
+    "Row 1: video ad (1), bought (1), 60 people.",
+    "Row 2: video ad (1), did not buy (2), 40 people.",
+    "Row 3: banner ad (2), bought (1), 45 people.",
+    "Row 4: banner ad (2), did not buy (2), 55 people.",
+    "end finishes the data entry.",
+    "tabulate crosses ad by buy. [fweight = freq] counts each row freq times, chi2 gives the test, V gives Cramer's V and expected shows expected counts."
+   ],
+   "read": "Find the line Pearson chi2(1) = 4.5113 Pr = 0.034: the p-value is below 0.05, so ad type and buying are related. The line Cramer's V = 0.1502 says the effect is small. Each table cell shows the observed count above its expected count (52.5 or 47.5)."
   },
-  "try": [
-   "Change the banner row to 50 and 50 (so both ads convert 50 to 60 percent) and predict what happens to chi-square and Cramer's V.",
-   "Multiply every count by 2 (400 people, same percentages). Which changes, the p-value or Cramer's V, and why?"
-  ]
+  "conclusion": "Yes, there is evidence that ad type is related to buying: 60% of video viewers bought against 45% of banner viewers (chi-square = 4.51, df = 1, p = 0.034), so video looks better. The link is modest (Cramer's V = 0.15). Caution: this shows a link, and only supports 'the video ad causes more buying' if people were shown the ads at random.",
+  "practice": {
+   "scenario": "A clinic wants fewer missed appointments. It sends a text reminder to 100 patients and phones another 100 patients, then records who turned up. 70 of the text group and 58 of the phone group attended. Is the type of reminder related to attending?",
+   "data": "observed = [[70, 30], [58, 42]]   # rows: text, phone call   columns: attended, missed",
+   "tasks": [
+    "Run a chi-square test of independence (no continuity correction) and report the expected counts, chi-square, df and p-value.",
+    "At the 0.05 level, is reminder type related to attendance?",
+    "Compute Cramer's V and say how big the link is."
+   ],
+   "hint": "Use the same two functions as the lab: chi2_contingency with correction=False, then V = sqrt(chi-square / (n x (k - 1))).",
+   "solution": {
+    "code": "import numpy as np\nfrom scipy import stats\n\nobserved = np.array([[70, 30],\n                     [58, 42]])\nres = stats.chi2_contingency(observed, correction=False)\nprint('expected:', res.expected_freq.round(1).tolist())\nprint(f'chi-square = {res.statistic:.3f}, df = {res.dof}, p = {res.pvalue:.4f}')\n\nv = np.sqrt(res.statistic / (observed.sum() * (min(observed.shape) - 1)))\nprint(f'Cramer V = {v:.3f}')\nprint('attend rates:', observed[:, 0] / observed.sum(axis=1))",
+    "answer": "Expected counts are 64 attending and 36 missing in each group. Chi-square = 3.125, df = 1, p = 0.0771, which is above 0.05, so we cannot say reminder type matters: a 12-point gap (70% against 58%) is plausible by chance with 100 patients per group. Cramer's V = 0.125 is a small effect. Not significant does not mean the reminders are equal; a larger study might settle it."
+   }
+  }
  },
  "7.2": {
   "goal": "Compare the exam scores of three teaching methods with a one-way ANOVA, then use Tukey's HSD to find which pairs of methods differ.",
+  "question": "An instructor taught three groups of five students with three methods (lecture, flipped classroom, problem-based), then gave all 15 the same exam. The group means are 80.0, 88.8 and 71.0. Do the teaching methods really differ, or is this the ordinary scatter you get between any 15 students? If they differ, which methods differ from which?",
   "python": {
    "blocks": [
     {
      "title": "Enter the three groups",
      "text": "Five students per teaching method, the same 15 scores as the lesson. We look at each group mean first, because ANOVA asks whether those means are further apart than the spread inside each group would explain.",
-     "code": "import numpy as np\nfrom scipy import stats\nfrom statsmodels.stats.multicomp import pairwise_tukeyhsd\n\nlecture = [78, 82, 85, 79, 76]\nflipped = [88, 91, 87, 93, 85]\nproblem = [72, 68, 74, 70, 71]\n\nfor name, g in [('lecture', lecture), ('flipped', flipped), ('problem', problem)]:\n    print(f'{name:8s} mean = {np.mean(g):.1f}   sd = {np.std(g, ddof=1):.2f}')"
+     "code": "import numpy as np\nfrom scipy import stats\nfrom statsmodels.stats.multicomp import pairwise_tukeyhsd\n\nlecture = [78, 82, 85, 79, 76]\nflipped = [88, 91, 87, 93, 85]\nproblem = [72, 68, 74, 70, 71]\n\nfor name, g in [('lecture', lecture), ('flipped', flipped), ('problem', problem)]:\n    print(f'{name:8s} mean = {np.mean(g):.1f}   sd = {np.std(g, ddof=1):.2f}')",
+     "explain": [
+      "Load NumPy for the numbers, here to get means and standard deviations.",
+      "Load SciPy's statistics tools, which include the one-way ANOVA.",
+      "Load Tukey's HSD from statsmodels, the follow-up test that compares every pair of groups.",
+      "Exam scores of the five students taught by lecture.",
+      "Scores of the five students in the flipped classroom.",
+      "Scores of the five students in the problem-based class.",
+      "Loop over (label, scores) pairs so we write the summary once for all three groups.",
+      "Print each group's mean and its sample SD (ddof=1 divides by n - 1). ANOVA asks whether the means are further apart than this spread allows."
+     ],
+     "meaning": "Lecture averages 80.0, flipped 88.8 and problem-based 71.0. The SDs inside each group are small (2.24 to 3.54) compared with the 8 to 18 point gaps between the means, which hints that the methods differ."
     },
     {
      "title": "Run the one-way ANOVA",
      "text": "f_oneway compares the spread between group means with the spread inside the groups. F near 1 means no difference; a large F with a small p-value says at least one mean differs.",
-     "code": "res = stats.f_oneway(lecture, flipped, problem)\n\nprint(f'F       = {res.statistic:.2f}')\nprint('df      = (2, 12)')\nprint(f'p-value = {res.pvalue:.7f}')"
+     "code": "res = stats.f_oneway(lecture, flipped, problem)\n\nprint(f'F       = {res.statistic:.2f}')\nprint('df      = (2, 12)')\nprint(f'p-value = {res.pvalue:.7f}')",
+     "explain": [
+      "f_oneway runs the one-way ANOVA: it compares the spread between the group means with the spread inside the groups.",
+      "F is the ratio of those two spreads. Near 1 means no difference; larger means the means are further apart than chance explains.",
+      "Degrees of freedom: 3 groups - 1 = 2 between groups, and 15 - 3 = 12 within groups.",
+      "The p-value is how rare an F this large would be if all three methods really had the same mean."
+     ],
+     "meaning": "F = 42.90 with 2 and 12 df gives p = 0.0000034. If the three methods truly had the same mean, an F this large would almost never happen, so at least one method differs from the others. It does not yet say which one."
     },
     {
      "title": "Measure the effect size",
      "text": "Eta squared is the share of all the score variation that is explained by teaching method. It is the between-group sum of squares divided by the total.",
-     "code": "scores = np.array(lecture + flipped + problem)\ngrand = scores.mean()\n\nssb = sum(len(g) * (np.mean(g) - grand) ** 2 for g in (lecture, flipped, problem))\nsst = ((scores - grand) ** 2).sum()\n\nprint(f'between SS = {ssb:.1f}, total SS = {sst:.1f}')\nprint(f'eta squared = {ssb / sst:.3f}')"
+     "code": "scores = np.array(lecture + flipped + problem)\ngrand = scores.mean()\n\nssb = sum(len(g) * (np.mean(g) - grand) ** 2 for g in (lecture, flipped, problem))\nsst = ((scores - grand) ** 2).sum()\n\nprint(f'between SS = {ssb:.1f}, total SS = {sst:.1f}')\nprint(f'eta squared = {ssb / sst:.3f}')",
+     "explain": [
+      "Put all 15 scores in one array so we can find the overall mean and total variation.",
+      "The grand mean is the average of all 15 scores. Every sum of squares is measured from it.",
+      "Between-group sum of squares: each group's mean distance from the grand mean, squared, times its size.",
+      "Total sum of squares: how far all 15 scores are from the grand mean, squared and added up.",
+      "Print both sums of squares so we can see how much of the total is between groups.",
+      "Eta squared = between / total, the share of all score variation explained by teaching method."
+     ],
+     "meaning": "Between-group SS is 792.1 out of a total of 902.9, so eta squared = 0.877. About 88% of the variation in scores goes with teaching method, a very large effect. The rest is ordinary student-to-student scatter."
     },
     {
      "title": "Find which pairs differ with Tukey",
      "text": "A significant ANOVA only says some mean is different. Tukey's HSD compares every pair while keeping the overall false-alarm rate at 5%. In the table, reject = True means that pair differs.",
-     "code": "labels = ['lecture'] * 5 + ['flipped'] * 5 + ['problem'] * 5\n\ntukey = pairwise_tukeyhsd(scores, labels, alpha=0.05)\n\nprint(tukey.summary())"
+     "code": "labels = ['lecture'] * 5 + ['flipped'] * 5 + ['problem'] * 5\n\ntukey = pairwise_tukeyhsd(scores, labels, alpha=0.05)\n\nprint(tukey.summary())",
+     "explain": [
+      "Make one label per score ('lecture' five times, and so on) in the same order as the scores.",
+      "Run Tukey's HSD at alpha 0.05. It compares every pair of groups while holding the overall false-alarm rate at 5%.",
+      "Print the table. meandiff is group2 minus group1, and reject = True means that pair really differs."
+     ],
+     "meaning": "Every pair differs. Lecture scored 8.8 below flipped (p = 0.0017), problem-based 17.8 below flipped (p < 0.0001) and 9.0 below lecture (p = 0.0014). So flipped is best, lecture is in the middle, and problem-based is lowest on this exam."
     }
    ]
   },
   "r": {
    "code": "score <- c(78, 82, 85, 79, 76, 88, 91, 87, 93, 85, 72, 68, 74, 70, 71)\nmethod <- factor(rep(c(\"lecture\", \"flipped\", \"problem\"), each = 5))\nfit <- aov(score ~ method)\nsummary(fit)\nTukeyHSD(fit)",
    "expect": "method: Df 2, Sum Sq 792.1, Mean Sq 396.1, F value 42.9, Pr(>F) 3.41e-06; residuals Df 12, Sum Sq 110.8, Mean Sq 9.2; Tukey differences: lecture-flipped -8.8, problem-flipped -17.8, problem-lecture -9.0 (adjusted p 0.0017, 0.0000, 0.0014)",
-   "note": "R and the Python table both order the groups alphabetically (flipped, lecture, problem), so the differences match. summary(fit) prints the p-value as 3.41e-06, which means 0.00000341."
+   "note": "R and the Python table both order the groups alphabetically (flipped, lecture, problem), so the differences match. summary(fit) prints the p-value as 3.41e-06, which means 0.00000341.",
+   "explain": [
+    "Enter the 15 scores in order: five lecture, then five flipped, then five problem-based.",
+    "Make a grouping variable (factor) that repeats each method name five times, in the same order as the scores.",
+    "aov fits the one-way ANOVA. The formula score ~ method reads 'score explained by method'.",
+    "summary prints the ANOVA table with the F value and its p-value.",
+    "TukeyHSD compares every pair of methods and adjusts the p-values so the overall false-alarm rate stays at 5%."
+   ],
+   "read": "In the ANOVA table, read F value 42.9 and Pr(>F) 3.41e-06 (that is 0.00000341): the methods differ. In the Tukey table, diff is one group minus the other and p adj below 0.05 means that pair differs: all three pairs do (-8.8, -17.8, -9.0)."
   },
   "spss": {
    "menu": "Analyze > Compare Means > One-Way ANOVA (Post Hoc: Tukey)",
    "syntax": "DATA LIST FREE / method score.\nBEGIN DATA\n1 78  1 82  1 85  1 79  1 76\n2 88  2 91  2 87  2 93  2 85\n3 72  3 68  3 74  3 70  3 71\nEND DATA.\nONEWAY score BY method\n  /POSTHOC=TUKEY ALPHA(0.05).",
-   "note": "Method codes: 1 lecture, 2 flipped, 3 problem-based. The ANOVA table gives F and Sig.; the Multiple Comparisons table gives each Tukey pair."
+   "note": "Method codes: 1 lecture, 2 flipped, 3 problem-based. The ANOVA table gives F and Sig.; the Multiple Comparisons table gives each Tukey pair.",
+   "explain": [
+    "Declare two variables, the teaching method code and the exam score, to be read in free format.",
+    "Start of the inline data.",
+    "Lecture students (method 1): each pair is the method code then the score.",
+    "Flipped classroom students (method 2).",
+    "Problem-based students (method 3).",
+    "End of the inline data.",
+    "ONEWAY runs a one-way ANOVA of score across the groups of method.",
+    "Add Tukey's post hoc comparisons at the 0.05 level. The full stop ends the command."
+   ],
+   "read": "In the ANOVA table read F = 42.900 and Sig. = 0.000: the methods differ. In Multiple Comparisons (Tukey HSD) read Mean Difference and Sig. for each pair. All three Sig. values are below 0.05, so every pair differs. 1 = lecture, 2 = flipped, 3 = problem-based."
   },
   "stata": {
    "code": "clear\nset obs 15\ngenerate score = real(word(\"78 82 85 79 76 88 91 87 93 85 72 68 74 70 71\", _n))\ngenerate method = ceil(_n / 5)\noneway score method\nquietly anova score method\npwcompare method, mcompare(tukey) effects",
-   "note": "oneway prints the ANOVA table with F and Prob > F. pwcompare after anova gives every pairwise difference with Tukey-adjusted p-values. Methods: 1 lecture, 2 flipped, 3 problem-based."
+   "note": "oneway prints the ANOVA table with F and Prob > F. pwcompare after anova gives every pairwise difference with Tukey-adjusted p-values. Methods: 1 lecture, 2 flipped, 3 problem-based.",
+   "explain": [
+    "Clear any data already in memory.",
+    "Create 15 empty rows, one per student.",
+    "Fill the score column. word() picks the n-th number from the list and real() turns it into a number, a quick way to type the data.",
+    "Make the method code: ceil(_n / 5) gives 1 for rows 1 to 5, 2 for rows 6 to 10 and 3 for rows 11 to 15.",
+    "oneway prints the ANOVA table of score by method with F and Prob > F.",
+    "Fit the same model with anova, quietly so nothing is printed, because pwcompare needs it.",
+    "pwcompare compares every pair of methods; mcompare(tukey) gives Tukey-adjusted p-values and effects shows the differences."
+   ],
+   "read": "In the oneway table find F = 42.90 and Prob > F = 0.0000: the methods differ. In the pwcompare table, the Contrast column is the difference in means (for example 2 vs 1 is 8.8) and the Tukey p-value column shows each pair is below 0.05."
   },
-  "try": [
-   "Make the three problem-based scores 80, 76, 82, 78, 79 (closer to the others) and predict what happens to F and to the Tukey table.",
-   "Change one flipped score to 60. How do the group mean, F and the p-value respond?"
-  ]
+  "conclusion": "Yes, the teaching methods differ. The flipped classroom averaged 88.8, lecture 80.0 and problem-based 71.0, and every pair differs (ANOVA F = 42.90, p < 0.0001; eta squared = 0.88). Caution: with only five students per method, and no random assignment mentioned, this does not prove that the method itself caused the differences.",
+  "practice": {
+   "scenario": "A gardener grows tomato plants with three fertilisers (A, B and C), six plants each, and records the total fruit weight per plant in kilograms. Do the fertilisers produce different yields, and if so, which ones differ?",
+   "data": "a = [21, 24, 19, 23, 22, 20]\nb = [27, 30, 26, 29, 31, 28]\nc = [22, 25, 24, 21, 26, 23]",
+   "tasks": [
+    "Find the mean yield for each fertiliser.",
+    "Run a one-way ANOVA and report F and the p-value.",
+    "Compute eta squared.",
+    "Use Tukey's HSD to say which pairs of fertilisers differ."
+   ],
+   "hint": "Use stats.f_oneway(a, b, c), then pairwise_tukeyhsd on all 18 values with a matching list of labels. Eta squared is between SS divided by total SS.",
+   "solution": {
+    "code": "import numpy as np\nfrom scipy import stats\nfrom statsmodels.stats.multicomp import pairwise_tukeyhsd\n\na = [21, 24, 19, 23, 22, 20]\nb = [27, 30, 26, 29, 31, 28]\nc = [22, 25, 24, 21, 26, 23]\nres = stats.f_oneway(a, b, c)\nprint(f'F = {res.statistic:.2f}, p = {res.pvalue:.6f}')\ny = np.array(a + b + c)\nprint('means:', [round(float(np.mean(x)), 1) for x in (a, b, c)])\nprint(pairwise_tukeyhsd(y, ['A'] * 6 + ['B'] * 6 + ['C'] * 6).summary())\nssb = sum(len(x) * (np.mean(x) - y.mean()) ** 2 for x in (a, b, c))\nprint(f'eta squared = {ssb / ((y - y.mean()) ** 2).sum():.3f}')",
+    "answer": "Means are A = 21.5, B = 28.5 and C = 23.5 kg. ANOVA gives F = 22.29, p = 0.000032, so the fertilisers do not all give the same yield, and eta squared = 0.748 (about 75% of the variation goes with fertiliser). Tukey: B beats A by 7.0 (p < 0.001) and beats C by 5.0 (p = 0.0009), but A and C do not differ (p = 0.187). So B is the best of these."
+   }
+  }
  },
  "7.3": {
   "goal": "Show how rank-based tests (Mann-Whitney, Wilcoxon, Kruskal-Wallis) cope with an outlier that a t-test cannot, using the lesson's app-timing, pain and teaching data.",
+  "question": "A designer wants to know whether a redesigned app helps people finish a task faster. Six people used the new design and six the old one; times in seconds are in the lesson. One old-design user took 95 seconds, maybe after a phone call. Does the new design really work faster, and how do we test that when one wild value can fool the usual t-test?",
   "python": {
    "blocks": [
     {
      "title": "Two groups: the t-test versus ranks",
      "text": "Task times in seconds for a new and an old app design. The old group has one 95-second outlier. Welch's t-test uses the size of every value, so the outlier hides the pattern. Mann-Whitney only uses the order of the values.",
-     "code": "import numpy as np\nfrom scipy import stats\n\nnew = [12, 15, 11, 14, 19, 13]\nold = [18, 22, 25, 17, 30, 95]\n\nt = stats.ttest_ind(new, old, equal_var=False)\nmw = stats.mannwhitneyu(new, old, alternative='two-sided', method='exact')\n\nprint(f'Welch t-test : t = {t.statistic:.2f}, p = {t.pvalue:.3f}')\nprint(f'Mann-Whitney : U = {mw.statistic:.0f}, p = {mw.pvalue:.4f}')"
+     "code": "import numpy as np\nfrom scipy import stats\n\nnew = [12, 15, 11, 14, 19, 13]\nold = [18, 22, 25, 17, 30, 95]\n\nt = stats.ttest_ind(new, old, equal_var=False)\nmw = stats.mannwhitneyu(new, old, alternative='two-sided', method='exact')\n\nprint(f'Welch t-test : t = {t.statistic:.2f}, p = {t.pvalue:.3f}')\nprint(f'Mann-Whitney : U = {mw.statistic:.0f}, p = {mw.pvalue:.4f}')",
+     "explain": [
+      "Load NumPy, the library for numbers.",
+      "Load SciPy's statistics tools, which contain both the t-test and the rank tests.",
+      "Task times in seconds for the six people on the new design. None is extreme.",
+      "Task times for the six people on the old design. The 95 is the outlier.",
+      "Welch's t-test compares the two means. equal_var=False is the safe version that does not assume equal spreads.",
+      "Mann-Whitney compares the ranks instead of the sizes. method='exact' works out the exact p-value, best for small samples.",
+      "Print the t statistic and p-value. Welch uses every value's size, so the 95 inflates the spread.",
+      "Print U (a count of pair wins, explained next) and its p-value. Only the order of values matters here."
+     ],
+     "meaning": "Welch's t-test gives t = -1.67, p = 0.156: not significant, because the 95-second outlier makes the old group's spread huge. Mann-Whitney only uses the order of times and gives U = 2, p = 0.0087, which is significant. The new design is faster, and ranks can see it."
     },
     {
      "title": "How strong is the Mann-Whitney effect?",
      "text": "U counts in how many of the 36 new-versus-old pairs the new design had the larger (slower) time. Here that is only 2, so almost every pair says the new design was faster. The rank-biserial correlation turns this into a size from 0 to 1.",
-     "code": "n1, n2 = len(new), len(old)\nu = mw.statistic\n\nr = 1 - 2 * u / (n1 * n2)\n\nprint(f'new time larger in {u:.0f} of {n1 * n2} pairs')\nprint(f'old time larger in {n1 * n2 - u:.0f} of {n1 * n2} pairs')\nprint(f'rank-biserial r = {r:.2f}')"
+     "code": "n1, n2 = len(new), len(old)\nu = mw.statistic\n\nr = 1 - 2 * u / (n1 * n2)\n\nprint(f'new time larger in {u:.0f} of {n1 * n2} pairs')\nprint(f'old time larger in {n1 * n2 - u:.0f} of {n1 * n2} pairs')\nprint(f'rank-biserial r = {r:.2f}')",
+     "explain": [
+      "Count the people in each group: 6 and 6.",
+      "U is the number the test reports: in how many pairs the new time came out larger than the old.",
+      "Rank-biserial r = 1 - 2U / (n1 x n2), turning U into a size from -1 to +1. It is the Mann-Whitney effect size.",
+      "Print how many of the 36 new-versus-old pairs had the new design slower.",
+      "The other pairs are the ones where the old design was slower. The two counts add to 36.",
+      "Print the effect size, rounded to 2 decimals."
+     ],
+     "meaning": "U = 2 means the new design was slower in only 2 of the 36 pairs; the old design was slower in 34. The rank-biserial correlation is 0.89, close to its maximum of 1, so almost every new time beats almost every old time. That is a large effect."
     },
     {
      "title": "Paired data: Wilcoxon signed-rank",
      "text": "Pain scores (0 to 10) for eight patients before and after treatment. The same people are measured twice, so we test the differences. The Wilcoxon statistic is the smaller of the two rank sums (positive and negative differences).",
-     "code": "before = [7, 8, 6, 9, 7, 6, 8, 7]\nafter = [3, 1, 4, 0, 4, 7, 2, 2]\n\nw = stats.wilcoxon(before, after)\npt = stats.ttest_rel(before, after)\n\nprint(f'Wilcoxon : W = {w.statistic:.0f}, p = {w.pvalue:.4f}')\nprint(f'Paired t : t = {pt.statistic:.2f}, p = {pt.pvalue:.4f}')"
+     "code": "before = [7, 8, 6, 9, 7, 6, 8, 7]\nafter = [3, 1, 4, 0, 4, 7, 2, 2]\n\nw = stats.wilcoxon(before, after)\npt = stats.ttest_rel(before, after)\n\nprint(f'Wilcoxon : W = {w.statistic:.0f}, p = {w.pvalue:.4f}')\nprint(f'Paired t : t = {pt.statistic:.2f}, p = {pt.pvalue:.4f}')",
+     "explain": [
+      "Pain scores (0 to 10) for eight patients before treatment. The same eight people will be measured again.",
+      "Pain scores for the same eight people after treatment, in the same order.",
+      "Wilcoxon signed-rank test for paired data. It ranks the size of each person's change and checks whether the ups and downs balance.",
+      "The paired t-test on the same data, for comparison. It also works on each person's difference.",
+      "Print Wilcoxon's W, the smaller of the two rank sums, with its p-value.",
+      "Print the paired t statistic and p-value."
+     ],
+     "meaning": "The Wilcoxon test gives W = 1, p = 0.0156: pain scores really dropped, because nearly every patient improved (only patient 6 got worse, by a point). The paired t-test gives t = 3.97, p = 0.0054 and agrees here, since there is no extreme outlier."
     },
     {
      "title": "Three groups: Kruskal-Wallis",
      "text": "Three teaching methods with three students each. Kruskal-Wallis is the rank version of one-way ANOVA. With groups this small the p-value is an approximation, so treat it as a guide.",
-     "code": "a = [65, 72, 68]\nb = [80, 85, 78]\nc = [55, 60, 58]\n\nkw = stats.kruskal(a, b, c)\nf = stats.f_oneway(a, b, c)\n\nprint(f'Kruskal-Wallis: H = {kw.statistic:.2f}, p = {kw.pvalue:.4f}')\nprint(f'ANOVA         : F = {f.statistic:.2f}, p = {f.pvalue:.4f}')"
+     "code": "a = [65, 72, 68]\nb = [80, 85, 78]\nc = [55, 60, 58]\n\nkw = stats.kruskal(a, b, c)\nf = stats.f_oneway(a, b, c)\n\nprint(f'Kruskal-Wallis: H = {kw.statistic:.2f}, p = {kw.pvalue:.4f}')\nprint(f'ANOVA         : F = {f.statistic:.2f}, p = {f.pvalue:.4f}')",
+     "explain": [
+      "Test scores of three students taught by method a.",
+      "Test scores of three students taught by method b.",
+      "Test scores of three students taught by method c.",
+      "Kruskal-Wallis is the rank version of one-way ANOVA. It ranks all nine scores together and compares the groups' rank totals.",
+      "Run ordinary one-way ANOVA on the same numbers, for comparison.",
+      "Print H, Kruskal-Wallis's statistic, and its p-value (an approximation with groups this small).",
+      "Print ANOVA's F and p-value."
+     ],
+     "meaning": "Kruskal-Wallis gives H = 7.20, p = 0.0273, so the three methods differ in rank. ANOVA gives F = 38.78, p = 0.0004. With only 3 students per group both are rough guides, but they point the same way: the methods differ."
     }
    ]
   },
   "r": {
    "code": "new <- c(12, 15, 11, 14, 19, 13)\nold <- c(18, 22, 25, 17, 30, 95)\nt.test(new, old)\nwilcox.test(new, old)\nbefore <- c(7, 8, 6, 9, 7, 6, 8, 7)\nafter <- c(3, 1, 4, 0, 4, 7, 2, 2)\nwilcox.test(before, after, paired = TRUE)\nscore <- c(65, 72, 68, 80, 85, 78, 55, 60, 58)\nmethod <- factor(rep(c(\"A\", \"B\", \"C\"), each = 3))\nkruskal.test(score ~ method)",
    "expect": "Welch t = -1.6654, df = 5.0888, p-value = 0.1557; wilcox.test W = 2, p-value = 0.008658; paired V = 35, p-value = 0.01562; Kruskal-Wallis chi-squared = 7.2, df = 2, p-value = 0.02732",
-   "note": "For the paired test R reports V = 35 (the sum of the positive ranks) while Python reports W = 1 (the smaller of the two rank sums); both give the same p-value."
+   "note": "For the paired test R reports V = 35 (the sum of the positive ranks) while Python reports W = 1 (the smaller of the two rank sums); both give the same p-value.",
+   "explain": [
+    "Task times for the new design.",
+    "Task times for the old design, including the 95-second outlier.",
+    "t.test compares the means; by default R runs Welch's version, which does not assume equal spreads.",
+    "wilcox.test on two samples is the Mann-Whitney test, which compares ranks.",
+    "Pain scores before treatment for eight patients.",
+    "Pain scores for the same eight patients after treatment, in the same order.",
+    "paired = TRUE makes wilcox.test the Wilcoxon signed-rank test on each patient's before-after difference.",
+    "Scores of nine students, three in each of three teaching methods.",
+    "A factor naming each student's method: A, B or C, three times each.",
+    "kruskal.test is the Kruskal-Wallis test of score by method."
+   ],
+   "read": "Welch: t = -1.6654, p-value = 0.1557 (not significant). Mann-Whitney: W = 2, p-value = 0.008658 (significant). Paired Wilcoxon: V = 35, p-value = 0.01562. Kruskal-Wallis: chi-squared = 7.2, df = 2, p-value = 0.02732. The rank tests find what the outlier hides from the t-test."
   },
   "spss": {
    "menu": "Analyze > Nonparametric Tests > Legacy Dialogs > 2 Independent Samples (Mann-Whitney U) and 2 Related Samples (Wilcoxon)",
    "syntax": "DATA LIST FREE / time group.\nBEGIN DATA\n12 1  15 1  11 1  14 1  19 1  13 1  18 2  22 2  25 2  17 2  30 2  95 2\nEND DATA.\nNPAR TESTS /M-W=time BY group(1,2).\nDATA LIST FREE / before after.\nBEGIN DATA\n7 3  8 1  6 4  9 0  7 4  6 7  8 2  7 2\nEND DATA.\nNPAR TESTS /WILCOXON=before WITH after (PAIRED).",
-   "note": "Group 1 is the new design. SPSS uses a normal approximation by default, so the Mann-Whitney U is 2 with Sig. about 0.01 (the exact value is 0.0087), and the Wilcoxon table shows rank sums 35 and 1 with Sig. about 0.02 (exact 0.0156). Kruskal-Wallis is /K-W=score BY method(1,3) on a dataset like the one in the Stata tab."
+   "note": "Group 1 is the new design. SPSS uses a normal approximation by default, so the Mann-Whitney U is 2 with Sig. about 0.01 (the exact value is 0.0087), and the Wilcoxon table shows rank sums 35 and 1 with Sig. about 0.02 (exact 0.0156). Kruskal-Wallis is /K-W=score BY method(1,3) on a dataset like the one in the Stata tab.",
+   "explain": [
+    "Declare two variables for the app data: the task time and the group (1 new, 2 old).",
+    "Start of the inline data.",
+    "Each pair is a time then its group: the first six are the new design, the last six the old design.",
+    "End of the inline data.",
+    "Run the Mann-Whitney U test of time between group 1 and group 2.",
+    "Now declare the pain data: two variables per patient, before and after.",
+    "Start of the inline pain data.",
+    "Eight patients, each with a before and an after score.",
+    "End of the inline data.",
+    "Run the Wilcoxon signed-rank test, comparing each patient's before with their after."
+   ],
+   "read": "Mann-Whitney: look at Test Statistics, Mann-Whitney U = 2.000 and Asymp. Sig. (2-tailed) about 0.010 (exact 0.0087). Wilcoxon: the Ranks table shows rank sums of 35 and 1, and Asymp. Sig. is about 0.02 (exact 0.0156). Both are below 0.05, so both tests find a real difference."
   },
   "stata": {
    "code": "clear\nset obs 12\ngenerate time = real(word(\"12 15 11 14 19 13 18 22 25 17 30 95\", _n))\ngenerate group = _n > 6\nranksum time, by(group)\nttest time, by(group) unequal\ngenerate before = real(word(\"7 8 6 9 7 6 8 7\", _n))\ngenerate after = real(word(\"3 1 4 0 4 7 2 2\", _n))\nsignrank before = after\ngenerate score = real(word(\"65 72 68 80 85 78 55 60 58\", _n))\ngenerate method = ceil(_n / 3) if _n <= 9\nkwallis score, by(method)",
-   "note": "ranksum is Mann-Whitney (it reports a z score and its p-value, about 0.010, and may also print the exact p-value 0.0087; group 0 is the new design). signrank is Wilcoxon (sum ranks 35 and 1) and kwallis is Kruskal-Wallis. The word() trick just enters the lesson's numbers quickly."
+   "note": "ranksum is Mann-Whitney (it reports a z score and its p-value, about 0.010, and may also print the exact p-value 0.0087; group 0 is the new design). signrank is Wilcoxon (sum ranks 35 and 1) and kwallis is Kruskal-Wallis. The word() trick just enters the lesson's numbers quickly.",
+   "explain": [
+    "Clear any data in memory.",
+    "Create 12 empty rows, one per person.",
+    "Fill the time column. word() picks the n-th number from the quoted list and real() turns it into a number.",
+    "Make group = 0 for rows 1 to 6 (the new design) and 1 for rows 7 to 12 (the old design).",
+    "ranksum is the Mann-Whitney test of time between the two groups.",
+    "ttest with unequal is Welch's t-test, for comparison.",
+    "Fill the before pain scores for the eight patients.",
+    "Fill the after pain scores for the same patients.",
+    "signrank before = after is the Wilcoxon signed-rank test of the paired scores.",
+    "Fill the nine test scores.",
+    "Make a method code, 1, 2 or 3, using ceil(_n / 3) for the first nine rows only.",
+    "kwallis is the Kruskal-Wallis test of score across the method groups."
+   ],
+   "read": "ranksum prints a z statistic and p-value (about 0.010, with an exact value near 0.0087 shown too) for the rank test; ttest prints Pr(|T| > |t|) around 0.156. signrank shows sum ranks 35 and 1 with p about 0.02. kwallis shows chi-squared = 7.200 and Prob = 0.0273."
   },
-  "try": [
-   "Change the 95 to 40 and then to 5000. Predict what happens to the Welch p-value and to the Mann-Whitney p-value, then check.",
-   "In the pain data, change patient 6's After score from 7 to 5. Does the Wilcoxon statistic get smaller or larger?"
-  ]
+  "conclusion": "Yes, the new design is faster. The Mann-Whitney test gives p = 0.0087 and the new design was quicker in 34 of 36 pairs, even though the Welch t-test (p = 0.156) was fooled by the 95-second outlier. Rank tests resist outliers, but with only six people per design this is a small study, and we should find out why one person took 95 seconds.",
+  "practice": {
+   "scenario": "A food-delivery firm compares delivery times (minutes) from two couriers' routes: a fast route (7 deliveries) and a slow route (7 deliveries). One slow-route delivery took 190 minutes because of a vehicle breakdown. Is the slow route really slower?",
+   "data": "fast = [32, 35, 30, 38, 33, 36, 31]\nslow = [41, 45, 39, 48, 44, 42, 190]",
+   "tasks": [
+    "Run Welch's t-test and report t and p.",
+    "Run an exact two-sided Mann-Whitney test and report U and p.",
+    "Count in how many of the 49 pairs the fast route was slower, and give the rank-biserial correlation.",
+    "Which test do you trust here, and why?"
+   ],
+   "hint": "Use stats.ttest_ind(..., equal_var=False) and stats.mannwhitneyu(..., method='exact'). The effect size is 1 - 2U / (n1 x n2).",
+   "solution": {
+    "code": "import numpy as np\nfrom scipy import stats\n\nfast = [32, 35, 30, 38, 33, 36, 31]\nslow = [41, 45, 39, 48, 44, 42, 190]\nt = stats.ttest_ind(fast, slow, equal_var=False)\nmw = stats.mannwhitneyu(fast, slow, alternative='two-sided', method='exact')\nprint(f'Welch t = {t.statistic:.2f}, p = {t.pvalue:.3f}')\nprint(f'Mann-Whitney U = {mw.statistic:.0f}, p = {mw.pvalue:.5f}')\nn = len(fast) * len(slow)\nprint(f'pairs where fast was larger: {mw.statistic:.0f} of {n}')\nprint(f'rank-biserial r = {1 - 2 * mw.statistic / n:.2f}')\nprint('means', np.mean(fast).round(1), np.mean(slow).round(1))\nprint('medians', np.median(fast), np.median(slow))",
+    "answer": "Welch's t-test gives t = -1.45, p = 0.196, not significant, because the 190-minute breakdown drags the slow mean to 64.1 and inflates its spread. Mann-Whitney gives U = 0, p = 0.00058: the fast route was slower in 0 of 49 pairs, so the rank-biserial r = 1.00 (as strong as it gets). Medians are 33 and 44. Trust the rank test here, since the outlier distorts the t-test."
+   }
+  }
  }
 }

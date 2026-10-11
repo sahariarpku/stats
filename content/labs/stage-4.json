@@ -1,232 +1,645 @@
 {
  "4.1": {
   "goal": "Draw 1,000 samples from a skewed population and watch the sample means form a bell-shaped sampling distribution centred on the true mean.",
+  "question": "A survey team wants to know how far one sample mean can stray from the truth. We build a made-up population of 100,000 right-skewed values (true mean about 30, true SD about 15) so that we KNOW the truth, then draw 1,000 samples of 30 and ask: how do the sample means behave?",
   "python": {
    "blocks": [
     {
      "title": "Build a population",
      "text": "A made-up population of 100,000 values, skewed to the right (a few large values), with a true mean near 30 and a true SD near 15, like the lesson's builder. The seed makes the numbers repeatable.",
-     "code": "import numpy as np\nimport matplotlib.pyplot as plt\n\nrng = np.random.default_rng(42)\npopulation = 15 + rng.exponential(15, size=100_000)\nmu = population.mean()\nsigma = population.std()\n\nprint(f'population mean (mu)   = {mu:.2f}')\nprint(f'population SD (sigma)  = {sigma:.2f}')"
+     "code": "import numpy as np\nimport matplotlib.pyplot as plt\n\nrng = np.random.default_rng(42)\npopulation = 15 + rng.exponential(15, size=100_000)\nmu = population.mean()\nsigma = population.std()\n\nprint(f'population mean (mu)   = {mu:.2f}')\nprint(f'population SD (sigma)  = {sigma:.2f}')",
+     "explain": [
+      "Load NumPy, the library for fast arithmetic on lists of numbers, under the short name np.",
+      "Load matplotlib's plotting tools as plt; we need them later to draw the histogram.",
+      "Create a random number generator with seed 42, so everyone who runs this gets the same numbers.",
+      "Build 100,000 right-skewed values: 15 plus an exponential draw. Skew means many small values and a few big ones.",
+      "Compute the population mean mu. In real life we never know it; here we do, so we can check our work.",
+      "Compute the population SD sigma (spread of individual values), the number the standard error will be built from.",
+      "Print mu with 2 decimals; the f-string puts the number inside the text and :.2f rounds it.",
+      "Print sigma the same way, so both true values sit next to each other."
+     ],
+     "meaning": "The made-up population has a true mean of 30.05 and a true SD of 15.08. These are the 'answers' we pretend not to know. Every sample we draw next will try to estimate 30.05, and we can see how well it does."
     },
     {
      "title": "Draw 1,000 samples of size 30",
      "text": "Each row below is one random sample of 30 people. We compute the mean of every row, so we end up with 1,000 different sample means. That pile of means is the sampling distribution.",
-     "code": "n = 30\nsamples = rng.choice(population, size=(1000, n))\nsample_means = samples.mean(axis=1)\n\nprint('first five sample means:', sample_means[:5].round(2))\nprint('number of sample means:', len(sample_means))"
+     "code": "n = 30\nsamples = rng.choice(population, size=(1000, n))\nsample_means = samples.mean(axis=1)\n\nprint('first five sample means:', sample_means[:5].round(2))\nprint('number of sample means:', len(sample_means))",
+     "explain": [
+      "Set the sample size: every pretend survey will ask 30 people.",
+      "rng.choice picks values at random from the population; size=(1000, n) makes 1,000 rows, each one a sample of 30.",
+      "Take the mean of each row (axis=1 means 'across the columns'), giving 1,000 sample means.",
+      "Show the first five sample means so we can see that every sample gives a slightly different answer.",
+      "Confirm we really have 1,000 sample means; that pile of numbers is the sampling distribution."
+     ],
+     "meaning": "The first five sample means are 30.09, 34.36, 30.63, 27.59 and 31.43. Each is an honest estimate of the true 30.05 but none is exactly right. That wobble from sample to sample is sampling variability."
     },
     {
      "title": "Centre and spread",
      "text": "The sample means should centre on mu, and their spread (the standard error) should be close to sigma divided by the square root of n.",
-     "code": "print(f'mean of the sample means = {sample_means.mean():.2f}  (mu = {mu:.2f})')\nprint(f'SD of the sample means    = {sample_means.std(ddof=1):.2f}')\nprint(f'theory sigma / sqrt(n)    = {sigma / np.sqrt(n):.2f}')"
+     "code": "print(f'mean of the sample means = {sample_means.mean():.2f}  (mu = {mu:.2f})')\nprint(f'SD of the sample means    = {sample_means.std(ddof=1):.2f}')\nprint(f'theory sigma / sqrt(n)    = {sigma / np.sqrt(n):.2f}')",
+     "explain": [
+      "Average the 1,000 sample means and compare with mu; if samples are unbiased they should centre on the truth.",
+      "Take the SD of the sample means. ddof=1 is the sample version of SD; this number is the standard error.",
+      "Work out the theory value sigma divided by the square root of n, to see if the simulation agrees with the formula."
+     ],
+     "meaning": "The sample means average 29.99, very close to the true 30.05, so the sample mean is not systematically too high or low. Their SD is 2.83, close to the formula's 2.75. A single mean of 30 people is typically within about 3 of the truth."
     },
     {
      "title": "Draw the sampling distribution",
      "text": "A histogram shows the shape. Even though the population is skewed, the sample means pile up in a fairly symmetric bell around mu. The dashed line marks mu.",
-     "code": "plt.figure(figsize=(6, 3.4))\nplt.hist(sample_means, bins=30, color='steelblue', edgecolor='white')\nplt.axvline(mu, color='black', linestyle='--', label='population mean')\nplt.xlabel('sample mean (n = 30)')\nplt.ylabel('number of samples')\nplt.title('Sampling distribution of the mean')\nplt.legend()\nplt.show()"
+     "code": "plt.figure(figsize=(6, 3.4))\nplt.hist(sample_means, bins=30, color='steelblue', edgecolor='white')\nplt.axvline(mu, color='black', linestyle='--', label='population mean')\nplt.xlabel('sample mean (n = 30)')\nplt.ylabel('number of samples')\nplt.title('Sampling distribution of the mean')\nplt.legend()\nplt.show()",
+     "explain": [
+      "Start a new figure, 6 by 3.4 inches, a good size for a lesson page.",
+      "Draw a histogram of the 1,000 sample means in 30 bars, so we can see the shape of the sampling distribution.",
+      "Add a dashed vertical line at mu, to see whether the pile is centred on the truth.",
+      "Label the horizontal axis so a reader knows each value is a mean of 30 readings.",
+      "Label the vertical axis: the height of a bar counts how many samples gave a mean in that range.",
+      "Give the picture a title that names what it shows.",
+      "Show the legend, which explains what the dashed line is.",
+      "Display the finished figure."
+     ],
+     "meaning": "The bars form a fairly symmetric bell centred on the dashed line at 30.05, even though the population itself is skewed. Most sample means land between about 25 and 35. Averaging has tamed the skew, which is the idea behind the Central Limit Theorem."
     }
    ]
   },
   "r": {
    "code": "set.seed(42)\npopulation <- 15 + rexp(100000, rate = 1/15)\nmeans <- replicate(1000, mean(sample(population, 30, replace = TRUE)))\nmean(population)\nmean(means)\nsd(means)\n15 / sqrt(30)\nhist(means, breaks = 30)",
    "expect": "mean(population) about 30.05; mean(means) about 30; sd(means) about 2.8; 15 / sqrt(30) = 2.738 (Python: 30.05, 29.99, 2.83, 2.75)",
-   "note": "Random draws differ between R and Python, so simulated numbers are close but not identical; the theory value 15 / sqrt(30) = 2.74 is exact."
+   "note": "Random draws differ between R and Python, so simulated numbers are close but not identical; the theory value 15 / sqrt(30) = 2.74 is exact.",
+   "explain": [
+    "Fix the random seed so the simulation can be repeated exactly in R.",
+    "Build 100,000 skewed values: 15 plus exponential draws with mean 15 (rate = 1/15).",
+    "replicate repeats 'draw 30 values and take their mean' 1,000 times; sample(..., replace = TRUE) picks from the population.",
+    "Print the population mean, the value the sample means should centre on.",
+    "Print the mean of the 1,000 sample means; it should be close to the population mean.",
+    "Print the SD of the sample means, which is the standard error.",
+    "Print the theory value 15 / sqrt(30), the standard error the formula predicts.",
+    "Draw a histogram of the sample means with 30 bars to see the bell shape."
+   ],
+   "read": "Look at the five numbers R prints. mean(means) should be close to mean(population) (both near 30), and sd(means) close to 15 / sqrt(30) = 2.74. The histogram should look like a bell. Values differ slightly from Python because the random numbers differ."
   },
   "spss": {
    "menu": "Transform > Compute Variable (with Random Number Functions), then Analyze > Descriptive Statistics > Descriptives",
    "syntax": "SET SEED=42.\nINPUT PROGRAM.\nLOOP s = 1 TO 1000.\nCOMPUTE total = 0.\nLOOP i = 1 TO 30.\nCOMPUTE total = total + 15 + RV.EXP(1/15).\nEND LOOP.\nCOMPUTE xbar = total/30.\nEND CASE.\nEND LOOP.\nEND FILE.\nEND INPUT PROGRAM.\nDESCRIPTIVES VARIABLES=xbar /STATISTICS=MEAN STDDEV.",
-   "note": "This draws each sample straight from the skewed model instead of a stored population, so the mean of xbar is near 30 and its SD near 2.7, close to but not exactly the Python numbers."
+   "note": "This draws each sample straight from the skewed model instead of a stored population, so the mean of xbar is near 30 and its SD near 2.7, close to but not exactly the Python numbers.",
+   "explain": [
+    "Fix the random seed so the run can be repeated.",
+    "INPUT PROGRAM lets us build a data set from nothing; there is no file to open.",
+    "Outer loop: one pass for each of the 1,000 samples.",
+    "Start this sample's running total at zero.",
+    "Inner loop: 30 draws, one for each person in the sample.",
+    "Add one skewed value (15 plus an exponential draw) to the total.",
+    "Close the inner loop after the 30 draws.",
+    "Divide the total by 30 to get this sample's mean, xbar.",
+    "END CASE writes one row (one sample mean) into the new data set.",
+    "Close the outer loop.",
+    "Tell SPSS the new data set is complete.",
+    "End the input program; from here on SPSS treats xbar as an ordinary column.",
+    "Ask for the mean and SD of the 1,000 sample means."
+   ],
+   "read": "In the Descriptive Statistics table, the Mean of xbar should be near 30 and the Std. Deviation near 2.7 (the standard error). That matches Python up to random noise: SPSS makes its own random numbers."
   },
   "stata": {
    "code": "clear\nset seed 42\nset obs 1000\ngenerate xbar = 0\nforvalues i = 1/30 {\n    quietly replace xbar = xbar + (15 + rexponential(15)) / 30\n}\nsummarize xbar\ndisplay 15 / sqrt(30)\nhistogram xbar",
-   "note": "Each of the 1,000 rows gets the mean of 30 fresh draws; the Mean and Std. dev. of xbar should be near 30 and 2.7, close to but not identical to Python."
+   "note": "Each of the 1,000 rows gets the mean of 30 fresh draws; the Mean and Std. dev. of xbar should be near 30 and 2.7, close to but not identical to Python.",
+   "explain": [
+    "Clear any data in memory so we start fresh.",
+    "Fix the random seed so the run can be repeated.",
+    "Create 1,000 empty rows, one for each sample.",
+    "Create the variable xbar and start it at 0; we will add to it.",
+    "Repeat the next step 30 times, once for each person in a sample.",
+    "In each row add one fresh skewed draw divided by 30, so after 30 passes xbar is that row's sample mean.",
+    "Close the loop.",
+    "Print the mean and SD of xbar, which are the centre and standard error of the sampling distribution.",
+    "Print the theory standard error 15 / sqrt(30) for comparison.",
+    "Draw a histogram of xbar to see the bell shape."
+   ],
+   "read": "In the summarize table, Mean should be near 30 and Std. dev. near 2.7. The display line shows 2.738, the formula value. The histogram should look bell-shaped. Numbers are close to, not identical to, the Python output."
   },
-  "try": [
-   "Change n to 100 and predict the new SD of the sample means (sigma divided by 10), then run it.",
-   "Change 1000 samples to 100 and see how much the histogram looks rougher.",
-   "Replace the exponential population with rng.uniform(0, 60, 100_000). Does the sampling distribution still look like a bell?"
-  ]
+  "conclusion": "Single readings from this population swing widely (SD about 15), but means of 30 readings cluster tightly around the true mean: 29.99 against 30.05, with a spread of about 2.8, as sigma divided by the square root of n predicts. Caution: this used a simulated population where we knew the truth; with real data we have just one sample and must trust this pattern.",
+  "practice": {
+   "scenario": "A call centre records how long (minutes) each of 50,000 customer calls lasts. Most calls are short and a few are very long. A supervisor will time a random sample of 25 calls and wants to know how reliable the average of such a sample would be.",
+   "data": "No list to paste: build the population with rng = np.random.default_rng(11); times = 2 + rng.exponential(6, size=50_000). Then draw 2,000 samples of 25 calls.",
+   "tasks": [
+    "Find the true mean and SD of the 50,000 call times.",
+    "Draw 2,000 samples of 25 calls and find the mean and SD of the 2,000 sample means.",
+    "Compare that SD with sigma / sqrt(25).",
+    "Compare the skewness of single calls with that of the sample means."
+   ],
+   "hint": "Copy the shape of block 2 and 3 of the lab: rng.choice with size=(2000, 25), then mean(axis=1). scipy's stats.skew measures skewness.",
+   "solution": {
+    "code": "import numpy as np\nfrom scipy import stats\nrng = np.random.default_rng(11)\ntimes = 2 + rng.exponential(6, size=50_000)\nmu, sigma = times.mean(), times.std()\nmeans = rng.choice(times, size=(2000, 25)).mean(axis=1)\nprint(f'mu = {mu:.2f}, sigma = {sigma:.2f}')\nprint(f'mean of 2000 sample means = {means.mean():.2f}')\nprint(f'SD of sample means = {means.std(ddof=1):.2f}')\nprint(f'theory sigma/sqrt(25) = {sigma / 5:.2f}')\nprint(f'skewness: single = {stats.skew(times):.2f}, means = {stats.skew(means):.2f}')",
+    "answer": "The true mean is 7.98 minutes with an SD of 5.99. The 2,000 sample means average 7.98 and have an SD of 1.19, matching sigma / sqrt(25) = 1.20. So an average of 25 calls is usually within about 1.2 minutes of the truth. Skewness drops from 2.01 for single calls to 0.40 for the means, so the means are much closer to a bell shape."
+   }
+  }
  },
  "4.2": {
   "goal": "Compute the standard error of a mean by formula, then check it against simulated sample means and watch it shrink as n grows.",
+  "question": "A teacher has eight midterm scores (72, 85, 68, 91, 77, 83, 64, 80) with a mean of 77.5. The question: how precisely does this class mean pin down the true average for all students like these, and how many students would we need to measure it to within 1 point?",
   "python": {
    "blocks": [
     {
      "title": "SE by formula",
      "text": "The lesson's eight midterm scores. The standard error is the sample SD (ddof=1) divided by the square root of n. It says how precisely this class mean is pinned down.",
-     "code": "import numpy as np\n\nscores = np.array([72, 85, 68, 91, 77, 83, 64, 80])\nn = len(scores)\nmean = scores.mean()\ns = scores.std(ddof=1)\nse = s / np.sqrt(n)\n\nprint(f'mean = {mean:.2f}')\nprint(f's    = {s:.2f}')\nprint(f'SE   = {se:.2f}')"
+     "code": "import numpy as np\n\nscores = np.array([72, 85, 68, 91, 77, 83, 64, 80])\nn = len(scores)\nmean = scores.mean()\ns = scores.std(ddof=1)\nse = s / np.sqrt(n)\n\nprint(f'mean = {mean:.2f}')\nprint(f's    = {s:.2f}')\nprint(f'SE   = {se:.2f}')",
+     "explain": [
+      "Load NumPy for arithmetic on lists of numbers.",
+      "Store the eight scores in an array so we can compute with them all at once.",
+      "Count the scores with len; n is the sample size that the standard error depends on.",
+      "Compute the mean score, our best single estimate of the true average.",
+      "Compute the sample SD s. ddof=1 divides by n-1, the correct choice when estimating from a sample.",
+      "Standard error = s divided by the square root of n. It measures how precisely the mean is known, not how spread the students are.",
+      "Print the mean with 2 decimals.",
+      "Print the SD s: the typical gap between one student and the class mean.",
+      "Print the standard error, the typical gap between the class mean and the true average."
+     ],
+     "meaning": "The mean is 77.50 and the SD is 9.09, so individual students typically differ from the mean by about 9 points. The standard error is only 3.21, so the class mean is typically about 3 points from the true average. SD describes students, SE describes our estimate."
     },
     {
      "title": "A population to test it on",
      "text": "To check the formula we need many samples, so we build a skewed population (true mean 30, true SD 15) and draw a lot of samples from it.",
-     "code": "rng = np.random.default_rng(7)\npopulation = 15 + rng.exponential(15, size=100_000)\nsigma = population.std()\nprint(f'population SD = {sigma:.2f}')"
+     "code": "rng = np.random.default_rng(7)\npopulation = 15 + rng.exponential(15, size=100_000)\nsigma = population.std()\nprint(f'population SD = {sigma:.2f}')",
+     "explain": [
+      "Make a random number generator with seed 7, so the results can be repeated.",
+      "Build a skewed population of 100,000 values with a true mean near 30, to test the formula on.",
+      "Compute the true population SD, which we will compare with the formula.",
+      "Print sigma, the spread of individual values in this population."
+     ],
+     "meaning": "This test population has an SD of 14.89, the sigma we feed into the formula sigma / sqrt(n). Because we have the whole population, we can check whether the SE formula works for real."
     },
     {
      "title": "SE shrinks as n grows",
      "text": "For each n we draw 2,000 samples and take the SD of their means. That should match sigma / sqrt(n), and also the SE we would get from a single sample. Each time n is multiplied by 4, the SE halves.",
-     "code": "print('   n   SD of 2000 means   sigma/sqrt(n)   s/sqrt(n), one sample')\nfor n in (10, 40, 160, 640):\n    means = rng.choice(population, size=(2000, n)).mean(axis=1)\n    one = rng.choice(population, size=n)\n    print(f'{n:4d}   {means.std(ddof=1):14.2f}   {sigma / np.sqrt(n):13.2f}   {one.std(ddof=1) / np.sqrt(n):12.2f}')"
+     "code": "print('   n   SD of 2000 means   sigma/sqrt(n)   s/sqrt(n), one sample')\nfor n in (10, 40, 160, 640):\n    means = rng.choice(population, size=(2000, n)).mean(axis=1)\n    one = rng.choice(population, size=n)\n    print(f'{n:4d}   {means.std(ddof=1):14.2f}   {sigma / np.sqrt(n):13.2f}   {one.std(ddof=1) / np.sqrt(n):12.2f}')",
+     "explain": [
+      "Print column headings so the table below is easy to read.",
+      "Loop over four sample sizes, each four times the last; the loop variable n is reused here.",
+      "Draw 2,000 samples of size n and take each sample's mean, then keep those 2,000 means.",
+      "Draw one single sample of size n, to see how well the SE computed from just one sample works.",
+      "Print n, the SD of the 2,000 means, the formula value, and the one-sample SE, in aligned columns."
+     ],
+     "meaning": "The SD of the simulated means (4.79, 2.36, 1.20, 0.57) lines up with the formula (4.71, 2.35, 1.18, 0.59), and the SE from a single sample (4.09, 2.42, 1.25, 0.55) is a reasonable estimate. Each time n is multiplied by 4, the SE halves."
     },
     {
      "title": "Plan a sample size",
      "text": "To get an SE of 1 when sigma is about 15, solve 15 / sqrt(n) = 1. Always round the answer up.",
-     "code": "target_se = 1\nsigma_guess = 15\nn_needed = int(np.ceil((sigma_guess / target_se) ** 2))\nprint('sample size needed:', n_needed)"
+     "code": "target_se = 1\nsigma_guess = 15\nn_needed = int(np.ceil((sigma_guess / target_se) ** 2))\nprint('sample size needed:', n_needed)",
+     "explain": [
+      "Set the precision we want: a standard error of 1 point.",
+      "Use 15 as our best guess of sigma, because we need some value before collecting data.",
+      "Solve sigma / sqrt(n) = target for n, giving n = (sigma / target)^2; np.ceil rounds UP because we cannot survey part of a person.",
+      "Print the sample size needed."
+     ],
+     "meaning": "To bring the standard error down to 1 point when sigma is about 15, we would need 225 students. Quadrupling the sample only halves the error, so very high precision gets expensive quickly."
     }
    ]
   },
   "r": {
    "code": "scores <- c(72, 85, 68, 91, 77, 83, 64, 80)\nmean(scores)\nsd(scores)\nsd(scores) / sqrt(length(scores))\nset.seed(7)\nfor (n in c(10, 40, 160, 640)) print(sd(replicate(2000, mean(15 + rexp(n, 1/15)))))",
    "expect": "mean 77.5; sd 9.087; standard error 3.213; then four simulated SDs near 4.7, 2.35, 1.18 and 0.59 (Python: 4.79, 2.36, 1.20, 0.57)",
-   "note": "sd() already uses n - 1, like ddof=1. The simulated SDs are close to, not identical to, Python's; the formula SE of 3.21 is exact."
+   "note": "sd() already uses n - 1, like ddof=1. The simulated SDs are close to, not identical to, Python's; the formula SE of 3.21 is exact.",
+   "explain": [
+    "Enter the eight scores as a vector.",
+    "Print the mean, 77.5.",
+    "Print the sample SD; R's sd() already uses n-1.",
+    "Divide by the square root of the count to get the standard error.",
+    "Fix the random seed so the simulation repeats.",
+    "For each sample size, simulate 2,000 sample means from the skewed population and print their SD."
+   ],
+   "read": "The first three lines should read 77.5, 9.087 and 3.213, the same mean, SD and SE as Python. The loop prints four simulated SDs near 4.7, 2.35, 1.18 and 0.59, halving each time n is multiplied by 4."
   },
   "spss": {
    "menu": "Analyze > Descriptive Statistics > Descriptives > Options > S.E. mean",
    "syntax": "DATA LIST FREE / score.\nBEGIN DATA\n72 85 68 91 77 83 64 80\nEND DATA.\nDESCRIPTIVES VARIABLES=score\n  /STATISTICS=MEAN SEMEAN STDDEV.",
-   "note": "Read the mean, the Std. Error of the mean (3.21) and the Std. Deviation (9.09) in the table. Simulations are possible but are not needed for this lesson."
+   "note": "Read the mean, the Std. Error of the mean (3.21) and the Std. Deviation (9.09) in the table. Simulations are possible but are not needed for this lesson.",
+   "explain": [
+    "Declare one variable, score, to be read from the data lines that follow.",
+    "Marks the start of the typed-in data.",
+    "The eight scores, separated by spaces.",
+    "Marks the end of the data.",
+    "Ask for descriptive statistics of score.",
+    "Request the mean, its standard error (SEMEAN) and the SD."
+   ],
+   "read": "In the Descriptive Statistics table, read Mean 77.50, Std. Error 3.21 and Std. Deviation 9.09. The Std. Error column is the standard error of the mean, the same 3.21 as the Python formula."
   },
   "stata": {
    "code": "clear\ninput score\n72\n85\n68\n91\n77\n83\n64\n80\nend\nci means score\nsummarize score\ndisplay r(sd) / sqrt(r(N))",
-   "note": "ci means prints the mean and its Std. err. (3.21); the last line recomputes it as s divided by the square root of n."
+   "note": "ci means prints the mean and its Std. err. (3.21); the last line recomputes it as s divided by the square root of n.",
+   "explain": [
+    "Clear any data in memory so we start fresh.",
+    "Start entering data for one variable called score.",
+    "Data row 1 of 8: a midterm score, typed on its own line so Stata reads it as a new case.",
+    "Data row 2 of 8: a midterm score, typed on its own line so Stata reads it as a new case.",
+    "Data row 3 of 8: a midterm score, typed on its own line so Stata reads it as a new case.",
+    "Data row 4 of 8: a midterm score, typed on its own line so Stata reads it as a new case.",
+    "Data row 5 of 8: a midterm score, typed on its own line so Stata reads it as a new case.",
+    "Data row 6 of 8: a midterm score, typed on its own line so Stata reads it as a new case.",
+    "Data row 7 of 8: a midterm score, typed on its own line so Stata reads it as a new case.",
+    "Data row 8 of 8: a midterm score, typed on its own line so Stata reads it as a new case.",
+    "Stop entering data.",
+    "ci means prints the mean with its standard error and a confidence interval.",
+    "summarize gives the mean, SD and sample size, which we need for the next line.",
+    "Recompute the standard error by hand: the stored SD divided by the square root of the stored sample size."
+   ],
+   "read": "In the ci means table, Std. err. is 3.21 and Mean is 77.5. The summarize table shows Std. dev. 9.087. The last display prints 3.2127, confirming the standard error equals s divided by the square root of n."
   },
-  "try": [
-   "Add a ninth score of 40 and predict whether the SE goes up or down, then run it.",
-   "In the simulation loop, change the sizes to (25, 100, 400) and check the SE halves each time.",
-   "Change sigma_guess to 30 and predict the sample size needed for an SE of 1."
-  ]
+  "conclusion": "The class mean of 77.5 is only a rough estimate: its standard error is 3.21, so the true average is likely within a few points of it. The simulations confirm that SE shrinks like 1 over the square root of n, and 225 students would give an SE of about 1. Caution: eight students is a tiny sample, so s itself is shaky and the 3.21 is approximate.",
+  "practice": {
+   "scenario": "A phone maker tests battery life (hours) on ten randomly chosen phones. The product team wants to know how precisely the average is known and how many phones they would need to test to get the standard error down to 0.15 hours.",
+   "data": "[11.2, 9.8, 12.5, 10.4, 11.9, 10.1, 12.2, 9.5, 11.0, 10.7]",
+   "tasks": [
+    "Find the mean, SD and standard error of the battery life.",
+    "How many phones would give a standard error of 0.15 hours (use the sample SD as sigma)?",
+    "What would the standard error be if the test used four times as many phones?"
+   ],
+   "hint": "SE = s / sqrt(n). For the sample size, solve s / sqrt(n) = 0.15 for n and round up.",
+   "solution": {
+    "code": "import numpy as np\nlife = np.array([11.2, 9.8, 12.5, 10.4, 11.9, 10.1, 12.2, 9.5, 11.0, 10.7])\nn = len(life)\ns = life.std(ddof=1)\nse = s / np.sqrt(n)\nprint(f'mean = {life.mean():.2f}, s = {s:.2f}, SE = {se:.2f}')\nneed = int(np.ceil((s / 0.15) ** 2))\nprint('n needed for SE = 0.15:', need)\nprint(f'SE with {4 * n} batteries: {s / np.sqrt(4 * n):.2f}')",
+    "answer": "The mean is 10.93 hours, the SD is 1.02 and the standard error is 0.32, so the average is known to within roughly a third of an hour. To reach an SE of 0.15 hours you would need 47 phones. Testing 40 phones (four times as many) halves the SE to 0.16. The SD (1.02) describes phone-to-phone variation; the SE describes how well we know the average."
+   }
+  }
  },
  "4.3": {
   "goal": "Show that sample means from a very skewed population become more symmetric and bell-shaped as the sample size grows from 1 to 5 to 30.",
+  "question": "A clinic manager knows waiting times are very skewed: mean 10 minutes, SD 10, most people wait briefly and a few wait very long. An audit of 40 patients found a mean wait of 12 minutes. Is 12 unusual, and can we use a bell curve at all for averages of skewed data?",
   "python": {
    "blocks": [
     {
      "title": "A skewed population",
      "text": "Waiting times in a clinic: exponential, with a mean of 10 minutes and an SD of 10. Lots of short waits and a long tail of rare long ones, so it is clearly skewed to the right.",
-     "code": "import numpy as np\nimport matplotlib.pyplot as plt\nfrom scipy import stats\n\nrng = np.random.default_rng(99)\n\ndef sample_means(n, reps=5000):\n    return rng.exponential(10, size=(reps, n)).mean(axis=1)\n\nsingle = rng.exponential(10, size=5000)\nprint(f'skewness of single waits = {stats.skew(single):.2f}')"
+     "code": "import numpy as np\nimport matplotlib.pyplot as plt\nfrom scipy import stats\n\nrng = np.random.default_rng(99)\n\ndef sample_means(n, reps=5000):\n    return rng.exponential(10, size=(reps, n)).mean(axis=1)\n\nsingle = rng.exponential(10, size=5000)\nprint(f'skewness of single waits = {stats.skew(single):.2f}')",
+     "explain": [
+      "Load NumPy for arithmetic and random numbers.",
+      "Load matplotlib; we draw histograms in a later step.",
+      "Load SciPy's stats tools, which include skewness and the normal distribution.",
+      "Create a seeded random generator (seed 99) so the results are repeatable.",
+      "Define a helper function that takes a sample size n (and a number of repeats) and returns the sample means.",
+      "Inside it, draw reps samples of n exponential waits (mean 10) and average each row; return gives that list back.",
+      "Draw 5,000 single waits (n = 1) so we can look at the raw skewed shape.",
+      "Print the skewness of single waits; skewness is 0 for a symmetric shape and positive when there is a long right tail."
+     ],
+     "meaning": "The skewness of single waiting times is 1.89, far above 0. Individual waits are strongly skewed to the right: many short waits and a few very long ones. That is why a bell curve cannot describe a single wait."
     },
     {
      "title": "Skewness of the sample means",
      "text": "Skewness is 0 for a perfectly symmetric shape. For each n we take 5,000 sample means and measure their skewness. It falls towards 0 roughly like 2 divided by the square root of n.",
-     "code": "print('  n   skewness of means   2/sqrt(n)')\nfor n in (1, 5, 30):\n    m = sample_means(n)\n    print(f'{n:3d}   {stats.skew(m):15.2f}   {2 / np.sqrt(n):9.2f}')"
+     "code": "print('  n   skewness of means   2/sqrt(n)')\nfor n in (1, 5, 30):\n    m = sample_means(n)\n    print(f'{n:3d}   {stats.skew(m):15.2f}   {2 / np.sqrt(n):9.2f}')",
+     "explain": [
+      "Print column headings for the table.",
+      "Loop over three sample sizes: single waits, means of 5, and means of 30.",
+      "Use the helper to get 5,000 sample means of size n.",
+      "Print n, the skewness of those means, and the rough rule 2/sqrt(n) for comparison."
+     ],
+     "meaning": "Skewness falls as n grows: 1.93 for n = 1, 0.85 for n = 5, and 0.33 for n = 30, close to the rule of thumb 2/sqrt(n) (2.00, 0.89, 0.37). Averaging more readings makes the distribution of means more and more symmetric."
     },
     {
      "title": "Three histograms",
      "text": "The same story as a picture. With n = 1 we see the skewed population itself. With n = 5 the shape is already more balanced, and with n = 30 it looks close to a bell.",
-     "code": "fig, axes = plt.subplots(1, 3, figsize=(6, 3.4), sharex=True)\nfor ax, n in zip(axes, (1, 5, 30)):\n    ax.hist(sample_means(n), bins=np.linspace(0, 40, 41), color='steelblue', edgecolor='white')\n    ax.set_title(f'n = {n}')\n    ax.set_yticks([])\naxes[1].set_xlabel('sample mean (minutes)')\nplt.tight_layout()\nplt.show()"
+     "code": "fig, axes = plt.subplots(1, 3, figsize=(6, 3.4), sharex=True)\nfor ax, n in zip(axes, (1, 5, 30)):\n    ax.hist(sample_means(n), bins=np.linspace(0, 40, 41), color='steelblue', edgecolor='white')\n    ax.set_title(f'n = {n}')\n    ax.set_yticks([])\naxes[1].set_xlabel('sample mean (minutes)')\nplt.tight_layout()\nplt.show()",
+     "explain": [
+      "Make a row of three small plots that share the same x-axis, so the shapes are directly comparable.",
+      "Loop over each plot together with its sample size.",
+      "Draw a histogram of 5,000 sample means, 40 equal-width bars from 0 to 40 minutes.",
+      "Title each plot with its n.",
+      "Hide the vertical tick labels; only the shape matters here.",
+      "Label the shared horizontal axis once, on the middle plot.",
+      "Tidy the spacing so labels do not overlap.",
+      "Display the figure."
+     ],
+     "meaning": "With n = 1 the histogram is the skewed pile of raw waits. With n = 5 it is more balanced but still leans right. With n = 30 it is close to a symmetric bell centred near 10 minutes. This is the Central Limit Theorem in action."
     },
     {
      "title": "Use the bell curve",
      "text": "The lesson's clinic question: for n = 40 patients, how often does the mean wait reach 12 minutes or more? The CLT lets us use a normal curve with mean 10 and SE = 10 divided by the square root of 40.",
-     "code": "se = 10 / np.sqrt(40)\np_clt = stats.norm.sf(12, loc=10, scale=se)\nsimulated = (sample_means(40, reps=20000) >= 12).mean()\n\nprint(f'SE = {se:.3f}')\nprint(f'CLT answer       P(mean >= 12) = {p_clt:.3f}')\nprint(f'simulation (20k) P(mean >= 12) = {simulated:.3f}')"
+     "code": "se = 10 / np.sqrt(40)\np_clt = stats.norm.sf(12, loc=10, scale=se)\nsimulated = (sample_means(40, reps=20000) >= 12).mean()\n\nprint(f'SE = {se:.3f}')\nprint(f'CLT answer       P(mean >= 12) = {p_clt:.3f}')\nprint(f'simulation (20k) P(mean >= 12) = {simulated:.3f}')",
+     "explain": [
+      "Standard error for 40 patients: SD 10 divided by the square root of 40.",
+      "Use the bell curve: stats.norm.sf gives the chance of a mean at or above 12 with centre 10 and spread equal to the SE.",
+      "Check by brute force: simulate 20,000 audits of 40 patients and count the share with a mean of 12 or more.",
+      "Print the standard error.",
+      "Print the answer from the bell curve.",
+      "Print the answer from the simulation."
+     ],
+     "meaning": "The standard error is 1.581. The bell curve says the chance that 40 patients average 12 minutes or more is 0.103; the simulation gives 0.110, nearly the same. So an average of 12 happens about 1 time in 10 by chance alone, which is not strong evidence of a real change."
     }
    ]
   },
   "r": {
    "code": "skew <- function(x) mean((x - mean(x))^3) / mean((x - mean(x))^2)^1.5\nset.seed(99)\nfor (n in c(1, 5, 30)) print(skew(replicate(5000, mean(rexp(n, rate = 1/10)))))\npnorm(12, mean = 10, sd = 10 / sqrt(40), lower.tail = FALSE)",
    "expect": "skewness about 1.9, 0.9, 0.35 for n = 1, 5, 30 (Python: 1.93, 0.85, 0.33); pnorm answer 0.1029",
-   "note": "Base R has no skewness function, so we write the same formula SciPy uses. Simulated skewness values are close to Python's, not identical; the pnorm answer is exact."
+   "note": "Base R has no skewness function, so we write the same formula SciPy uses. Simulated skewness values are close to Python's, not identical; the pnorm answer is exact.",
+   "explain": [
+    "Define a skewness function using the same formula SciPy uses, since base R has none.",
+    "Fix the random seed so the run can be repeated.",
+    "For n = 1, 5 and 30, simulate 5,000 sample means of exponential waits (mean 10) and print their skewness.",
+    "Compute the chance of a mean at or above 12 using the normal curve (lower.tail = FALSE means the upper tail)."
+   ],
+   "read": "The loop prints three skewness values near 1.9, 0.9 and 0.35, falling as n grows (Python: 1.93, 0.85, 0.33). The pnorm line prints 0.1029, the chance that a mean of 40 waits is 12 or more."
   },
   "spss": {
    "menu": "Analyze > Descriptive Statistics > Descriptives > Options > Skewness",
    "syntax": "SET SEED=99.\nINPUT PROGRAM.\nLOOP s = 1 TO 5000.\nCOMPUTE x1 = RV.EXP(1/10).\nCOMPUTE total = 0.\nLOOP i = 1 TO 30.\nCOMPUTE total = total + RV.EXP(1/10).\nEND LOOP.\nCOMPUTE mean30 = total/30.\nEND CASE.\nEND LOOP.\nEND FILE.\nEND INPUT PROGRAM.\nDESCRIPTIVES VARIABLES=x1 mean30 /STATISTICS=MEAN STDDEV SKEWNESS.",
-   "note": "x1 is a single wait (n = 1) and mean30 is a mean of 30 waits, so you can compare their skewness. SPSS uses a slightly adjusted skewness formula and its own random numbers, so values are close to Python's, not identical."
+   "note": "x1 is a single wait (n = 1) and mean30 is a mean of 30 waits, so you can compare their skewness. SPSS uses a slightly adjusted skewness formula and its own random numbers, so values are close to Python's, not identical.",
+   "explain": [
+    "Fix the random seed so the run can be repeated.",
+    "INPUT PROGRAM lets us build a data set from nothing.",
+    "Outer loop: one pass for each of 5,000 simulated clinics.",
+    "x1 is a single exponential wait with mean 10 (rate 1/10).",
+    "Start the running total at zero.",
+    "Inner loop: 30 waits.",
+    "Add one wait to the total.",
+    "Close the inner loop.",
+    "mean30 is the mean of those 30 waits.",
+    "END CASE writes one row.",
+    "Close the outer loop.",
+    "Tell SPSS the data set is complete.",
+    "End the input program.",
+    "Ask for the mean, SD and skewness of both a single wait and a mean of 30."
+   ],
+   "read": "In the Descriptive Statistics table compare the Skewness column: x1 should be around 2 and mean30 much smaller, around 0.4. Both means are near 10. SPSS uses a slightly adjusted skewness formula and its own random numbers."
   },
   "stata": {
    "code": "clear\nset seed 99\nset obs 5000\ngenerate x1 = rexponential(10)\ngenerate mean30 = 0\nforvalues i = 1/30 {\n    quietly replace mean30 = mean30 + rexponential(10) / 30\n}\ntabstat x1 mean30, statistics(mean sd skewness)\ndisplay 1 - normal((12 - 10) / (10 / sqrt(40)))",
-   "note": "Stata's skewness uses the same formula as SciPy. Simulated values are close to Python's but not identical; the last line gives the exact normal answer of 0.103."
+   "note": "Stata's skewness uses the same formula as SciPy. Simulated values are close to Python's but not identical; the last line gives the exact normal answer of 0.103.",
+   "explain": [
+    "Clear any data in memory.",
+    "Fix the random seed so the run can be repeated.",
+    "Create 5,000 empty rows.",
+    "x1 is one exponential wait with mean 10 per row (n = 1).",
+    "Start mean30 at 0; we will add to it.",
+    "Repeat the next step 30 times.",
+    "Add one fresh wait divided by 30, so after 30 passes mean30 is the mean of 30 waits.",
+    "Close the loop.",
+    "Print mean, SD and skewness for both variables so we can compare them.",
+    "Compute the chance of a mean of 12 or more with the normal curve: 1 minus normal(z) where z = (12-10)/(10/sqrt(40))."
+   ],
+   "read": "In the tabstat table, skewness of x1 should be around 2 and of mean30 much smaller (about 0.35). Both means are near 10 and the SD of mean30 is near 1.8. The final display shows 0.1029, the normal-curve answer."
   },
-  "try": [
-   "Add n = 100 to the loop and predict whether the skewness will be above or below 0.2.",
-   "Make the population even more skewed with rng.lognormal(0, 1.2, ...) in place of the exponential. How big must n be before the means look symmetric?",
-   "Change the clinic cut-off from 12 to 11 minutes and predict the new probability."
-  ]
+  "conclusion": "Single waits are strongly skewed (skewness 1.89), but means of 30 are nearly symmetric (0.33), so the bell curve works for averages. With 40 patients the chance of an average wait of 12 or more is about 0.10 (0.103 by the bell curve, 0.110 by simulation), so 12 minutes is not unusual. Caution: n around 30 is a rule of thumb; very skewed data may need more.",
+  "practice": {
+   "scenario": "An IT help desk finds that tickets take on average 20 minutes to resolve, with an SD of 20 minutes, and the times are very skewed. A manager looks at a random batch of 36 tickets and wants to know how often such a batch averages 24 minutes or more just by chance.",
+   "data": "No list needed: model single ticket times as rng.exponential(20, ...) (mean 20, SD 20) with rng = np.random.default_rng(5), and use batches of n = 36.",
+   "tasks": [
+    "Find the standard error of the mean of 36 tickets.",
+    "Use the normal curve to find P(mean >= 24).",
+    "Check by simulating 20,000 batches of 36 tickets.",
+    "Measure the skewness of the simulated batch means."
+   ],
+   "hint": "SE = SD / sqrt(n); stats.norm.sf(24, loc=20, scale=se) gives the upper tail. For the simulation, draw a (20000, 36) array of exponentials and average each row.",
+   "solution": {
+    "code": "import numpy as np\nfrom scipy import stats\nrng = np.random.default_rng(5)\nse = 20 / np.sqrt(36)\np_clt = stats.norm.sf(24, loc=20, scale=se)\nmeans = rng.exponential(20, size=(20_000, 36)).mean(axis=1)\nprint(f'SE = {se:.2f}')\nprint(f'CLT answer P(mean >= 24) = {p_clt:.3f}')\nprint(f'simulation P(mean >= 24) = {(means >= 24).mean():.3f}')\nprint(f'skewness of the means = {stats.skew(means):.2f}')",
+    "answer": "The standard error is 3.33 minutes. The normal curve gives P(mean >= 24) = 0.115 and the simulation gives 0.120, so about 1 batch in 9 would average 24 minutes or more by chance. The batch means have skewness 0.34, far less than the very skewed single tickets, which is why the bell curve works."
+   }
+  }
  },
  "4.4": {
   "goal": "Simulate thousands of polls to see that the spread of the sample proportion matches the formula square root of p(1-p)/n.",
+  "question": "A polling agency asks 1,500 voters whether they support an environmental bill, and the headline says 54% with a margin of error of 2.5 points. Where does the 2.5 come from? We pretend the true support is exactly 0.54, run polls on the computer, and see how much the result varies.",
   "python": {
    "blocks": [
     {
      "title": "One poll",
      "text": "The lesson's poll: the true support for a bill is p = 0.54 and we ask n = 1,500 voters. Each voter says yes with probability p, so the number of yes answers is a binomial draw.",
-     "code": "import numpy as np\n\nrng = np.random.default_rng(2024)\np, n = 0.54, 1500\n\nyes = rng.binomial(n, p)\nprint(f'yes answers: {yes} of {n}')\nprint(f'sample proportion p-hat = {yes / n:.4f}')"
+     "code": "import numpy as np\n\nrng = np.random.default_rng(2024)\np, n = 0.54, 1500\n\nyes = rng.binomial(n, p)\nprint(f'yes answers: {yes} of {n}')\nprint(f'sample proportion p-hat = {yes / n:.4f}')",
+     "explain": [
+      "Load NumPy for random numbers and arithmetic.",
+      "Create a seeded random generator (seed 2024) so results are repeatable.",
+      "Set the true support p = 0.54 and the number of voters polled n = 1,500.",
+      "Simulate one poll: each of 1,500 voters says yes with probability 0.54, and binomial returns the total number of yeses.",
+      "Print how many said yes out of 1,500.",
+      "Divide yeses by n to get the sample proportion p-hat; :.4f shows 4 decimals."
+     ],
+     "meaning": "This one simulated poll got 781 yes answers out of 1,500, so p-hat = 0.5207. The true support is 0.54, so this poll is off by about 2 points just by luck of the draw. A different poll would give a slightly different answer."
     },
     {
      "title": "Ten thousand polls",
      "text": "Now run the same poll 10,000 times. Each p-hat differs a little because of sampling variability. Their average should be near p, and their SD should be near the formula.",
-     "code": "p_hats = rng.binomial(n, p, size=10_000) / n\n\nprint(f'mean of p-hats          = {p_hats.mean():.4f}')\nprint(f'SD of p-hats            = {p_hats.std(ddof=1):.4f}')\nprint(f'sqrt(p(1-p)/n) formula  = {np.sqrt(p * (1 - p) / n):.4f}')"
+     "code": "p_hats = rng.binomial(n, p, size=10_000) / n\n\nprint(f'mean of p-hats          = {p_hats.mean():.4f}')\nprint(f'SD of p-hats            = {p_hats.std(ddof=1):.4f}')\nprint(f'sqrt(p(1-p)/n) formula  = {np.sqrt(p * (1 - p) / n):.4f}')",
+     "explain": [
+      "Run the poll 10,000 times at once and turn each yes count into a proportion.",
+      "Print the average of the 10,000 p-hats; it should sit on the true p.",
+      "Print the SD of the p-hats, the standard error of a poll (ddof=1 is the sample version).",
+      "Print the formula square root of p(1-p)/n, which should predict that SD."
+     ],
+     "meaning": "The 10,000 polls average 0.5400, exactly the true p, so p-hat has no built-in bias. Their SD is 0.0130 and the formula gives 0.0129, so we can trust the formula. A poll of 1,500 typically lands within about 1.3 points of the truth."
     },
     {
      "title": "Small samples wobble more",
      "text": "The lesson's three cases. The last column checks the rule that n times p and n times (1 minus p) should both be at least 10 for the normal model to fit well.",
-     "code": "print('   n     p   SD of p-hats   formula   both n*p, n*(1-p) >= 10?')\nfor n, p in ((20, 0.35), (200, 0.40), (1500, 0.54)):\n    ph = rng.binomial(n, p, size=10_000) / n\n    ok = n * p >= 10 and n * (1 - p) >= 10\n    print(f'{n:5d}  {p:.2f}   {ph.std(ddof=1):11.4f}   {np.sqrt(p * (1 - p) / n):7.4f}   {ok}')"
+     "code": "print('   n     p   SD of p-hats   formula   both n*p, n*(1-p) >= 10?')\nfor n, p in ((20, 0.35), (200, 0.40), (1500, 0.54)):\n    ph = rng.binomial(n, p, size=10_000) / n\n    ok = n * p >= 10 and n * (1 - p) >= 10\n    print(f'{n:5d}  {p:.2f}   {ph.std(ddof=1):11.4f}   {np.sqrt(p * (1 - p) / n):7.4f}   {ok}')",
+     "explain": [
+      "Print column headings, including the success-failure check.",
+      "Loop over three polls: a tiny one, a medium one and the lesson's big one.",
+      "Simulate 10,000 polls of that size and convert to proportions.",
+      "Check the success-failure rule: both n*p and n*(1-p) must be at least 10 for the bell curve to fit.",
+      "Print n, p, the simulated SD, the formula SD and the rule check."
+     ],
+     "meaning": "The simulated SDs (0.1053, 0.0345, 0.0129) track the formula (0.1067, 0.0346, 0.0129). The small poll of 20 is far noisier, with a spread of about 10 points, and it also fails the success-failure check (False), so the normal model is not trustworthy there."
     },
     {
      "title": "The margin of error",
      "text": "A 95% margin of error is about 1.96 standard errors. If that is right, about 95% of polls should land within that distance of the true p.",
-     "code": "n, p = 1500, 0.54\nmoe = 1.96 * np.sqrt(p * (1 - p) / n)\np_hats = rng.binomial(n, p, size=10_000) / n\ninside = (np.abs(p_hats - p) <= moe).mean()\n\nprint(f'margin of error = {moe:.4f}')\nprint(f'share of polls within it = {inside:.3f}')"
+     "code": "n, p = 1500, 0.54\nmoe = 1.96 * np.sqrt(p * (1 - p) / n)\np_hats = rng.binomial(n, p, size=10_000) / n\ninside = (np.abs(p_hats - p) <= moe).mean()\n\nprint(f'margin of error = {moe:.4f}')\nprint(f'share of polls within it = {inside:.3f}')",
+     "explain": [
+      "Go back to the lesson's poll: 1,500 voters and p = 0.54.",
+      "Margin of error = 1.96 standard errors, the usual 95% cut-off.",
+      "Simulate 10,000 polls again.",
+      "Count the share of polls whose p-hat is within one margin of error of the true p.",
+      "Print the margin of error.",
+      "Print the share of polls that landed inside it."
+     ],
+     "meaning": "The margin of error is 0.0252, about 2.5 points, which is where the headline's plus or minus 2.5 comes from. And 0.951 of the simulated polls fell within it, almost exactly the 95% promised."
     }
    ]
   },
   "r": {
    "code": "set.seed(2024)\np <- 0.54; n <- 1500\np_hats <- rbinom(10000, n, p) / n\nmean(p_hats)\nsd(p_hats)\nsqrt(p * (1 - p) / n)",
    "expect": "mean about 0.54; sd about 0.0129; formula 0.01287 (Python: 0.5400, 0.0130, 0.0129)",
-   "note": "rbinom(10000, n, p) draws 10,000 polls at once. Simulated values are close to Python's but not identical; the formula value 0.0129 is exact."
+   "note": "rbinom(10000, n, p) draws 10,000 polls at once. Simulated values are close to Python's but not identical; the formula value 0.0129 is exact.",
+   "explain": [
+    "Fix the random seed.",
+    "Set the true support p = 0.54 and the poll size n = 1500.",
+    "Simulate 10,000 polls (rbinom) and divide by n to get proportions.",
+    "Print the average of the p-hats.",
+    "Print their SD, the standard error.",
+    "Print the formula sqrt(p(1-p)/n) for comparison."
+   ],
+   "read": "mean(p_hats) should print about 0.54, sd(p_hats) about 0.013, and the formula line prints 0.01287. The simulated SD and the formula agree. Python gave 0.5400, 0.0130 and 0.0129."
   },
   "spss": {
    "menu": "Transform > Compute Variable (RV.BINOM), then Analyze > Descriptive Statistics > Descriptives",
    "syntax": "SET SEED=2024.\nINPUT PROGRAM.\nLOOP poll = 1 TO 10000.\nCOMPUTE phat = RV.BINOM(1500, 0.54) / 1500.\nEND CASE.\nEND LOOP.\nEND FILE.\nEND INPUT PROGRAM.\nDESCRIPTIVES VARIABLES=phat /STATISTICS=MEAN STDDEV.",
-   "note": "This simulates 10,000 polls; compare its Std. Deviation with the formula SQRT(0.54*0.46/1500) = 0.0129. Simulated results are close to Python's, not identical."
+   "note": "This simulates 10,000 polls; compare its Std. Deviation with the formula SQRT(0.54*0.46/1500) = 0.0129. Simulated results are close to Python's, not identical.",
+   "explain": [
+    "Fix the random seed.",
+    "INPUT PROGRAM builds a data set from nothing.",
+    "Loop once for each of 10,000 polls.",
+    "RV.BINOM(1500, 0.54) simulates the yes count of one poll; dividing by 1500 gives p-hat.",
+    "END CASE writes this poll as one row.",
+    "Close the loop.",
+    "Tell SPSS the data set is complete.",
+    "End the input program.",
+    "Ask for the mean and SD of phat."
+   ],
+   "read": "In the Descriptive Statistics table, the Mean of phat should be near 0.540 and the Std. Deviation near 0.0129, matching the formula SQRT(0.54*0.46/1500) = 0.0129. Differences from Python are just random noise."
   },
   "stata": {
    "code": "clear\nset seed 2024\nset obs 10000\ngenerate phat = rbinomial(1500, 0.54) / 1500\nsummarize phat\ndisplay sqrt(0.54 * 0.46 / 1500)",
-   "note": "The Mean and Std. dev. of phat should be near 0.54 and 0.0129; simulated numbers are close to Python's but not identical."
+   "note": "The Mean and Std. dev. of phat should be near 0.54 and 0.0129; simulated numbers are close to Python's but not identical.",
+   "explain": [
+    "Clear any data in memory.",
+    "Fix the random seed.",
+    "Create 10,000 empty rows, one per poll.",
+    "Simulate each poll's yes count with rbinomial and divide by 1500 to get p-hat.",
+    "Print the mean and SD of phat.",
+    "Print the formula standard error to compare with the SD."
+   ],
+   "read": "In the summarize table, Mean should be about 0.540 and Std. dev. about 0.0129. The display line shows .01287, the formula value. They agree, up to small differences from Python caused by random numbers."
   },
-  "try": [
-   "Change p to 0.50 and predict whether the SD of the p-hats goes up or down.",
-   "Change n to 6000 and predict the new SD (it should be half of the n = 1500 value).",
-   "Try n = 20 with p = 0.02 and notice that many polls give exactly 0. Is the bell shape still good?"
-  ]
+  "conclusion": "Each poll of 1,500 voters lands a little away from the true 0.54, typically about 1.3 points (SD 0.0130, formula 0.0129). That gives a 95% margin of error of 0.0252, the headline's 2.5 points, and 95.1% of simulated polls fell within it. Caution: this margin covers random sampling error only, not bad wording or a biased sample.",
+  "practice": {
+   "scenario": "A streaming app knows that 35% of its users switch on notifications. A product analyst will survey 300 random users and wants to know how much the sample percentage would vary, and how far off it could be 95% of the time.",
+   "data": "True proportion p = 0.35, sample size n = 300. Simulate with rng = np.random.default_rng(8) and 10,000 surveys.",
+   "tasks": [
+    "Check the success-failure condition.",
+    "Find the standard error from the formula and by simulating 10,000 surveys.",
+    "Compute the 95% margin of error.",
+    "What share of simulated surveys land within it?"
+   ],
+   "hint": "Success-failure: n*p and n*(1-p) both at least 10. SE = sqrt(p(1-p)/n), margin = 1.96 * SE. Use rng.binomial(n, p, size=10_000) / n for the surveys.",
+   "solution": {
+    "code": "import numpy as np\nrng = np.random.default_rng(8)\np, n = 0.35, 300\nse = np.sqrt(p * (1 - p) / n)\nmoe = 1.96 * se\np_hats = rng.binomial(n, p, size=10_000) / n\nprint(f'n*p = {n * p:.0f}, n*(1-p) = {n * (1 - p):.0f}')\nprint(f'formula SE = {se:.4f}, simulated SD = {p_hats.std(ddof=1):.4f}')\nprint(f'margin of error = {moe:.4f}')\nprint(f'share within it = {(np.abs(p_hats - p) <= moe).mean():.3f}')",
+    "answer": "n*p = 105 and n*(1-p) = 195, both above 10, so the bell-curve model is fine. The formula SE is 0.0275 and the simulated SD is 0.0277, which agree. The 95% margin of error is 0.0540, about 5.4 points, and 0.954 of the simulated surveys landed within it. So a 300-user survey is only good to about plus or minus 5 points."
+   }
+  }
  },
  "4.5": {
   "goal": "Bootstrap one small sample of five heart rates: get a standard error and a 95% interval without any formula, then compare with the t-interval.",
+  "question": "A researcher has only five resting heart rates (62, 70, 68, 75, 65 bpm). How uncertain is their mean, and can we answer without trusting a formula or the assumption of normal data? We will resample the five values thousands of times (the bootstrap) and compare the result with the classic t-interval.",
   "python": {
    "blocks": [
     {
      "title": "The sample",
      "text": "Five resting heart rates (bpm) from the lesson. The classic formula SE = s / sqrt(n) is our benchmark.",
-     "code": "import numpy as np\nfrom scipy import stats\n\ndata = np.array([62, 70, 68, 75, 65])\nn = len(data)\nse = data.std(ddof=1) / np.sqrt(n)\n\nprint(f'mean = {data.mean():.1f}')\nprint(f's    = {data.std(ddof=1):.2f}')\nprint(f'classic SE = {se:.2f}')"
+     "code": "import numpy as np\nfrom scipy import stats\n\ndata = np.array([62, 70, 68, 75, 65])\nn = len(data)\nse = data.std(ddof=1) / np.sqrt(n)\n\nprint(f'mean = {data.mean():.1f}')\nprint(f's    = {data.std(ddof=1):.2f}')\nprint(f'classic SE = {se:.2f}')",
+     "explain": [
+      "Load NumPy for arrays and arithmetic.",
+      "Load SciPy's stats tools, which we need for the t-interval.",
+      "Store the five heart rates in an array.",
+      "Count them: n = 5 is a very small sample.",
+      "Classic standard error: sample SD (ddof=1) divided by the square root of n.",
+      "Print the sample mean.",
+      "Print the sample SD.",
+      "Print the classic standard error, our benchmark."
+     ],
+     "meaning": "The mean heart rate is 68.0 bpm, the SD is 4.95 and the classic standard error is 2.21. So the formula says the true average is known to within about 2 bpm. Next we get this uncertainty without the formula."
     },
     {
      "title": "Resample 5,000 times",
      "text": "Each resample draws 5 values from our data with replacement (the same person can appear twice), then takes the mean. We keep all 5,000 means.",
-     "code": "rng = np.random.default_rng(2025)\nresamples = rng.choice(data, size=(5000, n), replace=True)\nboot_means = resamples.mean(axis=1)\n\nprint('one resample:', resamples[0], ' mean =', resamples[0].mean())\nprint(f'average of boot means = {boot_means.mean():.2f}')"
+     "code": "rng = np.random.default_rng(2025)\nresamples = rng.choice(data, size=(5000, n), replace=True)\nboot_means = resamples.mean(axis=1)\n\nprint('one resample:', resamples[0], ' mean =', resamples[0].mean())\nprint(f'average of boot means = {boot_means.mean():.2f}')",
+     "explain": [
+      "Create a seeded random generator so results are repeatable.",
+      "Resample WITH replacement: each pretend sample can reuse the same real reading, which mimics drawing a fresh sample. Repeat 5,000 times.",
+      "Average each resample, giving 5,000 bootstrap means.",
+      "Print the first resample and its mean to see what a resample looks like.",
+      "Print the average of all bootstrap means; it should be close to the real mean."
+     ],
+     "meaning": "One resample was 68, 65, 65, 70, 65: the value 65 appears three times and 62 and 75 are missing, which is normal for sampling with replacement. Its mean is 66.6. Across 5,000 resamples the average mean is 68.04, close to the real 68.0."
     },
     {
      "title": "Bootstrap SE and interval",
      "text": "The SD of the bootstrap means is the bootstrap standard error. The 2.5th and 97.5th percentiles of the means form a 95% percentile interval.",
-     "code": "boot_se = boot_means.std(ddof=1)\nlow, high = np.percentile(boot_means, [2.5, 97.5])\n\nprint(f'bootstrap SE = {boot_se:.2f}')\nprint(f'95% percentile interval = ({low:.1f}, {high:.1f})')"
+     "code": "boot_se = boot_means.std(ddof=1)\nlow, high = np.percentile(boot_means, [2.5, 97.5])\n\nprint(f'bootstrap SE = {boot_se:.2f}')\nprint(f'95% percentile interval = ({low:.1f}, {high:.1f})')",
+     "explain": [
+      "The SD of the 5,000 bootstrap means is the bootstrap standard error: how much a mean of 5 readings wobbles.",
+      "Take the 2.5th and 97.5th percentiles of the bootstrap means: the middle 95% of them forms a 95% interval.",
+      "Print the bootstrap standard error.",
+      "Print the 95% percentile interval."
+     ],
+     "meaning": "The bootstrap standard error is 1.99, close to the classic 2.21, so the two methods agree about how precise the mean is. The middle 95% of resampled means runs from 64.4 to 72.0 bpm."
     },
     {
      "title": "Compare with the t-interval",
      "text": "With only five values the t-interval has to be wide to be honest. The bootstrap interval is narrower, because resampling cannot invent information a tiny sample does not contain.",
-     "code": "t_low, t_high = stats.t.interval(0.95, df=n - 1, loc=data.mean(), scale=se)\n\nprint(f't-interval        = ({t_low:.1f}, {t_high:.1f})')\nprint(f'bootstrap interval = ({low:.1f}, {high:.1f})')\nprint(f'widths: t = {t_high - t_low:.1f}, bootstrap = {high - low:.1f}')"
+     "code": "t_low, t_high = stats.t.interval(0.95, df=n - 1, loc=data.mean(), scale=se)\n\nprint(f't-interval        = ({t_low:.1f}, {t_high:.1f})')\nprint(f'bootstrap interval = ({low:.1f}, {high:.1f})')\nprint(f'widths: t = {t_high - t_low:.1f}, bootstrap = {high - low:.1f}')",
+     "explain": [
+      "Compute the classic 95% t-interval for comparison; df = n - 1 and scale is the standard error.",
+      "Print the t-interval.",
+      "Print the bootstrap interval from the last step.",
+      "Print both widths (upper minus lower) so we can compare them directly."
+     ],
+     "meaning": "The t-interval is (61.9, 74.1), width 12.3, while the bootstrap interval is (64.4, 72.0), width 7.6. With only five values the t-interval is deliberately wide and honest. The bootstrap interval is narrower because resampling cannot add information; it tends to be too optimistic in tiny samples."
     }
    ]
   },
   "r": {
    "code": "hr <- c(62, 70, 68, 75, 65)\nset.seed(2025)\nboot_means <- replicate(5000, mean(sample(hr, replace = TRUE)))\nsd(boot_means)\nquantile(boot_means, c(0.025, 0.975))\nt.test(hr)$conf.int",
    "expect": "bootstrap sd about 1.99; 2.5% and 97.5% quantiles about 64.4 and 72; t.test conf.int 61.85 to 74.15 (Python: 1.99, (64.4, 72.0), (61.9, 74.1))",
-   "note": "sample(hr, replace = TRUE) draws a resample of the same size. Bootstrap numbers are close to Python's but not identical; the t-interval is exact."
+   "note": "sample(hr, replace = TRUE) draws a resample of the same size. Bootstrap numbers are close to Python's but not identical; the t-interval is exact.",
+   "explain": [
+    "Store the five heart rates.",
+    "Fix the random seed.",
+    "Resample the data with replacement 5,000 times and keep the mean of each resample.",
+    "Print the SD of the bootstrap means (bootstrap SE).",
+    "Print the 2.5% and 97.5% quantiles, the percentile interval.",
+    "Print the classic t-interval for comparison."
+   ],
+   "read": "sd(boot_means) should be about 1.99 and the quantiles about 64.4 and 72. The t.test line prints 61.85 and 74.15. Bootstrap numbers are close to Python's, not identical, but the t-interval is exact."
   },
   "spss": {
    "menu": "Analyze > Descriptive Statistics > Explore, then press the Bootstrap button and tick Perform bootstrapping (Number of samples 5000, Percentile)",
    "syntax": "DATA LIST FREE / hr.\nBEGIN DATA\n62 70 68 75 65\nEND DATA.\nBOOTSTRAP\n  /SAMPLING METHOD=SIMPLE\n  /VARIABLES INPUT=hr\n  /CRITERIA CILEVEL=95 CITYPE=PERCENTILE NSAMPLES=5000\n  /MISSING USER=EXCLUDE.\nEXAMINE VARIABLES=hr\n  /PLOT=NONE\n  /STATISTICS=DESCRIPTIVES.",
-   "note": "The Bootstrap button appears on many dialogs. In the output, the Bootstrap table gives the bias, Std. Error and 95% percentile interval for the mean; the ordinary Descriptives table gives the t-interval. Results are close to Python's, not identical."
+   "note": "The Bootstrap button appears on many dialogs. In the output, the Bootstrap table gives the bias, Std. Error and 95% percentile interval for the mean; the ordinary Descriptives table gives the t-interval. Results are close to Python's, not identical.",
+   "explain": [
+    "Declare one variable, hr, to read from the data lines.",
+    "Marks the start of the typed-in data.",
+    "The five heart rates.",
+    "Marks the end of the data.",
+    "BOOTSTRAP switches on resampling for the commands that follow.",
+    "Use simple random sampling with replacement.",
+    "Resample the variable hr.",
+    "95% percentile intervals from 5,000 resamples.",
+    "Leave out cases with user-missing values.",
+    "EXAMINE computes descriptive statistics for hr.",
+    "Turn off plots.",
+    "Ask for the descriptives table."
+   ],
+   "read": "In the Descriptives output, the ordinary table shows a 95% Confidence Interval for Mean of about 61.9 to 74.1. The Bootstrap table shows the bootstrap Std. Error near 2.0 and a 95% interval near 64.4 to 72.0. Results are close to Python's."
   },
   "stata": {
    "code": "clear\ninput hr\n62\n70\n68\n75\n65\nend\nbootstrap mean = r(mean), reps(5000) seed(2025): summarize hr\nestat bootstrap, percentile\nci means hr",
-   "note": "estat bootstrap, percentile shows the bootstrap SE and the percentile interval; ci means gives the t-interval. Bootstrap results are close to Python's, not identical."
+   "note": "estat bootstrap, percentile shows the bootstrap SE and the percentile interval; ci means gives the t-interval. Bootstrap results are close to Python's, not identical.",
+   "explain": [
+    "Clear any data in memory.",
+    "Start entering data for one variable hr.",
+    "Data row 1 of 5: a heart rate, typed on its own line so Stata reads it as a new case.",
+    "Data row 2 of 5: a heart rate, typed on its own line so Stata reads it as a new case.",
+    "Data row 3 of 5: a heart rate, typed on its own line so Stata reads it as a new case.",
+    "Data row 4 of 5: a heart rate, typed on its own line so Stata reads it as a new case.",
+    "Data row 5 of 5: a heart rate, typed on its own line so Stata reads it as a new case.",
+    "Stop entering data.",
+    "Resample 5,000 times (seeded) and record the mean each time.",
+    "Show the bootstrap standard error and the percentile interval.",
+    "Show the ordinary t-interval for comparison."
+   ],
+   "read": "After estat bootstrap, look at the Std. err. (about 2.0) and the row labelled (P) for the percentile interval, about 64.4 to 72. The ci means table gives the t-interval, 61.85 to 74.15. Numbers are close to, not identical to, Python."
   },
-  "try": [
-   "Change 5000 resamples to 500 and see how much the bootstrap SE changes between seeds.",
-   "Add more heart rates (say ten values) and predict whether the bootstrap and t-intervals move closer together.",
-   "Replace the mean with the median (np.median(resamples, axis=1)) and look at its bootstrap SE."
-  ]
+  "conclusion": "The mean heart rate is 68.0 bpm. Resampling gives a standard error of about 2.0 (the formula gives 2.21) and a 95% interval of 64.4 to 72.0, against the t-interval 61.9 to 74.1. Caution: with only five readings the bootstrap interval is too narrow to trust; the wider t-interval is the safer statement.",
+  "practice": {
+   "scenario": "A commuter logged the minutes of eight trips to work. Travel times are skewed by the odd bad day, so she wants the typical trip measured by the median, which has no simple standard error formula. Use the bootstrap.",
+   "data": "[24, 31, 28, 45, 26, 33, 29, 52]",
+   "tasks": [
+    "Find the sample median and mean.",
+    "Bootstrap the median with 5,000 resamples and report its standard error.",
+    "Report a 95% percentile interval for the median.",
+    "Compare with the bootstrap SE of the mean."
+   ],
+   "hint": "Use rng.choice(commute, size=(5000, 8), replace=True), then np.median(..., axis=1) and np.percentile(..., [2.5, 97.5]).",
+   "solution": {
+    "code": "import numpy as np\ncommute = np.array([24, 31, 28, 45, 26, 33, 29, 52])\nrng = np.random.default_rng(4)\nres = rng.choice(commute, size=(5000, len(commute)), replace=True)\nmeds = np.median(res, axis=1)\nmeans = res.mean(axis=1)\nprint('sample median =', np.median(commute), ' sample mean =', commute.mean())\nprint(f'bootstrap SE of median = {meds.std(ddof=1):.2f}')\nprint(f'bootstrap SE of mean   = {means.std(ddof=1):.2f}')\nprint('95% interval for the median:', np.percentile(meds, [2.5, 97.5]))",
+    "answer": "The sample median is 30.0 minutes and the mean is 33.5 (pulled up by the 45 and 52). The bootstrap SE of the median is 3.91, larger than the SE of the mean at 3.26. The 95% percentile interval for the median is 26 to 45 minutes. The median is less precise here, and its interval is wide, because only eight trips is very little data."
+   }
+  }
  }
 }
