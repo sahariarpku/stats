@@ -1,104 +1,140 @@
 {
- "2.1": [
-  {
-   "out": "sample space: [('H', 'H'), ('H', 'T'), ('T', 'H'), ('T', 'T')]\nexactly one head: [('H', 'T'), ('T', 'H')]\nP(exactly one head) = 2/4 = 0.5000",
-   "figs": []
-  },
-  {
-   "out": "pairs: 36\npairs that sum to 7: 6\nexact P(sum = 7) = 0.1667",
-   "figs": []
-  },
-  {
-   "out": "       10 rolls: relative frequency = 0.0000\n      100 rolls: relative frequency = 0.1700\n   10,000 rolls: relative frequency = 0.1663\n1,000,000 rolls: relative frequency = 0.1669\nexact value              = 0.1667",
-   "figs": []
-  }
- ],
- "2.2": [
-  {
-   "out": "0! = 1\n1! = 1\n4! = 24\n5! = 120\n8! = 40320",
-   "figs": []
-  },
-  {
-   "out": "podiums, perm(8, 3)       = 336\ncommittees, comb(10, 3)   = 120\nperm(10, 3) / 3!          = 120\npoker hands, comb(52, 5)  = 2598960",
-   "figs": []
-  },
-  {
-   "out": "ordered lists: 60  formula: 60\ngroups: 10  formula: 10\nfirst groups: ['ABC', 'ABD', 'ABE', 'ACD']",
-   "figs": []
-  },
-  {
-   "out": "tickets = 13,983,816\nP(jackpot) = 7.15e-08\nP(5 hearts) = 1287 / 2,598,960 = 0.0005",
+ "2.1": {
+  "blocks": [
+   {
+    "out": "sample space: [('H', 'H'), ('H', 'T'), ('T', 'H'), ('T', 'T')]\nexactly one head: [('H', 'T'), ('T', 'H')]\nP(exactly one head) = 2/4 = 0.5000",
+    "figs": []
+   },
+   {
+    "out": "pairs: 36\npairs that sum to 7: 6\nexact P(sum = 7) = 0.1667",
+    "figs": []
+   },
+   {
+    "out": "       10 rolls: relative frequency = 0.0000\n      100 rolls: relative frequency = 0.1700\n   10,000 rolls: relative frequency = 0.1663\n1,000,000 rolls: relative frequency = 0.1669\nexact value              = 0.1667",
+    "figs": []
+   }
+  ],
+  "solution": {
+   "out": "pairs: 16  sum 5: 4  exact = 0.2500\n     20 rolls: 0.2500\n  1,000 rolls: 0.2420\n100,000 rolls: 0.2477",
    "figs": []
   }
- ],
- "2.3": [
-  {
-   "out": "hearts: 13  kings: 4  both: 1\nheart or king, counted directly: 16 of 52",
-   "figs": []
-  },
-  {
-   "out": "P(heart) + P(king) = 0.3269  (too big)\nminus overlap 0.0192   = 0.3077\ndirect count 16/52    = 0.3077",
-   "figs": []
-  },
-  {
-   "out": "simulated P(heart or king) = 0.3068\nexact 16/52                = 0.3077",
-   "figs": []
-  },
-  {
-   "out": "simulated P(heads and 6) = 0.0830\n1/2 x 1/6                = 0.0833\nP(heads) x P(6) in sample = 0.0826",
-   "figs": []
-  }
- ],
- "2.4": [
-  {
-   "out": "result    Failed  Passed  All\ngroup                        \nNo study      60      40  100\nStudied       10      90  100\nAll           70     130  200",
-   "figs": []
-  },
-  {
-   "out": "row method : 90 / 100 = 0.900\nformula     : 0.450 / 0.500 = 0.900",
-   "figs": []
-  },
-  {
-   "out": "P(pass | studied) = 0.900\nP(studied | pass) = 90 / 130 = 0.692\n\nrow percentages (condition on the row):\nresult    Failed  Passed\ngroup                   \nNo study     0.6     0.4\nStudied      0.1     0.9",
+ },
+ "2.2": {
+  "blocks": [
+   {
+    "out": "0! = 1\n1! = 1\n4! = 24\n5! = 120\n8! = 40320",
+    "figs": []
+   },
+   {
+    "out": "podiums, perm(8, 3)       = 336\ncommittees, comb(10, 3)   = 120\nperm(10, 3) / 3!          = 120\npoker hands, comb(52, 5)  = 2598960",
+    "figs": []
+   },
+   {
+    "out": "ordered lists: 60  formula: 60\ngroups: 10  formula: 10\nfirst groups: ['ABC', 'ABD', 'ABE', 'ACD']",
+    "figs": []
+   },
+   {
+    "out": "tickets = 13,983,816\nP(jackpot) = 7.15e-08\nP(5 hearts) = 1287 / 2,598,960 = 0.0005",
+    "figs": []
+   }
+  ],
+  "solution": {
+   "out": "officer line-ups: 504\ndelegations     : 84\nratio           : 6 = 3!\nraffle draws: 142,506, P(win) = 7.02e-06\nP(Ana and Ben both on the delegation) = 7/84 = 0.0833",
    "figs": []
   }
- ],
- "2.5": [
-  {
-   "out": "P(sick)                = 0.01\nP(positive | sick)     = 0.99\nP(positive | healthy)  = 0.05",
-   "figs": []
-  },
-  {
-   "out": "P(positive)         = 0.0594\nP(sick | positive)  = 0.1667",
-   "figs": []
-  },
-  {
-   "out": "sick: 100  healthy: 9900\ntrue positives: 99  false positives: 495\n99 / 594 = 0.1667",
-   "figs": []
-  },
-  {
-   "out": "prevalence  0.1%: P(sick | positive) = 1.94%\nprevalence  1.0%: P(sick | positive) = 16.67%\nprevalence 10.0%: P(sick | positive) = 68.75%\nprevalence 30.0%: P(sick | positive) = 89.46%\nprevalence 50.0%: P(sick | positive) = 95.19%",
+ },
+ "2.3": {
+  "blocks": [
+   {
+    "out": "hearts: 13  kings: 4  both: 1\nheart or king, counted directly: 16 of 52",
+    "figs": []
+   },
+   {
+    "out": "P(heart) + P(king) = 0.3269  (too big)\nminus overlap 0.0192   = 0.3077\ndirect count 16/52    = 0.3077",
+    "figs": []
+   },
+   {
+    "out": "simulated P(heart or king) = 0.3068\nexact 16/52                = 0.3077",
+    "figs": []
+   },
+   {
+    "out": "simulated P(heads and 6) = 0.0830\n1/2 x 1/6                = 0.0833\nP(heads) x P(6) in sample = 0.0826",
+    "figs": []
+   }
+  ],
+  "solution": {
+   "out": "even: 3  >4: 2  both: 1\naddition rule: 0.5000 + 0.3333 - 0.1667 = 0.6667\nsimulated P(even or >4)    = 0.6654\nsimulated P(both dice 6)   = 0.0275  (exact 0.0278)",
    "figs": []
   }
- ],
- "2.6": [
-  {
-   "out": "x * P(x): [0.1667 0.3333 0.5    0.6667 0.8333 1.    ]\nE(X) = 3.5",
+ },
+ "2.4": {
+  "blocks": [
+   {
+    "out": "result    Failed  Passed  All\ngroup                        \nNo study      60      40  100\nStudied       10      90  100\nAll           70     130  200",
+    "figs": []
+   },
+   {
+    "out": "row method : 90 / 100 = 0.900\nformula     : 0.450 / 0.500 = 0.900",
+    "figs": []
+   },
+   {
+    "out": "P(pass | studied) = 0.900\nP(studied | pass) = 90 / 130 = 0.692\n\nrow percentages (condition on the row):\nresult    Failed  Passed\ngroup                   \nNo study     0.6     0.4\nStudied      0.1     0.9",
+    "figs": []
+   }
+  ],
+  "solution": {
+   "out": "result     Bought  Left  All\nvisit                       \nAfternoon      45   105  150\nMorning        70    30  100\nAll           115   135  250\nP(bought)             = 0.460\nP(bought | morning)   = 0.700\nP(morning | bought)   = 0.609",
    "figs": []
-  },
-  {
-   "out": "expected gain per $1 bet = -0.0526\nthat is a loss of about 5.3 cents per dollar",
-   "figs": []
-  },
-  {
-   "out": "after    5 rolls: average = 3.200\nafter   50 rolls: average = 3.760\nafter  500 rolls: average = 3.452\nafter 5000 rolls: average = 3.487",
-   "figs": []
-  },
-  {
-   "out": "",
-   "figs": [
-    "2.6-4.png"
-   ]
   }
- ]
+ },
+ "2.5": {
+  "blocks": [
+   {
+    "out": "P(sick)                = 0.01\nP(positive | sick)     = 0.99\nP(positive | healthy)  = 0.05",
+    "figs": []
+   },
+   {
+    "out": "P(positive)         = 0.0594\nP(sick | positive)  = 0.1667",
+    "figs": []
+   },
+   {
+    "out": "sick: 100  healthy: 9900\ntrue positives: 99  false positives: 495\n99 / 594 = 0.1667",
+    "figs": []
+   },
+   {
+    "out": "prevalence  0.1%: P(sick | positive) = 1.94%\nprevalence  1.0%: P(sick | positive) = 16.67%\nprevalence 10.0%: P(sick | positive) = 68.75%\nprevalence 30.0%: P(sick | positive) = 89.46%\nprevalence 50.0%: P(sick | positive) = 95.19%",
+    "figs": []
+   }
+  ],
+  "solution": {
+   "out": "P(flagged) when 20% is spam = 0.2140\nspam share   2%: P(spam | flagged) = 0.3926\nspam share  20%: P(spam | flagged) = 0.8879\nspam share  50%: P(spam | flagged) = 0.9694\ncheck with counts: 1900 true flags, 240 false flags\nP(spam | flagged) by counting = 0.8879",
+   "figs": []
+  }
+ },
+ "2.6": {
+  "blocks": [
+   {
+    "out": "x * P(x): [0.1667 0.3333 0.5    0.6667 0.8333 1.    ]\nE(X) = 3.5",
+    "figs": []
+   },
+   {
+    "out": "expected gain per $1 bet = -0.0526\nthat is a loss of about 5.3 cents per dollar",
+    "figs": []
+   },
+   {
+    "out": "after    5 rolls: average = 3.200\nafter   50 rolls: average = 3.760\nafter  500 rolls: average = 3.452\nafter 5000 rolls: average = 3.487",
+    "figs": []
+   },
+   {
+    "out": "",
+    "figs": [
+     "2.6-4.png"
+    ]
+   }
+  ],
+  "solution": {
+   "out": "expected prize = 1.60, expected net = -1.40\nafter     10 plays: average net = 0.400\nafter    100 plays: average net = -1.360\nafter 20,000 plays: average net = -1.384",
+   "figs": []
+  }
+ }
 }

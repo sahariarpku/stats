@@ -1,98 +1,128 @@
 {
- "3.1": [
-  {
-   "out": "       ways  P(X = x)\nsum x                \n2         1    0.0278\n3         2    0.0556\n4         3    0.0833\n5         4    0.1111\n6         5    0.1389\n7         6    0.1667\n8         5    0.1389\n9         4    0.1111\n10        3    0.0833\n11        2    0.0556\n12        1    0.0278",
-   "figs": []
-  },
-  {
-   "out": "total probability: 1.0\nP(X <= 4)  = 0.1667\nP(X >= 10) = 0.1667",
-   "figs": []
-  },
-  {
-   "out": "mean     = 7.0000\nvariance = 5.8333\nsd       = 2.4152",
-   "figs": []
-  },
-  {
-   "out": "simulated mean     = 7.0055\nsimulated variance = 5.7999\nsimulated P(X = 7) = 0.1688  (exact 0.1667)",
-   "figs": []
-  }
- ],
- "3.2": [
-  {
-   "out": "formula   : 0.2668\nbinom.pmf : 0.2668",
-   "figs": []
-  },
-  {
-   "out": "P(X <= 6)  at most 6      = 0.3504\nP(X > 8)   more than 8      = 0.1493\nP(X >= 9)  at least 9       = 0.1493\nP(9) + P(10) added by hand  = 0.1493",
-   "figs": []
-  },
-  {
-   "out": "mean = n*p = 7.0\nvariance   = 2.10\nSD         = 1.449\nscipy      : mean 7.0, variance 2.10",
-   "figs": []
-  },
-  {
-   "out": "simulated P(X = 7)  = 0.2679  (exact 0.2668)\nsimulated P(X >= 9) = 0.1485  (exact 0.1493)\nsimulated mean 6.997, SD 1.450",
+ "3.1": {
+  "blocks": [
+   {
+    "out": "       ways  P(X = x)\nsum x                \n2         1    0.0278\n3         2    0.0556\n4         3    0.0833\n5         4    0.1111\n6         5    0.1389\n7         6    0.1667\n8         5    0.1389\n9         4    0.1111\n10        3    0.0833\n11        2    0.0556\n12        1    0.0278",
+    "figs": []
+   },
+   {
+    "out": "total probability: 1.0\nP(X <= 4)  = 0.1667\nP(X >= 10) = 0.1667",
+    "figs": []
+   },
+   {
+    "out": "mean     = 7.0000\nvariance = 5.8333\nsd       = 2.4152",
+    "figs": []
+   },
+   {
+    "out": "simulated mean     = 7.0055\nsimulated variance = 5.7999\nsimulated P(X = 7) = 0.1688  (exact 0.1667)",
+    "figs": []
+   }
+  ],
+  "solution": {
+   "out": "total probability: 1.0\nmean = 1.850, variance = 1.2275, sd = 1.1079\nP(X >= 3) = 0.25\nsimulated mean = 1.850, variance = 1.2262",
    "figs": []
   }
- ],
- "3.3": [
-  {
-   "out": "mean     = 4.0\nvariance = 4.0",
-   "figs": []
-  },
-  {
-   "out": "P(X = 2) = 0.1465",
-   "figs": []
-  },
-  {
-   "out": "P(X >= 8) = 0.0511\nabout 1 hour in 20",
-   "figs": []
-  },
-  {
-   "out": " k  P(X = k)\n 0    0.0183\n 1    0.0733\n 2    0.1465\n 3    0.1954\n 4    0.1954\n 5    0.1563\n 6    0.1042\n 7    0.0595\n 8    0.0298\n 9    0.0132\n10    0.0053",
-   "figs": []
-  }
- ],
- "3.4": [
-  {
-   "out": "median = 69.1",
-   "figs": []
-  },
-  {
-   "out": "z = -1.07\nP(height < 66) = 0.1425",
-   "figs": []
-  },
-  {
-   "out": "90th percentile = 72.8 inches",
-   "figs": []
-  },
-  {
-   "out": "within 1 SD: 0.6827\nwithin 2 SD: 0.9545\nwithin 3 SD: 0.9973",
-   "figs": []
-  },
-  {
-   "out": "",
-   "figs": [
-    "3.4-5.png"
-   ]
-  }
- ],
- "3.5": [
-  {
-   "out": "np      = 20.0\nn(1-p)  = 180.0\nsafe to approximate? True",
-   "figs": []
-  },
-  {
-   "out": "exact P(X <= 14) = 0.0929",
-   "figs": []
-  },
-  {
-   "out": "mu = 20.0, sigma = 4.243\nnormal with correction    = 0.0974\nnormal without correction = 0.0786",
-   "figs": []
-  },
-  {
-   "out": "error with correction    = 0.0045\nerror without correction = 0.0143",
+ },
+ "3.2": {
+  "blocks": [
+   {
+    "out": "formula   : 0.2668\nbinom.pmf : 0.2668",
+    "figs": []
+   },
+   {
+    "out": "P(X <= 6)  at most 6      = 0.3504\nP(X > 8)   more than 8      = 0.1493\nP(X >= 9)  at least 9       = 0.1493\nP(9) + P(10) added by hand  = 0.1493",
+    "figs": []
+   },
+   {
+    "out": "mean = n*p = 7.0\nvariance   = 2.10\nSD         = 1.449\nscipy      : mean 7.0, variance 2.10",
+    "figs": []
+   },
+   {
+    "out": "simulated P(X = 7)  = 0.2679  (exact 0.2668)\nsimulated P(X >= 9) = 0.1485  (exact 0.1493)\nsimulated mean 6.997, SD 1.450",
+    "figs": []
+   }
+  ],
+  "solution": {
+   "out": "P(X = 5)  = 0.1032\nP(X >= 8) = 0.0028\nP(X <= 3) = 0.6488\nmean = 3.0, sd = 1.500\nsimulated P(X >= 8) = 0.00267\nsimulated mean = 3.002",
    "figs": []
   }
- ]
+ },
+ "3.3": {
+  "blocks": [
+   {
+    "out": "mean     = 4.0\nvariance = 4.0",
+    "figs": []
+   },
+   {
+    "out": "P(X = 2) = 0.1465",
+    "figs": []
+   },
+   {
+    "out": "P(X >= 8) = 0.0511\nabout 1 hour in 20",
+    "figs": []
+   },
+   {
+    "out": " k  P(X = k)\n 0    0.0183\n 1    0.0733\n 2    0.1465\n 3    0.1954\n 4    0.1954\n 5    0.1563\n 6    0.1042\n 7    0.0595\n 8    0.0298\n 9    0.0132\n10    0.0053",
+    "figs": []
+   }
+  ],
+  "solution": {
+   "out": "mean, variance: 6.0 6.0\nP(X = 4)   = 0.1339\nP(X <= 2)  = 0.0620\nP(X >= 10) = 0.0839\nabout 1 window in 12\nsimulated mean 5.978, variance 5.901",
+   "figs": []
+  }
+ },
+ "3.4": {
+  "blocks": [
+   {
+    "out": "median = 69.1",
+    "figs": []
+   },
+   {
+    "out": "z = -1.07\nP(height < 66) = 0.1425",
+    "figs": []
+   },
+   {
+    "out": "90th percentile = 72.8 inches",
+    "figs": []
+   },
+   {
+    "out": "within 1 SD: 0.6827\nwithin 2 SD: 0.9545\nwithin 3 SD: 0.9973",
+    "figs": []
+   },
+   {
+    "out": "",
+    "figs": [
+     "3.4-5.png"
+    ]
+   }
+  ],
+  "solution": {
+   "out": "z for 25 min      = -1.17\nP(time < 25)      = 0.1217\n95th percentile   = 41.9 minutes\nP(28 < time < 40) = 0.6563\nmiddle 95% runs from 20.2 to 43.8 minutes",
+   "figs": []
+  }
+ },
+ "3.5": {
+  "blocks": [
+   {
+    "out": "np      = 20.0\nn(1-p)  = 180.0\nsafe to approximate? True",
+    "figs": []
+   },
+   {
+    "out": "exact P(X <= 14) = 0.0929",
+    "figs": []
+   },
+   {
+    "out": "mu = 20.0, sigma = 4.243\nnormal with correction    = 0.0974\nnormal without correction = 0.0786",
+    "figs": []
+   },
+   {
+    "out": "error with correction    = 0.0045\nerror without correction = 0.0143",
+    "figs": []
+   }
+  ],
+  "solution": {
+   "out": "np = 200.0, n(1-p) = 300.0, sigma = 10.954\nexact = 0.0924, with correction = 0.0928, without = 0.0855\nerrors: 0.0004 and 0.0069",
+   "figs": []
+  }
+ }
 }

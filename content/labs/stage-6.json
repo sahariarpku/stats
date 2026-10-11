@@ -371,138 +371,365 @@
  },
  "6.4": {
   "goal": "Run a z-test for a mean (the 50 bolts) and a z-test for a proportion (184 of 200 customers satisfied), by hand and with statsmodels.",
+  "question": "A factory line has always made 10 mm bolts with a known spread of 0.5 mm. An engineer samples 50 bolts and finds a mean of 10.14 mm: has the process drifted? The same team also checks a company's claim of 95% customer satisfaction, when a survey of 200 customers finds 184 satisfied (92%). Is the true satisfaction rate really lower than claimed?",
   "python": {
    "blocks": [
     {
      "title": "A z-test for a mean, by hand",
-     "text": "A line makes 10 mm bolts with a known SD of 0.5 mm. A sample of 50 bolts averages 10.14 mm. The z statistic is the gap divided by the standard error, and the two-sided p-value comes from the normal curve.",
-     "code": "import numpy as np\nfrom scipy import stats\n\nmu0, sigma, n, xbar = 10, 0.5, 50, 10.14\n\nse = sigma / np.sqrt(n)\nz = (xbar - mu0) / se\np = 2 * stats.norm.sf(abs(z))\nci = (xbar - 1.96 * se, xbar + 1.96 * se)\n\nprint(f'z = {z:.3f}, p = {p:.4f}')\nprint(f'95% CI: ({ci[0]:.3f}, {ci[1]:.3f})')"
+     "text": "H0: the true mean bolt diameter is 10 mm. H1: it is not 10 mm (it has drifted). Sigma = 0.5 mm is known, 50 bolts average 10.14 mm. The z statistic is the gap divided by the standard error, and the two-sided p-value comes from the normal curve.",
+     "code": "import numpy as np\nfrom scipy import stats\n\nmu0, sigma, n, xbar = 10, 0.5, 50, 10.14\n\nse = sigma / np.sqrt(n)\nz = (xbar - mu0) / se\np = 2 * stats.norm.sf(abs(z))\nci = (xbar - 1.96 * se, xbar + 1.96 * se)\n\nprint(f'z = {z:.3f}, p = {p:.4f}')\nprint(f'95% CI: ({ci[0]:.3f}, {ci[1]:.3f})')",
+     "explain": [
+      "Load NumPy for the square root, under the short name np.",
+      "Load SciPy's statistics tools; stats.norm gives the normal curve for the p-value.",
+      "Store the claim (10 mm), the known sigma (0.5), the sample size (50) and the sample mean (10.14) in one line.",
+      "Standard error: how much a mean of 50 bolts wobbles. It is sigma divided by the square root of n.",
+      "The z statistic: how many standard errors our mean is from the claim.",
+      "Two-sided p-value: the area beyond |z| in the upper tail, doubled to include the lower tail ('drifted either way').",
+      "A 95% confidence interval: the mean plus or minus 1.96 standard errors. It shows the plausible values of the true mean.",
+      "Print z and p, rounded, so we can compare them with the lesson's hand calculation.",
+      "Print the interval. If it excludes 10, that agrees with rejecting H0."
+     ],
+     "meaning": "z = 1.980 and p = 0.0477. If the process were still centred on 10 mm, a sample mean this far away in either direction would turn up about 4.8% of the time. That is just below 0.05, so we reject H0, but it is borderline. The interval 10.001 to 10.279 only just excludes 10, which tells the same story."
     },
     {
      "title": "The same test with ztest()",
      "text": "statsmodels needs raw data. We build 50 pretend bolt readings with mean 10.14 and SD 0.5, so the result matches the hand calculation. Note that ztest() estimates the SD from the data rather than using a known sigma.",
-     "code": "from statsmodels.stats.weightstats import ztest\n\nrng = np.random.default_rng(42)\nx = rng.normal(size=50)\nbolts = 10.14 + 0.5 * (x - x.mean()) / x.std(ddof=1)   # mean 10.14, SD 0.5\n\nz_stat, p_val = ztest(bolts, value=10, alternative='two-sided')\nprint(f'mean = {bolts.mean():.2f}, sd = {bolts.std(ddof=1):.2f}')\nprint(f'z = {z_stat:.3f}, p = {p_val:.4f}')"
+     "code": "from statsmodels.stats.weightstats import ztest\n\nrng = np.random.default_rng(42)\nx = rng.normal(size=50)\nbolts = 10.14 + 0.5 * (x - x.mean()) / x.std(ddof=1)   # mean 10.14, SD 0.5\n\nz_stat, p_val = ztest(bolts, value=10, alternative='two-sided')\nprint(f'mean = {bolts.mean():.2f}, sd = {bolts.std(ddof=1):.2f}')\nprint(f'z = {z_stat:.3f}, p = {p_val:.4f}')",
+     "explain": [
+      "Load ztest from statsmodels, which runs the z-test on raw data instead of by hand.",
+      "Create a seeded random generator so the pretend bolts are the same every time.",
+      "Draw 50 random numbers from a standard normal curve as raw material for the pretend bolts.",
+      "Rescale them so the 50 values have exactly mean 10.14 and SD 0.5, matching the lesson. We centre, divide by their SD, then stretch.",
+      "Run the z-test on the readings against 10, two-sided. ztest returns the z statistic and the p-value.",
+      "Print the mean and SD of the pretend bolts, to confirm they match the lesson's numbers.",
+      "Print z and p so we can check that they match the by-hand answer."
+     ],
+     "meaning": "The pretend bolts have mean 10.14 and SD 0.50, and ztest gives z = 1.980 and p = 0.0477, the same as the hand calculation. One detail: ztest estimates the SD from the data (it happens to equal 0.5 here), whereas in a real z-test the known sigma is supplied by the problem."
     },
     {
      "title": "A z-test for a proportion",
-     "text": "A company claims 95% satisfaction, but 184 of 200 customers are satisfied. The claim says 'at least 95%', so we test the left tail ('smaller'). We set prop_var=0.95 so the standard error uses the claimed value, as a test should.",
-     "code": "from statsmodels.stats.proportion import proportions_ztest\n\nz_prop, p_prop = proportions_ztest(count=184, nobs=200, value=0.95,\n                                   alternative='smaller', prop_var=0.95)\n\nprint(f'sample proportion = {184 / 200:.2f}')\nprint(f'z = {z_prop:.3f}')\nprint(f'left-tailed p = {p_prop:.4f}')\nprint('reject H0 at 0.05?', p_prop <= 0.05)"
+     "text": "H0: the true satisfaction rate is 0.95 (or higher). H1: it is lower than 0.95, so we test the left tail ('smaller'). We set prop_var=0.95 so the standard error uses the claimed value, as a test should.",
+     "code": "from statsmodels.stats.proportion import proportions_ztest\n\nz_prop, p_prop = proportions_ztest(count=184, nobs=200, value=0.95,\n                                   alternative='smaller', prop_var=0.95)\n\nprint(f'sample proportion = {184 / 200:.2f}')\nprint(f'z = {z_prop:.3f}')\nprint(f'left-tailed p = {p_prop:.4f}')\nprint('reject H0 at 0.05?', p_prop <= 0.05)",
+     "explain": [
+      "Load proportions_ztest, the z-test for a share of successes.",
+      "Run the test: 184 satisfied out of 200, claimed rate 0.95, alternative 'smaller' (left tail, H1: rate below 0.95).",
+      "prop_var=0.95 makes the standard error use the claimed rate, because a test assumes H0 is true.",
+      "Print the sample proportion, 184 / 200, to see how far it is from the claim.",
+      "Print the z statistic. Negative means the sample is below the claim.",
+      "Print the left-tailed p-value.",
+      "Compare p with alpha = 0.05 and print True or False for rejecting H0."
+     ],
+     "meaning": "The sample proportion is 0.92, three points below the claim. z = -1.947 and the left-tailed p is 0.0258. If the true rate were 95%, a survey this low would happen about 2.6% of the time. That is below 0.05, so we reject H0: there is evidence the rate is below 95%. The test condition holds: 200 x 0.05 = 10."
     },
     {
      "title": "Why the standard error matters",
      "text": "If we leave out prop_var, statsmodels uses the observed 0.92 in the standard error. This is the classic mistake from the lesson, and it changes z and p.",
-     "code": "z_wrong, p_wrong = proportions_ztest(count=184, nobs=200, value=0.95,\n                                     alternative='smaller')\n\nprint(f'with the observed proportion: z = {z_wrong:.3f}, p = {p_wrong:.4f}')\nprint(f'with the claimed 0.95:         z = {z_prop:.3f}, p = {p_prop:.4f}')"
+     "code": "z_wrong, p_wrong = proportions_ztest(count=184, nobs=200, value=0.95,\n                                     alternative='smaller')\n\nprint(f'with the observed proportion: z = {z_wrong:.3f}, p = {p_wrong:.4f}')\nprint(f'with the claimed 0.95:         z = {z_prop:.3f}, p = {p_prop:.4f}')",
+     "explain": [
+      "Run the same test but leave out prop_var, so statsmodels uses the observed proportion 0.92 in the standard error.",
+      "The same call continues with alternative='smaller'; only the standard error differs from the previous step.",
+      "Print the result that wrongly uses the observed proportion.",
+      "Print the correct result, using the claimed 0.95, side by side for comparison."
+     ],
+     "meaning": "Using the observed 0.92 in the standard error gives z = -1.564 and p = 0.0589, which would NOT be significant. Using the claimed 0.95, as a test should, gives z = -1.947 and p = 0.0258, which is. The decision flips on a detail. The test must ask 'what if H0 were true?', so the standard error uses p0."
     }
    ]
   },
   "r": {
    "code": "# z-test for a mean (sigma known), by hand: base R has no z.test\nz <- (10.14 - 10) / (0.5 / sqrt(50))\nz\n2 * pnorm(-abs(z))\n\n# z-test for a proportion, no continuity correction\nres <- prop.test(184, 200, p = 0.95, alternative = \"less\", correct = FALSE)\nres\n-sqrt(res$statistic)   # the z value (z squared is X-squared)",
+   "explain": [
+    "A comment (R ignores it). Base R has no z-test for a mean, so we compute it by hand.",
+    "Compute z = (10.14 - 10) / (0.5 / sqrt(50)): the gap in standard errors.",
+    "Typing z alone prints its value.",
+    "Two-tailed p-value: twice the area below -|z| on the normal curve.",
+    "A comment: the next test is for a proportion.",
+    "prop.test with p = 0.95 and alternative = 'less' is the left-tailed proportion test. correct = FALSE turns off the continuity correction so it matches the z-test.",
+    "Print the whole result: X-squared, df, p-value and the sample estimate.",
+    "prop.test reports X-squared, which is z squared; the negative square root gives z (negative because we are below the claim)."
+   ],
    "expect": "z = 1.9799, two-sided p = 0.04771; X-squared = 3.7895, df = 1, p-value = 0.02579 (z = -1.9467)",
+   "read": "First z prints 1.9799 and the two-sided p 0.04771, below 0.05 (reject H0 for the bolts). Then prop.test shows X-squared = 3.7895 and p-value = 0.02579, the left-tailed p for the satisfaction claim. The last line gives z = -1.9467.",
    "note": "prop.test reports X-squared, which is z squared. For a one-sided test its p-value equals the z-test p-value, and correct = FALSE switches off the continuity correction so it matches."
   },
   "spss": {
    "menu": "Transform > Compute Variable (SPSS has no z-test menu; use the normal-curve functions)",
    "syntax": "DATA LIST FREE / xbar mu0 sigma n x m p0.\nBEGIN DATA\n10.14 10 0.5 50 184 200 0.95\nEND DATA.\nCOMPUTE z_mean = (xbar - mu0) / (sigma / SQRT(n)).\nCOMPUTE p_mean = 2 * (1 - CDF.NORMAL(ABS(z_mean), 0, 1)).\nCOMPUTE z_prop = (x / m - p0) / SQRT(p0 * (1 - p0) / m).\nCOMPUTE p_prop = CDF.NORMAL(z_prop, 0, 1).\nLIST z_mean p_mean z_prop p_prop.",
+   "explain": [
+    "Define seven values: bolt mean, claimed mean, sigma, n, satisfied customers (x), surveyed (m) and claimed rate p0.",
+    "Marks the start of the typed-in data.",
+    "One data row with the seven values in the same order as the variable names.",
+    "Marks the end of the data.",
+    "z for the bolts: the gap divided by sigma over the square root of n.",
+    "Two-tailed p for the bolts, from the area beyond |z| on the normal curve.",
+    "z for the proportion: sample share minus claimed share, divided by the standard error using p0.",
+    "Left-tailed p for the proportion: the area to the left of z.",
+    "LIST prints the four results so we can read them."
+   ],
+   "read": "LIST shows z_mean 1.98 and p_mean 0.05 (display rounds 0.0477), then z_prop -1.95 and p_prop 0.03 (0.0258). Widen the columns or double-click the table to see more decimals. Both p-values are below 0.05, so both nulls are rejected.",
    "note": "The first test uses the known sigma; the second is the left-tailed proportion test using p0 in the standard error. LIST shows 2 decimals by default; widen the columns in the output table to see more."
   },
   "stata": {
    "code": "display (10.14 - 10) / (0.5 / sqrt(50))\ndisplay 2 * (1 - normal(1.9799))\nprtesti 200 184 0.95, count",
+   "explain": [
+    "display works as a calculator: z = (10.14 - 10) / (0.5 / sqrt(50)) = 1.9799.",
+    "Two-tailed p: normal() is the area to the left, so 2 x (1 - normal(z)) doubles the upper tail.",
+    "prtesti is the one-proportion z-test from summary numbers: 200 customers, 184 satisfied (count), claimed rate 0.95."
+   ],
+   "read": "The first line shows 1.9799 and the second .04771. In the prtesti output, find z = -1.9467 and the left-tailed line Pr(Z < z) = 0.0258. Both are below 0.05, so both nulls are rejected.",
    "note": "Stata has no one-line z-test for a mean from summary numbers in older versions, so the first two lines work by hand. prtesti is the one-proportion z-test (it uses 0.95 in the standard error); read the Pr(Z < z) line for the left-tailed p-value."
   },
-  "try": [
-   "Change the sample mean to 10.05 and predict whether the p-value gets bigger or smaller, then run it.",
-   "Change the alternative from 'smaller' to 'two-sided' in the proportion test and predict what happens to p."
-  ]
+  "conclusion": "Both claims fail at the 5% level, but only just. The bolt mean of 10.14 mm is significantly different from 10 mm (p = 0.0477), and the satisfaction rate of 92% is significantly below 95% (p = 0.0258). Caution: with p-values this close to 0.05, and an interval that barely excludes 10, treat these as warnings to check the line and collect more data, not as firm proof.",
+  "practice": {
+   "scenario": "A hospital says that at most 10% of its patients are readmitted within 30 days. An auditor reviews 150 patient records and finds that 21 were readmitted. Is there evidence that the readmission rate is HIGHER than 10%? Use a one-sample z-test for a proportion, with the claimed rate in the standard error.",
+   "data": "readmitted, patients, p0 = 21, 150, 0.10   # readmitted patients, patients audited, claimed rate",
+   "tasks": [
+    "Find the sample proportion and check n x p0 and n x (1 - p0) are at least 10.",
+    "Run the right-tailed z-test (alternative='larger') with prop_var=p0 and report z and p.",
+    "Run the two-sided version and compare the p-values.",
+    "Decide at alpha = 0.05 and say what the result does not show."
+   ],
+   "hint": "Use proportions_ztest(count, nobs, value=p0, alternative='larger', prop_var=p0). The two-sided p is double the one-sided p for a symmetric statistic.",
+   "solution": {
+    "code": "from statsmodels.stats.proportion import proportions_ztest\n\nreadmitted, patients, p0 = 21, 150, 0.10\nprint(f'sample proportion = {readmitted / patients:.3f}')\nprint('conditions:', patients * p0, patients * (1 - p0))\nz, p = proportions_ztest(readmitted, patients, value=p0, alternative='larger', prop_var=p0)\nprint(f'z = {z:.3f}, right-tailed p = {p:.4f}')\nz2, p2 = proportions_ztest(readmitted, patients, value=p0, alternative='two-sided', prop_var=p0)\nprint(f'two-sided p = {p2:.4f}')\nprint('reject H0 at 0.05?', p <= 0.05)",
+    "answer": "The sample proportion is 0.140 and the conditions hold (15 and 135, both at least 10). z = 1.633 and the right-tailed p is 0.0512, just above 0.05, so we fail to reject H0; the two-sided p is 0.1025. The rate looks higher than 10%, but the evidence is borderline, not conclusive. It does not prove the rate is 10%. More records could settle it."
+   }
+  }
  },
  "6.5": {
   "goal": "Check whether the average nitrate level in a river differs from the 3.2 mg/L guideline, using the lesson's nine readings.",
+  "question": "An environmental agency has a guideline of 3.2 mg/L for nitrate in river water. A technician takes nine water samples from one river and measures nitrate in each. Does the river's true average level differ from the guideline, or is the gap between the sample mean and 3.2 just the luck of which nine samples we took?",
   "python": {
    "blocks": [
     {
      "title": "Enter the data",
-     "text": "Nine nitrate readings from one river, in mg/L, and the guideline value we want to compare against. NumPy holds the numbers and SciPy supplies the test.",
-     "code": "import numpy as np\nfrom scipy import stats\n\nnitrate = np.array([3.1, 4.2, 2.8, 3.9, 4.5, 3.3, 4.1, 3.7, 3.5])\nguideline = 3.2\n\nprint('readings:', len(nitrate))"
+     "text": "H0: the river's true mean nitrate is 3.2 mg/L. H1: it is not 3.2 (higher or lower). We have nine readings in mg/L and the guideline value. NumPy holds the numbers and SciPy supplies the test.",
+     "code": "import numpy as np\nfrom scipy import stats\n\nnitrate = np.array([3.1, 4.2, 2.8, 3.9, 4.5, 3.3, 4.1, 3.7, 3.5])\nguideline = 3.2\n\nprint('readings:', len(nitrate))",
+     "explain": [
+      "Load NumPy, the library for lists of numbers, under the short name np.",
+      "Load SciPy's statistics tools, which contain the t-test we need.",
+      "Store the nine readings as an array so we can do arithmetic on all of them at once.",
+      "Store the guideline under a name, so the value we compare with is easy to find and change.",
+      "Print the number of readings to confirm all nine were stored."
+     ],
+     "meaning": "Nine readings are stored and the guideline is 3.2 mg/L. Nothing has been tested yet. The setup matters because the t-test needs the whole sample, not just its mean: the sample size and spread decide how much a mean can be trusted."
     },
     {
      "title": "Describe the sample",
      "text": "Always look at the numbers before testing them. The mean is the sample's centre, the standard deviation (ddof=1, the sample version) is its typical spread, and the standard error says how much a mean of 9 readings wobbles.",
-     "code": "mean = nitrate.mean()\nsd = nitrate.std(ddof=1)\nse = sd / np.sqrt(len(nitrate))\n\nprint(f'mean = {mean:.3f}')\nprint(f'sd   = {sd:.3f}')\nprint(f'se   = {se:.3f}')"
+     "code": "mean = nitrate.mean()\nsd = nitrate.std(ddof=1)\nse = sd / np.sqrt(len(nitrate))\n\nprint(f'mean = {mean:.3f}')\nprint(f'sd   = {sd:.3f}')\nprint(f'se   = {se:.3f}')",
+     "explain": [
+      "The sample mean: the centre of the nine readings, our best guess for the river's true mean.",
+      "The sample SD (ddof=1 means divide by n - 1): how far a typical single reading is from the mean.",
+      "The standard error: the SD divided by the square root of n. It says how much a MEAN of nine readings would wobble.",
+      "Print the mean to 3 decimals.",
+      "Print the SD to 3 decimals.",
+      "Print the standard error to 3 decimals."
+     ],
+     "meaning": "The mean is 3.678, about 0.48 above the guideline. The SD is 0.554, so single readings typically vary by half a mg/L. The standard error is 0.185: a mean of nine readings wobbles far less than one reading does. The question becomes how many standard errors 3.678 is from 3.2."
     },
     {
      "title": "Run the one-sample t-test",
      "text": "ttest_1samp asks: if the true average were exactly 3.2, how surprising is a sample mean this far away? It returns the t statistic (distance in standard errors) and the two-sided p-value.",
-     "code": "result = stats.ttest_1samp(nitrate, popmean=guideline)\n\nprint(f't  = {result.statistic:.3f}')\nprint(f'df = {len(nitrate) - 1}')\nprint(f'p  = {result.pvalue:.4f}')"
+     "code": "result = stats.ttest_1samp(nitrate, popmean=guideline)\n\nprint(f't  = {result.statistic:.3f}')\nprint(f'df = {len(nitrate) - 1}')\nprint(f'p  = {result.pvalue:.4f}')",
+     "explain": [
+      "Run the one-sample t-test: is the mean of nitrate different from popmean = 3.2? It uses the t curve because we estimated the SD.",
+      "Print t, the distance between mean and guideline measured in standard errors.",
+      "Print the degrees of freedom, n - 1 = 8, which sets the exact shape of the t curve.",
+      "Print the two-sided p-value to 4 decimals."
+     ],
+     "meaning": "t = 2.587: our mean is about 2.6 standard errors above 3.2. With df = 8 the p-value is 0.0323. If the true mean were 3.2, a sample mean this far away (in either direction) would turn up about 3% of the time. That is below 0.05, so we reject H0. It is not the chance that H0 is true."
     },
     {
      "title": "Add a confidence interval",
      "text": "A 95% interval shows the range of true averages that fit the data. The guideline sits outside it, which agrees with the small p-value.",
-     "code": "ci = result.confidence_interval(confidence_level=0.95)\n\nprint(f'95% CI: ({ci.low:.3f}, {ci.high:.3f})')\nprint('guideline inside the interval?', ci.low <= guideline <= ci.high)"
+     "code": "ci = result.confidence_interval(confidence_level=0.95)\n\nprint(f'95% CI: ({ci.low:.3f}, {ci.high:.3f})')\nprint('guideline inside the interval?', ci.low <= guideline <= ci.high)",
+     "explain": [
+      "Ask the test result for a 95% confidence interval for the true mean river level.",
+      "Print the interval ends, rounded to 3 decimals.",
+      "Check whether the guideline lies inside the interval. This prints True or False."
+     ],
+     "meaning": "The 95% interval for the river's true mean is 3.252 to 4.104. The guideline 3.2 is outside it (False), which agrees with p < 0.05. The interval also tells us how far: plausibly 0.05 to 0.9 mg/L above the guideline. It is wide because we have only nine readings."
     }
    ]
   },
   "r": {
    "code": "nitrate <- c(3.1, 4.2, 2.8, 3.9, 4.5, 3.3, 4.1, 3.7, 3.5)\nt.test(nitrate, mu = 3.2)",
+   "explain": [
+    "Store the nine readings in a vector called nitrate. c() combines values and <- assigns them to a name.",
+    "t.test with mu = 3.2 runs the one-sample t-test against the guideline and prints t, df, the p-value and a 95% interval."
+   ],
    "expect": "t = 2.5866, df = 8, p-value = 0.03226; 95 percent confidence interval: 3.252 to 4.104; sample mean 3.678",
+   "read": "Look at t = 2.5866, df = 8, p-value = 0.03226: below 0.05, so we reject H0. The 95 percent confidence interval, 3.252 to 4.104, excludes 3.2. The last line shows the sample mean, 3.678.",
    "note": "t.test prints the t statistic, degrees of freedom, p-value and the 95% confidence interval together."
   },
   "spss": {
    "menu": "Analyze > Compare Means > One-Sample T Test",
    "syntax": "DATA LIST FREE / nitrate.\nBEGIN DATA\n3.1 4.2 2.8 3.9 4.5 3.3 4.1 3.7 3.5\nEND DATA.\nT-TEST\n  /TESTVAL=3.2\n  /VARIABLES=nitrate\n  /CRITERIA=CI(.95).",
+   "explain": [
+    "Define one variable, nitrate, read in free format.",
+    "Marks the start of the typed-in data.",
+    "The nine readings on one line, separated by spaces.",
+    "Marks the end of the data.",
+    "T-TEST starts SPSS's t-test command.",
+    "/TESTVAL=3.2 sets the value we compare the mean with, our guideline.",
+    "/VARIABLES=nitrate says which variable to test.",
+    "/CRITERIA=CI(.95) asks for a 95% confidence interval. The period ends the command."
+   ],
+   "read": "In the One-Sample Test table look at t (2.587), df (8) and Sig. (2-tailed) (0.032): below 0.05, so reject H0. The mean difference is 0.478 (3.678 minus 3.2) and its 95% interval runs from 0.052 to 0.904.",
    "note": "In the One-Sample Test table read t, df and Sig. (2-tailed); the confidence interval is for the difference from 3.2."
   },
   "stata": {
    "code": "clear\ninput nitrate\n3.1\n4.2\n2.8\n3.9\n4.5\n3.3\n4.1\n3.7\n3.5\nend\nttest nitrate == 3.2",
+   "explain": [
+    "clear removes any data in memory so we start fresh.",
+    "input starts typing data directly; nitrate is the name of the one variable.",
+    "Reading 1: 3.1 mg/L.",
+    "Reading 2: 4.2 mg/L.",
+    "Reading 3: 2.8 mg/L.",
+    "Reading 4: 3.9 mg/L.",
+    "Reading 5: 4.5 mg/L.",
+    "Reading 6: 3.3 mg/L.",
+    "Reading 7: 4.1 mg/L.",
+    "Reading 8: 3.7 mg/L.",
+    "Reading 9: 3.5 mg/L.",
+    "end finishes data entry.",
+    "ttest nitrate == 3.2 runs the one-sample t-test of the mean against 3.2."
+   ],
+   "read": "Look for the mean 3.677778 and its 95% confidence interval (3.252 to 4.104), then t = 2.5866 with 8 degrees of freedom. The middle line, Pr(|T| > |t|) = 0.0323, is the two-sided p-value, below 0.05, so reject H0.",
    "note": "ttest reports the mean, its 95% confidence interval, t, degrees of freedom and the two-sided p-value (the middle Pr(|T| > |t|) line)."
   },
-  "try": [
-   "Change the guideline to 3.5 and predict whether the p-value gets bigger or smaller, then run it.",
-   "Add one very high reading (say 9.0) to the data. What happens to the mean, the standard error and the p-value?"
-  ]
+  "conclusion": "The river's average nitrate level is estimated at 3.68 mg/L, and the one-sample t-test (t = 2.587, p = 0.0323) says it differs from the 3.2 guideline. The 95% interval, 3.25 to 4.10, lies entirely above 3.2. Caution: nine readings give a wide interval, the test assumes independent, roughly normal readings, and it cannot say why the level is high.",
+  "practice": {
+   "scenario": "A bakery says its loaves weigh 450 g on average. A food inspector buys 10 loaves at random and weighs each one. Does the true average weight differ from 450 g? Run a one-sample t-test and report a 95% confidence interval for the true mean.",
+   "data": "grams = [442.3, 421.3, 439.2, 443.6, 445.0, 430.2, 439.7, 435.2, 436.7, 453.5]",
+   "tasks": [
+    "Write H0 and H1, then find the sample mean and SD.",
+    "Run the one-sample t-test against 450 g and report t, df and p.",
+    "Find the 95% confidence interval for the true mean.",
+    "Decide at alpha = 0.05 and say whether the bakery's claim holds."
+   ],
+   "hint": "This is the nitrate lab with new numbers: stats.ttest_1samp(grams, popmean=450), then use .confidence_interval(0.95) on the result.",
+   "solution": {
+    "code": "import numpy as np\nfrom scipy import stats\n\ngrams = np.array([442.3, 421.3, 439.2, 443.6, 445.0, 430.2, 439.7, 435.2, 436.7, 453.5])\nres = stats.ttest_1samp(grams, popmean=450)\nci = res.confidence_interval(0.95)\nprint(f'mean = {grams.mean():.2f}, sd = {grams.std(ddof=1):.2f}')\nprint(f't = {res.statistic:.3f}, df = {len(grams) - 1}, p = {res.pvalue:.5f}')\nprint(f'95% CI: ({ci.low:.2f}, {ci.high:.2f})')",
+    "answer": "The mean is 438.67 g and the SD is 8.74 g. t = -4.097 with df = 9 and p = 0.00269, far below 0.05, so we reject H0: the average loaf does not weigh 450 g. The 95% interval, 432.41 to 444.93 g, excludes 450, so loaves are plausibly 5 to 18 g light. With only 10 loaves from one bakery this is a sample, not a full audit."
+   }
+  }
  },
  "6.6": {
   "goal": "Compare exam scores of 30 students who studied with music and 30 who studied in silence, with Welch's and the pooled two-sample t-test.",
+  "question": "A teacher wonders whether listening to music while studying hurts exam results. Sixty students were split at random into two groups of 30: one group studied with music, the other in silence, and then everyone sat the same exam. The silent group scored 5 points higher on average. Is that a real difference, or could two groups from the same population differ that much by luck?",
   "python": {
    "blocks": [
     {
      "title": "Enter the two groups",
-     "text": "The scores below are built to match the lesson: music averages 74 (SD 8), silence averages 79 (SD 7), 30 students each. Different students are in each group, so the groups are independent.",
-     "code": "import numpy as np\nfrom scipy import stats\n\nmusic = np.array([77.91, 82.44, 77.77, 62.24, 83.23, 78.87, 69.52, 80.15, 78.09, 77.42, 74.9, 79.82, 67.63, 73.08, 70.05, 80.32, 75.01, 71.85, 67.2, 72.18, 74.71, 72.01, 86.93, 84.2, 48.86, 56.67, 72.97, 70.62, 76.66, 76.69])\nsilence = np.array([72.97, 64.46, 82.5, 83.47, 76.26, 80.89, 90.07, 85.63, 83.21, 83.08, 72.47, 84.97, 67.1, 76.11, 75.39, 66.56, 77.62, 89.61, 76.05, 70.12, 77.75, 84.22, 79.7, 78.36, 68.74, 81.8, 81.7, 87.55, 88.56, 83.08])\n\nfor name, g in [('music', music), ('silence', silence)]:\n    print(f'{name}: n = {len(g)}, mean = {g.mean():.2f}, sd = {g.std(ddof=1):.2f}')"
+     "text": "H0: the true average scores of the music and silence groups are equal. H1: they differ. The scores below are built to match the lesson: music averages 74 (SD 8), silence 79 (SD 7), 30 students each. The students in each group are different people, so the groups are independent.",
+     "code": "import numpy as np\nfrom scipy import stats\n\nmusic = np.array([77.91, 82.44, 77.77, 62.24, 83.23, 78.87, 69.52, 80.15, 78.09, 77.42, 74.9, 79.82, 67.63, 73.08, 70.05, 80.32, 75.01, 71.85, 67.2, 72.18, 74.71, 72.01, 86.93, 84.2, 48.86, 56.67, 72.97, 70.62, 76.66, 76.69])\nsilence = np.array([72.97, 64.46, 82.5, 83.47, 76.26, 80.89, 90.07, 85.63, 83.21, 83.08, 72.47, 84.97, 67.1, 76.11, 75.39, 66.56, 77.62, 89.61, 76.05, 70.12, 77.75, 84.22, 79.7, 78.36, 68.74, 81.8, 81.7, 87.55, 88.56, 83.08])\n\nfor name, g in [('music', music), ('silence', silence)]:\n    print(f'{name}: n = {len(g)}, mean = {g.mean():.2f}, sd = {g.std(ddof=1):.2f}')",
+     "explain": [
+      "Load NumPy for arrays and arithmetic, under the short name np.",
+      "Load SciPy's statistics tools, which hold the two-sample t-test.",
+      "Store the 30 music-group scores as an array, ready for calculations.",
+      "Store the 30 silence-group scores the same way.",
+      "Loop over both groups with their names, so we describe each group with the same code instead of repeating it.",
+      "For each group print its size, mean and sample SD (ddof=1), so we can see centre and spread before testing."
+     ],
+     "meaning": "Music averages 74.00 and silence 79.00, a 5-point gap, with SDs of 8.00 and 7.00. The spreads are similar, which matters for choosing the test. The gap is real in these 60 students; the test will ask whether chance alone could produce it."
     },
     {
      "title": "Welch's t-test (the safe default)",
      "text": "equal_var=False gives Welch's test, which does not assume the two groups have the same spread. The degrees of freedom are not a whole number because they are adjusted for the unequal spreads.",
-     "code": "welch = stats.ttest_ind(music, silence, equal_var=False)\n\nprint(f't  = {welch.statistic:.3f}')\nprint(f'df = {welch.df:.1f}')\nprint(f'p  = {welch.pvalue:.4f}')"
+     "code": "welch = stats.ttest_ind(music, silence, equal_var=False)\n\nprint(f't  = {welch.statistic:.3f}')\nprint(f'df = {welch.df:.1f}')\nprint(f'p  = {welch.pvalue:.4f}')",
+     "explain": [
+      "ttest_ind compares two independent groups. equal_var=False asks for Welch's test, which does not assume the groups have the same spread, so it is the safer default.",
+      "Print t, the gap between the means in standard-error units. It is negative because music is lower than silence.",
+      "Print the degrees of freedom. They are not a whole number because Welch's method adjusts them for unequal spreads.",
+      "Print the two-sided p-value to 4 decimals."
+     ],
+     "meaning": "Welch's t = -2.576 with df = 57.0 and p = 0.0126. The negative sign only says music is lower. If both groups really had the same mean, a gap this big would appear about 1.3% of the time. That is below 0.05, so we reject H0. It does not say there is a 1.3% chance that H0 is true."
     },
     {
      "title": "The pooled t-test",
      "text": "equal_var=True blends the two variances into one. Here the group sizes are equal and the spreads are similar, so the two tests agree closely. They would not agree if the smaller group were also the noisier one.",
-     "code": "pooled = stats.ttest_ind(music, silence, equal_var=True)\n\nprint(f't  = {pooled.statistic:.3f}')\nprint(f'df = {pooled.df:.0f}')\nprint(f'p  = {pooled.pvalue:.4f}')"
+     "code": "pooled = stats.ttest_ind(music, silence, equal_var=True)\n\nprint(f't  = {pooled.statistic:.3f}')\nprint(f'df = {pooled.df:.0f}')\nprint(f'p  = {pooled.pvalue:.4f}')",
+     "explain": [
+      "equal_var=True gives the pooled test, which blends the two variances into one and assumes they are equal.",
+      "Print t; the pooled and Welch versions are expected to be nearly the same here.",
+      "Print the degrees of freedom: n1 + n2 - 2 = 58, a whole number for the pooled test.",
+      "Print the p-value to 4 decimals."
+     ],
+     "meaning": "The pooled test gives t = -2.576, df = 58 and p = 0.0126, almost the same as Welch. The groups have equal size and similar spreads, so the two agree. They would not if the smaller group were the noisier one. Because Welch stays valid either way, it is the sensible default."
     },
     {
      "title": "Confidence interval for the difference",
      "text": "The test says whether the gap is real, and the interval says how big it might be. It is for music minus silence, so a fully negative interval means music scores are lower.",
-     "code": "ci = welch.confidence_interval(confidence_level=0.95)\ndiff = music.mean() - silence.mean()\n\nprint(f'difference (music - silence) = {diff:.2f}')\nprint(f'95% CI: ({ci.low:.2f}, {ci.high:.2f})')\nprint('interval contains 0?', ci.low <= 0 <= ci.high)"
+     "code": "ci = welch.confidence_interval(confidence_level=0.95)\ndiff = music.mean() - silence.mean()\n\nprint(f'difference (music - silence) = {diff:.2f}')\nprint(f'95% CI: ({ci.low:.2f}, {ci.high:.2f})')\nprint('interval contains 0?', ci.low <= 0 <= ci.high)",
+     "explain": [
+      "Ask the Welch result for a 95% confidence interval for the difference in means (music minus silence).",
+      "Compute the difference in sample means directly, so we can see the size of the gap.",
+      "Print the observed difference, rounded to 2 decimals.",
+      "Print the interval ends: the range of true differences that fit the data.",
+      "Check whether 0 (no difference) lies inside the interval. This prints True or False."
+     ],
+     "meaning": "Music minus silence is -5.00. The 95% interval, -8.89 to -1.11, excludes 0, which agrees with p < 0.05. The true gap is plausibly anywhere from about 1 to 9 points in silence's favour. The p-value says the gap is probably not zero; the interval says how big it might be."
     }
    ]
   },
   "r": {
    "code": "music <- c(77.91, 82.44, 77.77, 62.24, 83.23, 78.87, 69.52, 80.15, 78.09, 77.42, 74.9, 79.82, 67.63, 73.08, 70.05, 80.32, 75.01, 71.85, 67.2, 72.18, 74.71, 72.01, 86.93, 84.2, 48.86, 56.67, 72.97, 70.62, 76.66, 76.69)\nsilence <- c(72.97, 64.46, 82.5, 83.47, 76.26, 80.89, 90.07, 85.63, 83.21, 83.08, 72.47, 84.97, 67.1, 76.11, 75.39, 66.56, 77.62, 89.61, 76.05, 70.12, 77.75, 84.22, 79.7, 78.36, 68.74, 81.8, 81.7, 87.55, 88.56, 83.08)\n\nt.test(music, silence)                    # Welch (the R default)\nt.test(music, silence, var.equal = TRUE)  # pooled",
+   "explain": [
+    "Store the 30 music scores in a vector called music.",
+    "Store the 30 silence scores in a vector called silence.",
+    "t.test on two vectors is Welch's test by default in R, so no extra option is needed. It prints t, df, p and a 95% interval for the difference.",
+    "var.equal = TRUE asks for the pooled test instead, which assumes equal variances."
+   ],
    "expect": "Welch: t = -2.5762, df = 56.997, p-value = 0.01261, 95% CI -8.886 to -1.114; pooled: t = -2.5762, df = 58, p-value = 0.01256, 95% CI -8.885 to -1.115",
+   "read": "In the Welch output read t = -2.5762, df = 56.997 and p-value = 0.01261. The interval, -8.886 to -1.114, excludes 0. The pooled output is nearly identical (df = 58, p = 0.01256). Both are below 0.05, so we reject H0 either way.",
    "note": "R's t.test uses Welch's test by default, so you must add var.equal = TRUE to get the pooled version. Both outputs also print the 95% confidence interval for the difference."
   },
   "spss": {
    "menu": "Analyze > Compare Means > Independent-Samples T Test",
    "syntax": "DATA LIST FREE / group score.\nBEGIN DATA\n1 77.91 1 82.44 1 77.77 1 62.24 1 83.23 1 78.87 1 69.52 1 80.15 1 78.09 1 77.42\n1 74.9 1 79.82 1 67.63 1 73.08 1 70.05 1 80.32 1 75.01 1 71.85 1 67.2 1 72.18\n1 74.71 1 72.01 1 86.93 1 84.2 1 48.86 1 56.67 1 72.97 1 70.62 1 76.66 1 76.69\n2 72.97 2 64.46 2 82.5 2 83.47 2 76.26 2 80.89 2 90.07 2 85.63 2 83.21 2 83.08\n2 72.47 2 84.97 2 67.1 2 76.11 2 75.39 2 66.56 2 77.62 2 89.61 2 76.05 2 70.12\n2 77.75 2 84.22 2 79.7 2 78.36 2 68.74 2 81.8 2 81.7 2 87.55 2 88.56 2 83.08\nEND DATA.\nT-TEST GROUPS=group(1 2)\n  /VARIABLES=score\n  /CRITERIA=CI(.95).",
+   "explain": [
+    "Define two variables, group (1 = music, 2 = silence) and score, read in free format.",
+    "Marks the start of the typed-in data.",
+    "Rows 1 to 10 of the music group: a group code of 1, then the score, repeated.",
+    "Rows 11 to 20 of the music group.",
+    "Rows 21 to 30 of the music group.",
+    "Rows 1 to 10 of the silence group, with group code 2.",
+    "Rows 11 to 20 of the silence group.",
+    "Rows 21 to 30 of the silence group.",
+    "Marks the end of the data.",
+    "T-TEST GROUPS=group(1 2) compares the two groups coded 1 and 2.",
+    "/VARIABLES=score names the outcome variable to compare.",
+    "/CRITERIA=CI(.95) asks for a 95% confidence interval. The period ends the command."
+   ],
+   "read": "In the Independent Samples Test table, use the row 'Equal variances not assumed' for Welch: t = -2.576, df = 57.0, Sig. (2-tailed) = 0.013. The 'Equal variances assumed' row is the pooled test (df = 58, 0.013). The mean difference is -5.00 with 95% interval -8.89 to -1.11.",
    "note": "SPSS prints both tests in one table: the 'Equal variances assumed' row is the pooled test and 'Equal variances not assumed' is Welch. Group 1 = music, group 2 = silence."
   },
   "stata": {
    "code": "ttesti 30 74 8 30 79 7              // pooled (Stata's default)\nttesti 30 74 8 30 79 7, unequal     // Welch-type test, same df as R and Python",
+   "explain": [
+    "ttesti runs the pooled test from summary numbers: group size, mean and SD for each group (30, 74, 8 and 30, 79, 7).",
+    "Same numbers with the option unequal, which asks for Welch's test without assuming equal spreads."
+   ],
+   "read": "Look at t = -2.5766 for the rounded lesson numbers and the two-sided line Pr(|T| > |t|) = 0.0126. The Welch version (unequal) shows the same t, with df about 57.0 and a nearly identical p of 0.0126. Both are below 0.05.",
    "note": "ttesti runs the test from group size, mean and SD, so no data entry is needed (with raw data use: ttest score, by(group) and add unequal). Stata is pooled unless you add unequal. The lesson's rounded 74, 8, 79, 7 give t = -2.576, and Python's built data differ only in the 4th digit."
   },
-  "try": [
-   "Change the silence mean to 77 (edit the data by subtracting 2 from every silence score) and predict what happens to p.",
-   "Cut each group to its first 10 scores (music[:10], silence[:10]) and predict whether the result stays significant."
-  ]
+  "conclusion": "Students who studied in silence scored about 5 points higher than those who studied with music (Welch t = -2.576, p = 0.0126, 95% CI -8.89 to -1.11). Because students were assigned at random, music is a reasonable explanation. Caution: significant does not mean large, the interval still allows a gap of only 1 point, and one exam in one class may not carry over elsewhere.",
+  "practice": {
+   "scenario": "A food company compares two couriers, A and B, to see whether their average delivery times (in minutes) differ. They time 10 deliveries for each courier on different days. Run Welch's t-test and a 95% confidence interval for the difference, then compare with the pooled test.",
+   "data": "a = [27.2, 31.8, 37.3, 28.5, 31.3, 32.7, 32.4, 24.6, 32.5, 40.2]\nb = [13.1, 34.7, 28.1, 21.2, 45.0, 33.9, 16.2, 27.7, 32.2, 25.3]",
+   "tasks": [
+    "Find the mean and SD of each courier. Do the spreads look similar?",
+    "Run Welch's t-test and report t, df and p.",
+    "Give the 95% confidence interval for the difference in means (A minus B).",
+    "Compare with the pooled p-value and say what the result does not prove."
+   ],
+   "hint": "Use stats.ttest_ind(a, b, equal_var=False) for Welch, .confidence_interval(0.95) for the interval, and equal_var=True for the pooled test.",
+   "solution": {
+    "code": "import numpy as np\nfrom scipy import stats\n\na = np.array([27.2, 31.8, 37.3, 28.5, 31.3, 32.7, 32.4, 24.6, 32.5, 40.2])\nb = np.array([13.1, 34.7, 28.1, 21.2, 45.0, 33.9, 16.2, 27.7, 32.2, 25.3])\nfor name, g in [('A', a), ('B', b)]:\n    print(f'courier {name}: mean = {g.mean():.2f}, sd = {g.std(ddof=1):.2f}')\nw = stats.ttest_ind(a, b, equal_var=False)\nci = w.confidence_interval(0.95)\nprint(f'Welch: t = {w.statistic:.3f}, df = {w.df:.1f}, p = {w.pvalue:.4f}')\nprint(f'diff (A - B) = {a.mean() - b.mean():.2f}, 95% CI ({ci.low:.2f}, {ci.high:.2f})')\nprint(f'pooled p = {stats.ttest_ind(a, b).pvalue:.4f}')",
+    "answer": "Courier A averages 31.85 min (SD 4.55) and B 27.74 min (SD 9.43), so B is far more variable. Welch gives t = 1.241, df = 13.0, p = 0.2366, above 0.05, so we fail to reject H0. The difference of 4.11 min has a 95% interval of -3.05 to 11.27, which includes 0. The pooled p (0.2305) agrees. This does not prove the couriers are equal: 10 deliveries each is a small sample."
+   }
+  }
  },
  "6.7": {
   "goal": "Test whether a drug lowers blood pressure in the lesson's 8 patients measured before and after, with a paired t-test.",

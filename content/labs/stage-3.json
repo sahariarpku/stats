@@ -1,232 +1,614 @@
 {
  "3.1": {
   "goal": "Build the probability distribution (PMF) of the sum of two dice as a table, find its mean and variance from the PMF, and check them by simulation.",
+  "question": "A board game player rolls two fair dice and moves forward by their total. She wants to know the whole picture: how likely is each total from 2 to 12, how likely is a total of 4 or less, and what is the average total and how spread out is it? Can we build the probability distribution as a table and then check it by simulation?",
   "python": {
    "blocks": [
     {
      "title": "The PMF as a table",
      "text": "We count how many of the 36 equally likely pairs give each sum, then divide by 36. A pandas table keeps the values, the counts and the probabilities side by side.",
-     "code": "import numpy as np\nimport pandas as pd\nfrom itertools import product\n\nsums = [a + b for a, b in product(range(1, 7), repeat=2)]\npmf = pd.Series(sums).value_counts().sort_index() / 36\n\ntable = pd.DataFrame({'ways': (pmf * 36).astype(int), 'P(X = x)': pmf.round(4)})\ntable.index.name = 'sum x'\nprint(table.to_string())"
+     "code": "import numpy as np\nimport pandas as pd\nfrom itertools import product\n\nsums = [a + b for a, b in product(range(1, 7), repeat=2)]\npmf = pd.Series(sums).value_counts().sort_index() / 36\n\ntable = pd.DataFrame({'ways': (pmf * 36).astype(int), 'P(X = x)': pmf.round(4)})\ntable.index.name = 'sum x'\nprint(table.to_string())",
+     "explain": [
+      "Load NumPy for numbers.",
+      "Load pandas to hold the table.",
+      "Load product to list all the dice pairs.",
+      "Make the total of every one of the 36 equally likely pairs.",
+      "Count how often each total occurs, sort the totals, and divide by 36. This is the probability mass function (PMF).",
+      "Put the ways to get each total and its probability side by side in one table.",
+      "Name the row labels 'sum x' so the table is easy to read.",
+      "Print the table in full."
+     ],
+     "meaning": "The table gives 1 way to get a 2, 2 ways for a 3, rising to 6 ways for a 7 (probability 0.1667) and then falling back to 1 way for a 12. The middle totals are the most likely and the extremes the rarest."
     },
     {
      "title": "Check it is a valid PMF and add the CDF",
      "text": "A valid PMF has probabilities between 0 and 1 that add to exactly 1. The running total (cumsum) is the CDF, which answers 'at most' questions at once.",
-     "code": "print('total probability:', round(pmf.sum(), 10))\n\ncdf = pmf.cumsum()\nprint(f'P(X <= 4)  = {cdf[4]:.4f}')\nprint(f'P(X >= 10) = {1 - cdf[9]:.4f}')"
+     "code": "print('total probability:', round(pmf.sum(), 10))\n\ncdf = pmf.cumsum()\nprint(f'P(X <= 4)  = {cdf[4]:.4f}')\nprint(f'P(X >= 10) = {1 - cdf[9]:.4f}')",
+     "explain": [
+      "Add up all the probabilities. A valid PMF must total exactly 1.",
+      "Running total of the probabilities. This is the cumulative distribution function (CDF).",
+      "Read the CDF at 4: the chance the total is at most 4.",
+      "For 10 or more, take 1 minus the CDF at 9, because 'at least 10' is everything except 9 or less."
+     ],
+     "meaning": "The probabilities add to 1.0, so this is a valid distribution. P(X <= 4) = 0.1667 and P(X >= 10) = 0.1667. They match because the distribution is symmetric around 7."
     },
     {
      "title": "Mean and variance from the PMF",
      "text": "The mean is the sum of x times P(x). The variance is the sum of (x minus the mean) squared times P(x). These describe the whole population of possible rolls, so there is no n - 1 here.",
-     "code": "x = pmf.index.to_numpy()\np = pmf.to_numpy()\n\nmean = (x * p).sum()\nvar = ((x - mean) ** 2 * p).sum()\n\nprint(f'mean     = {mean:.4f}')\nprint(f'variance = {var:.4f}')\nprint(f'sd       = {var ** 0.5:.4f}')"
+     "code": "x = pmf.index.to_numpy()\np = pmf.to_numpy()\n\nmean = (x * p).sum()\nvar = ((x - mean) ** 2 * p).sum()\n\nprint(f'mean     = {mean:.4f}')\nprint(f'variance = {var:.4f}')\nprint(f'sd       = {var ** 0.5:.4f}')",
+     "explain": [
+      "Pull out the possible totals as an array.",
+      "Pull out their probabilities as an array.",
+      "The mean is the sum of each total times its probability.",
+      "The variance is the sum of squared gaps from the mean, each weighted by its probability.",
+      "Print the mean.",
+      "Print the variance.",
+      "Print the standard deviation, the square root of the variance, back in the original units."
+     ],
+     "meaning": "The mean total is 7.0000, the variance is 5.8333 and the standard deviation is 2.4152. A typical roll lands within about 2.4 of 7. We divide by probabilities, not by n - 1, because this is the whole population of possible rolls."
     },
     {
      "title": "Check by simulation",
      "text": "Roll two dice 100,000 times with a seeded generator. The simulated mean and variance should sit close to the exact ones. ddof=0 matches the population formula above.",
-     "code": "rng = np.random.default_rng(42)\nrolls = rng.integers(1, 7, size=100_000) + rng.integers(1, 7, size=100_000)\n\nprint(f'simulated mean     = {rolls.mean():.4f}')\nprint(f'simulated variance = {rolls.var(ddof=0):.4f}')\nprint(f'simulated P(X = 7) = {(rolls == 7).mean():.4f}  (exact {pmf[7]:.4f})')"
+     "code": "rng = np.random.default_rng(42)\nrolls = rng.integers(1, 7, size=100_000) + rng.integers(1, 7, size=100_000)\n\nprint(f'simulated mean     = {rolls.mean():.4f}')\nprint(f'simulated variance = {rolls.var(ddof=0):.4f}')\nprint(f'simulated P(X = 7) = {(rolls == 7).mean():.4f}  (exact {pmf[7]:.4f})')",
+     "explain": [
+      "Create a seeded generator so the simulation repeats.",
+      "Roll two dice 100,000 times and add them.",
+      "Print the simulated mean, which should be close to 7.",
+      "Print the simulated variance with ddof=0, the same population formula as above.",
+      "Print the simulated chance of a 7 next to the exact one."
+     ],
+     "meaning": "The simulation gave a mean of 7.0055, a variance of 5.7999 and P(X = 7) = 0.1688, against the exact 7, 5.8333 and 0.1667. They are close but not identical because simulations have a little random error."
     }
    ]
   },
   "r": {
    "code": "s <- as.vector(outer(1:6, 1:6, \"+\"))\npmf <- table(s) / 36\nx <- as.numeric(names(pmf))\nround(pmf, 4)\nmu <- sum(x * pmf)\nmu\nsum((x - mu)^2 * pmf)\nsqrt(sum((x - mu)^2 * pmf))\n\nset.seed(42)\nrolls <- sample(6, 1e5, TRUE) + sample(6, 1e5, TRUE)\nc(mean(rolls), mean((rolls - mean(rolls))^2))",
+   "explain": [
+    "List the 36 sums with outer(), which adds every die 1 value to every die 2 value.",
+    "Count each sum with table() and divide by 36 to get the PMF.",
+    "Get the sums themselves as numbers.",
+    "Print the PMF rounded to four decimals.",
+    "The mean: sum of x times P(x).",
+    "Print the mean.",
+    "Variance: weighted squared gaps from the mean.",
+    "Standard deviation: the square root.",
+    "Fix the seed.",
+    "Simulate 100,000 rolls of two dice.",
+    "Report the simulated mean and the simulated population variance."
+   ],
    "expect": "mean 7; variance 5.8333; sd 2.4152; P(X = 7) = 0.1667; the simulated mean and variance are close to 7 and 5.83",
+   "read": "The printed PMF has 0.1667 for a sum of 7. Then come the mean 7, the variance 5.8333 and the standard deviation 2.4152. The simulated pair at the end should be close to 7 and 5.83, not identical.",
    "note": "These are the population formulas, matching Python. R's var() would divide by n - 1, so for the simulation we square the gaps ourselves. Simulated values are close, not identical."
   },
   "spss": {
    "menu": "Analyze > Descriptive Statistics > Frequencies (Statistics: Mean, Variance)",
    "syntax": "INPUT PROGRAM.\nLOOP #a = 1 TO 6.\nLOOP #b = 1 TO 6.\nCOMPUTE total = #a + #b.\nEND CASE.\nEND LOOP.\nEND LOOP.\nEND FILE.\nEND INPUT PROGRAM.\nFREQUENCIES VARIABLES=total\n  /STATISTICS=MEAN VARIANCE STDDEV.",
+   "explain": [
+    "Start a program that builds the data.",
+    "Loop over the first die.",
+    "Loop over the second die.",
+    "Add the two dice to get the total.",
+    "Write a row for this pair.",
+    "Close the inner loop.",
+    "Close the outer loop.",
+    "No more rows.",
+    "End the program. We now have 36 rows.",
+    "Ask for a frequency table of the totals.",
+    "Also request the mean, variance and standard deviation."
+   ],
+   "read": "In the Frequencies table, the Percent column is the PMF (16.7 for a total of 7) and Cumulative Percent is the CDF. In Statistics the Mean is 7.00. SPSS reports Variance 6.000 because it divides by n - 1 = 35.",
    "note": "The Percent column is the PMF (for example 16.7 for a sum of 7) and Cumulative Percent is the CDF. The mean is 7.00. SPSS divides by n - 1 = 35, so it reports variance 6.000; multiply by 35/36 to get the population value 5.8333."
   },
   "stata": {
    "code": "clear\nset obs 36\ngen total = ceil(_n/6) + mod(_n - 1, 6) + 1\ntabulate total\nsummarize total\ndisplay r(Var) * 35/36\n\nclear\nset seed 42\nset obs 100000\ngen rolls = ceil(6*runiform()) + ceil(6*runiform())\nsummarize rolls",
+   "explain": [
+    "Clear memory.",
+    "Make 36 empty rows, one per pair of dice.",
+    "Create the total: the first die comes from the row number and the second repeats 1 to 6.",
+    "Show a frequency table of the totals; Percent is the PMF and Cum. is the CDF.",
+    "Get the mean and standard deviation. Stata divides by n - 1.",
+    "Convert the variance to the population version by multiplying by 35/36.",
+    "Clear the data for the simulation.",
+    "Fix the seed.",
+    "Make 100,000 empty rows.",
+    "Roll two dice per row and add them.",
+    "Summarize the simulated totals."
+   ],
+   "read": "In the tabulate output, read the Percent column as the PMF (16.67 for 7) and Cum. as the CDF. summarize shows Mean 7, and the display line prints 5.8333, the population variance. The simulation's mean is near 7 but not identical to Python's.",
    "note": "tabulate gives the PMF as the Percent column and Cum. as the CDF. summarize uses n - 1, so r(Var) is 6; times 35/36 gives the population variance 5.8333. The simulation is close to 7 but not identical to Python's."
   },
-  "try": [
-   "Change the dice to 8-sided ones (range(1, 9) and 64 pairs). Predict the new mean before you run it.",
-   "Use one die instead of two. Predict the mean (3.5) and whether the variance is bigger or smaller than 5.83."
-  ]
+  "conclusion": "The total of two dice has a mean of 7, a variance of 5.8333 and an SD of 2.4152, and totals near 7 are the most likely (a 7 has probability 0.1667, a 2 or a 12 only 0.0278). Totals of 4 or less and of 10 or more each have a probability of 0.1667. The caution: the simulation matched only approximately, and these formulas assume the dice are fair and independent.",
+  "practice": {
+   "scenario": "A shop records how many items a customer buys. After a long study the manager believes the chances are as listed below. She wants to know the average basket size, how variable it is, and how likely a customer is to buy 3 or more items.",
+   "data": "Items bought: x = [0, 1, 2, 3, 4] with probabilities p = [0.10, 0.30, 0.35, 0.15, 0.10]. For the simulation use the seed 11 and 100,000 customers.",
+   "tasks": [
+    "Check that the probabilities add up to 1.",
+    "Find the mean, variance and standard deviation of the number of items.",
+    "Find P(X >= 3).",
+    "Simulate 100,000 customers and compare the mean and variance."
+   ],
+   "hint": "The mean is the sum of x times p, and the variance is the sum of (x - mean) squared times p. For the simulation use rng.choice(x, size=100_000, p=p).",
+   "solution": {
+    "code": "import numpy as np\n\nx = np.array([0, 1, 2, 3, 4])\np = np.array([0.10, 0.30, 0.35, 0.15, 0.10])\nprint('total probability:', round(p.sum(), 10))\n\nmean = (x * p).sum()\nvar = ((x - mean) ** 2 * p).sum()\nprint(f'mean = {mean:.3f}, variance = {var:.4f}, sd = {var ** 0.5:.4f}')\nprint(f'P(X >= 3) = {p[x >= 3].sum():.2f}')\n\nrng = np.random.default_rng(11)\nsim = rng.choice(x, size=100_000, p=p)\nprint(f'simulated mean = {sim.mean():.3f}, variance = {sim.var():.4f}')",
+    "answer": "The probabilities add to 1.0. The mean is 1.850 items, the variance 1.2275 and the SD 1.1079, so the typical basket is within about 1.1 items of 1.85. P(X >= 3) = 0.15 + 0.10 = 0.25, so one customer in four buys 3 or more. The simulation gave a mean of 1.850 and a variance of 1.2262, matching the exact values closely."
+   }
+  }
  },
  "3.2": {
   "goal": "Use the binomial distribution for the lesson's drug that works for 70% of patients (10 patients): exactly, at most and at least, plus mean, SD and a simulation check.",
+  "question": "A drug works for 70% of patients. A clinic gives it to 10 patients. The doctor asks: how likely is it that exactly 7 respond, that at most 6 respond, and that at least 9 respond? What is the average number of responders and how much does it vary from clinic to clinic? Can the binomial distribution answer all of this, and does a simulation agree?",
   "python": {
    "blocks": [
     {
      "title": "Exactly 7 respond",
      "text": "binom.pmf(k, n, p) gives P(X = k), one bar of the distribution. We also compute the lesson's formula C(n, k) x p^k x (1 - p)^(n - k) by hand to see that they agree.",
-     "code": "import math\nimport numpy as np\nfrom scipy.stats import binom\n\nn, p = 10, 0.7\n\nby_hand = math.comb(n, 7) * p**7 * (1 - p)**3\nprint(f'formula   : {by_hand:.4f}')\nprint(f'binom.pmf : {binom.pmf(7, n, p):.4f}')"
+     "code": "import math\nimport numpy as np\nfrom scipy.stats import binom\n\nn, p = 10, 0.7\n\nby_hand = math.comb(n, 7) * p**7 * (1 - p)**3\nprint(f'formula   : {by_hand:.4f}')\nprint(f'binom.pmf : {binom.pmf(7, n, p):.4f}')",
+     "explain": [
+      "Load math for the combination function.",
+      "Load NumPy, which we will need for the simulation later.",
+      "Load the binomial distribution from SciPy.",
+      "Store the number of patients n and the chance of response p.",
+      "Compute the lesson's formula by hand: choose which 7 respond, then multiply their chances and the 3 failures' chances.",
+      "Print the hand formula.",
+      "Print SciPy's pmf, which gives P(X = 7) directly. The two numbers should match."
+     ],
+     "meaning": "Both ways give P(X = 7) = 0.2668. About 27% of the time, exactly 7 of 10 patients respond. The hand formula and the SciPy function agree, so we can trust the function for harder questions."
     },
     {
      "title": "At most, more than, at least",
      "text": "cdf(k) is P(X <= k), 'at most k'. sf(k) is the survival function P(X > k), 'more than k'. So 'at least 9' is sf(8), which is the same as 1 minus cdf(8).",
-     "code": "print(f'P(X <= 6)  at most 6      = {binom.cdf(6, n, p):.4f}')\nprint(f'P(X > 8)   more than 8      = {binom.sf(8, n, p):.4f}')\nprint(f'P(X >= 9)  at least 9       = {1 - binom.cdf(8, n, p):.4f}')\nprint(f'P(9) + P(10) added by hand  = {binom.pmf(9, n, p) + binom.pmf(10, n, p):.4f}')"
+     "code": "print(f'P(X <= 6)  at most 6      = {binom.cdf(6, n, p):.4f}')\nprint(f'P(X > 8)   more than 8      = {binom.sf(8, n, p):.4f}')\nprint(f'P(X >= 9)  at least 9       = {1 - binom.cdf(8, n, p):.4f}')\nprint(f'P(9) + P(10) added by hand  = {binom.pmf(9, n, p) + binom.pmf(10, n, p):.4f}')",
+     "explain": [
+      "P(at most 6): cdf(k) adds the probabilities of 0 up to k.",
+      "P(more than 8): sf(k) is the survival function, the chance of strictly more than k.",
+      "P(at least 9) is 1 minus the chance of 8 or fewer.",
+      "Check by adding P(9) and P(10) by hand. Three methods should agree."
+     ],
+     "meaning": "P(X <= 6) = 0.3504, so a bit over a third of clinics see 6 or fewer responders. P(X > 8) and P(X >= 9) are both 0.1493, and P(9) + P(10) is also 0.1493. Rather few clinics (about 15%) would see 9 or more."
     },
     {
      "title": "Mean and standard deviation",
      "text": "The shortcuts are mean = n x p and SD = square root of n x p x (1 - p). SciPy's stats method returns the same values from the distribution itself.",
-     "code": "print(f'mean = n*p = {n * p:.1f}')\nprint(f'variance   = {n * p * (1 - p):.2f}')\nprint(f'SD         = {math.sqrt(n * p * (1 - p)):.3f}')\n\nm, v = binom.stats(n, p)\nprint(f'scipy      : mean {float(m):.1f}, variance {float(v):.2f}')"
+     "code": "print(f'mean = n*p = {n * p:.1f}')\nprint(f'variance   = {n * p * (1 - p):.2f}')\nprint(f'SD         = {math.sqrt(n * p * (1 - p)):.3f}')\n\nm, v = binom.stats(n, p)\nprint(f'scipy      : mean {float(m):.1f}, variance {float(v):.2f}')",
+     "explain": [
+      "The mean of a binomial is n x p.",
+      "The variance is n x p x (1 - p).",
+      "The SD is the square root of the variance, back in the units of patients.",
+      "Ask SciPy for the mean and variance of the distribution itself.",
+      "Print what SciPy returns, to check against our shortcuts."
+     ],
+     "meaning": "The mean is 7.0 responders, the variance is 2.10 and the SD is 1.449. SciPy returns the same mean and variance. A typical clinic sees 7 responders, give or take about 1.4."
     },
     {
      "title": "Check by simulation",
      "text": "Run the 10-patient trial 100,000 times with a seeded generator and count how many responders each trial has. The simulated shares should be close to the exact probabilities.",
-     "code": "rng = np.random.default_rng(42)\nresponders = rng.binomial(n, p, size=100_000)\n\nprint(f'simulated P(X = 7)  = {(responders == 7).mean():.4f}  (exact {binom.pmf(7, n, p):.4f})')\nprint(f'simulated P(X >= 9) = {(responders >= 9).mean():.4f}  (exact {binom.sf(8, n, p):.4f})')\nprint(f'simulated mean {responders.mean():.3f}, SD {responders.std():.3f}')"
+     "code": "rng = np.random.default_rng(42)\nresponders = rng.binomial(n, p, size=100_000)\n\nprint(f'simulated P(X = 7)  = {(responders == 7).mean():.4f}  (exact {binom.pmf(7, n, p):.4f})')\nprint(f'simulated P(X >= 9) = {(responders >= 9).mean():.4f}  (exact {binom.sf(8, n, p):.4f})')\nprint(f'simulated mean {responders.mean():.3f}, SD {responders.std():.3f}')",
+     "explain": [
+      "Create a seeded generator so the simulation repeats.",
+      "Run the 10-patient trial 100,000 times and record each trial's number of responders.",
+      "Print the simulated chance of exactly 7 next to the exact value.",
+      "Print the simulated chance of 9 or more next to the exact value.",
+      "Print the simulated mean and SD."
+     ],
+     "meaning": "The simulation gave P(X = 7) = 0.2679 (exact 0.2668), P(X >= 9) = 0.1485 (exact 0.1493), a mean of 6.997 and an SD of 1.450. All are close to the exact answers, which shows the formulas describe what really happens."
     }
    ]
   },
   "r": {
    "code": "n <- 10; p <- 0.7\ndbinom(7, n, p)                       # exactly 7\npbinom(6, n, p)                       # at most 6\npbinom(8, n, p, lower.tail = FALSE)   # more than 8 = at least 9\nn * p\nsqrt(n * p * (1 - p))\n\nset.seed(42)\nx <- rbinom(100000, n, p)\nmean(x == 7)",
+   "explain": [
+    "Store the number of patients and the response chance.",
+    "dbinom gives P(X = 7).",
+    "pbinom gives P(X <= 6).",
+    "lower.tail = FALSE gives the chance of more than 8, which is at least 9.",
+    "The mean is n x p.",
+    "The SD is the square root of n x p x (1 - p).",
+    "Fix the seed.",
+    "Simulate 100,000 trials of 10 patients.",
+    "Share of simulated trials with exactly 7 responders."
+   ],
    "expect": "P(X = 7) = 0.2668; P(X <= 6) = 0.3504; P(X >= 9) = 0.1493; mean 7; sd 1.449; simulated P(X = 7) close to 0.2668",
+   "read": "The output shows 0.2668 for exactly 7, 0.3504 for at most 6, 0.1493 for at least 9, then the mean 7 and the SD 1.449. The last number is the simulated share of 7s, close to 0.2668.",
    "note": "dbinom, pbinom and rbinom are R's pmf, cdf and random draws. lower.tail = FALSE gives the survival probability P(X > k). The simulation is close to the exact value, not identical to Python's."
   },
   "spss": {
    "menu": "Transform > Compute Variable (Function group: PDF & Noncentral PDF, CDF & Noncentral CDF, Random Numbers)",
    "syntax": "DATA LIST FREE / dummy.\nBEGIN DATA\n1\nEND DATA.\nCOMPUTE exact7 = PDF.BINOM(7, 10, 0.7).\nCOMPUTE atmost6 = CDF.BINOM(6, 10, 0.7).\nCOMPUTE atleast9 = 1 - CDF.BINOM(8, 10, 0.7).\nCOMPUTE mean_x = 10 * 0.7.\nCOMPUTE sd_x = SQRT(10 * 0.7 * 0.3).\nFORMATS exact7 atmost6 atleast9 sd_x (F8.4).\nLIST VARIABLES=exact7 atmost6 atleast9 mean_x sd_x.",
+   "explain": [
+    "Make a tiny data set so there is one row to compute in.",
+    "Start the data block.",
+    "One row containing the number 1.",
+    "End the data block.",
+    "PDF.BINOM(k, n, p) is the probability of exactly 7 responders.",
+    "CDF.BINOM(k, n, p) is the chance of 6 or fewer.",
+    "At least 9 is 1 minus the chance of 8 or fewer.",
+    "The mean is n x p.",
+    "The SD is the square root of n x p x (1 - p).",
+    "Show four decimals.",
+    "Print the results."
+   ],
+   "read": "In the LIST output, exact7 is 0.2668, atmost6 is 0.3504, atleast9 is 0.1493, mean_x is 7 and sd_x is 1.4491. They match Python.",
    "note": "PDF.BINOM(k, n, p) is the pmf and CDF.BINOM(k, n, p) is P(X <= k). For a simulation use COMPUTE x = RV.BINOM(10, 0.7) on many cases; the result is close to, not identical to, Python's."
   },
   "stata": {
    "code": "display binomialp(10, 7, 0.7)\ndisplay binomial(10, 6, 0.7)\ndisplay binomialtail(10, 9, 0.7)\ndisplay 10 * 0.7\ndisplay sqrt(10 * 0.7 * 0.3)\n\nclear\nset seed 42\nset obs 100000\ngen x = rbinomial(10, 0.7)\ngen is7 = (x == 7)\nsummarize is7",
+   "explain": [
+    "binomialp(n, k, p) is the chance of exactly 7 of 10.",
+    "binomial(n, k, p) is the chance of 6 or fewer.",
+    "binomialtail(n, k, p) is the chance of 9 or more.",
+    "The mean is n x p.",
+    "The SD is the square root of n x p x (1 - p).",
+    "Clear memory.",
+    "Fix the seed.",
+    "Make 100,000 empty rows, one per trial.",
+    "Simulate the number of responders in each trial of 10 patients.",
+    "Mark the trials with exactly 7 responders.",
+    "Summarize; the mean of the 0/1 variable is the share of trials with 7."
+   ],
+   "read": "The first five lines print .2668, .3504, .1493, 7 and 1.4491. The last summarize gives the simulated share of exactly-7 trials, which is close to .2668 but not identical to Python's 0.2679.",
    "note": "In Stata binomialp(n, k, p) is P(X = k), binomial(n, k, p) is P(X <= k) and binomialtail(n, k, p) is P(X >= k), so 'at least 9' uses k = 9. The simulated mean of is7 is close to 0.2668, not identical to Python's."
   },
-  "try": [
-   "Change p to 0.5 and predict where the most likely count moves, then print binom.pmf for k = 0 to 10.",
-   "A coin is flipped 100 times and gives 62 heads. Compute binom.sf(61, 100, 0.5) and compare with the lesson's 0.0105."
-  ]
+  "conclusion": "With 10 patients and a 70% response rate, exactly 7 respond about 26.7% of the time, 6 or fewer respond 35.0% of the time, and 9 or more respond 14.9% of the time. The average is 7 responders with an SD of 1.45. The caution: the binomial assumes every patient has the same 70% chance independently, which real patients may not.",
+  "practice": {
+   "scenario": "A multiple-choice quiz has 12 questions, each with 4 options and only one correct. A student who has not studied guesses every answer, so each guess is right with probability 0.25. The teacher wants to know how likely a guesser is to do well or very badly.",
+   "data": "n = 12 questions, p = 0.25 chance of a correct guess on each. For the simulation use the seed 2 and 100,000 quizzes.",
+   "tasks": [
+    "Find the chance of exactly 5 correct answers.",
+    "Find the chance of 8 or more correct, and the chance of 3 or fewer.",
+    "Find the mean and SD of the score.",
+    "Simulate 100,000 quizzes and compare the chance of 8 or more."
+   ],
+   "hint": "This is a binomial with n = 12 and p = 0.25. Use binom.pmf for exactly, binom.sf(7, ...) for 8 or more and binom.cdf(3, ...) for 3 or fewer.",
+   "solution": {
+    "code": "from scipy.stats import binom\nimport numpy as np\n\nn, p = 12, 0.25\nprint(f'P(X = 5)  = {binom.pmf(5, n, p):.4f}')\nprint(f'P(X >= 8) = {binom.sf(7, n, p):.4f}')\nprint(f'P(X <= 3) = {binom.cdf(3, n, p):.4f}')\nprint(f'mean = {n * p}, sd = {np.sqrt(n * p * (1 - p)):.3f}')\n\nrng = np.random.default_rng(2)\nguesses = rng.binomial(n, p, size=100_000)\nprint(f'simulated P(X >= 8) = {(guesses >= 8).mean():.5f}')\nprint(f'simulated mean = {guesses.mean():.3f}')",
+    "answer": "P(X = 5) = 0.1032, P(X >= 8) = 0.0028 (fewer than 3 guessers in 1,000) and P(X <= 3) = 0.6488. The mean is 3.0 correct with an SD of 1.500. The simulation gave P(X >= 8) = 0.00267 and a mean of 3.002, in line with the exact values. Guessing almost never passes a 12-question quiz."
+   }
+  }
  },
  "3.3": {
   "goal": "Use the emergency room's average of 4 arrivals per hour to find the chance of exactly 2 arrivals and of a rush of 8 or more.",
+  "question": "An emergency room averages 4 patient arrivals per hour. The manager asks: how likely is exactly 2 arrivals in an hour (a quiet hour), and how likely is a rush of 8 or more? Can the Poisson distribution, which needs only the average rate, answer this?",
   "python": {
    "blocks": [
     {
      "title": "Set the average rate",
      "text": "The Poisson distribution only needs one number: the average count per interval, called lambda. The ER averages 4 arrivals an hour, so we build a Poisson distribution with that rate.",
-     "code": "from scipy import stats\n\nlam = 4\ner = stats.poisson(mu=lam)\n\nprint('mean     =', er.mean())\nprint('variance =', er.var())"
+     "code": "from scipy import stats\n\nlam = 4\ner = stats.poisson(mu=lam)\n\nprint('mean     =', er.mean())\nprint('variance =', er.var())",
+     "explain": [
+      "Load the statistics tools from SciPy.",
+      "Store the average rate. The Poisson distribution is described by this one number, called lambda.",
+      "Build a Poisson distribution with that rate for the emergency room.",
+      "Print its mean.",
+      "Print its variance."
+     ],
+     "meaning": "The mean is 4.0 and the variance is 4.0. For a Poisson distribution the mean and variance are equal, and seeing them match is the quick check that this model fits count data of this kind."
     },
     {
      "title": "Exactly 2 arrivals",
      "text": "pmf gives the probability of one exact count. Notice the mean and the variance are both 4: that equality is the Poisson's fingerprint.",
-     "code": "p2 = er.pmf(2)\n\nprint(f'P(X = 2) = {p2:.4f}')"
+     "code": "p2 = er.pmf(2)\n\nprint(f'P(X = 2) = {p2:.4f}')",
+     "explain": [
+      "Ask for the probability of exactly 2 arrivals with pmf (probability mass function).",
+      "Print it with four decimals."
+     ],
+     "meaning": "P(X = 2) = 0.1465, so about 14.7% of hours bring exactly 2 arrivals. That is common but not the most likely count: 3 and 4 are both likelier."
     },
     {
      "title": "A rush of 8 or more",
      "text": "'8 or more' is everything except 0 to 7. The survival function sf(7) is P(X > 7), which is exactly that, so it is shorter and more accurate than adding eight terms.",
-     "code": "rush = er.sf(7)\n\nprint(f'P(X >= 8) = {rush:.4f}')\nprint(f'about 1 hour in {1 / rush:.0f}')"
+     "code": "rush = er.sf(7)\n\nprint(f'P(X >= 8) = {rush:.4f}')\nprint(f'about 1 hour in {1 / rush:.0f}')",
+     "explain": [
+      "The survival function sf(7) is the chance of more than 7, which means 8 or more.",
+      "Print the chance of a rush.",
+      "Convert it to 'about 1 hour in N' to make it easier to picture."
+     ],
+     "meaning": "P(X >= 8) = 0.0511, about 5%, or roughly 1 hour in 20. A rush like this is unusual but not rare, so the ER should expect it a few times a week."
     },
     {
      "title": "See the whole distribution",
      "text": "A table of probabilities shows where the mass sits. Most hours bring 2 to 6 patients, and the long right tail is the rare rush.",
-     "code": "import pandas as pd\n\nk = list(range(0, 11))\ntable = pd.DataFrame({'k': k, 'P(X = k)': er.pmf(k).round(4)})\n\nprint(table.to_string(index=False))"
+     "code": "import pandas as pd\n\nk = list(range(0, 11))\ntable = pd.DataFrame({'k': k, 'P(X = k)': er.pmf(k).round(4)})\n\nprint(table.to_string(index=False))",
+     "explain": [
+      "Load pandas for the table.",
+      "List the counts 0 to 10.",
+      "Build a table of counts next to their probabilities, rounded to four decimals.",
+      "Print the table without the row numbers."
+     ],
+     "meaning": "The table peaks at 3 and 4 arrivals (0.1954 each), and most of the probability sits between 2 and 6. The tail thins out: 8 arrivals has only 0.0298, and 10 only 0.0053."
     }
    ]
   },
   "r": {
    "code": "dpois(2, lambda = 4)\n1 - ppois(7, lambda = 4)\nppois(7, lambda = 4, lower.tail = FALSE)",
+   "explain": [
+    "dpois gives the chance of exactly 2 arrivals when the rate is 4.",
+    "ppois gives P(X <= 7); 1 minus it is P(X >= 8).",
+    "The same answer using lower.tail = FALSE for the upper tail directly."
+   ],
    "expect": "dpois = 0.1465; 1 - ppois(7, 4) = 0.0511 (the last line gives the same 0.0511)",
+   "read": "The first number is 0.1465 for exactly 2. The next two lines both give 0.0511, the chance of 8 or more, found two ways. They match Python.",
    "note": "dpois is P(X = k), ppois is P(X <= k), and lower.tail = FALSE gives the 'more than' side directly."
   },
   "spss": {
    "menu": "Transform > Compute Variable (use the PDF.POISSON and CDF.POISSON functions)",
    "syntax": "DATA LIST FREE / dummy.\nBEGIN DATA\n1\nEND DATA.\nCOMPUTE p_exactly_2 = PDF.POISSON(2, 4).\nCOMPUTE p_8_or_more = 1 - CDF.POISSON(7, 4).\nFORMATS p_exactly_2 p_8_or_more (F8.4).\nLIST p_exactly_2 p_8_or_more.",
+   "explain": [
+    "Make a tiny data set so there is one row to compute in.",
+    "Start the data block.",
+    "One row containing the number 1.",
+    "End the data block.",
+    "PDF.POISSON(k, lambda) is the chance of exactly 2 arrivals.",
+    "8 or more is 1 minus the chance of 7 or fewer from CDF.POISSON.",
+    "Show four decimals.",
+    "Print the two probabilities."
+   ],
+   "read": "LIST shows p_exactly_2 as 0.1465 and p_8_or_more as 0.0511. These are the same as Python's answers.",
    "note": "SPSS has no Poisson menu, so the Compute Variable dialog with PDF.POISSON(k, lambda) and CDF.POISSON(k, lambda) does the work."
   },
   "stata": {
    "code": "display poissonp(4, 2)\ndisplay poissontail(4, 8)\ndisplay 1 - poisson(4, 7)",
+   "explain": [
+    "poissonp(m, k) is the chance of exactly 2 when the average is 4.",
+    "poissontail(m, k) is the chance of 8 or more.",
+    "The same result as 1 minus the chance of 7 or fewer from poisson()."
+   ],
+   "read": "The three lines print .14652511, .05113362 and .05113362. These match Python's 0.1465 and 0.0511, and the last two agree with each other.",
    "note": "poissonp(m,k) is P(X = k) and poissontail(m,k) is P(X >= k), so 8 or more is poissontail(4, 8); poisson(m,k) is P(X <= k)."
   },
-  "try": [
-   "Change the rate to 6 arrivals an hour and predict whether P(8 or more) goes up or down, then run it.",
-   "Check the Poisson fingerprint on simulated data: draw 10,000 counts with stats.poisson(4).rvs(10000, random_state=1) and compare their mean and variance."
-  ]
+  "conclusion": "With an average of 4 arrivals an hour, exactly 2 arrivals happens 14.7% of the time and a rush of 8 or more happens 5.1% of the time, roughly 1 hour in 20. The caution: the Poisson model assumes arrivals are independent and the rate is constant, which may not hold during busy periods such as Friday nights.",
+  "practice": {
+   "scenario": "A university help desk receives on average 6 phone calls in each 10-minute window. The supervisor wants to know how likely a very quiet window (2 calls or fewer) is, and how likely an overwhelming one (10 or more). She also wants to check the Poisson fingerprint on simulated data.",
+   "data": "Average rate lambda = 6 calls per window. For the simulation use stats.poisson(6).rvs(10_000, random_state=1).",
+   "tasks": [
+    "Print the mean and variance of the model.",
+    "Find P(X = 4), P(X <= 2) and P(X >= 10).",
+    "How often would a window be overwhelming (1 in N)?",
+    "Simulate 10,000 windows and compare the mean and variance."
+   ],
+   "hint": "Build the distribution with stats.poisson(mu=6). Use pmf for exactly, cdf for at most and sf(9) for 10 or more.",
+   "solution": {
+    "code": "from scipy import stats\n\ndesk = stats.poisson(mu=6)\nprint('mean, variance:', desk.mean(), desk.var())\nprint(f'P(X = 4)   = {desk.pmf(4):.4f}')\nprint(f'P(X <= 2)  = {desk.cdf(2):.4f}')\nprint(f'P(X >= 10) = {desk.sf(9):.4f}')\nprint(f'about 1 window in {1 / desk.sf(9):.0f}')\n\ncalls = stats.poisson(6).rvs(10_000, random_state=1)\nprint(f'simulated mean {calls.mean():.3f}, variance {calls.var():.3f}')",
+    "answer": "The mean and variance are both 6.0. P(X = 4) = 0.1339, P(X <= 2) = 0.0620 and P(X >= 10) = 0.0839, so an overwhelming window comes about 1 in 12. The 10,000 simulated windows had a mean of 5.978 and a variance of 5.901, both near 6, which is the Poisson fingerprint of equal mean and variance."
+   }
+  }
  },
  "3.4": {
   "goal": "Use the heights of adult men (mean 69.1 in, SD 2.9 in) to find the share shorter than 66 inches and the height of the 90th percentile.",
+  "question": "The heights of adult men are roughly bell shaped with a mean of 69.1 inches and a standard deviation of 2.9 inches. A clothing company asks: what share of men are shorter than 66 inches, and what height marks the tallest 10%? Can the normal distribution answer this, and does the 68-95-99.7 rule hold?",
   "python": {
    "blocks": [
     {
      "title": "Describe the bell curve",
      "text": "A normal distribution is fixed by two numbers: its centre (the mean) and its width (the standard deviation). SciPy bundles both into one object we can ask questions of.",
-     "code": "from scipy import stats\n\nmean, sd = 69.1, 2.9\nheights = stats.norm(loc=mean, scale=sd)\n\nprint('median =', heights.median())"
+     "code": "from scipy import stats\n\nmean, sd = 69.1, 2.9\nheights = stats.norm(loc=mean, scale=sd)\n\nprint('median =', heights.median())",
+     "explain": [
+      "Load the statistics tools from SciPy.",
+      "Store the mean and standard deviation: the centre and the width of the bell curve.",
+      "Build a normal distribution with that centre and width.",
+      "Print the median. For a normal curve it equals the mean."
+     ],
+     "meaning": "The median is 69.1, the same as the mean. A normal curve is symmetric, so half of men are shorter than 69.1 inches and half are taller."
     },
     {
      "title": "Share shorter than 66 inches",
      "text": "cdf gives the area under the curve to the left of a value, which is the probability of being at or below it. The z-score says how many standard deviations 66 is below the mean.",
-     "code": "z = (66 - mean) / sd\nshare = heights.cdf(66)\n\nprint(f'z = {z:.2f}')\nprint(f'P(height < 66) = {share:.4f}')"
+     "code": "z = (66 - mean) / sd\nshare = heights.cdf(66)\n\nprint(f'z = {z:.2f}')\nprint(f'P(height < 66) = {share:.4f}')",
+     "explain": [
+      "Convert 66 into a z-score: how many standard deviations it lies from the mean.",
+      "Ask for the area to the left of 66 with cdf (cumulative distribution function).",
+      "Print the z-score.",
+      "Print the probability of being shorter than 66 inches."
+     ],
+     "meaning": "The z-score is -1.07, so 66 inches is a bit more than 1 SD below the mean. The area to its left is 0.1425, so about 14.3% of men are shorter than 66 inches."
     },
     {
      "title": "The 90th percentile",
      "text": "ppf runs the other way: give it an area and it returns the value. Only 10% of men are taller than the height it prints.",
-     "code": "p90 = heights.ppf(0.90)\n\nprint(f'90th percentile = {p90:.1f} inches')"
+     "code": "p90 = heights.ppf(0.90)\n\nprint(f'90th percentile = {p90:.1f} inches')",
+     "explain": [
+      "ppf (the percent point function) runs cdf backwards: give an area, get a value.",
+      "Print the 90th percentile in inches."
+     ],
+     "meaning": "The 90th percentile is 72.8 inches. Only 10% of men are taller than that, and 90% are shorter."
     },
     {
      "title": "Check the 68-95-99.7 rule",
      "text": "The empirical rule says about 68%, 95% and 99.7% of values lie within 1, 2 and 3 standard deviations of the mean. We check it with the standard normal curve.",
-     "code": "for k in (1, 2, 3):\n    inside = stats.norm.cdf(k) - stats.norm.cdf(-k)\n    print(f'within {k} SD: {inside:.4f}')"
+     "code": "for k in (1, 2, 3):\n    inside = stats.norm.cdf(k) - stats.norm.cdf(-k)\n    print(f'within {k} SD: {inside:.4f}')",
+     "explain": [
+      "Loop over 1, 2 and 3 standard deviations.",
+      "The area between -k and +k is the area to the left of +k minus the area to the left of -k.",
+      "Print each result."
+     ],
+     "meaning": "About 0.6827 of values lie within 1 SD, 0.9545 within 2 SD and 0.9973 within 3 SD. These are the exact versions of the 68-95-99.7 rule."
     },
     {
      "title": "Draw it",
      "text": "The shaded area is the probability we computed for men shorter than 66 inches. A picture makes it clear that probabilities are areas.",
-     "code": "import numpy as np\nimport matplotlib.pyplot as plt\n\nx = np.linspace(mean - 4 * sd, mean + 4 * sd, 300)\nplt.figure(figsize=(6, 3.4))\nplt.plot(x, heights.pdf(x))\nplt.fill_between(x, heights.pdf(x), where=x < 66, alpha=0.4)\nplt.xlabel('height (inches)')\nplt.show()"
+     "code": "import numpy as np\nimport matplotlib.pyplot as plt\n\nx = np.linspace(mean - 4 * sd, mean + 4 * sd, 300)\nplt.figure(figsize=(6, 3.4))\nplt.plot(x, heights.pdf(x))\nplt.fill_between(x, heights.pdf(x), where=x < 66, alpha=0.4)\nplt.xlabel('height (inches)')\nplt.show()",
+     "explain": [
+      "Load NumPy for the grid of x-values.",
+      "Load matplotlib for plotting.",
+      "Make 300 evenly spaced heights across four standard deviations either side of the mean.",
+      "Start a figure with a size that fits on the page.",
+      "Draw the bell curve: the height of the curve is the probability density.",
+      "Shade the area to the left of 66. That area is the probability 0.1425.",
+      "Label the x-axis with the units.",
+      "Display the figure."
+     ],
+     "meaning": "The curve is highest at 69.1 and the shaded area on the left is the 14.25% of men shorter than 66 inches. A probability is an area under the curve."
     }
    ]
   },
   "r": {
    "code": "pnorm(66, mean = 69.1, sd = 2.9)\nqnorm(0.90, mean = 69.1, sd = 2.9)\npnorm(1) - pnorm(-1)\npnorm(2) - pnorm(-2)",
+   "explain": [
+    "pnorm gives the area to the left of 66, the share shorter than 66 inches.",
+    "qnorm runs backwards: the height with 90% of men below it.",
+    "Area within 1 SD of the mean on the standard normal.",
+    "Area within 2 SD of the mean."
+   ],
    "expect": "0.1425; 72.82; 0.6827; 0.9545",
+   "read": "The four numbers are 0.1425 (share below 66 inches), 72.82 (90th percentile), 0.6827 and 0.9545. They match Python.",
    "note": "pnorm gives the area to the left of a value, and qnorm is its inverse."
   },
   "spss": {
    "menu": "Transform > Compute Variable (use the CDF.NORMAL and IDF.NORMAL functions)",
    "syntax": "DATA LIST FREE / dummy.\nBEGIN DATA\n1\nEND DATA.\nCOMPUTE p_below_66 = CDF.NORMAL(66, 69.1, 2.9).\nCOMPUTE height_p90 = IDF.NORMAL(0.90, 69.1, 2.9).\nCOMPUTE within_1sd = CDF.NORMAL(1, 0, 1) - CDF.NORMAL(-1, 0, 1).\nFORMATS p_below_66 height_p90 within_1sd (F8.4).\nLIST p_below_66 height_p90 within_1sd.",
+   "explain": [
+    "Make a tiny data set so there is one row to compute in.",
+    "Start the data block.",
+    "One row containing the number 1.",
+    "End the data block.",
+    "CDF.NORMAL(value, mean, sd) is the area to the left of 66.",
+    "IDF.NORMAL(area, mean, sd) is the inverse: the 90th percentile height.",
+    "Area within 1 SD of the mean, as a difference of two CDF values.",
+    "Show four decimals.",
+    "Print the results."
+   ],
+   "read": "LIST shows p_below_66 = 0.1425, height_p90 = 72.8165 and within_1sd = 0.6827. These match Python's results.",
    "note": "CDF.NORMAL(value, mean, sd) is the area to the left; IDF.NORMAL(area, mean, sd) is the inverse."
   },
   "stata": {
    "code": "display normal((66 - 69.1) / 2.9)\ndisplay 69.1 + 2.9 * invnormal(0.90)\ndisplay normal(1) - normal(-1)",
+   "explain": [
+    "normal(z) gives the area to the left of a z-score, here (66 - 69.1) / 2.9.",
+    "invnormal(0.90) is the z-score for the 90th percentile; we convert back with mean + sd x z.",
+    "Area within 1 SD of the mean."
+   ],
+   "read": "The three lines print .14254 (share below 66), 72.81650 (90th percentile) and .68268949 (within 1 SD). They match Python after rounding.",
    "note": "normal(z) is the area to the left of a z-score and invnormal(p) is its inverse, so convert to and from z by hand."
   },
-  "try": [
-   "Change the cut-off to 72 inches and predict whether the share below it is above or below 50%, then run it.",
-   "Find the heights that mark the middle 95% of men with heights.ppf(0.025) and heights.ppf(0.975). How do they compare with mean plus or minus 2 SD?"
-  ]
+  "conclusion": "About 14.3% of men are shorter than 66 inches, and the 90th percentile of height is 72.8 inches. The rule of thumb holds: 68.3%, 95.4% and 99.7% of men are within 1, 2 and 3 SD of the mean. The caution: this assumes heights follow a normal curve, which is only an approximation for real people.",
+  "practice": {
+   "scenario": "A delivery company finds that trips to a suburb take on average 32 minutes with an SD of 6 minutes, and the times are roughly bell shaped. The dispatcher wants to promise a time that almost all trips meet and to know how often a trip is very quick or in a normal range.",
+   "data": "Mean = 32 minutes, SD = 6 minutes, normal distribution. Cut-offs: 25 minutes, 28 to 40 minutes, the 95th percentile and the middle 95%.",
+   "tasks": [
+    "Find the z-score of 25 minutes and the share of trips shorter than 25 minutes.",
+    "Find the 95th percentile of trip times.",
+    "Find the share of trips between 28 and 40 minutes.",
+    "Find the minutes that bracket the middle 95% of trips."
+   ],
+   "hint": "Build stats.norm(loc=32, scale=6). Use cdf for areas, a difference of two cdf values for between, and ppf (with 0.025 and 0.975 for the middle 95%) for percentiles.",
+   "solution": {
+    "code": "from scipy import stats\n\ntrip = stats.norm(loc=32, scale=6)\nprint(f'z for 25 min      = {(25 - 32) / 6:.2f}')\nprint(f'P(time < 25)      = {trip.cdf(25):.4f}')\nprint(f'95th percentile   = {trip.ppf(0.95):.1f} minutes')\nprint(f'P(28 < time < 40) = {trip.cdf(40) - trip.cdf(28):.4f}')\nprint(f'middle 95% runs from {trip.ppf(0.025):.1f} to {trip.ppf(0.975):.1f} minutes')",
+    "answer": "The z-score is -1.17 and P(time < 25) = 0.1217, so about 12% of trips are that quick. The 95th percentile is 41.9 minutes, so a promise of 42 minutes is met by 95% of trips. P(28 < time < 40) = 0.6563. The middle 95% runs from 20.2 to 43.8 minutes, roughly the mean plus or minus 2 SD."
+   }
+  }
  },
  "3.5": {
   "goal": "Use the airline that books 200 people (10% no-shows) to see how well a normal curve approximates the exact binomial answer for fewer than 15 no-shows.",
+  "question": "An airline sells 200 tickets on a flight and about 10% of ticket holders do not show up. The manager asks: what is the chance that fewer than 15 passengers fail to show? The exact answer needs the binomial distribution, but a normal curve is much easier to use. How close does the normal approximation get, and does the half-unit continuity correction help?",
   "python": {
    "blocks": [
     {
      "title": "Check the condition",
      "text": "The normal curve is a good stand-in for the binomial only when both np and n(1 - p) are at least 10. Here n = 200 and p = 0.1, so we check both numbers first.",
-     "code": "n, p = 200, 0.1\n\nprint('np      =', n * p)\nprint('n(1-p)  =', n * (1 - p))\nprint('safe to approximate?', n * p >= 10 and n * (1 - p) >= 10)"
+     "code": "n, p = 200, 0.1\n\nprint('np      =', n * p)\nprint('n(1-p)  =', n * (1 - p))\nprint('safe to approximate?', n * p >= 10 and n * (1 - p) >= 10)",
+     "explain": [
+      "Store the number of tickets and the no-show probability.",
+      "Print n x p, the expected number of no-shows.",
+      "Print n x (1 - p), the expected number of shows.",
+      "Check the rule of thumb: both must be at least 10 for the normal curve to be a good stand-in."
+     ],
+     "meaning": "The expected no-shows are 20 and the expected shows 180, both well above 10, so the check prints True. The normal approximation is safe to use here."
     },
     {
      "title": "The exact binomial answer",
      "text": "Fewer than 15 no-shows means 14 or fewer. The binomial cdf adds up all fifteen terms for us, so this is the true value we want the normal curve to match.",
-     "code": "from scipy import stats\n\nexact = stats.binom.cdf(14, n, p)\n\nprint(f'exact P(X <= 14) = {exact:.4f}')"
+     "code": "from scipy import stats\n\nexact = stats.binom.cdf(14, n, p)\n\nprint(f'exact P(X <= 14) = {exact:.4f}')",
+     "explain": [
+      "Load the statistics tools from SciPy.",
+      "Fewer than 15 means 14 or fewer, so ask the binomial cdf at 14. This is the exact answer.",
+      "Print the exact probability."
+     ],
+     "meaning": "The exact chance of fewer than 15 no-shows is 0.0929, about 9.3%. This is the true value our approximation must match."
     },
     {
      "title": "The normal approximation",
      "text": "Match the normal curve to the binomial's mean np and SD sqrt(np(1 - p)). The continuity correction uses 14.5 because the bar for 14 stretches from 13.5 to 14.5.",
-     "code": "from math import sqrt\n\nmu = n * p\nsigma = sqrt(n * p * (1 - p))\n\nwith_cc = stats.norm.cdf(14.5, mu, sigma)\nwithout = stats.norm.cdf(14, mu, sigma)\n\nprint(f'mu = {mu:.1f}, sigma = {sigma:.3f}')\nprint(f'normal with correction    = {with_cc:.4f}')\nprint(f'normal without correction = {without:.4f}')"
+     "code": "from math import sqrt\n\nmu = n * p\nsigma = sqrt(n * p * (1 - p))\n\nwith_cc = stats.norm.cdf(14.5, mu, sigma)\nwithout = stats.norm.cdf(14, mu, sigma)\n\nprint(f'mu = {mu:.1f}, sigma = {sigma:.3f}')\nprint(f'normal with correction    = {with_cc:.4f}')\nprint(f'normal without correction = {without:.4f}')",
+     "explain": [
+      "Load the square root function.",
+      "The matching normal curve has the binomial's mean n x p.",
+      "It has the binomial's SD, the square root of n x p x (1 - p).",
+      "Apply the continuity correction: use 14.5, the edge of the bar for 14, when using the normal.",
+      "Without the correction: use 14, the middle of the bar.",
+      "Print the mean and SD of the matching normal.",
+      "Print the answer with the correction.",
+      "Print the answer without the correction."
+     ],
+     "meaning": "The matching normal has mean 20.0 and SD 4.243. With the correction it gives 0.0974, without it 0.0786, compared with the exact 0.0929. The corrected value is clearly the closer."
     },
     {
      "title": "How close is it?",
      "text": "The error with the half-unit correction is far smaller than without it. That is why the correction matters, even for a big n.",
-     "code": "print(f'error with correction    = {abs(with_cc - exact):.4f}')\nprint(f'error without correction = {abs(without - exact):.4f}')"
+     "code": "print(f'error with correction    = {abs(with_cc - exact):.4f}')\nprint(f'error without correction = {abs(without - exact):.4f}')",
+     "explain": [
+      "Print how far the corrected answer is from the exact one.",
+      "Print how far the uncorrected answer is."
+     ],
+     "meaning": "The error with the correction is only 0.0045, but without it the error is 0.0143, about three times bigger. The half-unit shift is worth doing even with a big n."
     }
    ]
   },
   "r": {
    "code": "n <- 200; p <- 0.1\npbinom(14, n, p)\npnorm(14.5, mean = n * p, sd = sqrt(n * p * (1 - p)))\npnorm(14,   mean = n * p, sd = sqrt(n * p * (1 - p)))",
+   "explain": [
+    "Store the number of tickets and the no-show probability.",
+    "The exact answer: the binomial cdf at 14.",
+    "The normal approximation with the continuity correction (14.5).",
+    "The normal approximation without the correction (14)."
+   ],
    "expect": "pbinom: 0.0929 (exact); pnorm with 14.5: 0.0974; pnorm with 14: 0.0786",
+   "read": "The three numbers are 0.0929 (exact), 0.0974 (normal with 14.5) and 0.0786 (normal with 14). The corrected one is closer to the exact answer.",
    "note": "pbinom is the exact answer. The two pnorm lines are the approximation with and without the continuity correction."
   },
   "spss": {
    "menu": "Transform > Compute Variable (use CDF.BINOM and CDF.NORMAL)",
    "syntax": "DATA LIST FREE / dummy.\nBEGIN DATA\n1\nEND DATA.\nCOMPUTE exact = CDF.BINOM(14, 200, 0.1).\nCOMPUTE mu = 200 * 0.1.\nCOMPUTE sigma = SQRT(200 * 0.1 * 0.9).\nCOMPUTE with_cc = CDF.NORMAL(14.5, mu, sigma).\nCOMPUTE without_cc = CDF.NORMAL(14, mu, sigma).\nFORMATS exact with_cc without_cc (F8.4).\nLIST exact with_cc without_cc.",
+   "explain": [
+    "Make a tiny data set so there is one row to compute in.",
+    "Start the data block.",
+    "One row containing the number 1.",
+    "End the data block.",
+    "The exact answer from the binomial distribution.",
+    "The mean of the matching normal.",
+    "The SD of the matching normal.",
+    "Normal approximation with the continuity correction.",
+    "Normal approximation without the correction.",
+    "Show four decimals.",
+    "Print the three answers."
+   ],
+   "read": "LIST shows exact = 0.0929, with_cc = 0.0974 and without_cc = 0.0786. The corrected normal is closer to the exact answer, as in Python.",
    "note": "CDF.BINOM(k, n, p) is the exact answer; CDF.NORMAL(value, mean, sd) is the approximation."
   },
   "stata": {
    "code": "display binomial(200, 14, 0.1)\ndisplay normal((14.5 - 20) / sqrt(200 * 0.1 * 0.9))\ndisplay normal((14 - 20) / sqrt(200 * 0.1 * 0.9))",
+   "explain": [
+    "Exact answer: the binomial cdf at 14 for 200 tickets and 10% no-shows.",
+    "Normal approximation with the correction: standardise 14.5 by hand with (x - mean) / SD, then use normal().",
+    "Normal approximation without the correction, standardising 14."
+   ],
+   "read": "The three lines print .0929, .0974 and .0786 (rounded). The first is exact and the other two are approximations, and the corrected one is closer.",
    "note": "binomial(n,k,p) is the exact P(X <= k). The two normal() lines standardise the cut-off by hand, with and without the half-unit correction."
   },
-  "try": [
-   "Change p to 0.02 and n to 200. np is now 4: predict whether the normal approximation gets better or worse, then run it.",
-   "Try n = 20 with p = 0.5 and compare the exact and approximate answers for P(X <= 8)."
-  ]
+  "conclusion": "The chance that fewer than 15 passengers fail to show is 0.0929 exactly. The normal approximation gives 0.0974 with the continuity correction and 0.0786 without it, so the correction cuts the error from 0.0143 to 0.0045. The caution: the approximation is only trustworthy when np and n(1 - p) are both at least 10.",
+  "practice": {
+   "scenario": "A pollster surveys 500 voters. Past polls show that 40% support a certain measure. She wants to know how likely it is that 185 or fewer in the sample support it, and whether the normal approximation to the binomial gets this right.",
+   "data": "n = 500 voters, p = 0.4. Question: P(X <= 185). Compare the exact binomial answer with the normal approximation with and without the continuity correction.",
+   "tasks": [
+    "Check that np and n(1 - p) are both at least 10 and find the SD of the matching normal.",
+    "Find the exact P(X <= 185).",
+    "Find the normal approximation with 185.5 and with 185.",
+    "Which version is closer, and by how much?"
+   ],
+   "hint": "The matching normal has mean n x p and SD sqrt(n x p x (1 - p)). Use binom.cdf for the exact answer and norm.cdf(185.5, mu, sigma) for the corrected version.",
+   "solution": {
+    "code": "from math import sqrt\nfrom scipy import stats\n\nn, p = 500, 0.4\nmu, sigma = n * p, sqrt(n * p * (1 - p))\nprint(f'np = {mu}, n(1-p) = {n * (1 - p)}, sigma = {sigma:.3f}')\n\nexact = stats.binom.cdf(185, n, p)\nwith_cc = stats.norm.cdf(185.5, mu, sigma)\nwithout = stats.norm.cdf(185, mu, sigma)\nprint(f'exact = {exact:.4f}, with correction = {with_cc:.4f}, without = {without:.4f}')\nprint(f'errors: {abs(with_cc - exact):.4f} and {abs(without - exact):.4f}')",
+    "answer": "np = 200 and n(1 - p) = 300, both far above 10, and the matching SD is 10.954. The exact P(X <= 185) is 0.0924. The normal gives 0.0928 with the correction and 0.0855 without. The errors are 0.0004 and 0.0069, so the corrected version is much closer."
+   }
+  }
  }
 }
