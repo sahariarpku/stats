@@ -1,0 +1,47 @@
+{
+ "6.5": {
+  "goal": "Check whether the average nitrate level in a river differs from the 3.2 mg/L guideline, using the lesson's nine readings.",
+  "python": {
+   "blocks": [
+    {
+     "title": "Enter the data",
+     "text": "Nine nitrate readings from one river, in mg/L, and the guideline value we want to compare against. NumPy holds the numbers and SciPy supplies the test.",
+     "code": "import numpy as np\nfrom scipy import stats\n\nnitrate = np.array([3.1, 4.2, 2.8, 3.9, 4.5, 3.3, 4.1, 3.7, 3.5])\nguideline = 3.2\n\nprint('readings:', len(nitrate))"
+    },
+    {
+     "title": "Describe the sample",
+     "text": "Always look at the numbers before testing them. The mean is the sample's centre, the standard deviation (ddof=1, the sample version) is its typical spread, and the standard error says how much a mean of 9 readings wobbles.",
+     "code": "mean = nitrate.mean()\nsd = nitrate.std(ddof=1)\nse = sd / np.sqrt(len(nitrate))\n\nprint(f'mean = {mean:.3f}')\nprint(f'sd   = {sd:.3f}')\nprint(f'se   = {se:.3f}')"
+    },
+    {
+     "title": "Run the one-sample t-test",
+     "text": "ttest_1samp asks: if the true average were exactly 3.2, how surprising is a sample mean this far away? It returns the t statistic (distance in standard errors) and the two-sided p-value.",
+     "code": "result = stats.ttest_1samp(nitrate, popmean=guideline)\n\nprint(f't  = {result.statistic:.3f}')\nprint(f'df = {len(nitrate) - 1}')\nprint(f'p  = {result.pvalue:.4f}')"
+    },
+    {
+     "title": "Add a confidence interval",
+     "text": "A 95% interval shows the range of true averages that fit the data. The guideline sits outside it, which agrees with the small p-value.",
+     "code": "ci = result.confidence_interval(confidence_level=0.95)\n\nprint(f'95% CI: ({ci.low:.3f}, {ci.high:.3f})')\nprint('guideline inside the interval?', ci.low <= guideline <= ci.high)"
+    }
+   ]
+  },
+  "r": {
+   "code": "nitrate <- c(3.1, 4.2, 2.8, 3.9, 4.5, 3.3, 4.1, 3.7, 3.5)\nt.test(nitrate, mu = 3.2)",
+   "expect": "t = 2.5866, df = 8, p-value = 0.03226; 95 percent confidence interval: 3.252 to 4.104; sample mean 3.678",
+   "note": "t.test prints the t statistic, degrees of freedom, p-value and the 95% confidence interval together."
+  },
+  "spss": {
+   "menu": "Analyze > Compare Means > One-Sample T Test",
+   "syntax": "DATA LIST FREE / nitrate.\nBEGIN DATA\n3.1 4.2 2.8 3.9 4.5 3.3 4.1 3.7 3.5\nEND DATA.\nT-TEST\n  /TESTVAL=3.2\n  /VARIABLES=nitrate\n  /CRITERIA=CI(.95).",
+   "note": "In the One-Sample Test table read t, df and Sig. (2-tailed); the confidence interval is for the difference from 3.2."
+  },
+  "stata": {
+   "code": "clear\ninput nitrate\n3.1\n4.2\n2.8\n3.9\n4.5\n3.3\n4.1\n3.7\n3.5\nend\nttest nitrate == 3.2",
+   "note": "ttest reports the mean, its 95% confidence interval, t, degrees of freedom and the two-sided p-value (the middle Pr(|T| > |t|) line)."
+  },
+  "try": [
+   "Change the guideline to 3.5 and predict whether the p-value gets bigger or smaller, then run it.",
+   "Add one very high reading (say 9.0) to the data. What happens to the mean, the standard error and the p-value?"
+  ]
+ }
+}
