@@ -911,7 +911,7 @@
     const labs = C.labs || [];
     setView(`<div class="wrap">
       <div class="page-head"><div class="eyebrow">Code labs</div><h1>Playground</h1>
-      <p>Try every idea on real numbers. Each lesson has a short Python notebook that explains every step and shows what you should see, plus the same steps in R, SPSS and Stata.</p></div>
+      <p>Each lab starts with a real question and answers it with Python, R, SPSS and Stata. Every line of code is explained, every result is interpreted, and then you solve a similar problem yourself.</p></div>
       <section class="lab-setup">
         <h2 class="lab-h">How do I run the code?</h2>
         <div class="lab-setup-grid">
@@ -938,6 +938,35 @@
     $("#lf").addEventListener("input", (e) => draw(e.target.value.trim()));
   }
 
+  function walkBox(code, explain, lang) {
+    const wrap = document.createElement("div");
+    wrap.className = "walk-code";
+    const rows = [];
+    let k = 0;
+    code.split("\n").forEach((ln) => {
+      if (!ln.trim()) { rows.push(`<div class="wc-gap"></div>`); return; }
+      const ex = explain && explain[k++];
+      const hl = lang === "python" || lang === "r" ? highlight(ln, lang) : esc(ln);
+      rows.push(`<div class="wc-row"><code class="wc-code">${hl}</code><p class="wc-ex">${ex ? esc(ex) : ""}</p></div>`);
+    });
+    wrap.innerHTML = `<button type="button" class="copy-btn" aria-label="Copy this code">Copy code</button><div class="wc-head"><span>Code</span><span>What it means, and why we write it</span></div>${rows.join("")}`;
+    $(".copy-btn", wrap).addEventListener("click", async (e) => {
+      const b = e.currentTarget;
+      try { await navigator.clipboard.writeText(code); b.textContent = "Copied ✓"; }
+      catch (err) { const ta = document.createElement("textarea"); ta.value = code; document.body.appendChild(ta); ta.select(); try { document.execCommand("copy"); b.textContent = "Copied ✓"; } catch (e2) { b.textContent = "Press Ctrl+C"; } ta.remove(); }
+      setTimeout(() => { b.textContent = "Copy code"; }, 1600);
+    });
+    return wrap;
+  }
+  function outBox(o) {
+    if (!o || !(o.out || (o.figs && o.figs.length))) return null;
+    const d = document.createElement("div");
+    d.className = "lab-out";
+    d.innerHTML = `<div class="lab-out-lbl">What you will see</div>${o.out ? `<pre>${esc(o.out)}</pre>` : ""}${(o.figs || []).map((f) => `<img src="site/labs/img/${esc(f)}" alt="Figure produced by this code" loading="lazy">`).join("")}`;
+    return d;
+  }
+  const meaningBox = (label, text) => { const d = document.createElement("div"); d.className = "lab-mean"; d.innerHTML = `<b>${label}</b> ${esc(text)}`; return d; };
+
   async function viewLab(id) {
     const l = BY_ID[id];
     if (!l || !LABS[id]) return viewMissing();
@@ -949,13 +978,14 @@
     const prev = labs[i - 1], next = labs[i + 1];
     let startLang = "python";
     try { startLang = localStorage.getItem("sfs-lab-lang") || "python"; } catch (e) { /* ignore */ }
-    const r = lab.r, sp = lab.spss, st = lab.stata;
+    const r = lab.r, sp = lab.spss, st = lab.stata, pr = lab.practice;
+    const dataId = "pdata";
     setView(`<div class="wrap lab-page" style="--hue:${HUES[l.stage.num]}">
       <div class="crumbs"><a href="#/">Home</a> › <a href="#/playground">Playground</a> › Lesson ${l.id}</div>
       <div class="lab-head">
         <span class="eyebrow">Code lab · Lesson ${l.id}</span>
         <h1>${esc(l.title)}</h1>
-        <p class="lab-goal-lg">${esc(lab.goal)}</p>
+        <div class="lab-question"><span class="lab-q-lbl">The question</span><p>${esc(lab.question)}</p></div>
         <div class="lab-actions">
           <a class="btn btn-soft" href="#/lesson/${l.id}">📘 Read the lesson</a>
           <a class="btn btn-primary" href="site/notebooks/${l.id}.ipynb" download>⬇ Notebook (.ipynb)</a>
@@ -972,13 +1002,13 @@
             <li><b>Just the code:</b> download the Python file and run <code>python lesson-${l.id}.py</code>, or copy the blocks below into any Python window.</li>
           </ol></details>
         <ol class="lab-blocks" id="labBlocks"></ol>
-        <div class="card lab-try"><h3>🎯 Try this</h3><ul>${lab.try.map((t) => `<li>${esc(t)}</li>`).join("")}</ul></div>
       </section>
 
       <section class="lab-panel" data-lang="r" role="tabpanel" hidden>
-        <p class="lab-intro">Open <b>RStudio</b> (or <a href="https://posit.cloud/" target="_blank" rel="noopener">posit.cloud</a> in your browser), paste this into the Console and press Enter.</p>
+        <p class="lab-intro">Same question, in R. Open <b>RStudio</b> (or <a href="https://posit.cloud/" target="_blank" rel="noopener">posit.cloud</a>), paste the code into the Console and press Enter.</p>
         <div id="rCode"></div>
         <div class="lab-expect"><b>You should see:</b> ${esc(r.expect)}</div>
+        <div id="rRead"></div>
         <p class="lab-note">${esc(r.note)}</p>
       </section>
 
@@ -986,16 +1016,30 @@
         <p class="lab-intro">With the menus: <span class="lab-menu">${esc(sp.menu)}</span></p>
         <p class="lab-intro">Or with syntax: choose <b>File &gt; New &gt; Syntax</b>, paste this, then <b>Run &gt; All</b>.</p>
         <div id="spssCode"></div>
+        <div id="spssRead"></div>
         <p class="lab-note">${esc(sp.note)}</p>
       </section>
 
       <section class="lab-panel" data-lang="stata" role="tabpanel" hidden>
         <p class="lab-intro">Paste this into the Command window, or into <b>File &gt; New &gt; Do-file Editor</b> and press Execute.</p>
         <div id="stataCode"></div>
+        <div id="stataRead"></div>
         <p class="lab-note">${esc(st.note)}</p>
       </section>
 
-      <p class="lab-fine">The Python output on this page was produced by running the code. The R, SPSS and Stata versions follow the same steps and should print the same numbers; small differences in the last digit or in default settings are noted beside each one.</p>
+      <section class="card lab-concl"><h2 class="lab-h">So, what is the answer?</h2><p>${esc(lab.conclusion)}</p></section>
+
+      <section class="lab-practice">
+        <h2 class="lab-h">🎯 Now you try</h2>
+        <p>${esc(pr.scenario)}</p>
+        <div class="lab-data"><div class="lab-out-lbl">Your data (copy and paste it)</div><pre id="${dataId}">${esc(pr.data)}</pre><button type="button" class="copy-btn" id="cpData">Copy data</button></div>
+        <ol class="lab-tasks">${pr.tasks.map((t) => `<li>${esc(t)}</li>`).join("")}</ol>
+        <details class="lab-hint"><summary>Need a hint?</summary><p>${esc(pr.hint)}</p></details>
+        <button type="button" class="btn btn-soft" id="showSol" aria-expanded="false">Show the solution</button>
+        <div id="sol" hidden></div>
+      </section>
+
+      <p class="lab-fine">The Python output on this page was produced by running the code. The R, SPSS and Stata versions follow the same steps and should print the same numbers; small differences in the last digit or in default settings are noted beside each one. Those three were written carefully but not run here, so if one errors on your version, check the command in its own help.</p>
       <div class="pn" style="margin:26px 0 40px">
         ${prev ? `<a class="card" href="#/playground/${prev.id}"><small>← Previous lab</small>${prev.id} ${esc(BY_ID[prev.id].title)}</a>` : "<span></span>"}
         ${next ? `<a class="card next" href="#/playground/${next.id}"><small>Next lab →</small>${next.id} ${esc(BY_ID[next.id].title)}</a>` : "<span></span>"}
@@ -1005,20 +1049,33 @@
     lab.python.blocks.forEach((b, k) => {
       const li = document.createElement("li");
       li.className = "lab-block";
-      li.innerHTML = `<div class="lab-expl"><span class="lab-num">${k + 1}</span><h3>${esc(b.title)}</h3><p>${esc(b.text)}</p></div><div class="lab-code"></div>`;
-      const right = $(".lab-code", li);
-      right.appendChild(codeBox(b.code, "python"));
-      if (b.out || (b.figs && b.figs.length)) {
-        const o = document.createElement("div");
-        o.className = "lab-out";
-        o.innerHTML = `<div class="lab-out-lbl">What you will see</div>${b.out ? `<pre>${esc(b.out)}</pre>` : ""}${(b.figs || []).map((f) => `<img src="site/labs/img/${esc(f)}" alt="Figure produced by this code" loading="lazy">`).join("")}`;
-        right.appendChild(o);
-      }
+      li.innerHTML = `<div class="lab-expl"><span class="lab-num">${k + 1}</span><h3>${esc(b.title)}</h3><p>${esc(b.text)}</p></div>`;
+      li.appendChild(walkBox(b.code, b.explain, "python"));
+      const o = outBox(b);
+      if (o) li.appendChild(o);
+      if (b.meaning) li.appendChild(meaningBox("What this means:", b.meaning));
       ol.appendChild(li);
     });
-    $("#rCode").appendChild(codeBox(r.code, "r"));
-    $("#spssCode").appendChild(codeBox(sp.syntax, "spss"));
-    $("#stataCode").appendChild(codeBox(st.code, "stata"));
+    [["rCode", "rRead", r, "r"], ["spssCode", "spssRead", sp, "spss"], ["stataCode", "stataRead", st, "stata"]].forEach(([cid, rid, x, lang]) => {
+      $("#" + cid).appendChild(walkBox(lang === "r" ? x.code : lang === "spss" ? x.syntax : x.code, x.explain, lang));
+      $("#" + rid).appendChild(meaningBox("How to read it:", x.read));
+    });
+    $("#cpData").addEventListener("click", async (e) => {
+      const b = e.currentTarget;
+      try { await navigator.clipboard.writeText(pr.data); b.textContent = "Copied ✓"; } catch (err) { b.textContent = "Select and copy"; }
+      setTimeout(() => { b.textContent = "Copy data"; }, 1600);
+    });
+    $("#showSol").addEventListener("click", (e) => {
+      const btn = e.currentTarget, box = $("#sol");
+      if (!box.hidden) { box.hidden = true; btn.textContent = "Show the solution"; btn.setAttribute("aria-expanded", "false"); return; }
+      if (!box.firstChild) {
+        const s = pr.solution;
+        box.appendChild(codeBox(s.code, "python"));
+        const o = outBox(s); if (o) box.appendChild(o);
+        box.appendChild(meaningBox("The answer:", s.answer));
+      }
+      box.hidden = false; btn.textContent = "Hide the solution"; btn.setAttribute("aria-expanded", "true");
+    });
     const show = (lang) => {
       $$(".lab-tab").forEach((t) => t.setAttribute("aria-selected", String(t.dataset.lang === lang)));
       $$(".lab-panel").forEach((p) => { p.hidden = p.dataset.lang !== lang; });
@@ -1027,8 +1084,9 @@
     $$(".lab-tab").forEach((t) => t.addEventListener("click", () => show(t.dataset.lang)));
     show(LAB_LANGS.some((x) => x[0] === startLang) ? startLang : "python");
     $("#dlPy").addEventListener("click", () => {
-      const head = `# Lesson ${l.id}: ${l.title}\n# ${lab.goal}\n# Needs: pip install numpy scipy pandas statsmodels matplotlib\n`;
-      const text = head + "\n" + lab.python.blocks.map((b) => `# --- ${b.title} ---\n${b.code}`).join("\n\n") + "\n";
+      const note = (code, ex) => { let k = 0; return code.split("\n").map((ln) => (ln.trim() && ex && ex[k] ? `${ln}  # ${ex[k++]}` : ln)).join("\n"); };
+      const head = `# Lesson ${l.id}: ${l.title}\n# Question: ${lab.question}\n# Needs: pip install numpy scipy pandas statsmodels matplotlib\n`;
+      const text = head + "\n" + lab.python.blocks.map((b) => `# --- ${b.title} ---\n${note(b.code, b.explain)}`).join("\n\n") + `\n\n# --- Now you try ---\n# ${pr.scenario}\n# Data: ${pr.data}\n` + pr.tasks.map((t, n) => `# ${n + 1}. ${t}`).join("\n") + "\n";
       const a = document.createElement("a");
       a.href = URL.createObjectURL(new Blob([text], { type: "text/x-python" }));
       a.download = `lesson-${l.id}.py`;

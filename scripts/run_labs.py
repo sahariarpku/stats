@@ -28,26 +28,30 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 warnings.simplefilter("ignore")
-blocks = json.load(open(sys.argv[1]))
+job = json.load(open(sys.argv[1]))
 imgdir, lid = sys.argv[2], sys.argv[3]
-ns = {"__name__": "__main__"}
-res = []
-for k, code in enumerate(blocks):
-    buf = io.StringIO(); err = None
-    with contextlib.redirect_stdout(buf):
-        try:
-            exec(compile(code, f"<block {k + 1}>", "exec"), ns)
-        except Exception as e:
-            err = f"{type(e).__name__}: {e}"
-    figs = []
-    for n in plt.get_fignums():
-        fig = plt.figure(n)
-        name = f"{lid}-{k + 1}" + (f"-{len(figs) + 1}" if len(figs) else "") + ".png"
-        fig.savefig(imgdir + "/" + name, dpi=110, bbox_inches="tight", facecolor="white")
-        figs.append(name)
-    plt.close("all")
-    res.append({"out": buf.getvalue().rstrip(), "figs": figs, "error": err})
-print(json.dumps(res))
+
+def run(codes, tag):
+    ns = {"__name__": "__main__"}
+    res = []
+    for k, code in enumerate(codes):
+        buf = io.StringIO(); err = None
+        with contextlib.redirect_stdout(buf):
+            try:
+                exec(compile(code, f"<{tag} {k + 1}>", "exec"), ns)
+            except Exception as e:
+                err = f"{type(e).__name__}: {e}"
+        figs = []
+        for n in plt.get_fignums():
+            fig = plt.figure(n)
+            name = f"{lid}-{tag}{k + 1}" + (f"-{len(figs) + 1}" if len(figs) else "") + ".png"
+            fig.savefig(imgdir + "/" + name, dpi=110, bbox_inches="tight", facecolor="white")
+            figs.append(name)
+        plt.close("all")
+        res.append({"out": buf.getvalue().rstrip(), "figs": figs, "error": err})
+    return res
+
+print(json.dumps({"blocks": run(job["blocks"], ""), "solution": run([job["solution"]], "s")[0]}))
 '''
 
 
@@ -70,6 +74,38 @@ def load_labs():
     return labs
 
 
+def nonblank(code):
+    return [ln for ln in code.splitlines() if ln.strip()]
+
+
+def check_code(w, code, limit, problems, forbid=True):
+    n = len(nonblank(code))
+    if n < 1 or n > limit:
+        problems.append(f"{w}: code must be 1 to {limit} lines (has {n})")
+    for m in re.finditer(r"^\s*(?:from|import)\s+([a-zA-Z_][\w]*)", code, re.M):
+        if m.group(1) not in ALLOWED_IMPORTS:
+            problems.append(f"{w}: import of '{m.group(1)}' is not allowed")
+    if forbid:
+        for pat in FORBIDDEN:
+            if re.search(pat, code):
+                problems.append(f"{w}: '{pat}' is not allowed in lab code")
+    return n
+
+
+def check_explain(w, code, explain, problems):
+    if not isinstance(explain, list) or len(explain) != len(nonblank(code)):
+        problems.append(f"{w}: 'explain' needs exactly one entry per non-blank code line ({len(nonblank(code))} lines, {len(explain) if isinstance(explain, list) else 0} explanations)")
+        return
+    for i, e in enumerate(explain, 1):
+        if not 8 <= len(str(e)) <= 170:
+            problems.append(f"{w}: explanation {i} must be 8 to 170 characters")
+
+
+def between(w, name, text, lo, hi, problems):
+    if not lo <= len(str(text)) <= hi:
+        problems.append(f"{w}: '{name}' must be {lo} to {hi} characters (has {len(str(text))})")
+
+
 def validate(labs, strict):
     problems = []
     ids = lesson_ids()
@@ -78,41 +114,49 @@ def validate(labs, strict):
         if lid not in ids:
             problems.append(f"{w}: unknown lesson id")
             continue
-        if not 20 <= len(lab.get("goal", "")) <= 220:
-            problems.append(f"{w}: goal should be 20 to 220 characters")
+        between(w, "goal", lab.get("goal", ""), 20, 220, problems)
+        between(w, "question", lab.get("question", ""), 80, 700, problems)
+        between(w, "conclusion", lab.get("conclusion", ""), 60, 520, problems)
         blocks = lab.get("python", {}).get("blocks", [])
         if not 3 <= len(blocks) <= 6:
             problems.append(f"{w}: Python needs 3 to 6 blocks (has {len(blocks)})")
         total = 0
         for i, b in enumerate(blocks, 1):
+            bw = f"{w} block {i}"
             code = b.get("code", "")
-            n = len([ln for ln in code.splitlines() if ln.strip()])
-            total += n
-            if not 3 <= len(b.get("title", "")) <= 50:
-                problems.append(f"{w} block {i}: title must be 3 to 50 characters")
-            if not 30 <= len(b.get("text", "")) <= 420:
-                problems.append(f"{w} block {i}: text must be 30 to 420 characters")
-            if n < 1 or n > 18:
-                problems.append(f"{w} block {i}: code must be 1 to 18 lines (has {n})")
-            for m in re.finditer(r"^\s*(?:from|import)\s+([a-zA-Z_][\w]*)", code, re.M):
-                if m.group(1) not in ALLOWED_IMPORTS:
-                    problems.append(f"{w} block {i}: import of '{m.group(1)}' is not allowed")
-            for pat in FORBIDDEN:
-                if re.search(pat, code):
-                    problems.append(f"{w} block {i}: '{pat}' is not allowed in lab code")
+            between(bw, "title", b.get("title", ""), 3, 50, problems)
+            between(bw, "text", b.get("text", ""), 30, 420, problems)
+            between(bw, "meaning", b.get("meaning", ""), 30, 480, problems)
+            total += check_code(bw, code, 18, problems)
+            check_explain(bw, code, b.get("explain"), problems)
         if total > 90:
             problems.append(f"{w}: {total} lines of code in total; the limit is 90")
-        for lang, need in (("r", ("code", "expect", "note")), ("spss", ("menu", "syntax", "note")), ("stata", ("code", "note"))):
+        for lang, key in (("r", "code"), ("spss", "syntax"), ("stata", "code")):
             d = lab.get(lang) or {}
+            need = (key, "explain", "read", "note") + (("expect",) if lang == "r" else ("menu",) if lang == "spss" else ())
             for k in need:
-                if not str(d.get(k, "")).strip():
+                if not d.get(k):
                     problems.append(f"{w}: {lang} is missing '{k}'")
-            body = d.get("code") or d.get("syntax") or ""
-            if len([ln for ln in body.splitlines() if ln.strip()]) > 14:
-                problems.append(f"{w}: {lang} code is longer than 14 lines")
-        if not 2 <= len(lab.get("try", [])) <= 3:
-            problems.append(f"{w}: 'try' needs 2 or 3 prompts")
-        if "—" in json.dumps(lab, ensure_ascii=False):
+            if d.get(key):
+                n = len(nonblank(d[key]))
+                if n > 14:
+                    problems.append(f"{w}: {lang} code is longer than 14 lines")
+                check_explain(f"{w} {lang}", d[key], d.get("explain"), problems)
+            if d.get("read"):
+                between(f"{w} {lang}", "read", d["read"], 40, 420, problems)
+        pr = lab.get("practice") or {}
+        between(w, "practice scenario", pr.get("scenario", ""), 80, 600, problems)
+        between(w, "practice data", pr.get("data", ""), 10, 500, problems)
+        between(w, "practice hint", pr.get("hint", ""), 20, 300, problems)
+        if not 2 <= len(pr.get("tasks", [])) <= 4:
+            problems.append(f"{w}: practice needs 2 to 4 tasks")
+        sol = pr.get("solution") or {}
+        if not sol.get("code"):
+            problems.append(f"{w}: practice solution needs code")
+        else:
+            check_code(f"{w} solution", sol["code"], 14, problems)
+        between(w, "practice answer", sol.get("answer", ""), 60, 600, problems)
+        if "\u2014" in json.dumps(lab, ensure_ascii=False):
             problems.append(f"{w}: contains an em dash")
     if strict:
         for lid in ids:
@@ -123,7 +167,7 @@ def validate(labs, strict):
 
 def run_lab(lid, lab):
     IMG.mkdir(parents=True, exist_ok=True)
-    codes = [b["code"] for b in lab["python"]["blocks"]]
+    codes = {"blocks": [b["code"] for b in lab["python"]["blocks"]], "solution": lab["practice"]["solution"]["code"]}
     with tempfile.TemporaryDirectory() as d:
         bf = Path(d) / "blocks.json"
         bf.write_text(json.dumps(codes))
@@ -155,13 +199,16 @@ def main():
         res, err = run_lab(lid, lab)
         if err:
             print(f"FAIL {lid}: {err}"); failures += 1; continue
-        bad = [(i + 1, r["error"]) for i, r in enumerate(res) if r["error"]]
+        bad = [(i + 1, r["error"]) for i, r in enumerate(res["blocks"]) if r["error"]]
+        if res["solution"]["error"]:
+            bad.append(("solution", res["solution"]["error"]))
         if bad:
             print(f"FAIL {lid}: block {bad[0][0]} raised {bad[0][1]}"); failures += 1; continue
-        outputs[lid] = [{"out": r["out"], "figs": r["figs"]} for r in res]
+        outputs[lid] = {"blocks": [{"out": r["out"], "figs": r["figs"]} for r in res["blocks"]], "solution": {"out": res["solution"]["out"], "figs": res["solution"]["figs"]}}
         if only:
-            for i, r in enumerate(res, 1):
+            for i, r in enumerate(res["blocks"], 1):
                 print(f"--- {lid} block {i}: {lab['python']['blocks'][i - 1]['title']}\n{r['out']}" + (f"\n[figure: {', '.join(r['figs'])}]" if r["figs"] else ""))
+            print(f"--- {lid} PRACTICE SOLUTION\n{res['solution']['out']}")
     if "--write" in args or "--verify" in args:
         by_file = {}
         for lid, o in outputs.items():

@@ -456,8 +456,7 @@ a.chip, a.chip:hover { text-decoration: none; }
 .lab-how summary { cursor: pointer; font-family: var(--display); font-size: 1.4rem; color: var(--accent-ink); padding: 4px 0; }
 .lab-how ol { margin: 6px 0 8px; padding-left: 1.3em; font-size: 1.1rem; line-height: 1.5; }
 .lab-blocks { list-style: none; margin: 0; padding: 0; display: grid; gap: 22px; counter-reset: lab; }
-.lab-block { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.4fr); gap: 20px; align-items: start; }
-@media (max-width: 900px) { .lab-block { grid-template-columns: minmax(0, 1fr); gap: 8px; } }
+.lab-block { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
 .lab-expl { position: relative; padding-left: 46px; }
 .lab-num { position: absolute; left: 0; top: 2px; width: 36px; height: 36px; display: grid; place-items: center; font-family: var(--display); font-size: 1.35rem; background: var(--hl); color: #2a2620; border: 2.5px solid var(--pen); border-radius: 50%; }
 .lab-expl h3 { margin: 0 0 4px; font-size: 1.65rem; }
@@ -486,3 +485,34 @@ a.chip, a.chip:hover { text-decoration: none; }
 .lab-link strong { font-family: var(--display); font-weight: 400; font-size: 1.6rem; display: block; }
 .lab-link p { margin: 2px 0 0; color: var(--ink-2); font-size: 1.1rem; }
 @media (max-width: 700px) { .lab-tabs { top: 0; } body.route-play .lab-tabs { top: 0; } .lab-tab { padding: 3px 14px; font-size: 1.15rem; } }
+
+/* question-first lab */
+.lab-question { margin: 6px 0 16px; padding: 12px 18px 14px; max-width: 52em; background: var(--hl-soft); border: 2.5px solid var(--pen); border-radius: 14px 8px 16px 8px / 8px 16px 8px 14px; box-shadow: var(--shadow-sm); }
+.lab-q-lbl { font-family: var(--display); font-size: 1.35rem; color: var(--accent-ink); }
+.lab-question p { margin: 2px 0 0; font-size: 1.22rem; line-height: 1.5; }
+.walk-code { position: relative; background: #231f1a; color: #f4ecd8; border: 3px solid var(--pen); border-radius: 12px 8px 14px 8px / 8px 14px 8px 12px; box-shadow: var(--shadow-sm); padding: 8px 14px 12px; }
+.walk-code .copy-btn { top: 6px; right: 8px; }
+.wc-head { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 18px; padding: 2px 90px 6px 0; font-family: var(--display); font-size: 1.05rem; color: #c9bd9f; border-bottom: 1px dashed #5a5242; margin-bottom: 4px; }
+.wc-row { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 18px; align-items: start; padding: 3px 0; border-bottom: 1px dotted #3a352b; }
+.wc-gap { height: 8px; }
+.wc-code { font-family: var(--mono); font-size: 0.84rem; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; background: none; border: 0; padding: 0; color: inherit; tab-size: 4; }
+.wc-ex { margin: 0; font-size: 1.02rem; line-height: 1.4; color: #f7e9b8; }
+@media (max-width: 760px) {
+  .wc-head { display: none; }
+  .wc-row { grid-template-columns: minmax(0, 1fr); gap: 1px; padding: 5px 0 7px; }
+  .wc-ex { padding-left: 12px; border-left: 3px solid var(--hl); }
+}
+.lab-mean { margin-top: 2px; padding: 9px 14px 11px; border: 2.5px solid var(--pen); border-radius: 6px 14px 6px 14px; background: var(--card); font-size: 1.12rem; line-height: 1.5; box-shadow: var(--shadow-sm); }
+.lab-mean b { font-family: var(--display); font-weight: 400; font-size: 1.25rem; color: var(--accent-ink); margin-right: 4px; }
+.lab-concl { margin: 28px 0 0; padding: 14px 20px 16px; background: var(--good-soft); }
+.lab-concl p { margin: 0; font-size: 1.25rem; line-height: 1.5; }
+.lab-h { font-size: 1.9rem; margin: 0 0 6px; }
+.lab-practice { margin: 30px 0 0; padding: 16px 20px 20px; border: 3px dashed var(--pen); border-radius: 16px 10px 18px 10px / 10px 18px 10px 16px; background: var(--hl-soft); }
+.lab-practice > p { font-size: 1.15rem; line-height: 1.5; }
+.lab-data { position: relative; margin: 10px 0; padding: 8px 14px 12px; background: var(--card); border: 2.5px solid var(--pen); border-radius: 6px 12px 6px 12px; }
+.lab-data pre { margin: 2px 0 0; font-family: var(--mono); font-size: 0.84rem; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+.lab-tasks { margin: 8px 0 10px; padding-left: 1.4em; font-size: 1.15rem; line-height: 1.5; }
+.lab-hint { margin: 0 0 12px; font-size: 1.1rem; }
+.lab-hint summary { cursor: pointer; font-family: var(--display); font-size: 1.3rem; color: var(--accent-ink); }
+#sol { margin-top: 14px; display: grid; gap: 10px; }
+#sol[hidden] { display: none; }

@@ -88,5 +88,145 @@
    "Change p to 0.5 and predict where the most likely count moves, then print binom.pmf for k = 0 to 10.",
    "A coin is flipped 100 times and gives 62 heads. Compute binom.sf(61, 100, 0.5) and compare with the lesson's 0.0105."
   ]
+ },
+ "3.3": {
+  "goal": "Use the emergency room's average of 4 arrivals per hour to find the chance of exactly 2 arrivals and of a rush of 8 or more.",
+  "python": {
+   "blocks": [
+    {
+     "title": "Set the average rate",
+     "text": "The Poisson distribution only needs one number: the average count per interval, called lambda. The ER averages 4 arrivals an hour, so we build a Poisson distribution with that rate.",
+     "code": "from scipy import stats\n\nlam = 4\ner = stats.poisson(mu=lam)\n\nprint('mean     =', er.mean())\nprint('variance =', er.var())"
+    },
+    {
+     "title": "Exactly 2 arrivals",
+     "text": "pmf gives the probability of one exact count. Notice the mean and the variance are both 4: that equality is the Poisson's fingerprint.",
+     "code": "p2 = er.pmf(2)\n\nprint(f'P(X = 2) = {p2:.4f}')"
+    },
+    {
+     "title": "A rush of 8 or more",
+     "text": "'8 or more' is everything except 0 to 7. The survival function sf(7) is P(X > 7), which is exactly that, so it is shorter and more accurate than adding eight terms.",
+     "code": "rush = er.sf(7)\n\nprint(f'P(X >= 8) = {rush:.4f}')\nprint(f'about 1 hour in {1 / rush:.0f}')"
+    },
+    {
+     "title": "See the whole distribution",
+     "text": "A table of probabilities shows where the mass sits. Most hours bring 2 to 6 patients, and the long right tail is the rare rush.",
+     "code": "import pandas as pd\n\nk = list(range(0, 11))\ntable = pd.DataFrame({'k': k, 'P(X = k)': er.pmf(k).round(4)})\n\nprint(table.to_string(index=False))"
+    }
+   ]
+  },
+  "r": {
+   "code": "dpois(2, lambda = 4)\n1 - ppois(7, lambda = 4)\nppois(7, lambda = 4, lower.tail = FALSE)",
+   "expect": "dpois = 0.1465; 1 - ppois(7, 4) = 0.0511 (the last line gives the same 0.0511)",
+   "note": "dpois is P(X = k), ppois is P(X <= k), and lower.tail = FALSE gives the 'more than' side directly."
+  },
+  "spss": {
+   "menu": "Transform > Compute Variable (use the PDF.POISSON and CDF.POISSON functions)",
+   "syntax": "DATA LIST FREE / dummy.\nBEGIN DATA\n1\nEND DATA.\nCOMPUTE p_exactly_2 = PDF.POISSON(2, 4).\nCOMPUTE p_8_or_more = 1 - CDF.POISSON(7, 4).\nFORMATS p_exactly_2 p_8_or_more (F8.4).\nLIST p_exactly_2 p_8_or_more.",
+   "note": "SPSS has no Poisson menu, so the Compute Variable dialog with PDF.POISSON(k, lambda) and CDF.POISSON(k, lambda) does the work."
+  },
+  "stata": {
+   "code": "display poissonp(4, 2)\ndisplay poissontail(4, 8)\ndisplay 1 - poisson(4, 7)",
+   "note": "poissonp(m,k) is P(X = k) and poissontail(m,k) is P(X >= k), so 8 or more is poissontail(4, 8); poisson(m,k) is P(X <= k)."
+  },
+  "try": [
+   "Change the rate to 6 arrivals an hour and predict whether P(8 or more) goes up or down, then run it.",
+   "Check the Poisson fingerprint on simulated data: draw 10,000 counts with stats.poisson(4).rvs(10000, random_state=1) and compare their mean and variance."
+  ]
+ },
+ "3.4": {
+  "goal": "Use the heights of adult men (mean 69.1 in, SD 2.9 in) to find the share shorter than 66 inches and the height of the 90th percentile.",
+  "python": {
+   "blocks": [
+    {
+     "title": "Describe the bell curve",
+     "text": "A normal distribution is fixed by two numbers: its centre (the mean) and its width (the standard deviation). SciPy bundles both into one object we can ask questions of.",
+     "code": "from scipy import stats\n\nmean, sd = 69.1, 2.9\nheights = stats.norm(loc=mean, scale=sd)\n\nprint('median =', heights.median())"
+    },
+    {
+     "title": "Share shorter than 66 inches",
+     "text": "cdf gives the area under the curve to the left of a value, which is the probability of being at or below it. The z-score says how many standard deviations 66 is below the mean.",
+     "code": "z = (66 - mean) / sd\nshare = heights.cdf(66)\n\nprint(f'z = {z:.2f}')\nprint(f'P(height < 66) = {share:.4f}')"
+    },
+    {
+     "title": "The 90th percentile",
+     "text": "ppf runs the other way: give it an area and it returns the value. Only 10% of men are taller than the height it prints.",
+     "code": "p90 = heights.ppf(0.90)\n\nprint(f'90th percentile = {p90:.1f} inches')"
+    },
+    {
+     "title": "Check the 68-95-99.7 rule",
+     "text": "The empirical rule says about 68%, 95% and 99.7% of values lie within 1, 2 and 3 standard deviations of the mean. We check it with the standard normal curve.",
+     "code": "for k in (1, 2, 3):\n    inside = stats.norm.cdf(k) - stats.norm.cdf(-k)\n    print(f'within {k} SD: {inside:.4f}')"
+    },
+    {
+     "title": "Draw it",
+     "text": "The shaded area is the probability we computed for men shorter than 66 inches. A picture makes it clear that probabilities are areas.",
+     "code": "import numpy as np\nimport matplotlib.pyplot as plt\n\nx = np.linspace(mean - 4 * sd, mean + 4 * sd, 300)\nplt.figure(figsize=(6, 3.4))\nplt.plot(x, heights.pdf(x))\nplt.fill_between(x, heights.pdf(x), where=x < 66, alpha=0.4)\nplt.xlabel('height (inches)')\nplt.show()"
+    }
+   ]
+  },
+  "r": {
+   "code": "pnorm(66, mean = 69.1, sd = 2.9)\nqnorm(0.90, mean = 69.1, sd = 2.9)\npnorm(1) - pnorm(-1)\npnorm(2) - pnorm(-2)",
+   "expect": "0.1425; 72.82; 0.6827; 0.9545",
+   "note": "pnorm gives the area to the left of a value, and qnorm is its inverse."
+  },
+  "spss": {
+   "menu": "Transform > Compute Variable (use the CDF.NORMAL and IDF.NORMAL functions)",
+   "syntax": "DATA LIST FREE / dummy.\nBEGIN DATA\n1\nEND DATA.\nCOMPUTE p_below_66 = CDF.NORMAL(66, 69.1, 2.9).\nCOMPUTE height_p90 = IDF.NORMAL(0.90, 69.1, 2.9).\nCOMPUTE within_1sd = CDF.NORMAL(1, 0, 1) - CDF.NORMAL(-1, 0, 1).\nFORMATS p_below_66 height_p90 within_1sd (F8.4).\nLIST p_below_66 height_p90 within_1sd.",
+   "note": "CDF.NORMAL(value, mean, sd) is the area to the left; IDF.NORMAL(area, mean, sd) is the inverse."
+  },
+  "stata": {
+   "code": "display normal((66 - 69.1) / 2.9)\ndisplay 69.1 + 2.9 * invnormal(0.90)\ndisplay normal(1) - normal(-1)",
+   "note": "normal(z) is the area to the left of a z-score and invnormal(p) is its inverse, so convert to and from z by hand."
+  },
+  "try": [
+   "Change the cut-off to 72 inches and predict whether the share below it is above or below 50%, then run it.",
+   "Find the heights that mark the middle 95% of men with heights.ppf(0.025) and heights.ppf(0.975). How do they compare with mean plus or minus 2 SD?"
+  ]
+ },
+ "3.5": {
+  "goal": "Use the airline that books 200 people (10% no-shows) to see how well a normal curve approximates the exact binomial answer for fewer than 15 no-shows.",
+  "python": {
+   "blocks": [
+    {
+     "title": "Check the condition",
+     "text": "The normal curve is a good stand-in for the binomial only when both np and n(1 - p) are at least 10. Here n = 200 and p = 0.1, so we check both numbers first.",
+     "code": "n, p = 200, 0.1\n\nprint('np      =', n * p)\nprint('n(1-p)  =', n * (1 - p))\nprint('safe to approximate?', n * p >= 10 and n * (1 - p) >= 10)"
+    },
+    {
+     "title": "The exact binomial answer",
+     "text": "Fewer than 15 no-shows means 14 or fewer. The binomial cdf adds up all fifteen terms for us, so this is the true value we want the normal curve to match.",
+     "code": "from scipy import stats\n\nexact = stats.binom.cdf(14, n, p)\n\nprint(f'exact P(X <= 14) = {exact:.4f}')"
+    },
+    {
+     "title": "The normal approximation",
+     "text": "Match the normal curve to the binomial's mean np and SD sqrt(np(1 - p)). The continuity correction uses 14.5 because the bar for 14 stretches from 13.5 to 14.5.",
+     "code": "from math import sqrt\n\nmu = n * p\nsigma = sqrt(n * p * (1 - p))\n\nwith_cc = stats.norm.cdf(14.5, mu, sigma)\nwithout = stats.norm.cdf(14, mu, sigma)\n\nprint(f'mu = {mu:.1f}, sigma = {sigma:.3f}')\nprint(f'normal with correction    = {with_cc:.4f}')\nprint(f'normal without correction = {without:.4f}')"
+    },
+    {
+     "title": "How close is it?",
+     "text": "The error with the half-unit correction is far smaller than without it. That is why the correction matters, even for a big n.",
+     "code": "print(f'error with correction    = {abs(with_cc - exact):.4f}')\nprint(f'error without correction = {abs(without - exact):.4f}')"
+    }
+   ]
+  },
+  "r": {
+   "code": "n <- 200; p <- 0.1\npbinom(14, n, p)\npnorm(14.5, mean = n * p, sd = sqrt(n * p * (1 - p)))\npnorm(14,   mean = n * p, sd = sqrt(n * p * (1 - p)))",
+   "expect": "pbinom: 0.0929 (exact); pnorm with 14.5: 0.0974; pnorm with 14: 0.0786",
+   "note": "pbinom is the exact answer. The two pnorm lines are the approximation with and without the continuity correction."
+  },
+  "spss": {
+   "menu": "Transform > Compute Variable (use CDF.BINOM and CDF.NORMAL)",
+   "syntax": "DATA LIST FREE / dummy.\nBEGIN DATA\n1\nEND DATA.\nCOMPUTE exact = CDF.BINOM(14, 200, 0.1).\nCOMPUTE mu = 200 * 0.1.\nCOMPUTE sigma = SQRT(200 * 0.1 * 0.9).\nCOMPUTE with_cc = CDF.NORMAL(14.5, mu, sigma).\nCOMPUTE without_cc = CDF.NORMAL(14, mu, sigma).\nFORMATS exact with_cc without_cc (F8.4).\nLIST exact with_cc without_cc.",
+   "note": "CDF.BINOM(k, n, p) is the exact answer; CDF.NORMAL(value, mean, sd) is the approximation."
+  },
+  "stata": {
+   "code": "display binomial(200, 14, 0.1)\ndisplay normal((14.5 - 20) / sqrt(200 * 0.1 * 0.9))\ndisplay normal((14 - 20) / sqrt(200 * 0.1 * 0.9))",
+   "note": "binomial(n,k,p) is the exact P(X <= k). The two normal() lines standardise the cut-off by hand, with and without the half-unit correction."
+  },
+  "try": [
+   "Change p to 0.02 and n to 200. np is now 4: predict whether the normal approximation gets better or worse, then run it.",
+   "Try n = 20 with p = 0.5 and compare the exact and approximate answers for P(X <= 8)."
+  ]
  }
 }

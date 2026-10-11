@@ -124,12 +124,19 @@ def read_labs():
         outs_file = f.with_name(f.stem + ".outputs.json")
         outs = json.loads(outs_file.read_text(encoding="utf-8")) if outs_file.exists() else {}
         for lid, lab in json.loads(f.read_text(encoding="utf-8")).items():
-            o = outs.get(lid, [])
+            o = outs.get(lid, {})
+            if isinstance(o, list):  # older outputs file: one entry per block
+                o = {"blocks": o}
+            empty = {"out": "", "figs": []}
             blocks = []
             for i, b in enumerate(lab["python"]["blocks"]):
-                r = o[i] if i < len(o) else {"out": "", "figs": []}
+                r = o.get("blocks", [])[i] if i < len(o.get("blocks", [])) else empty
                 blocks.append({**b, "out": r["out"], "figs": r["figs"]})
-            labs[lid] = {**lab, "python": {"blocks": blocks}}
+            sol = lab.get("practice", {}).get("solution")
+            extra = {}
+            if sol:
+                extra["practice"] = {**lab["practice"], "solution": {**sol, **(o.get("solution") or empty)}}
+            labs[lid] = {**lab, "python": {"blocks": blocks}, **extra}
     return labs
 
 
@@ -155,18 +162,42 @@ def notebook(lid, title, lab):
                 outputs.append({"output_type": "display_data", "metadata": {}, "data": {"image/png": base64.b64encode(png.read_bytes()).decode(), "text/plain": ["<Figure>"]}})
         return {"cell_type": "code", "id": cid(), "metadata": {}, "execution_count": count, "outputs": outputs, "source": src.splitlines(True)}
 
+    def annotated(src, expl):
+        """Code with each line's explanation as a trailing comment, so the notebook teaches too."""
+        lines, k, out = src.splitlines(), 0, []
+        for ln in lines:
+            if ln.strip() and k < len(expl):
+                out.append(f"{ln}  # {expl[k]}")
+                k += 1
+            else:
+                out.append(ln)
+        return "\n".join(out)
+
     cells = [
         md(f"# Lesson {lid}: {title}\n\n{lab['goal']}\n\nPart of *Statistics from Scratch*. Run each cell with **Shift + Enter**, top to bottom."),
+        md(f"## The question\n\n{lab['question']}"),
         md("If a package is missing on your computer, run the next cell once. In Google Colab everything is already installed."),
         code("%pip install -q numpy scipy pandas statsmodels matplotlib"),
     ]
     for i, b in enumerate(lab["python"]["blocks"], 1):
-        cells.append(md(f"## {i}. {b['title']}\n\n{b['text']}"))
-        cells.append(code(b["code"], b.get("out", ""), b.get("figs", []), count=i))
-    tries = "\n".join(f"- {t}" for t in lab.get("try", []))
-    cells.append(md(f"## Try this\n\n{tries}"))
-    other = ["## The same idea in R, SPSS and Stata", ""]
-    other += ["**R**", "", "```r", lab["r"]["code"], "```", "", "**SPSS** (" + lab["spss"]["menu"] + ")", "", "```", lab["spss"]["syntax"], "```", "", "**Stata**", "", "```", lab["stata"]["code"], "```"]
+        cells.append(md(f"## Step {i}: {b['title']}\n\n{b['text']}"))
+        cells.append(code(annotated(b["code"], b.get("explain", [])), b.get("out", ""), b.get("figs", []), count=i))
+        if b.get("meaning"):
+            cells.append(md(f"**What this means.** {b['meaning']}"))
+    cells.append(md(f"## So, what is the answer?\n\n{lab['conclusion']}"))
+    pr = lab.get("practice")
+    if pr:
+        tasks = "\n".join(f"{n}. {t}" for n, t in enumerate(pr["tasks"], 1))
+        cells.append(md(f"## Now you try\n\n{pr['scenario']}\n\n**Data:** {pr['data']}\n\n{tasks}\n\n*Hint:* {pr['hint']}"))
+        cells.append(code("# Your turn: write your code here\n"))
+        sol = pr["solution"]
+        cells.append(md("### Solution (try first, then peek)"))
+        cells.append(code(sol["code"], sol.get("out", ""), sol.get("figs", [])))
+        cells.append(md(f"**Answer.** {sol['answer']}"))
+    other = ["## The same question in R, SPSS and Stata", ""]
+    other += ["**R**", "", "```r", annotated(lab["r"]["code"], lab["r"].get("explain", [])).replace("  # ", "  # "), "```", "", f"How to read it: {lab['r'].get('read', '')}", "",
+              "**SPSS** (" + lab["spss"]["menu"] + ")", "", "```", lab["spss"]["syntax"], "```", "", f"How to read it: {lab['spss'].get('read', '')}", "",
+              "**Stata**", "", "```", lab["stata"]["code"], "```", "", f"How to read it: {lab['stata'].get('read', '')}"]
     cells.append(md("\n".join(other)))
     return {"cells": cells, "metadata": {"kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}, "language_info": {"name": "python"}}, "nbformat": 4, "nbformat_minor": 5}
 

@@ -34,5 +34,65 @@
    "out": "simulated P(X = 7)  = 0.2679  (exact 0.2668)\nsimulated P(X >= 9) = 0.1485  (exact 0.1493)\nsimulated mean 6.997, SD 1.450",
    "figs": []
   }
+ ],
+ "3.3": [
+  {
+   "out": "mean     = 4.0\nvariance = 4.0",
+   "figs": []
+  },
+  {
+   "out": "P(X = 2) = 0.1465",
+   "figs": []
+  },
+  {
+   "out": "P(X >= 8) = 0.0511\nabout 1 hour in 20",
+   "figs": []
+  },
+  {
+   "out": " k  P(X = k)\n 0    0.0183\n 1    0.0733\n 2    0.1465\n 3    0.1954\n 4    0.1954\n 5    0.1563\n 6    0.1042\n 7    0.0595\n 8    0.0298\n 9    0.0132\n10    0.0053",
+   "figs": []
+  }
+ ],
+ "3.4": [
+  {
+   "out": "median = 69.1",
+   "figs": []
+  },
+  {
+   "out": "z = -1.07\nP(height < 66) = 0.1425",
+   "figs": []
+  },
+  {
+   "out": "90th percentile = 72.8 inches",
+   "figs": []
+  },
+  {
+   "out": "within 1 SD: 0.6827\nwithin 2 SD: 0.9545\nwithin 3 SD: 0.9973",
+   "figs": []
+  },
+  {
+   "out": "",
+   "figs": [
+    "3.4-5.png"
+   ]
+  }
+ ],
+ "3.5": [
+  {
+   "out": "np      = 20.0\nn(1-p)  = 180.0\nsafe to approximate? True",
+   "figs": []
+  },
+  {
+   "out": "exact P(X <= 14) = 0.0929",
+   "figs": []
+  },
+  {
+   "out": "mu = 20.0, sigma = 4.243\nnormal with correction    = 0.0974\nnormal without correction = 0.0786",
+   "figs": []
+  },
+  {
+   "out": "error with correction    = 0.0045\nerror without correction = 0.0143",
+   "figs": []
+  }
  ]
 }
